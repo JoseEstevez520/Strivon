@@ -1,4 +1,3 @@
-import { answer } from './offline'
 import { systemPromptFor } from './library'
 
 export interface Turn {
@@ -11,15 +10,15 @@ const bare = (text: string) => text.replace(/^```[a-z-]*\n?/i, '').replace(/```\
 
 /**
  * Asks the model through `/api/chat`, which relays to an OpenAI-compatible endpoint, and calls
- * `onText` with the answer so far as it streams in. If there is no model (no key, no network) it
- * falls back to the offline answer, so the chat always answers.
+ * `onText` with the answer so far as it streams in. If the model cannot be reached, the answer is
+ * a plain sentence saying so (`failed`).
  */
 export async function ask(
   history: Turn[],
   products: { key: string; label: string }[],
+  failed: string,
   onText: (text: string) => void,
 ): Promise<void> {
-  const question = history[history.length - 1].text
   try {
     const res = await fetch('/api/chat', {
       method: 'POST',
@@ -51,6 +50,16 @@ export async function ask(
     }
     if (!text.trim()) throw new Error('empty')
   } catch {
-    onText(answer(question, products))
+    onText(`root = Answer([Text(${JSON.stringify(failed)})])`)
+  }
+}
+
+/** Whether the server has a model to ask. Without one the chat is not offered. */
+export async function chatAvailable(): Promise<boolean> {
+  try {
+    const res = await fetch('/api/chat/status')
+    return res.ok && Boolean((await res.json()).enabled)
+  } catch {
+    return false
   }
 }

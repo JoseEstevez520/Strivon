@@ -1,5 +1,6 @@
 import { Maximize2, MessageCircle, Minimize2, X } from 'lucide-react'
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
+import { chatAvailable } from './ask'
 import { Chat } from './Chat'
 import { useI18n } from '@/lib/i18n'
 
@@ -15,8 +16,13 @@ export function ChatBubble() {
   const { t } = useI18n()
   const [open, setOpen] = useState(false)
   const [wide, setWide] = useState(false)
+  const [available, setAvailable] = useState(false)
   const root = useRef<HTMLDivElement>(null)
   const trigger = useRef<HTMLButtonElement>(null)
+
+  useEffect(() => {
+    void chatAvailable().then(setAvailable)
+  }, [])
 
   useEffect(() => {
     if (!open) return
@@ -42,6 +48,8 @@ export function ChatBubble() {
     '--w': wide ? 'min(60rem, calc(100vw - 2rem))' : 'min(24rem, calc(100vw - 2rem))',
     '--h': wide ? 'calc(100dvh - 8rem)' : 'min(34rem, calc(100dvh - 8rem))',
   } as CSSProperties
+
+  if (!available) return null
 
   return (
     <div ref={root} style={size} className="fixed right-4 bottom-20 z-40 md:right-6 md:bottom-6">

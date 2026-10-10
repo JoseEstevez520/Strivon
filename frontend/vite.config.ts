@@ -56,11 +56,12 @@ function chatRelay(): Plugin {
     configureServer(server) {
       const env = loadEnv('development', import.meta.dirname, '')
       server.middlewares.use('/api/chat', async (req, res, next) => {
-        if (req.method !== 'POST') return next()
-        if (!env.LLM_API_KEY) {
-          res.statusCode = 503
-          return res.end('no key')
+        // The chat only shows when there is a key, and this is how the screen finds out.
+        if (req.method === 'GET' && req.url === '/status') {
+          res.setHeader('content-type', 'application/json')
+          return res.end(JSON.stringify({ enabled: Boolean(env.LLM_API_KEY) }))
         }
+        if (req.method !== 'POST' || !env.LLM_API_KEY) return next()
         let body = ''
         for await (const chunk of req) body += chunk
         try {

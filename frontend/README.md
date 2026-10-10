@@ -58,7 +58,7 @@ LLM_MODEL=deepseek-flash
 LLM_API_KEY=...
 ```
 
-Without a key, or without network, the chat falls back to a few answers written by rule.
+Without a key the chat does not appear. If the model cannot be reached, the answer says so.
 
 ## Build
 

@@ -460,8 +460,10 @@ a collapsing block by hand once, and Base UI and shadcn already had it.
 - 2026-10-10. The chat draws its answers with OpenUI (`@openuidev/react-lang`, MIT), using the
   app's own components as its library (`components/chat/library.tsx`). The parts take references,
   never figures: `Stat("empty")`, `Ranked("gondolas", 5)`. Each part computes its numbers from the
-  store, so a model can choose and arrange but cannot invent a value. Until a model is connected,
-  `offline.ts` writes the OpenUI Lang from the question's words.
+  store, so a model can choose and arrange but cannot invent a value. The chat only exists when the
+  server has a key (`/api/chat/status`): without one the bubble is not drawn, rather than showing a
+  chat that cannot answer. While the answer has not started, three dots fade in turn; once it
+  streams, the parts appear as they arrive.
 - 2026-10-10. The chat can grow: a button in its corner switches it between a small box and a wide one for charts (no size animation, the swap is instant). The chat is a round button in the corner of Insights only, not of every page. It
   opens a box that fades and scales in from the corner (elastic-ui's chat, without the aurora,
   blur and size morph), and closing keeps the conversation. It lives where the answers are, and

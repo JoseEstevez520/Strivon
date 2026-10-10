@@ -14,9 +14,21 @@ interface Message {
   text: string
 }
 
+/** Three dots that fade in turn while the answer has not started. Only opacity moves. */
+function Thinking() {
+  const { t } = useI18n()
+  return (
+    <span role="status" aria-label={t.thinking} className="flex h-6 items-center gap-1 px-1">
+      {[0, 1, 2].map((i) => (
+        <span key={i} className="size-1.5 animate-pulse rounded-full bg-fg-muted" style={{ animationDelay: `${i * 200}ms` }} />
+      ))}
+    </span>
+  )
+}
+
 /**
  * A quiet place to ask about the store. Answers are OpenUI Lang drawn with the app's own components
- * (`library.tsx`). Until a model is connected, `offline.ts` writes that text from the question.
+ * (`library.tsx`). It asks a model through `ask.ts`.
  */
 export function Chat() {
   const { t, family } = useI18n()
@@ -25,6 +37,7 @@ export function Chat() {
   const [draft, setDraft] = useState('')
   const input = useRef<HTMLTextAreaElement>(null)
   const end = useRef<HTMLDivElement>(null)
+  const [streaming, setStreaming] = useState(0)
   const next = useRef(1)
 
   useEffect(() => {
@@ -43,7 +56,10 @@ export function Chat() {
     setMessages((m) => [...m, { id, role: 'user', text: question }, { id: id + 1, role: 'assistant', text: '' }])
     setDraft('')
     if (input.current) input.current.style.height = 'auto'
-    void ask(history, products, (text) => setMessages((m) => m.map((x) => (x.id === id + 1 ? { ...x, text } : x))))
+    setStreaming(id + 1)
+    void ask(history, products, t.chatFailed, (text) => setMessages((m) => m.map((x) => (x.id === id + 1 ? { ...x, text } : x)))).then(() =>
+      setStreaming(0),
+    )
   }
 
   return (
@@ -53,7 +69,13 @@ export function Chat() {
           <ol className="mx-auto flex max-w-3xl flex-col gap-3">
             {messages.map((m) => (
               <li key={m.id} className={m.role === 'user' ? 'ml-auto max-w-[85%] rounded-xl bg-surface px-3 py-2 text-ui' : 'flex flex-col gap-3 px-1'}>
-                {m.role === 'user' ? m.text : <Renderer response={m.text} library={library} isStreaming={!m.text} />}
+                {m.role === 'user' ? (
+                  m.text
+                ) : m.text ? (
+                  <Renderer response={m.text} library={library} isStreaming={m.id === streaming} />
+                ) : (
+                  <Thinking />
+                )}
               </li>
             ))}
             <div ref={end} />
