@@ -6,7 +6,7 @@ import { PhotoStage } from './PhotoStage'
 import { TaskGroup } from './TaskGroup'
 import { useI18n } from '@/lib/i18n'
 import { useStore } from '@/lib/store'
-import { cameras, snapshot, type Group, type Task } from '@/lib/tasks'
+import { cameras, cardsOf, snapshot, type Group, type Task } from '@/lib/tasks'
 import { clock } from '@/lib/time'
 import { useSelection } from '@/lib/useSelection'
 
@@ -22,10 +22,12 @@ interface Props {
   /** List every area that is fine, as a gondola's own page does. */
   listFine?: boolean
   initialSelected?: string | null
+  /** A shorter version to show the app off: a few tasks, four gondolas, nothing that folds, scrolls or leads away. */
+  compact?: boolean
 }
 
 /** The tasks on one side. On the other, every camera, or the photo of what is open. */
-export function TaskBoard({ tasks, camera, listFine = false, initialSelected = null }: Props) {
+export function TaskBoard({ tasks, camera, listFine = false, initialSelected = null, compact = false }: Props) {
   const { t } = useI18n()
   const { state, at, tasks: all, gondola, where, historyOf, jumpTo, photoUrl } = useStore()
   const [selected, select] = useSelection(initialSelected)
@@ -33,18 +35,23 @@ export function TaskBoard({ tasks, camera, listFine = false, initialSelected = n
   const selectedTask = all.find((x) => x.area.area_id === selected)
   const photoCamera = camera ?? selectedTask?.area.camera
   const photo = photoCamera ? snapshot(state, photoCamera, at) : null
+  // Compact keeps only the first few cards of each group.
+  const shown = (g: Group) => {
+    const own = tasks.filter((x) => x.group === g)
+    return compact ? cardsOf(own).slice(0, g === 'restock' ? 3 : 2).flatMap((c) => c.tasks) : own
+  }
 
   return (
     <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-8 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
       <div>
-        {GROUPS.map((g) => (
+        {(compact ? GROUPS.slice(0, 2) : GROUPS).map((g) => (
           <TaskGroup
             key={g}
             group={g}
-            tasks={tasks.filter((x) => x.group === g)}
+            tasks={shown(g)}
             selected={selected}
             listFine={listFine}
-            fold={!camera}
+            fold={!camera && !compact}
             gondola={gondola}
             where={camera ? nowhere : where}
             historyOf={historyOf}
@@ -57,7 +64,7 @@ export function TaskBoard({ tasks, camera, listFine = false, initialSelected = n
       {/* The panel stays in view beside the list and never decides how tall the page is. The grid of
           cameras is taller than a screen, so it scrolls inside the panel. If it set the page
           height, opening a task would swap it for one photo and the page would shrink under you. */}
-      <div className="lg:sticky lg:top-4 lg:max-h-[calc(100dvh-5rem)] lg:overflow-y-auto lg:overscroll-contain scrollbar-subtle">
+      <div className={compact ? undefined : 'lg:sticky lg:top-4 lg:max-h-[calc(100dvh-5rem)] lg:overflow-y-auto lg:overscroll-contain scrollbar-subtle'}>
         {photoCamera && photo ? (
           <>
             <div className="flex h-9 items-center justify-between gap-3 px-1 text-meta tabular-nums text-fg-muted">
@@ -72,6 +79,10 @@ export function TaskBoard({ tasks, camera, listFine = false, initialSelected = n
                 </button>
               )}
               {camera ? (
+                <span className="ml-auto">
+                  {gondola(photoCamera)} · {clock(photo.ts)}
+                </span>
+              ) : compact ? (
                 <span className="ml-auto">
                   {gondola(photoCamera)} · {clock(photo.ts)}
                 </span>
@@ -100,9 +111,9 @@ export function TaskBoard({ tasks, camera, listFine = false, initialSelected = n
               {t.navGondolas}
             </h2>
           <ul className="grid grid-cols-2 gap-3">
-            {cameras(state).map((c) => (
+            {(compact ? cameras(state).slice(0, 4) : cameras(state)).map((c) => (
               <li key={c}>
-                <CameraTile camera={c} />
+                <CameraTile camera={c} inert={compact} />
               </li>
             ))}
           </ul>

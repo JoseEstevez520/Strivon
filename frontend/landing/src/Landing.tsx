@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   ArrowRight,
   Apple,
@@ -12,12 +12,8 @@ import {
   ScanSearch,
   type LucideIcon,
 } from 'lucide-react'
-import { AreaCrop } from '@/components/AreaCrop'
-import { GROUP_COLOR, GROUP_ICON } from '@/components/groupStyle'
-import { useI18n } from '@/lib/i18n'
+import { TaskBoard } from '@/components/TaskBoard'
 import { useStore } from '@/lib/store'
-import { cardsOf, snapshot } from '@/lib/tasks'
-import { clock } from '@/lib/time'
 
 const STEPS: [LucideIcon, string, string][] = [
   [Camera, 'A camera looks', 'Each gondola has a ceiling camera that takes a photo about once an hour.'],
@@ -68,9 +64,12 @@ const slotFill = (v: number) => (v < 0.25 ? tone(84) : v < 0.5 ? tone(52) : v < 
  * A scatter of slots like the day map's, made of real elements in a grid that is sized to hold
  * whole slots, so none is cut at the edge. They fade out toward the centre so the name reads.
  */
+/** How far the slots run on below the first screen, fading out, in px. */
+const SPILL = 208
+
 function Slots() {
   const ref = useRef<HTMLDivElement>(null)
-  const [size, setSize] = useState({ cols: 0, rows: 0 })
+  const [size, setSize] = useState({ cols: 0, rows: 0, height: 0 })
 
   useEffect(() => {
     const el = ref.current
@@ -79,6 +78,7 @@ function Slots() {
       setSize({
         cols: Math.max(1, Math.floor((el.clientWidth + CELL.gap) / (CELL.w + CELL.gap))),
         rows: Math.max(1, Math.floor((el.clientHeight + CELL.gap) / (CELL.h + CELL.gap))),
+        height: el.clientHeight,
       })
     measure()
     const observer = new ResizeObserver(measure)
@@ -89,11 +89,17 @@ function Slots() {
   const cells = []
   for (let r = 0; r < size.rows; r++) {
     for (let c = 0; c < size.cols; c++) {
+      // The first screen is the top part of the grid; the rest runs on below it.
+      const total = size.height
+      const screen = Math.max(1, total - SPILL)
+      const y = ((r + 0.5) / size.rows) * total
       const dx = (c + 0.5) / size.cols - 0.5
-      const dy = (r + 0.5) / size.rows - 0.5
+      const dy = y / screen - 0.5
       // Nothing close to the text, then more and more of the slots as they get further from it, so
-      // the scatter fades in instead of stopping at an edge.
-      const fade = Math.max(0, Math.min(1, (Math.hypot(dx * 1.1, dy * 2) - 0.45) / 0.3))
+      // the scatter fades in instead of stopping at an edge. Below the first screen it fades out.
+      const near = Math.max(0, Math.min(1, (Math.hypot(dx * 1.1, dy * 2) - 0.45) / 0.3))
+      const below = y <= screen ? 1 : Math.max(0, 1 - (y - screen) / SPILL)
+      const fade = near * below
       const shown = hash(c, r) > 0.4 && fade > 0
       cells.push(
         <span
@@ -109,7 +115,7 @@ function Slots() {
     <div
       ref={ref}
       aria-hidden
-      className="absolute inset-0 grid gap-2"
+      className="pointer-events-none absolute inset-x-0 top-0 -bottom-52 grid gap-2"
       style={{ gridTemplateColumns: `repeat(${size.cols || 1}, minmax(0, 1fr))`, gridTemplateRows: `repeat(${size.rows || 1}, minmax(0, 1fr))` }}
     >
       {cells}
@@ -124,7 +130,7 @@ function Slots() {
  */
 function Hero() {
   return (
-    <div className="relative grid min-h-dvh place-items-center overflow-hidden px-5">
+    <div className="relative mb-52 grid min-h-dvh place-items-center px-5">
       <Slots />
 
       <div className="relative flex max-w-3xl flex-col items-center gap-6 text-center">
@@ -138,58 +144,13 @@ function Hero() {
   )
 }
 
-/** A gondola as in the app's grid, but only to look at: it leads nowhere. */
-function Tile({ camera, on }: { camera: string; on: boolean }) {
-  const { t } = useI18n()
-  const { state, at, tasks, gondola, photoUrl } = useStore()
-  const own = tasks.filter((x) => x.area.camera === camera)
-  const counts = (['restock', 'moveBack', 'later'] as const).map((g) => [g, own.filter((x) => x.group === g).length] as const).filter(([, n]) => n > 0)
-  const src = photoUrl?.(camera, snapshot(state, camera, at).image)
-
-  return (
-    <div data-on={on} className="flex flex-col gap-2 rounded-2xl bg-surface p-2 transition-colors data-[on=true]:bg-sunk">
-      <div className="relative aspect-[16/10] overflow-hidden rounded-xl bg-[#d6d8d0]">
-        {src && <img src={src} alt="" decoding="async" className="absolute inset-0 size-full object-cover" />}
-      </div>
-      <div className="flex items-center justify-between gap-2.5 px-1 pb-1">
-        <span className="line-clamp-1 min-w-0 text-label">{gondola(camera)}</span>
-        <span className="flex shrink-0 gap-2.5 text-meta font-medium tabular-nums text-fg-secondary">
-          {counts.map(([group, n]) => {
-            const Icon = GROUP_ICON[group]
-            return (
-              <span key={group} className="flex items-center gap-1">
-                <Icon className="size-3.5" style={{ color: GROUP_COLOR[group] }} aria-hidden />
-                {n}
-                <span className="sr-only">{t[group]}</span>
-              </span>
-            )
-          })}
-        </span>
-      </div>
-    </div>
-  )
-}
-
 /**
- * A small, fixed-size demo built from the app's look: a few things to do on one side and the
- * gondolas they are in on the other. Pick a task and its gondola lights up. Unlike the app,
- * nothing opens in place, nothing folds and nothing leads away, so it never changes size.
+ * The app's own task board, shortened, in a window so it reads as a demo. It works as in the app
+ * (open a task to see its day and its shelf, move through the day), but only a few tasks and four
+ * gondolas are shown and nothing on it leads away from the page.
  */
 function Demo() {
-  const { family } = useI18n()
-  const { tasks, gondola, where } = useStore()
-  const cards = useMemo(
-    () => [
-      ...cardsOf(tasks.filter((x) => x.group === 'restock')).slice(0, 3),
-      ...cardsOf(tasks.filter((x) => x.group === 'moveBack')).slice(0, 1),
-    ],
-    [tasks],
-  )
-  const [picked, setPicked] = useState<string | null>(null)
-  const card = cards.find((c) => c.key === picked) ?? cards[0]
-  if (!card) return null
-  const cameras = [...new Set(cards.map((c) => c.tasks[0].area.camera))].slice(0, 4)
-
+  const { tasks } = useStore()
   return (
     <div className="rounded-2xl bg-surface p-2">
       <div className="flex h-9 items-center gap-1.5 px-3">
@@ -198,37 +159,9 @@ function Demo() {
         ))}
         <span className="ml-3 text-meta text-fg-muted">Demo</span>
       </div>
-      <div className="grid grid-cols-[minmax(0,1fr)] gap-6 rounded-xl bg-bg p-4 sm:p-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-        <ul className="flex flex-col gap-2">
-          {cards.map((c) => {
-            const first = c.tasks[0]
-            return (
-              <li key={c.key}>
-                <button
-                  type="button"
-                  onClick={() => setPicked(c.key)}
-                  style={{ '--c': GROUP_COLOR[c.group] } as CSSProperties}
-                  data-on={c.key === card.key}
-                  className="flex w-full cursor-pointer items-center gap-3 rounded-lg bg-[color-mix(in_oklab,var(--c)_13%,transparent)] p-2 pr-3 text-left transition-colors hover:bg-[color-mix(in_oklab,var(--c)_19%,transparent)] data-[on=true]:bg-[color-mix(in_oklab,var(--c)_22%,transparent)]"
-                >
-                  <AreaCrop area={first.area} image={first.record.image} />
-                  <span className="min-w-0 flex-1">
-                    <span className="block text-label">{family(first.area.family)}</span>
-                    <span className="block truncate text-meta text-fg-secondary">{where(first.area, first.obs.observed_family)}</span>
-                  </span>
-                  <span className="text-meta tabular-nums text-fg-secondary">{clock(first.since ?? first.record.ts)}</span>
-                </button>
-              </li>
-            )
-          })}
-        </ul>
-        <div className="grid grid-cols-2 content-start gap-3">
-          {cameras.map((camera) => (
-            <Tile key={camera} camera={camera} on={camera === card.tasks[0].area.camera} />
-          ))}
-        </div>
+      <div className="rounded-xl bg-bg p-4 sm:p-6">
+        <TaskBoard tasks={tasks} compact />
       </div>
-      <span className="sr-only">{gondola(card.tasks[0].area.camera)}</span>
     </div>
   )
 }
@@ -282,7 +215,7 @@ export function Landing() {
           </ul>
         </Section>
 
-        <Section title="See it" lead="A few things to do, and the gondolas they are in.">
+        <Section title="See it" lead="The app, shortened. Open a task to see its day and its shelf, or move through the day.">
           <Demo />
         </Section>
 
