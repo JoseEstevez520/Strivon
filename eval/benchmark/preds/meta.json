@@ -54,5 +54,33 @@
   "labels": "André's 511 + AI pre-labels",
   "other_photos": "no",
   "seconds": "3.44 CPU, 0.21 GPU"
+ },
+ "agents_9models_same_day": {
+  "approach": "Agents' pipeline, 9-model stock average, uses same-day photos",
+  "owner": "André (agents)",
+  "labels": "labels_v1",
+  "other_photos": "yes, same camera and day",
+  "seconds": "being measured (8 image models per photo)"
+ },
+ "agents_9models_single_photo": {
+  "approach": "Agents' pipeline, 9-model stock average, each photo on its own",
+  "owner": "André (agents)",
+  "labels": "labels_v1",
+  "other_photos": "no",
+  "seconds": "being measured (8 image models per photo)"
+ },
+ "agents_same_day_3heads": {
+  "approach": "Agents' pipeline + 3rd stock head, uses same-day photos",
+  "owner": "André (agents)",
+  "labels": "labels_v1",
+  "other_photos": "yes, same camera and day",
+  "seconds": "2.34 CPU (+ up to 0.6), 0.17 GPU"
+ },
+ "agents_single_photo_3heads": {
+  "approach": "Agents' pipeline + 3rd stock head, each photo on its own",
+  "owner": "André (agents)",
+  "labels": "labels_v1",
+  "other_photos": "no",
+  "seconds": "3.44 CPU (+ up to 0.6), 0.21 GPU"
  }
 }
