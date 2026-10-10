@@ -241,9 +241,7 @@ export function Landing() {
             </span>
             <span className="min-w-0 flex-1">
               <span className="block text-meta text-fg-muted">github.com</span>
-              <span className="mt-1 block text-display">
-                <span className="text-fg-muted">JoseEstevez520 / </span>Strivon
-              </span>
+              <span className="mt-1 block text-display">Strivon</span>
               <span className="mt-2 block text-copy text-fg-secondary">Shelf monitoring for the Sensei challenge at JunctionX Lisbon 2026.</span>
             </span>
             <span className="inline-flex h-11 shrink-0 items-center gap-2 self-start rounded-xl bg-fg px-5 text-label text-bg transition-opacity group-hover:opacity-85 sm:self-center">
