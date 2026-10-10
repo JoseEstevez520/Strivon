@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sensei · Frutas e Legumes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='17' r='12' fill='%2312B76A'/><path d='M16 5c2-3 6-3 7-2-2 1-4 3-7 2z' fill='%23065F46'/></svg>">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo" aria-hidden="true"></span>
+      <div>
+        <div class="brand-title">Frutas e Legumes</div>
+        <div class="brand-sub">Continente Bom Dia S. Romão · Leiria</div>
+      </div>
+    </div>
+    <nav class="tabs" role="tablist">
+      <button data-tab="tasks" class="active">Tarefas <span class="badge" id="badge-tasks"></span></button>
+      <button data-tab="gondolas">Gôndolas</button>
+      <button data-tab="products">Produtos</button>
+      <button data-tab="annotate">Anotar</button>
+      <button data-tab="eval">Avaliação</button>
+    </nav>
+    <div class="clock">
+      <label for="time" class="clock-label">Estado às <strong id="time-label">--:--</strong></label>
+      <input type="range" id="time" min="0" max="100" value="100" step="1">
+      <button id="now" class="ghost small">Agora</button>
+    </div>
+  </header>
+
+  <main id="view"></main>
+
+  <div id="drawer" class="drawer" aria-hidden="true">
+    <div class="drawer-panel" role="dialog" aria-modal="true">
+      <button class="drawer-close" aria-label="Fechar">×</button>
+      <div id="drawer-body"></div>
+    </div>
+  </div>
+  <div id="toast" class="toast" role="status"></div>
+  <script src="app.js"></script>
+</body>
+</html>

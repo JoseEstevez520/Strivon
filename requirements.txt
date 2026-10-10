@@ -1,0 +1,13 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
+numpy
+opencv-python-headless
+pillow
+scikit-learn
+fastapi
+uvicorn
+# Zero-shot CLIP backend (CPU chega). Sem isto o pipeline corre so com features classicas (--no-clip).
+torch
+torchvision
+open_clip_torch
+# Opcional: professor Claude (python -m sensei vlm-label)
+anthropic
