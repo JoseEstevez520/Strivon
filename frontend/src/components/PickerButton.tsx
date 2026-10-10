@@ -14,14 +14,16 @@ interface Props {
   value: string
   onChange: (value: string) => void
   options: PickerOption[]
+  /** The trigger's width, which the open list repeats exactly. */
+  className?: string
 }
 
 /** A tray that opens a short list. Used for the camera and the language. */
-export function PickerButton({ icon, label, value, onChange, options }: Props) {
+export function PickerButton({ icon, label, value, onChange, options, className }: Props) {
   const items = options.map((o) => ({ value: o.value, label: o.label }))
   return (
     <Select items={items} value={value} onValueChange={(v) => v && onChange(v)}>
-      <SelectTrigger aria-label={label}>
+      <SelectTrigger aria-label={label} className={className}>
         <span className="text-fg-muted [&_svg]:size-4">{icon}</span>
         <SelectValue />
       </SelectTrigger>

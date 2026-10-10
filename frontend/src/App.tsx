@@ -60,6 +60,7 @@ function Screen() {
         <span className="mr-auto text-title tracking-tight">strivon</span>
         <PickerButton
           icon={<Camera />}
+          className="w-48"
           label={t.camera}
           value={camera}
           onChange={(c) => {
@@ -74,6 +75,7 @@ function Screen() {
         />
         <PickerButton
           icon={<Globe />}
+          className="w-24"
           label={t.language}
           value={lang}
           onChange={(v) => setLang(v as typeof lang)}
