@@ -50,6 +50,8 @@ interface Strings {
   askTitle: string
   askPlaceholder: string
   send: string
+  larger: string
+  smaller: string
   suggestions: string[]
   notConnected: string
   orderNote: string
@@ -91,6 +93,8 @@ const en: Strings = {
   askTitle: 'Ask about your store',
   askPlaceholder: 'Ask about your store',
   send: 'Send',
+  larger: 'Make it larger',
+  smaller: 'Make it smaller',
   suggestions: ['Which gondolas need attention?', 'How are the bananas doing?', 'How much of the time were areas empty?', 'What should I restock first?'],
   notConnected: 'The assistant is not connected yet.',
   orderNote: 'Most urgent first: what is out in most places, then what has waited longest.',
@@ -148,6 +152,8 @@ const pt: Strings = {
   askTitle: 'Pergunte sobre a sua loja',
   askPlaceholder: 'Pergunte sobre a sua loja',
   send: 'Enviar',
+  larger: 'Aumentar',
+  smaller: 'Reduzir',
   suggestions: ['Que gôndolas precisam de atenção?', 'Como estão as bananas?', 'Que parte do tempo estiveram as áreas vazias?', 'O que devo repor primeiro?'],
   notConnected: 'O assistente ainda não está ligado.',
   orderNote: 'O mais urgente primeiro: o que falta em mais sítios e, depois, o que espera há mais tempo.',
@@ -205,6 +211,8 @@ const es: Strings = {
   askTitle: 'Pregunta sobre tu tienda',
   askPlaceholder: 'Pregunta sobre tu tienda',
   send: 'Enviar',
+  larger: 'Agrandar',
+  smaller: 'Reducir',
   suggestions: ['¿Qué góndolas necesitan atención?', '¿Cómo van los plátanos?', '¿Qué parte del tiempo estuvieron vacías las zonas?', '¿Qué repongo primero?'],
   notConnected: 'El asistente aún no está conectado.',
   orderNote: 'Lo más urgente primero: lo que falta en más sitios y, después, lo que lleva más tiempo esperando.',

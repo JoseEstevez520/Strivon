@@ -45,7 +45,7 @@ export function Chat() {
     <section aria-label={t.askTitle} className="flex min-h-0 flex-1 flex-col">
       <div className="scrollbar-subtle min-h-0 flex-1 overflow-y-auto px-3 pt-12 pb-2">
         {messages.length > 0 ? (
-          <ol className="flex flex-col gap-3">
+          <ol className="mx-auto flex max-w-3xl flex-col gap-3">
             {messages.map((m) => (
               <li key={m.id} className={m.role === 'user' ? 'ml-auto max-w-[85%] rounded-xl bg-surface px-3 py-2 text-ui' : 'flex flex-col gap-3 px-1'}>
                 {m.blocks.map((b, i) => (
@@ -56,7 +56,7 @@ export function Chat() {
             <div ref={end} />
           </ol>
         ) : (
-          <ul className="flex flex-col">
+          <ul className="mx-auto flex max-w-3xl flex-col">
             {t.suggestions.map((s) => (
               <li key={s}>
                 <button
@@ -75,7 +75,7 @@ export function Chat() {
         )}
       </div>
 
-      <form onSubmit={submit} className="relative p-3 pt-1">
+      <form onSubmit={submit} className="relative mx-auto w-full max-w-3xl p-3 pt-1">
         <Input
           ref={input}
           value={draft}

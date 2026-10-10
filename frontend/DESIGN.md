@@ -452,7 +452,7 @@ a collapsing block by hand once, and Base UI and shadcn already had it.
   estimate. The assistant is empty on purpose: the parts an answer is made of are built, the
   answering is not.
 
-- 2026-10-10. The chat is a round button in the corner of Insights only, not of every page. It
+- 2026-10-10. The chat can grow: a button in its corner switches it between a small box and a wide one for charts (no size animation, the swap is instant). The chat is a round button in the corner of Insights only, not of every page. It
   opens a box that fades and scales in from the corner (elastic-ui's chat, without the aurora,
   blur and size morph), and closing keeps the conversation. It lives where the answers are, and
   the other pages have no use for it.
