@@ -245,8 +245,9 @@ separate panel. Pressing it again, or Escape, closes it.
 ## Scrollbars
 
 Scrollbars are the quiet ones of elastic-ui, ported as `scrollbar-subtle` in `src/index.css`: a
-line of 6 px with no track and no arrows. It is always visible, so you can tell there is more, but
-faint, and a step darker while the pointer is over what scrolls. They apply to the content area, which scrolls under the header, and to the camera panel. The browser's own bars are
+line of 6 px with no track and no arrows. It is invisible at rest and drawn faintly only while the
+pointer is over what scrolls, a step darker on the line itself. It was made always visible once and
+asked back to this: it should show only when you go there. They apply to the content area, which scrolls under the header, and to the camera panel. The browser's own bars are
 wide and grey and fought with the flat style. The space for the page bar stays reserved so
 nothing shifts when it appears.
 
@@ -376,8 +377,8 @@ a collapsing block by hand once, and Base UI and shadcn already had it.
   its own scroll and the card opens in its column, and the pressed card stays within 0 px.
 
 - 2026-10-10. Scrollbars are quiet: a thin faint line, always visible, for the content and the
-  camera panel. The browser's default grey bar stood out against the flat screen. A first version
-  was invisible at rest and was asked back, since it hid that there was more.
+  camera panel, shown only while the pointer is over what scrolls. The browser's default grey bar
+  stood out against the flat screen. An always-visible version was tried and not wanted.
 
 - 2026-10-10. Gondola tiles simplified. They had a tinted frame, a red icon and a strip in four
   colours, and the name was cut off by the count. The name now has its own line, the count sits
