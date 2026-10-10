@@ -19,6 +19,17 @@ it holding the product it should, and how full is it?
 - `assets/` logos and README images.
 - `data/` and `outputs/` challenge images and generated predictions. Not committed.
 
+## Prior code
+
+The code was written during the hackathon. These parts come from before it or from other projects:
+
+- The design rules of `frontend/` and its quiet scrollbar style come from elastic-ui, a component
+  library by José, who wrote it before the event. They were rewritten for this project and only
+  the static rules were kept.
+- `frontend/src/model/catalog.ts` ports the product family rules of `backend/sensei/catalog.py`.
+- The interface uses React, Vite, Tailwind CSS, shadcn/ui, Base UI, Lucide and country-flag-icons,
+  all under the MIT licence. The versions are in `frontend/package.json`.
+
 ## Built at
 
 <p align="center">
