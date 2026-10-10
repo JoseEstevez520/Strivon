@@ -110,5 +110,12 @@
   "labels": "the key",
   "other_photos": "no",
   "seconds": "about 1.7 CPU (stock 0.9 + product 0.8)"
+ },
+ "combo_dinos_stock_lab_product": {
+  "approach": "Combined, cheaper: stock from André's fine-tuned DINOv2-small, product check from the lab's image-only model (HSV bank of training crops)",
+  "owner": "André + Jose (lab)",
+  "labels": "the key",
+  "other_photos": "training crops only",
+  "seconds": "about 0.9 CPU (stock 0.9 + product 0.01, product measured on a loaded machine)"
  }
 }
