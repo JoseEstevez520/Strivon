@@ -11,4 +11,4 @@ What they said:
 How we read the rest:
 
 - `half` is everything in between.
-- `full` is strict: only when it is completely full. If a unit is missing, we call it `half`.
+- `full` works like `empty` the other way round: if only one or two units are missing, it is still `full`.
