@@ -114,7 +114,10 @@ separate panel. Pressing it again, or Escape, closes it.
 - It is one object with one colour. The card keeps its tint, at 19% while open, and the history
   sits inside it. A panel somewhere else on the screen showed a second shade of the same red,
   and on a laptop it sat below the fold.
-- An area picked on the photo opens its own row, and the page scrolls to bring it into view.
+- An area picked on the photo opens its own row, and the page scrolls once to bring it into
+  view. Picking from the list never scrolls, because the user is already looking at the row.
+  The scroll is done from the click handler. An effect that scrolled whenever a row opened
+  fired again each time a row remounted and made the page jump.
   Later areas open on the neutral tone. Areas that are fine have no card, so they open as a
   row under the "All good" heading.
 - Inside: the camera and area in `fg-secondary`, followed by the stock level only when the
@@ -191,6 +194,10 @@ a collapsing block by hand once, and Base UI and shadcn already had it.
   after being told to search first. Same look and times, and it brings the accessibility
   attributes and the unmounting of closed content for free.
 
+- 2026-10-10. Scrolling into view happens only when an area is picked on the photo, and once.
+  The first version scrolled on every opening from an effect, which felt like the page was
+  moving by itself.
+
 ## Open questions
 
 - The English flag is the UK flag. A code such as EN would avoid the question of which country
@@ -199,4 +206,6 @@ a collapsing block by hand once, and Base UI and shadcn already had it.
   staff time and trust.
 - On a phone the photo comes after the list. A short link from an open card to the photo may
   be needed.
+- The list changes height as the day plays, and the browser clamps the page scroll when it gets
+  shorter. A minimum height for the list column may be needed.
 - A products view, with stock summed per product.

@@ -3,7 +3,6 @@ import { AreaHistory } from './AreaHistory'
 import { GROUP_COLOR, GROUP_ICON } from './groupStyle'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { TaskCard } from './TaskCard'
-import { useScrollIntoView } from './useScrollIntoView'
 import { useI18n } from '@/lib/i18n'
 import type { Area } from '@/data/types'
 import type { Group, HistoryPoint, Task } from '@/lib/tasks'
@@ -28,10 +27,9 @@ interface RowProps {
 /** A quiet line for what is not urgent. Pressed, it opens in place like a card, on the neutral tone. */
 function QuietRow({ task, selected, history, onSelect, onJump }: RowProps) {
   const { family } = useI18n()
-  const ref = useScrollIntoView<HTMLDivElement>(selected)
   return (
     <div
-      ref={ref}
+      data-area={task.area.area_id}
       data-selected={selected}
       className="rounded-md transition-colors hover:bg-surface data-[selected=true]:bg-surface"
     >

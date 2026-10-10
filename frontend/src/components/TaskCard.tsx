@@ -3,7 +3,6 @@ import type { CSSProperties } from 'react'
 import { AreaHistory } from './AreaHistory'
 import { GROUP_COLOR } from './groupStyle'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
-import { useScrollIntoView } from './useScrollIntoView'
 import { useI18n } from '@/lib/i18n'
 import { clock } from '@/lib/time'
 import type { HistoryPoint, Task } from '@/lib/tasks'
@@ -22,14 +21,13 @@ interface Props {
  */
 export function TaskCard({ task, selected, history, onSelect, onJump }: Props) {
   const { t, family } = useI18n()
-  const ref = useScrollIntoView<HTMLDivElement>(selected)
   // Restock needs no second line: its group already says "empty". Only a wrong place carries news.
   const reason = task.group === 'moveBack' ? t.wrongPlace(family(task.obs.observed_family ?? '')) : null
   const since = clock(task.since)
 
   return (
     <div
-      ref={ref}
+      data-area={task.area.area_id}
       data-selected={selected}
       style={{ '--c': GROUP_COLOR[task.group] } as CSSProperties}
       className="rounded-lg bg-[color-mix(in_oklab,var(--c)_13%,transparent)] transition-colors hover:bg-[color-mix(in_oklab,var(--c)_19%,transparent)] data-[selected=true]:bg-[color-mix(in_oklab,var(--c)_19%,transparent)]"

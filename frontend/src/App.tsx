@@ -49,9 +49,18 @@ function Screen() {
   }, [playing, times.length])
 
   // Pressing the open one closes it. Picking an area also brings its camera's photo.
-  const pick = (areaId: string) => {
-    setSelected((cur) => (cur === areaId ? null : areaId))
+  const pick = (areaId: string, from: 'list' | 'photo' = 'list') => {
+    const opening = selected !== areaId
+    setSelected(opening ? areaId : null)
     setCamera(state.areas[areaId].camera)
+    // Only an area picked on the photo needs its row brought into view, once. From the list the
+    // user is already looking at it, and moving the page there reads as a jump.
+    if (opening && from === 'photo') {
+      setTimeout(
+        () => document.querySelector(`[data-area="${areaId}"]`)?.scrollIntoView({ block: 'nearest' }),
+        220,
+      )
+    }
   }
 
   useEffect(() => {
@@ -111,7 +120,7 @@ function Screen() {
           <p className="mb-2 px-1 text-meta tabular-nums text-fg-muted">
             {t.camera} {camera} · {clock(photo.ts)}
           </p>
-          <PhotoStage tasks={cameraTasks} selected={selected} onSelect={pick} />
+          <PhotoStage tasks={cameraTasks} selected={selected} onSelect={(id) => pick(id, 'photo')} />
           <DayBar
             times={times}
             index={index}
