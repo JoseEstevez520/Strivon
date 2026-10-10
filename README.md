@@ -21,8 +21,12 @@ Written during the hackathon, except:
 - The interface uses React, Vite, Tailwind CSS, shadcn/ui, Base UI, OpenUI, Lucide and
   country-flag-icons, all MIT. Versions are in `frontend/package.json`.
 
-<img src="assets/partners/junctionx.png" alt="JunctionX Lisbon" height="56">
-&nbsp;&nbsp;&nbsp;
-<img src="assets/partners/sensei.png" alt="Sensei" height="56">
+Built at JunctionX Lisbon 2026, for the Sensei challenge.
 
-<sub>Built at JunctionX Lisbon 2026 for the Sensei challenge. The logos belong to their owners.</sub>
+<p align="center">
+  <img src="assets/partners/junctionx.png" alt="JunctionX Lisbon" height="56">
+  &nbsp;&nbsp;&nbsp;
+  <img src="assets/partners/sensei.png" alt="Sensei" height="56">
+</p>
+
+The JunctionX Lisbon and Sensei logos belong to their owners.
