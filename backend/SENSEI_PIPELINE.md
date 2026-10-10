@@ -49,3 +49,9 @@ The train and test images go in as unlabelled context: they show the model what 
 - Grey or clear packages (kiwis on 6376, grapes and cherries on 6462) sometimes look empty to CLIP.
 - White shelves with no crate (6462 early morning) are not always seen as empty.
 - Packaged products with colourful labels give a few false "wrong product" alerts (6462_5/6, 6468_5).
+
+## Shared labelling
+
+- Run `python -m sensei serve --host 0.0.0.0` on one laptop; everyone opens `http://<that-ip>:8000` and goes to **Label**.
+- Write your name first. Every label is saved to `eval/labels.json` and logged with your name in `eval/labels_activity.jsonl`; all open pages refresh within 3 seconds.
+- Only photos 1-8 of each camera can be labelled. The last photos are locked and held out to test the model; calibration never uses them, and the Score tab shows train and test scores apart.
