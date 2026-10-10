@@ -20,6 +20,8 @@ def run(
     planogram: Planogram | None = None,
     camera: str | None = None,
     use_clip: bool | None = None,
+    use_supervised: bool = True,
+    use_occlusion: bool = True,
     log=print,
 ) -> dict:
     """Predict every planogram area of every image in `images_dir`.
@@ -43,7 +45,49 @@ def run(
     feats = extract(targets + context, pg, use_clip=use_clip, log=log)
     obs = LabelFreeModel(pg, feats).run()
     cal = calibrate.load()
-    if cal is not None:
+    sup = None
+    occluded_cover: dict = {}
+    from . import supervised
+
+    sup_model = supervised.load() if use_supervised else None
+    if sup_model is not None and config.LABELS_PATH.exists():
+        ts = {(r.camera, r.name): r.ts for r in targets + context}
+        tkeys = [(r.camera, r.name, a.area_id) for r in targets for a in pg.cameras[r.camera]]
+        feats_ctx = (extract(targets + context, pg, use_clip=use_clip, log=log, scale=supervised.CTX_SCALE)
+                     if sup_model.get("use_ctx") else None)
+        sup = supervised.predict(sup_model, tkeys, feats, obs, ts, feats_ctx)
+        cv = sup_model["report"]["supervised_cv_tuned"]
+        log(f"using supervised model (photo-held-out CV: {cv['per_289']}/578 on 289 areas)")
+        cal = None
+        # Shoppers in front of an area: none in our photos, so the model never saw one.
+        # Fall back on the nearest labelled photos of the same area (round down).
+        if use_occlusion:
+            from .occlusion import covered_fraction, person_boxes
+
+            labels = supervised.load_training_labels(log=None)
+            n_occ = 0
+            for r in targets:
+                boxes = person_boxes(r.path)
+                if not boxes:
+                    continue
+                for a in pg.cameras[r.camera]:
+                    cover = covered_fraction(a.quad, boxes)
+                    k = (r.camera, r.name, a.area_id)
+                    occluded_cover[k] = cover
+                    if cover < 0.25:
+                        continue
+                    near = sorted((abs(ts[(c, i)] - ts[(r.camera, r.name)]), lab) for (c, i, aid), lab in labels.items()
+                                  if c == r.camera and aid == a.area_id and i != r.name and (c, i) in ts)[:2]
+                    if not near:
+                        continue
+                    lvl = min(config.LEVEL_NAMES.index(lab["stock_level"]) for _, lab in near)
+                    ps = np.full(3, 0.02)
+                    ps[lvl] = 0.96
+                    sup[k] = (ps, 0.95 if near[0][1]["planogram_compliant"] else 0.05)
+                    n_occ += 1
+            if n_occ:
+                log(f"{n_occ} areas covered by a person: used the nearest labelled photos instead")
+    elif cal is not None:
         log(f"using calibrated model ({cal.get('name', 'calibration.json')})")
 
     submission: dict = {}
@@ -54,7 +98,9 @@ def run(
             o = obs[k]
             p_stock = o.p_stock
             p_comp = o.p_compliant
-            if cal is not None:
+            if sup is not None:
+                p_stock, p_comp = sup[k]
+            elif cal is not None:
                 p_stock, p_comp = calibrate.apply(cal, o, feats[k], p_stock, p_comp)
             level, value, ev = decide_stock(p_stock)
             compliant, _ = decide_compliance(p_comp)
@@ -72,6 +118,7 @@ def run(
                 "p_compliant": round(float(p_comp), 4),
                 "container_frac": round(float(o.container_frac), 4),
                 "observed_family": o.observed_family,
+                "person_cover": round(float(occluded_cover.get(k, 0.0)), 3),
                 "family_probs": {f: round(v, 4) for f, v in sorted(o.family_probs.items(), key=lambda x: -x[1])[:4]},
             }
     images = {}
@@ -87,7 +134,8 @@ def run(
             "generated_at": dt.datetime.now().isoformat(timespec="seconds"),
             "images_dir": str(Path(images_dir).resolve()),
             "backend": ("clip:" + clip_backend.MODEL) if feats_have_clip(feats) else "heuristic",
-            "calibrated": cal is not None,
+            "calibrated": cal is not None or sup is not None,
+            "model": "supervised" if sup is not None else ("calibrated" if cal is not None else "label-free"),
             "areas": {a.area_id: a.to_json() for a in pg.areas},
             "images": images,
             "observations": details,

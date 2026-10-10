@@ -28,6 +28,7 @@ def main(argv=None) -> int:
     p.add_argument("--out", default=str(config.PREDICTIONS_PATH))
     p.add_argument("--details", default=str(config.OUTPUTS_DIR / "details.json"))
     p.add_argument("--no-clip", action="store_true", help="classical features only (fast, no PyTorch)")
+    p.add_argument("--label-free", action="store_true", help="ignore the supervised model (outputs/supervised.pkl)")
 
     s = sub.add_parser("score", help="score a submission against annotations (challenge rules)")
     s.add_argument("--pred", default=str(config.PREDICTIONS_PATH))
@@ -35,6 +36,9 @@ def main(argv=None) -> int:
 
     c = sub.add_parser("calibrate", help="fit a small model on team labels (optional)")
     c.add_argument("--annotations", nargs="+", default=None)
+
+    t = sub.add_parser("train", help="train the supervised model on eval/labels.json (+ André's checks), with photo-held-out CV")
+    t.add_argument("--ctx", action="store_true", help="add whole-crate crop features (tested: no gain, 488 vs 489)")
 
     m = sub.add_parser("vlm-label", help="(optional) label images with Claude vision; needs ANTHROPIC_API_KEY")
     m.add_argument("--images", default=str(config.IMAGES_DIR))
@@ -52,7 +56,7 @@ def main(argv=None) -> int:
         from .planogram import load_planogram
 
         ctx = a.context if a.context is not None else [str(config.IMAGES_DIR)]
-        res = run(a.images, ctx, camera=a.camera, use_clip=False if a.no_clip else None)
+        res = run(a.images, ctx, camera=a.camera, use_clip=False if a.no_clip else None, use_supervised=not a.label_free)
         problems = validate_submission(res["submission"], load_planogram())
         write(res, a.out, a.details)
         n = sum(len(x) for imgs in res["submission"].values() for x in imgs.values())
@@ -78,6 +82,12 @@ def main(argv=None) -> int:
             print("no labels found in eval/labels.json")
             return 1
         fit(paths)
+        return 0
+
+    if a.cmd == "train":
+        from .supervised import train
+
+        train(use_ctx=a.ctx)
         return 0
 
     if a.cmd == "vlm-label":

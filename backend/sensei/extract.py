@@ -63,14 +63,14 @@ class AreaFeatures:
     emb: np.ndarray | None  # CLIP embedding (L2 normalised) or None
 
 
-def _cache_path(ref: ImageRef, use_clip: bool) -> Path:
+def _cache_path(ref: ImageRef, use_clip: bool, scale: float = 1.0) -> Path:
     st = ref.path.stat()
-    key = f"{ref.path.resolve()}|{st.st_size}|{int(st.st_mtime)}|{config.CROP_SIZE}|{clip_backend.MODEL if use_clip else 'noclip'}|v1"
+    key = f"{ref.path.resolve()}|{st.st_size}|{int(st.st_mtime)}|{config.CROP_SIZE}|{clip_backend.MODEL if use_clip else 'noclip'}|v1" + (f"|s{scale}" if scale != 1.0 else "")
     h = hashlib.sha1(key.encode()).hexdigest()[:16]
     return config.CACHE_DIR / f"{ref.camera}_{Path(ref.name).stem}_{h}.npz"
 
 
-def crops_for(ref: ImageRef, planogram: Planogram) -> tuple[list[str], list[np.ndarray], list[np.ndarray]]:
+def crops_for(ref: ImageRef, planogram: Planogram, scale: float = 1.0) -> tuple[list[str], list[np.ndarray], list[np.ndarray]]:
     img = cv2.imread(str(ref.path))
     if img is None:
         raise IOError(f"cannot read {ref.path}")
@@ -78,20 +78,29 @@ def crops_for(ref: ImageRef, planogram: Planogram) -> tuple[list[str], list[np.n
         img = cv2.resize(img, config.IMAGE_SIZE)
     ids, crops, masks = [], [], []
     for a in planogram.cameras[ref.camera]:
-        c, m = rectify(img, a.quad)
+        c, m = rectify(img, scaled_quad(a.quad, scale))
         ids.append(a.area_id)
         crops.append(c)
         masks.append(m)
     return ids, crops, masks
 
 
-def extract(refs: list[ImageRef], planogram: Planogram, use_clip: bool | None = None, log=print) -> dict[tuple[str, str, str], AreaFeatures]:
+def scaled_quad(quad: np.ndarray, scale: float) -> np.ndarray:
+    """Grow the area around its centre. scale > 1 takes in the whole crate when the planogram
+    lines only cover part of it (the team judges the whole crate)."""
+    if scale == 1.0:
+        return quad
+    c = quad.mean(0)
+    return (c + (quad - c) * scale).astype(np.float32)
+
+
+def extract(refs: list[ImageRef], planogram: Planogram, use_clip: bool | None = None, log=print, scale: float = 1.0) -> dict[tuple[str, str, str], AreaFeatures]:
     if use_clip is None:
         use_clip = clip_backend.available()
     config.CACHE_DIR.mkdir(parents=True, exist_ok=True)
     out: dict[tuple[str, str, str], AreaFeatures] = {}
     for i, ref in enumerate(refs):
-        cp = _cache_path(ref, use_clip)
+        cp = _cache_path(ref, use_clip, scale)
         if cp.exists():
             z = np.load(cp, allow_pickle=False)
             ids = [str(x) for x in z["ids"]]
@@ -99,7 +108,7 @@ def extract(refs: list[ImageRef], planogram: Planogram, use_clip: bool | None = 
             for j, aid in enumerate(ids):
                 out[(ref.camera, ref.name, aid)] = AreaFeatures(z["scalars"][j], z["hist"][j], embs[j] if embs is not None else None)
             continue
-        ids, crops, masks = crops_for(ref, planogram)
+        ids, crops, masks = crops_for(ref, planogram, scale)
         scal = np.stack([scalar_features(c, m) for c, m in zip(crops, masks)])
         hist = np.stack([hsv_hist(c, m) for c, m in zip(crops, masks)])
         emb = clip_backend.embed_images(crops) if use_clip else np.zeros((len(ids), 0), np.float32)

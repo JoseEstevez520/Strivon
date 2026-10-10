@@ -55,3 +55,10 @@ The train and test images go in as unlabelled context: they show the model what 
 - Run `python -m sensei serve --host 0.0.0.0` on one laptop; everyone opens `http://<that-ip>:8000` and goes to **Label**.
 - Write your name first. Every label is saved to `eval/labels.json` and logged with your name in `eval/labels_activity.jsonl`; all open pages refresh within 3 seconds.
 - Only photos 1-8 of each camera can be labelled. The last photos are locked and held out to test the model; calibration never uses them, and the Score tab shows train and test scores apart.
+
+## Supervised model
+
+- `python -m sensei train`: fits on `eval/labels.json` plus André's review, prints the photo-held-out CV score, saves `outputs/supervised.pkl` and writes `eval/review_suspects.json` (labels the model strongly disagrees with, shown by "Review suspects" in the Label tab).
+- `python -m sensei predict` uses it automatically (`--label-free` to skip it).
+- `python rehearse.py --seed N`: hides 2 photos per camera, trains without them, runs the real submission command and scores it with `eval/score.py`.
+- Validation day steps: `docs/VALIDATION_DAY.md`.
