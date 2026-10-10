@@ -4,7 +4,7 @@ App for the Sensei challenge (JunctionX Lisbon 2026). From the ceiling cameras, 
 
 - It works **without labels**: zero-shot CLIP plus unsupervised learning per camera.
 - It decides with the **challenge points matrix** (overestimating stock costs −3, underestimating costs −2). It picks the level with the most expected points, not the most likely one.
-- It has a **staff dashboard** (in Portuguese, PT-PT) and an **annotation tool** that feeds a local scorer and an optional calibration.
+- It has a **staff dashboard** (in English) and an **annotation tool** that feeds a local scorer and an optional calibration.
 
 ## Quick start
 
@@ -51,12 +51,12 @@ python -m sensei predict --images PATH/TO/validation --context data/images --out
 
 ## The app
 
-- **Tasks**: the start-of-shift view. 1) *Restock now* (empty), 2) *Fix product* (planogram not respected), 3) *Restock soon* (half). Each card has the crop of the area, where it is, since when it has been like that and how many areas of the same product are empty. "Done" is stored locally.
-- **Shelves**: the image from each camera with the areas coloured by status. Clicking an area opens its detail, with how it changed through the day and why the model decided what it did.
+- **Tasks**: the start-of-shift view. 1) *Restock* (empty), 2) *Move back* (planogram not respected), 3) *Later* (half). Each card has the crop of the area, where it is, since when it has been like that and how many areas of the same product are empty. "Done" is stored locally.
+- **Gondolas**: the image from each camera with the areas coloured by status. Clicking an area opens its detail, with how it changed through the day and why the model decided what it did.
 - **Products**: stock summed per product across all areas, most critical first.
 - **Clock** (top): shows the state of the store at any time of day.
-- **Annotate**: keyboard controls. `1/2/3` for empty/half/full, `X` for wrong product, `Enter` to accept the prediction, `←/→` for area, `N/P` for image. It writes to `annotations/team.json` in the official format.
-- **Evaluation**: score on the annotated areas (same table as the brief), worst errors first, a button to calibrate and predict again, and submission export.
+- **Label**: keyboard controls. `1/2/3` for empty/half/full, `X` for wrong product, `Enter` to accept the prediction, `←/→` for area, `N/P` for image. It writes to `annotations/team.json` in the official format.
+- **Score**: score on the annotated areas (same table as the brief), worst errors first, a button to calibrate and predict again, and submission export.
 
 ## How it works
 
