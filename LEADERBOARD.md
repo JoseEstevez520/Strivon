@@ -8,7 +8,19 @@ Answer key `labels_v1`: 1929 areas in 179 photos, so the maximum is 3858 points.
 
 | Approach | Owner | Labels trained on | Looks at other photos? | Identification | Stock | Total / max | Per area | Last photo, per area | Seconds per photo |
 |---|---|---|---|---:|---:|---:|---:|---:|---|
+| Agents' pipeline, uses same-day photos | André (agents) | labels_v1 | yes, same camera and day | +1881 | +1371 | +3252 / 3858 | +1.686 | +1.543 | 2.34 CPU, 0.17 GPU |
+| Agents' pipeline, each photo on its own | André (agents) | labels_v1 | no | +1839 | +1351 | +3190 / 3858 | +1.654 | +1.457 | 3.44 CPU, 0.21 GPU |
+| Agents' pipeline, uses same-day photos | André (agents) | André's 511 + AI pre-labels | yes, same camera and day | +1860 | +1011 | +2871 / 3858 | +1.488 | +1.146 | 2.34 CPU, 0.17 GPU |
+| Agents' pipeline, each photo on its own | André (agents) | André's 511 + AI pre-labels | no | +1839 | +1019 | +2858 / 3858 | +1.482 | +1.126 | 3.44 CPU, 0.21 GPU |
 | Always "right product, full" (baseline) | | none | no | +1653 | −99 | +1554 / 3858 | +0.806 | +0.344 | 0 |
+
+Agents' pipeline:
+- The product check is SigLIP2-base zero-shot plus nearest neighbours over the training folds' crops.
+- Stock is the average of two stock models.
+- The same-day version reuses the answer of the same area in a similar-looking photo of the same camera. That's why it also runs faster.
+- Seconds are end to end, on the 14 newest photos, after a 12.5 s start-up. Machine: Ryzen 9 5900HS laptop CPU (4 threads) and RTX 3060 Laptop GPU.
+- The code isn't in this repo yet.
+- Prediction files: `eval/benchmark/preds/agents_*.json`.
 
 ## How to get a score
 
