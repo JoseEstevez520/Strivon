@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useMemo, useState, type ReactNode
 import { loadSource, type Source } from '@/model/source'
 import type { Area } from '@/model/types'
 import { useI18n } from './i18n'
-import { gondolaFamilies, historyOf, tasksAt, type HistoryPoint, type Task } from './tasks'
+import { cameras, gondolaFamilies, historyOf, tasksAt, type HistoryPoint, type Task } from './tasks'
 
 interface Store {
   state: Source['state']
@@ -20,8 +20,12 @@ interface Store {
   togglePlay: () => void
   jumpTo: (ts: number) => void
   tasks: Task[]
-  /** How people would call a gondola: the two products that fill most of it. */
+  /** A gondola's name: a fixed number, in the order of the cameras, so it never changes with what is on it. */
   gondola: (camera: string) => string
+  /** What fills most of a gondola: its two main products. */
+  gondolaWhat: (camera: string) => string
+  /** The number and the products together, for places with room for both. */
+  gondolaFull: (camera: string) => string
   /**
    * Where an area is, without repeating its own product: the other products of its gondola
    * ("with Cabbage"), or nothing when the gondola holds only that product. `alsoSaid` is a
@@ -100,7 +104,10 @@ function LoadedStore({ source, children }: { source: Source; children: ReactNode
         setIndexState(i < 0 ? times.length - 1 : i)
       },
       tasks: tasksAt(state, at),
-      gondola: (camera) => gondolaFamilies(state, camera).map(family).join(' · '),
+      gondola: (camera) => t.gondolaN(cameras(state).indexOf(camera) + 1),
+      gondolaWhat: (camera) => gondolaFamilies(state, camera).map(family).join(' · '),
+      gondolaFull: (camera) =>
+        `${t.gondolaN(cameras(state).indexOf(camera) + 1)} · ${gondolaFamilies(state, camera).map(family).join(' · ')}`,
       where: (area, alsoSaid) => {
         const keys = gondolaFamilies(state, area.camera).filter((k) => k !== alsoSaid)
         const others = keys.filter((k) => k !== area.family)

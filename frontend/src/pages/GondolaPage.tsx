@@ -9,7 +9,7 @@ export function GondolaPage() {
   const { t } = useI18n()
   const { camera = '' } = useParams()
   const [params] = useSearchParams()
-  const { state, tasks, gondola } = useStore()
+  const { state, tasks, gondola, gondolaWhat } = useStore()
 
   if (!state.images[camera]) return <Navigate to="/gondolas" replace />
 
@@ -22,7 +22,8 @@ export function GondolaPage() {
         <ChevronLeft className="size-3.5" />
         {t.allGondolas}
       </Link>
-      <h1 className="mb-8 text-display">{gondola(camera)}</h1>
+      <h1 className="text-display">{gondola(camera)}</h1>
+      <p className="mt-1 mb-8 text-copy text-fg-muted">{gondolaWhat(camera)}</p>
       <TaskBoard
         key={camera}
         tasks={tasks.filter((x) => x.area.camera === camera)}

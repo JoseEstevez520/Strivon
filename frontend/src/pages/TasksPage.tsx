@@ -1,3 +1,5 @@
+import { DayBar } from '@/components/DayBar'
+import { Suggestions } from '@/components/Suggestions'
 import { TaskBoard } from '@/components/TaskBoard'
 import { useI18n } from '@/lib/i18n'
 import { useStore } from '@/lib/store'
@@ -19,7 +21,8 @@ export function TasksPage() {
         </h1>
         <p className="text-meta tabular-nums text-fg-muted">{t.photoFrom(clock(at))}</p>
       </div>
-      <TaskBoard tasks={tasks} />
+      <DayBar className="mb-6" />
+      <TaskBoard tasks={tasks} dayBar={false} split aside={<Suggestions />} />
     </>
   )
 }
