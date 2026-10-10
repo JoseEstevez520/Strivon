@@ -241,7 +241,7 @@ separate panel. Pressing it again, or Escape, closes it.
 ## Scrollbars
 
 Scrollbars are the quiet ones of elastic-ui, ported as `scrollbar-subtle` in `src/index.css`: a
-line of 3 px with no track and no arrows, invisible at rest and drawn faintly while the pointer
+line of 6 px with no track and no arrows, invisible at rest and drawn faintly while the pointer
 is over what scrolls. They apply to the page and to the camera panel. The browser's own bars are
 wide and grey and fought with the flat style. The space for the page bar stays reserved so
 nothing shifts when it appears.
@@ -385,6 +385,8 @@ a collapsing block by hand once, and Base UI and shadcn already had it.
 - 2026-10-10. The strip of coloured lines on the tiles became icons with counts. Nobody could say
   what the short lines meant, and the group icons already mean restock, move back and later
   elsewhere on the screen.
+
+- 2026-10-10. The quiet scrollbar became thicker, 6 px instead of 3, so it can be grabbed and seen.
 
 ## Open questions
 
