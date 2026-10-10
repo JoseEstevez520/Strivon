@@ -4,11 +4,18 @@ Every approach is scored the same way, so the numbers compare. The score is the 
 
 ## Results
 
-Answer key `labels_v1`: 1929 areas in 179 photos, so the maximum is 3858 points.
+Regenerate with `python eval/leaderboard.py` (it re-scores every file in `eval/benchmark/preds/`).
 
-| Approach | Owner | Labels trained on | Looks at other photos? | Identification | Stock | Total / max | Per area | Last photo, per area | Seconds per photo |
-|---|---|---|---|---:|---:|---:|---:|---:|---|
-| Always "right product, full" (baseline) | | none | no | +1653 | −99 | +1554 / 3858 | +0.806 | +0.344 | 0 |
+<!-- LEADERBOARD:START -->
+Answer key `labels_v1`: 1929 areas, maximum 3858 points. "≈ /578" scales the total to the 289 hidden validation areas.
+
+| # | Approach | Owner | Labels trained on | Looks at other photos? | Identification | Stock | Total / max | ≈ / 578 | Per area | Last photo, per area | Seconds per photo |
+|---:|---|---|---|---|---:|---:|---:|---:|---:|---:|---|
+| 1 | Single image + labelled training crops of the same area as references (`single_ref_vitb16`) | Miguel | the key | training crops only | +1905 | +1313 | +3218 / 3858 | +482 | +1.668 | +1.510 | about 3 s, 20 CPU threads (laptop) |
+| 2 | Single image: CLIP ViT-B-16 + colour + area id, logistic regression (`single_vitb16`) | Miguel | the key | no | +1896 | +1315 | +3211 / 3858 | +481 | +1.665 | +1.503 | about 3 s, 20 CPU threads (laptop) |
+| 3 | Single image: CLIP ViT-B-32 + colour + area id, logistic regression (`single_vitb32`) | Miguel | the key | no | +1908 | +1297 | +3205 / 3858 | +480 | +1.661 | +1.543 | 0.8 s, 2 CPU threads (laptop), no GPU |
+| 4 | Always "right product, full" (`baseline`) |  | none | no | +1653 | -99 | +1554 / 3858 | +233 | +0.806 | +0.344 | 0 |
+<!-- LEADERBOARD:END -->
 
 ## How to get a score
 
