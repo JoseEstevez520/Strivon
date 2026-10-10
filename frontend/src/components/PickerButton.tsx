@@ -1,32 +1,38 @@
 import type { ReactNode } from 'react'
-import { ChevronDown } from 'lucide-react'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+
+export interface PickerOption {
+  value: string
+  label: string
+  /** Quiet text at the right of the option, such as a count. */
+  hint?: string
+}
 
 interface Props {
   icon: ReactNode
   label: string
   value: string
   onChange: (value: string) => void
-  options: { value: string; label: string }[]
+  options: PickerOption[]
 }
 
-/** A tray-like picker: a native select dressed as the library's quiet field. */
+/** A tray that opens a short list. Used for the camera and the language. */
 export function PickerButton({ icon, label, value, onChange, options }: Props) {
+  const items = options.map((o) => ({ value: o.value, label: o.label }))
   return (
-    <label className="relative inline-flex cursor-pointer items-center gap-2 rounded-md bg-surface py-1.5 pr-8 pl-3 text-label transition-colors hover:bg-raised">
-      <span className="text-fg-muted [&_svg]:size-4">{icon}</span>
-      <span className="sr-only">{label}</span>
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="cursor-pointer appearance-none bg-transparent pr-1 outline-none"
-      >
+    <Select items={items} value={value} onValueChange={(v) => v && onChange(v)}>
+      <SelectTrigger aria-label={label}>
+        <span className="text-fg-muted [&_svg]:size-4">{icon}</span>
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent align="end">
         {options.map((o) => (
-          <option key={o.value} value={o.value}>
+          <SelectItem key={o.value} value={o.value}>
             {o.label}
-          </option>
+            {o.hint && <span className="text-meta tabular-nums text-fg-muted">{o.hint}</span>}
+          </SelectItem>
         ))}
-      </select>
-      <ChevronDown className="pointer-events-none absolute right-2.5 size-4 text-fg-muted" />
-    </label>
+      </SelectContent>
+    </Select>
   )
 }

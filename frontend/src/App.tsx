@@ -68,7 +68,8 @@ function Screen() {
           }}
           options={cameras(state).map((c) => ({
             value: c,
-            label: `${t.camera} ${c} · ${open.filter((x) => x.area.camera === c).length}`,
+            label: `${t.camera} ${c}`,
+            hint: String(open.filter((x) => x.area.camera === c).length),
           }))}
         />
         <PickerButton
