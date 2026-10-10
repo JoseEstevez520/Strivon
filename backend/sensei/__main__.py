@@ -28,7 +28,10 @@ def main(argv=None) -> int:
     p.add_argument("--out", default=str(config.PREDICTIONS_PATH))
     p.add_argument("--details", default=str(config.OUTPUTS_DIR / "details.json"))
     p.add_argument("--no-clip", action="store_true", help="classical features only (fast, no PyTorch)")
-    p.add_argument("--label-free", action="store_true", help="ignore the supervised model (outputs/supervised.pkl)")
+    p.add_argument("--label-free", action="store_true", help="ignore the trained models")
+    p.add_argument("--model", default="auto", choices=["auto", "single", "neighbours", "label-free"],
+                   help="auto = single-image model if trained (the one to submit)")
+    p.add_argument("--persons", action="store_true", help="run the person detector (+0.7 s/photo)")
 
     s = sub.add_parser("score", help="score a submission against annotations (challenge rules)")
     s.add_argument("--pred", default=str(config.PREDICTIONS_PATH))
@@ -39,6 +42,10 @@ def main(argv=None) -> int:
 
     t = sub.add_parser("train", help="train the supervised model on eval/labels.json (+ André's checks), with photo-held-out CV")
     t.add_argument("--ctx", action="store_true", help="add whole-crate crop features (tested: no gain, 488 vs 489)")
+
+    sub.add_parser("bench", help="André's benchmark (LEADERBOARD.md) for the single-image models")
+    st = sub.add_parser("train-single", help="fit the single-image model on all labels (outputs/single.pkl)")
+    st.add_argument("--no-refs", action="store_true", help="do not use training crops of the same area as references")
 
     m = sub.add_parser("vlm-label", help="(optional) label images with Claude vision; needs ANTHROPIC_API_KEY")
     m.add_argument("--images", default=str(config.IMAGES_DIR))
@@ -56,7 +63,8 @@ def main(argv=None) -> int:
         from .planogram import load_planogram
 
         ctx = a.context if a.context is not None else [str(config.IMAGES_DIR)]
-        res = run(a.images, ctx, camera=a.camera, use_clip=False if a.no_clip else None, use_supervised=not a.label_free)
+        res = run(a.images, ctx, camera=a.camera, use_clip=False if a.no_clip else None, use_supervised=not a.label_free,
+                  model="label-free" if a.label_free else a.model, use_occlusion=a.persons)
         problems = validate_submission(res["submission"], load_planogram())
         write(res, a.out, a.details)
         n = sum(len(x) for imgs in res["submission"].values() for x in imgs.values())
@@ -88,6 +96,18 @@ def main(argv=None) -> int:
         from .supervised import train
 
         train(use_ctx=a.ctx)
+        return 0
+
+    if a.cmd == "bench":
+        from .single import bench
+
+        bench()
+        return 0
+
+    if a.cmd == "train-single":
+        from .single import train as train_single
+
+        train_single(use_refs=not a.no_refs)
         return 0
 
     if a.cmd == "vlm-label":
