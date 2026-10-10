@@ -43,6 +43,11 @@ def main(argv=None) -> int:
     t = sub.add_parser("train", help="train the supervised model on eval/labels.json (+ André's checks), with photo-held-out CV")
     t.add_argument("--ctx", action="store_true", help="add whole-crate crop features (tested: no gain, 488 vs 489)")
 
+    cb_ = sub.add_parser("combine", help="stock from one model's file, product check from another's")
+    cb_.add_argument("--stock", nargs="+", required=True, help="prediction file(s) used for stock (lower median)")
+    cb_.add_argument("--product", nargs="+", required=True, help="prediction file(s) used for the product check (vote)")
+    cb_.add_argument("--out", required=True)
+
     sub.add_parser("bench", help="André's benchmark (LEADERBOARD.md) for the single-image models")
     st = sub.add_parser("train-single", help="fit the single-image model on all labels (outputs/single.pkl)")
     st.add_argument("--no-refs", action="store_true", help="kept for compatibility (references are off by default)")
@@ -97,6 +102,21 @@ def main(argv=None) -> int:
         from .supervised import train
 
         train(use_ctx=a.ctx)
+        return 0
+
+    if a.cmd == "combine":
+        from .combine import combine
+        from .pipeline import validate_submission
+        from .planogram import load_planogram
+
+        out, stats = combine(a.stock, a.product)
+        Path(a.out).parent.mkdir(parents=True, exist_ok=True)
+        Path(a.out).write_text(json.dumps(out, indent=1), encoding="utf-8")
+        problems = validate_submission(out, load_planogram())
+        print(f"wrote {a.out}: {stats['areas']} areas, {stats['stock_from_fallback']} without a stock file")
+        if problems:
+            print("VALIDATION PROBLEMS:\n  " + "\n  ".join(problems[:20]))
+            return 1
         return 0
 
     if a.cmd == "bench":
