@@ -234,6 +234,14 @@ separate panel. Pressing it again, or Escape, closes it.
   exposes the panel height as a variable and marks the first and last frame, and we animate
   between them. The list pickers open with the same times.
 
+## Scrollbars
+
+Scrollbars are the quiet ones of elastic-ui, ported as `scrollbar-subtle` in `src/index.css`: a
+line of 3 px with no track and no arrows, invisible at rest and drawn faintly while the pointer
+is over what scrolls. They apply to the page and to the camera panel. The browser's own bars are
+wide and grey and fought with the flat style. The space for the page bar stays reserved so
+nothing shifts when it appears.
+
 ## Motion
 
 Colour changes take 150 ms and the open picker fades. A task opens and closes with a height
@@ -358,6 +366,9 @@ a collapsing block by hand once, and Base UI and shadcn already had it.
   shrank from 1632 to 1073 px and the pressed card moved 177 px, because the panel changed from
   a grid to a photo and the open card moved to its own row. Now the panel has a fixed height with
   its own scroll and the card opens in its column, and the pressed card stays within 0 px.
+
+- 2026-10-10. Scrollbars are quiet: invisible at rest and a thin faint line on hover, for the page
+  and for the camera panel. The browser's default grey bar stood out against the flat screen.
 
 ## Open questions
 

@@ -99,6 +99,7 @@
   }
   html {
     scrollbar-gutter: stable;
+    @apply scrollbar-subtle;
   }
   * {
     @apply border-border;
@@ -144,4 +145,52 @@
   outline: 2px solid var(--fg-muted);
   outline-offset: 4px;
   border-radius: 4px;
+}
+
+/*
+ * A scrollbar that stays out of the way: a line of 3px with no track and no arrows, unseen at rest
+ * and drawn faintly while the pointer is over what scrolls. Ported from elastic-ui's
+ * `scrollbar-subtle`. Chromium and Safari draw it from the `::-webkit-scrollbar` parts and ignore
+ * them as soon as a standard property is set, so `scrollbar-width` and `scrollbar-color` go to
+ * Firefox only.
+ */
+@utility scrollbar-subtle {
+  --scrollbar-thumb: color-mix(in oklab, var(--fg) 18%, transparent);
+
+  &::-webkit-scrollbar {
+    width: 7px;
+    height: 7px;
+  }
+  &::-webkit-scrollbar-track,
+  &::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-button {
+    display: none;
+  }
+  &::-webkit-scrollbar-track {
+    margin-block: var(--scrollbar-inset, 8px);
+  }
+  /* A transparent border clipped out of the background leaves a 3px line with room around it. */
+  &::-webkit-scrollbar-thumb {
+    border: 2px solid transparent;
+    border-radius: 9999px;
+    background: transparent padding-box;
+  }
+  &:hover::-webkit-scrollbar-thumb,
+  &:focus-within::-webkit-scrollbar-thumb {
+    background-color: var(--scrollbar-thumb);
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: color-mix(in oklab, var(--fg) 32%, transparent);
+  }
+
+  @supports (-moz-appearance: none) {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+    &:hover,
+    &:focus-within {
+      scrollbar-color: var(--scrollbar-thumb) transparent;
+    }
+  }
 }
