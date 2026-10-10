@@ -12,7 +12,7 @@ const COUNTED: Group[] = ['restock', 'moveBack', 'later']
  * what the app says. Under it, the name on the left, which may take two lines, and on the right how
  * many areas are in each state, with the same icons as the group headings.
  */
-export function CameraTile({ camera, inert = false }: { camera: string; inert?: boolean }) {
+export function CameraTile({ camera, inert = false, onPick }: { camera: string; inert?: boolean; onPick?: (camera: string) => void }) {
   const { t } = useI18n()
   const { state, at, tasks, gondola, photoUrl } = useStore()
   const own = tasks.filter((x) => x.area.camera === camera)
@@ -20,14 +20,15 @@ export function CameraTile({ camera, inert = false }: { camera: string; inert?: 
   const src = photoUrl?.(camera, snapshot(state, camera, at).image)
 
   // Inert: the same tile with nothing to press, for places that must not lead away.
-  const Root = inert ? 'div' : Link
-  const rootProps = inert ? {} : { to: `/gondolas/${camera}` }
+  // With `onPick` it is a button that picks the camera in place instead of leading to its page.
+  const Root = onPick ? 'button' : inert ? 'div' : Link
+  const rootProps = onPick ? { type: 'button', onClick: () => onPick(camera) } : inert ? {} : { to: `/gondolas/${camera}` }
 
   return (
     <Root
       {...(rootProps as { to: string })}
       title={gondola(camera)}
-      className="flex h-full flex-col gap-2 rounded-2xl bg-surface p-2 transition-colors hover:bg-raised"
+      className={`flex h-full flex-col gap-2 rounded-2xl bg-surface p-2 transition-colors hover:bg-raised ${onPick ? 'w-full cursor-pointer text-left' : ''}`}
     >
       <div className="relative aspect-[16/10] overflow-hidden rounded-xl bg-[#d6d8d0]">
         {src && <img src={src} alt="" loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover" />}

@@ -1,4 +1,5 @@
 import { ChevronLeft, ChevronRight, LayoutGrid } from 'lucide-react'
+import { useState } from 'react'
 import { Link } from 'react-router'
 import { CameraTile } from './CameraTile'
 import { DayBar } from './DayBar'
@@ -31,13 +32,15 @@ export function TaskBoard({ tasks, camera, listFine = false, initialSelected = n
   const { t } = useI18n()
   const { state, at, tasks: all, gondola, where, historyOf, jumpTo, photoUrl } = useStore()
   const [selected, select] = useSelection(initialSelected)
+  // Compact only: a gondola picked on the side shows its own photo and tasks, in place.
+  const [focused, setFocused] = useState<string | null>(null)
 
   const selectedTask = all.find((x) => x.area.area_id === selected)
-  const photoCamera = camera ?? selectedTask?.area.camera
+  const photoCamera = camera ?? focused ?? selectedTask?.area.camera
   const photo = photoCamera ? snapshot(state, photoCamera, at) : null
   // Compact keeps only the first few cards of each group.
   const shown = (g: Group) => {
-    const own = tasks.filter((x) => x.group === g)
+    const own = tasks.filter((x) => x.group === g && (!focused || x.area.camera === focused))
     return compact ? cardsOf(own).slice(0, g === 'restock' ? 3 : 2).flatMap((c) => c.tasks) : own
   }
 
@@ -71,7 +74,10 @@ export function TaskBoard({ tasks, camera, listFine = false, initialSelected = n
               {!camera && (
                 <button
                   type="button"
-                  onClick={() => select(null)}
+                  onClick={() => {
+                    select(null)
+                    setFocused(null)
+                  }}
                   className="flex cursor-pointer items-center gap-1 rounded-sm transition-colors hover:text-fg-secondary"
                 >
                   <ChevronLeft className="size-3.5" />
@@ -113,7 +119,7 @@ export function TaskBoard({ tasks, camera, listFine = false, initialSelected = n
           <ul className="grid grid-cols-2 gap-3">
             {(compact ? cameras(state).slice(0, 4) : cameras(state)).map((c) => (
               <li key={c}>
-                <CameraTile camera={c} inert={compact} />
+                <CameraTile camera={c} inert={compact} onPick={compact ? setFocused : undefined} />
               </li>
             ))}
           </ul>
