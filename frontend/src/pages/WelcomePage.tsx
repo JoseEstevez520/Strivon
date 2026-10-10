@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import {
   ArrowRight,
   Apple,
@@ -12,8 +12,13 @@ import {
   ScanSearch,
   type LucideIcon,
 } from 'lucide-react'
-import { TaskBoard } from '@/components/TaskBoard'
+import { AreaCrop } from '@/components/AreaCrop'
+import { GROUP_COLOR, GROUP_ICON } from '@/components/groupStyle'
+import { PhotoStage } from '@/components/PhotoStage'
+import { useI18n } from '@/lib/i18n'
 import { useStore } from '@/lib/store'
+import { cardsOf, snapshot } from '@/lib/tasks'
+import { clock } from '@/lib/time'
 
 const STEPS: [LucideIcon, string, string][] = [
   [Camera, 'A camera looks', 'Each gondola has a ceiling camera that takes a photo about once an hour.'],
@@ -130,14 +135,79 @@ function Hero() {
 }
 
 /**
+ * A small, fixed-size demo: a few things to do, and the photo of the one you pick with its shelf
+ * areas drawn on it. Unlike the app, nothing opens in place and nothing folds, so it never changes
+ * size.
+ */
+function Demo() {
+  const { family } = useI18n()
+  const { state, tasks, at, gondola, photoUrl } = useStore()
+  const cards = useMemo(
+    () => [
+      ...cardsOf(tasks.filter((x) => x.group === 'restock')).slice(0, 3),
+      ...cardsOf(tasks.filter((x) => x.group === 'moveBack')).slice(0, 2),
+    ],
+    [tasks],
+  )
+  const [picked, setPicked] = useState<string | null>(null)
+  const card = cards.find((c) => c.key === picked) ?? cards[0]
+  if (!card) return null
+  const first = card.tasks[0]
+  const camera = first.area.camera
+  const photo = snapshot(state, camera, at)
+
+  return (
+    <div className="rounded-2xl bg-surface p-2">
+      <div className="flex h-9 items-center gap-1.5 px-3">
+        {[0, 1, 2].map((i) => (
+          <span key={i} className="size-2.5 rounded-full bg-sunk" />
+        ))}
+        <span className="ml-3 text-meta text-fg-muted">Demo</span>
+      </div>
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-6 rounded-xl bg-bg p-4 sm:p-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+        <ul className="flex flex-col gap-2">
+          {cards.map((c) => {
+            const Icon = GROUP_ICON[c.group]
+            return (
+              <li key={c.key}>
+                <button
+                  type="button"
+                  onClick={() => setPicked(c.key)}
+                  style={{ '--c': GROUP_COLOR[c.group] } as CSSProperties}
+                  data-on={c.key === card.key}
+                  className="flex w-full cursor-pointer items-center gap-3 rounded-lg bg-[color-mix(in_oklab,var(--c)_13%,transparent)] p-2 pr-3 text-left transition-colors hover:bg-[color-mix(in_oklab,var(--c)_19%,transparent)] data-[on=true]:bg-[color-mix(in_oklab,var(--c)_22%,transparent)]"
+                >
+                  <AreaCrop area={c.tasks[0].area} image={c.tasks[0].record.image} />
+                  <span className="min-w-0 flex-1 truncate text-label">{family(c.tasks[0].area.family)}</span>
+                  <Icon className="size-4 text-[var(--c)]" aria-hidden />
+                </button>
+              </li>
+            )
+          })}
+        </ul>
+        <div>
+          <PhotoStage
+            tasks={tasks.filter((x) => x.area.camera === camera)}
+            selected={first.area.area_id}
+            src={photoUrl?.(camera, photo.image)}
+            onSelect={() => {}}
+          />
+          <p className="mt-2 px-1 text-meta tabular-nums text-fg-muted">
+            {gondola(camera)} · {clock(photo.ts)}
+          </p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/**
  * The presentation page, laid out like the project landings: a centred first screen, then one
  * section per idea at the page's one width. It is the app itself, not pictures of it: the task
  * list can be opened and the day map is drawn from the same figures. It stands outside the app's
  * layout so it reads as one page.
  */
 export function WelcomePage() {
-  const { tasks } = useStore()
-
   return (
     <div className="scrollbar-subtle h-dvh overflow-x-clip overflow-y-auto [scrollbar-gutter:stable]">
       <Hero />
@@ -180,18 +250,8 @@ export function WelcomePage() {
           </ul>
         </Section>
 
-        <Section title="See it" lead="This is the app, not a picture of it. Open any card to see its day, its shelf and the photo.">
-          <div className="rounded-2xl bg-surface p-2">
-            <div className="flex h-9 items-center gap-1.5 px-3">
-              {[0, 1, 2].map((i) => (
-                <span key={i} className="size-2.5 rounded-full bg-sunk" />
-              ))}
-              <span className="ml-3 text-meta text-fg-muted">Demo</span>
-            </div>
-            <div className="rounded-xl bg-bg p-4 sm:p-6">
-              <TaskBoard tasks={tasks} compact />
-            </div>
-          </div>
+        <Section title="See it" lead="A few things to do. Pick one to see its shelf on the camera photo.">
+          <Demo />
         </Section>
 
         <Section title="Team">
