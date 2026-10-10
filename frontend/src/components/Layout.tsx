@@ -2,6 +2,7 @@ import { Apple, ChartNoAxesColumn, Globe, LayoutGrid, ListChecks, type LucideIco
 import { ES, GB, PT } from 'country-flag-icons/react/3x2'
 import { useEffect, useRef, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router'
+import { Logo } from './Logo'
 import { PickerButton } from './PickerButton'
 import { LANGS, useI18n } from '@/lib/i18n'
 
@@ -48,7 +49,8 @@ export function Layout() {
     <div className="flex h-dvh flex-col">
       <header className={`shrink-0 border-b bg-bg transition-colors ${scrolled ? 'border-border' : 'border-transparent'}`}>
         <div className="mx-auto grid h-12 max-w-7xl grid-cols-[1fr_auto_1fr] items-center px-5">
-          <Link to="/" className="justify-self-start rounded-sm text-title tracking-tight">
+          <Link to="/" className="flex items-center gap-2 justify-self-start rounded-sm text-title tracking-tight">
+            <Logo className="size-5" />
             strivon
           </Link>
           <nav className="col-start-2 hidden h-full gap-2 md:flex" aria-label="Pages">

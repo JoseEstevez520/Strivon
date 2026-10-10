@@ -451,6 +451,10 @@ a collapsing block by hand once, and Base UI and shadcn already had it.
   estimate. The assistant is empty on purpose: the parts an answer is made of are built, the
   answering is not.
 
+- 2026-10-10. The logo is a 3×3 of day-map slots with a stretch of gone ones running corner to
+  corner, next to the name in lower case. It is the same shape as the hero, the banner and the day
+  map, so one idea carries the brand. Red stays for the gone slots. It is also the favicon, and it
+  holds up at 16 px, which the wider and the single-row versions did not.
 - 2026-10-10. The chat answers with a clean set of parts, as OpenUI's own library does, and each
   one is drawn here: `Text`, `Callout`, `Metrics`, `Ranked`, `Bars`, `Table`, `Trend` (a line by
   hour), `Mix` (one bar of how time split), `DayMap`, `Tasks`, `Where` and `Gondola`. Charts are
