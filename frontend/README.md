@@ -5,7 +5,7 @@ photo, and the stock of each product. It is built with React, Vite, Tailwind v4 
 
 There are four pages. Tasks lists the work, grouped by action and ordered by urgency, beside the
 cameras. Gondolas shows the 14 cameras and what each one needs. Products shows the stock of each
-product summed over all its shelf areas. Insights says how the store is doing, with a field to ask about it.
+product summed over all its shelf areas. Insights says how the store is doing, with a chat bubble to ask about it.
 `DESIGN.md` has the rules for how it looks and the reasons
 behind each decision.
 

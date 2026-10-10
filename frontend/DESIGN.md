@@ -452,6 +452,10 @@ a collapsing block by hand once, and Base UI and shadcn already had it.
   estimate. The assistant is empty on purpose: the parts an answer is made of are built, the
   answering is not.
 
+- 2026-10-10. The chat is a round button in the corner of Insights only, not of every page. It
+  opens a box that fades and scales in from the corner (elastic-ui's chat, without the aurora,
+  blur and size morph), and closing keeps the conversation. It lives where the answers are, and
+  the other pages have no use for it.
 - 2026-10-10. The Insights headline puts the number first ("~24% of shelf time was empty"), as the
   other pages do. The "~" says it is an estimate, with the detail on hover, and the period sits in
   a small line on the right with "simulated" while it is. Three disclaimers in a line under the

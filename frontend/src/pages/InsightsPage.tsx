@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { Chat } from '@/components/chat/Chat'
+import { ChatBubble } from '@/components/chat/ChatBubble'
 import { DayMap } from '@/components/day/DayMap'
 import { RankedBars } from '@/components/day/RankedBars'
 import { useI18n } from '@/lib/i18n'
@@ -61,9 +61,7 @@ export function InsightsPage() {
 
       <p className="mb-12 px-1 text-ui text-fg-secondary tabular-nums">{t.complianceLine(Math.round(stats.compliance * 100))}</p>
 
-      <div className="max-w-2xl">
-        <Chat />
-      </div>
+      <ChatBubble />
     </>
   )
 }
