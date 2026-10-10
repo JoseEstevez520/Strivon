@@ -14,7 +14,6 @@ import {
 } from 'lucide-react'
 import { AreaCrop } from '@/components/AreaCrop'
 import { GROUP_COLOR, GROUP_ICON } from '@/components/groupStyle'
-import { PhotoStage } from '@/components/PhotoStage'
 import { useI18n } from '@/lib/i18n'
 import { useStore } from '@/lib/store'
 import { cardsOf, snapshot } from '@/lib/tasks'
@@ -67,7 +66,7 @@ const slotFill = (v: number) => (v < 0.25 ? tone(84) : v < 0.5 ? tone(52) : v < 
 
 /**
  * A scatter of slots like the day map's, made of real elements in a grid that is sized to hold
- * whole slots, so none is cut at the edge. They keep away from the centre so the name reads.
+ * whole slots, so none is cut at the edge. They fade out toward the centre so the name reads.
  */
 function Slots() {
   const ref = useRef<HTMLDivElement>(null)
@@ -92,11 +91,16 @@ function Slots() {
     for (let c = 0; c < size.cols; c++) {
       const dx = (c + 0.5) / size.cols - 0.5
       const dy = (r + 0.5) / size.rows - 0.5
-      const far = Math.hypot(dx * 1.1, dy * 2) > 0.55
-      const v = hash(r, c)
-      const shown = far && hash(c, r) > 0.55
+      // Nothing close to the text, then more and more of the slots as they get further from it, so
+      // the scatter fades in instead of stopping at an edge.
+      const fade = Math.max(0, Math.min(1, (Math.hypot(dx * 1.1, dy * 2) - 0.45) / 0.3))
+      const shown = hash(c, r) > 0.4 && fade > 0
       cells.push(
-        <span key={`${r}-${c}`} className="rounded-[7px]" style={{ background: shown ? slotFill(v) : 'transparent', opacity: 0.8 }} />,
+        <span
+          key={`${r}-${c}`}
+          className="rounded-[7px]"
+          style={{ background: shown ? slotFill(hash(r, c)) : 'transparent', opacity: 0.85 * fade * fade }}
+        />,
       )
     }
   }
@@ -134,27 +138,57 @@ function Hero() {
   )
 }
 
+/** A gondola as in the app's grid, but only to look at: it leads nowhere. */
+function Tile({ camera, on }: { camera: string; on: boolean }) {
+  const { t } = useI18n()
+  const { state, at, tasks, gondola, photoUrl } = useStore()
+  const own = tasks.filter((x) => x.area.camera === camera)
+  const counts = (['restock', 'moveBack', 'later'] as const).map((g) => [g, own.filter((x) => x.group === g).length] as const).filter(([, n]) => n > 0)
+  const src = photoUrl?.(camera, snapshot(state, camera, at).image)
+
+  return (
+    <div data-on={on} className="flex flex-col gap-2 rounded-2xl bg-surface p-2 transition-colors data-[on=true]:bg-sunk">
+      <div className="relative aspect-[16/10] overflow-hidden rounded-xl bg-[#d6d8d0]">
+        {src && <img src={src} alt="" decoding="async" className="absolute inset-0 size-full object-cover" />}
+      </div>
+      <div className="flex items-center justify-between gap-2.5 px-1 pb-1">
+        <span className="line-clamp-1 min-w-0 text-label">{gondola(camera)}</span>
+        <span className="flex shrink-0 gap-2.5 text-meta font-medium tabular-nums text-fg-secondary">
+          {counts.map(([group, n]) => {
+            const Icon = GROUP_ICON[group]
+            return (
+              <span key={group} className="flex items-center gap-1">
+                <Icon className="size-3.5" style={{ color: GROUP_COLOR[group] }} aria-hidden />
+                {n}
+                <span className="sr-only">{t[group]}</span>
+              </span>
+            )
+          })}
+        </span>
+      </div>
+    </div>
+  )
+}
+
 /**
- * A small, fixed-size demo: a few things to do, and the photo of the one you pick with its shelf
- * areas drawn on it. Unlike the app, nothing opens in place and nothing folds, so it never changes
- * size.
+ * A small, fixed-size demo built from the app's look: a few things to do on one side and the
+ * gondolas they are in on the other. Pick a task and its gondola lights up. Unlike the app,
+ * nothing opens in place, nothing folds and nothing leads away, so it never changes size.
  */
 function Demo() {
   const { family } = useI18n()
-  const { state, tasks, at, gondola, photoUrl } = useStore()
+  const { tasks, gondola, where } = useStore()
   const cards = useMemo(
     () => [
       ...cardsOf(tasks.filter((x) => x.group === 'restock')).slice(0, 3),
-      ...cardsOf(tasks.filter((x) => x.group === 'moveBack')).slice(0, 2),
+      ...cardsOf(tasks.filter((x) => x.group === 'moveBack')).slice(0, 1),
     ],
     [tasks],
   )
   const [picked, setPicked] = useState<string | null>(null)
   const card = cards.find((c) => c.key === picked) ?? cards[0]
   if (!card) return null
-  const first = card.tasks[0]
-  const camera = first.area.camera
-  const photo = snapshot(state, camera, at)
+  const cameras = [...new Set(cards.map((c) => c.tasks[0].area.camera))].slice(0, 4)
 
   return (
     <div className="rounded-2xl bg-surface p-2">
@@ -164,10 +198,10 @@ function Demo() {
         ))}
         <span className="ml-3 text-meta text-fg-muted">Demo</span>
       </div>
-      <div className="grid grid-cols-[minmax(0,1fr)] gap-6 rounded-xl bg-bg p-4 sm:p-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-6 rounded-xl bg-bg p-4 sm:p-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         <ul className="flex flex-col gap-2">
           {cards.map((c) => {
-            const Icon = GROUP_ICON[c.group]
+            const first = c.tasks[0]
             return (
               <li key={c.key}>
                 <button
@@ -177,26 +211,24 @@ function Demo() {
                   data-on={c.key === card.key}
                   className="flex w-full cursor-pointer items-center gap-3 rounded-lg bg-[color-mix(in_oklab,var(--c)_13%,transparent)] p-2 pr-3 text-left transition-colors hover:bg-[color-mix(in_oklab,var(--c)_19%,transparent)] data-[on=true]:bg-[color-mix(in_oklab,var(--c)_22%,transparent)]"
                 >
-                  <AreaCrop area={c.tasks[0].area} image={c.tasks[0].record.image} />
-                  <span className="min-w-0 flex-1 truncate text-label">{family(c.tasks[0].area.family)}</span>
-                  <Icon className="size-4 text-[var(--c)]" aria-hidden />
+                  <AreaCrop area={first.area} image={first.record.image} />
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-label">{family(first.area.family)}</span>
+                    <span className="block truncate text-meta text-fg-secondary">{where(first.area, first.obs.observed_family)}</span>
+                  </span>
+                  <span className="text-meta tabular-nums text-fg-secondary">{clock(first.since ?? first.record.ts)}</span>
                 </button>
               </li>
             )
           })}
         </ul>
-        <div>
-          <PhotoStage
-            tasks={tasks.filter((x) => x.area.camera === camera)}
-            selected={first.area.area_id}
-            src={photoUrl?.(camera, photo.image)}
-            onSelect={() => {}}
-          />
-          <p className="mt-2 px-1 text-meta tabular-nums text-fg-muted">
-            {gondola(camera)} · {clock(photo.ts)}
-          </p>
+        <div className="grid grid-cols-2 content-start gap-3">
+          {cameras.map((camera) => (
+            <Tile key={camera} camera={camera} on={camera === card.tasks[0].area.camera} />
+          ))}
         </div>
       </div>
+      <span className="sr-only">{gondola(card.tasks[0].area.camera)}</span>
     </div>
   )
 }
@@ -250,7 +282,7 @@ export function Landing() {
           </ul>
         </Section>
 
-        <Section title="See it" lead="A few things to do. Pick one to see its shelf on the camera photo.">
+        <Section title="See it" lead="A few things to do, and the gondolas they are in.">
           <Demo />
         </Section>
 
