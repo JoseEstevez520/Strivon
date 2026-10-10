@@ -22,9 +22,10 @@ interface Store {
   gondola: (camera: string) => string
   /**
    * Where an area is, without repeating its own product: the other products of its gondola
-   * ("with Cabbage"), or nothing when the gondola holds only that product.
+   * ("with Cabbage"), or nothing when the gondola holds only that product. `alsoSaid` is a
+   * product the caller already names, so it is not repeated.
    */
-  where: (area: Area) => string
+  where: (area: Area, alsoSaid?: string) => string
   historyOf: (area: Area) => HistoryPoint[]
 }
 
@@ -97,8 +98,8 @@ function LoadedStore({ source, children }: { source: Source; children: ReactNode
       },
       tasks: tasksAt(state, at),
       gondola: (camera) => gondolaFamilies(state, camera).map(family).join(' · '),
-      where: (area) => {
-        const keys = gondolaFamilies(state, area.camera)
+      where: (area, alsoSaid) => {
+        const keys = gondolaFamilies(state, area.camera).filter((k) => k !== alsoSaid)
         const others = keys.filter((k) => k !== area.family)
         if (others.length === keys.length) return keys.map(family).join(' · ')
         return others.length ? t.withProduct(others.map(family).join(' · ')) : ''

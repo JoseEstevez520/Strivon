@@ -10,11 +10,11 @@ export function GondolasPage() {
   const { state, tasks } = useStore()
 
   const rows = cameras(state)
-    .map((camera) => {
-      const own = tasks.filter((x) => x.area.camera === camera)
-      return { camera, own, pending: own.filter((x) => ACTION.includes(x.group)).length }
-    })
-    .sort((a, b) => b.pending - a.pending || a.camera.localeCompare(b.camera))
+    .map((camera) => ({
+      camera,
+      pending: tasks.filter((x) => x.area.camera === camera && ACTION.includes(x.group)).length,
+    }))
+  // The order is fixed, so each gondola stays where the staff learned to look for it.
   const needing = rows.filter((r) => r.pending > 0).length
 
   return (

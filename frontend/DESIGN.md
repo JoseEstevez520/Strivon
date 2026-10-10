@@ -17,11 +17,13 @@ interface has a few pages, as the first web did, with the design rebuilt. The te
 The pages are the structure of the first web, kept because they fit what the staff do. The
 interface of that web was the problem, not its pages.
 
-- Tasks is the first page. The list of what to do is on the left, grouped by action. On the
-  right are all the cameras with their latest photo and a strip of their state, and when a task
+- Tasks is the first page. What to do is the main thing, so the list takes the wider column on
+  the left (three fifths), grouped by action, and the context takes two fifths. Cards sit two to
+  a row, because a wide card has a large empty gap between the name and the time. A card that is
+  open spans the whole row. On the right are all the cameras with their latest photo and a strip of their state, and when a task
   is open the panel shows the photo of its camera with the area marked, and a way back to all
   cameras.
-- Gondolas shows the 14 cameras as tiles, the ones that need someone first. A tile opens the page
+- Gondolas shows the 14 cameras as tiles, in a fixed order. A tile opens the page
   of that gondola: its photo, and its own tasks with every area that is fine.
 - Products shows the stock of each product summed over all its areas, the ones running out first,
   with a search. A product opens into the places where it sits.
@@ -44,6 +46,28 @@ lags, and this screen recalculates the whole list every time the day bar moves.
 
 Where we differ on purpose: the neutrals are warm, taken from Sensei's site, where elastic-ui
 uses cool greys. There is no accent colour. Only the light theme exists for now.
+
+## Header and navigation
+
+The header is fixed, opaque and 56 px tall. The name is on the left, the language on the right
+and the pages in the middle, each with an icon and its label. The page you are on is marked with
+a 2 px underline in the text colour, the way elastic-ui's underline tabs do it, and not with a
+filled shape. A hairline appears under the header only once the page has moved. It does not
+shrink or hide: it is already small.
+
+On a phone the pages move to a bar at the bottom, with the icon over the label and a thin line
+on top of the active one. The first version had plain links with a tinted pill next to the
+name, which was neither a tab nor a button and broke the calm of the page.
+
+Group headings in the lists stay fixed under the header while their group scrolls, on an opaque
+background. The photo panel stays in view beside the list. The grid of cameras is taller than a
+screen, so it scrolls with the page: a fixed element taller than the screen would hide its
+lower half.
+
+Sources, read on 2026-10-10: NN/g on sticky headers (opaque, as small as possible, shrink only
+for a large logo) and Android's guide to navigation (a bar of three to five destinations on a
+phone, horizontal items on a medium screen). Other claims from the research, such as the order
+of tiles and the width of the panel, come from sources that were not opened.
 
 ## Tokens
 
@@ -104,6 +128,19 @@ A card says each thing once. The group heading already says the action, so the c
 We compared three layouts and chose the second: name and time on one line with the reason
 under it, name alone with the time as the right edge, or elapsed time as a large figure. The
 second has the least text, which was the complaint about the first version.
+
+## Gondola tiles
+
+A tile is a camera: its latest photo, what it is called, a count and a strip of its areas. It is
+built like a task card. A gondola with something to restock is tinted red and one with only
+misplaced products is tinted amber. The tint is stronger the more there is to restock, so a
+gondola with one empty area does not look like one with seven. A gondola that is fine stays on
+the neutral tone with "All good" in grey. The count carries the state icon, with the text in
+grey, as in the group headings. The photo is not what tells the state, the tint, the count and
+the strip are.
+
+The order is fixed, by camera, and does not follow urgency. The staff learn where each gondola
+is, and tiles that jump around as the day bar moves make that impossible.
 
 ## Pickers
 
@@ -272,11 +309,22 @@ a collapsing block by hand once, and Base UI and shadcn already had it.
 - 2026-10-10. Products group by family and not by catalogue id. With real data the first version
   listed 94 numeric ids, and the same product appeared twice on the first page.
 
+- 2026-10-10. Header and navigation redone: centred pages with icons, an underline for the active
+  one, a fixed opaque bar, and a bottom bar on a phone. The first version, plain links with a
+  filled pill, was called horrible and broke the style.
+- 2026-10-10. The task list became the main column and the cameras the secondary one, because
+  what to do matters more than where the gondolas are. Cards sit two to a row, and group
+  headings stay fixed while scrolling.
+- 2026-10-10. Gondola tiles are tinted when there is something to restock, graded by how much,
+  and keep a fixed order. The first sort by urgency made tiles move, and with 12 of 14 tinted
+  the same, none stood out.
+
 ## Open questions
 
 - The English flag is the UK flag. A code such as EN would avoid the question of which country
   English belongs to.
-- The real predictions need to replace the simulated states.
+- The real predictions need to replace the simulated states. With the simulated ones, 12 of 14
+  gondolas have something to restock, which flattens the tiles. The real figures may differ.
 - Whether uncertain "move back" items should go in their own group, since a false alarm costs
   staff time and trust.
 - On a phone the photo comes after the list. A short link from an open card to the photo may

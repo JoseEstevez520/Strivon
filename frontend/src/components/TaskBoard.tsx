@@ -6,7 +6,7 @@ import { PhotoStage } from './PhotoStage'
 import { TaskGroup } from './TaskGroup'
 import { useI18n } from '@/lib/i18n'
 import { useStore } from '@/lib/store'
-import { ACTION, cameras, snapshot, type Group, type Task } from '@/lib/tasks'
+import { cameras, snapshot, type Group, type Task } from '@/lib/tasks'
 import { clock } from '@/lib/time'
 import { useSelection } from '@/lib/useSelection'
 
@@ -34,12 +34,8 @@ export function TaskBoard({ tasks, camera, listFine = false, initialSelected = n
   const photoCamera = camera ?? selectedTask?.area.camera
   const photo = photoCamera ? snapshot(state, photoCamera, at) : null
 
-  const sortedCameras = cameras(state)
-    .map((c) => ({ c, pending: all.filter((x) => x.area.camera === c && ACTION.includes(x.group)).length }))
-    .sort((a, b) => b.pending - a.pending || a.c.localeCompare(b.c))
-
   return (
-    <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
+    <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-8 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
       <div>
         {GROUPS.map((g) => (
           <TaskGroup
@@ -57,7 +53,8 @@ export function TaskBoard({ tasks, camera, listFine = false, initialSelected = n
         ))}
       </div>
 
-      <div className="lg:sticky lg:top-5">
+      {/* The photo stays in view beside the list. The grid of cameras is taller than a screen, so it scrolls with the page. */}
+      <div className={photoCamera ? 'lg:sticky lg:top-[4.5rem]' : undefined}>
         {photoCamera && photo ? (
           <>
             <div className="mb-2 flex items-center justify-between gap-3 px-1 text-meta tabular-nums text-fg-muted">
@@ -93,8 +90,8 @@ export function TaskBoard({ tasks, camera, listFine = false, initialSelected = n
             />
           </>
         ) : (
-          <ul className="grid grid-cols-2 gap-2 xl:grid-cols-3">
-            {sortedCameras.map(({ c }) => (
+          <ul className="grid grid-cols-2 gap-2">
+            {cameras(state).map((c) => (
               <li key={c}>
                 <CameraTile camera={c} />
               </li>

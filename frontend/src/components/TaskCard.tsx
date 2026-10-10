@@ -14,7 +14,7 @@ interface Props {
   /** The area open right now, if it belongs to this card. */
   selected: string | null
   gondola: (camera: string) => string
-  where: (area: Area) => string
+  where: (area: Area, alsoSaid?: string) => string
   historyOf: (area: Area) => HistoryPoint[]
   onSelect: (areaId: string | null) => void
   onJump: (ts: number) => void
@@ -30,7 +30,7 @@ export function TaskCard({ card, selected, gondola, where, historyOf, onSelect, 
   const first = card.tasks[0]
   const open = card.tasks.some((x) => x.area.area_id === selected)
   const many = card.tasks.length > 1
-  const place = where(first.area)
+  const place = where(first.area, first.obs.observed_family)
   const second = many
     ? t.areasCount(card.tasks.length)
     : card.group === 'moveBack'
@@ -42,7 +42,7 @@ export function TaskCard({ card, selected, gondola, where, historyOf, onSelect, 
     <div
       data-selected={open}
       style={{ '--c': GROUP_COLOR[card.group] } as CSSProperties}
-      className="rounded-lg bg-[color-mix(in_oklab,var(--c)_13%,transparent)] transition-colors hover:bg-[color-mix(in_oklab,var(--c)_19%,transparent)] data-[selected=true]:bg-[color-mix(in_oklab,var(--c)_19%,transparent)]"
+      className="rounded-lg bg-[color-mix(in_oklab,var(--c)_13%,transparent)] transition-colors hover:bg-[color-mix(in_oklab,var(--c)_19%,transparent)] data-[selected=true]:col-span-full data-[selected=true]:bg-[color-mix(in_oklab,var(--c)_19%,transparent)]"
     >
       <Collapsible open={open} onOpenChange={() => onSelect(open ? null : first.area.area_id)}>
         <CollapsibleTrigger className="flex w-full cursor-pointer items-center gap-3 rounded-lg p-2 pr-3 text-left">
