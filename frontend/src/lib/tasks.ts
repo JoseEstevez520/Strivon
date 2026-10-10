@@ -72,3 +72,15 @@ export function tasksAt(s: StoreState, at: number): Task[] {
     }))
     .sort((a, b) => b.urgency - a.urgency || a.area.camera.localeCompare(b.area.camera) || a.area.index - b.area.index)
 }
+
+export interface HistoryPoint {
+  record: ImageRecord
+  obs: Observation
+}
+
+/** One area through the day: its state in every photo of its camera, in time order. */
+export function historyOf(s: StoreState, area: Area): HistoryPoint[] {
+  return s.images[area.camera]
+    .map((record) => ({ record, obs: s.observations[area.camera][record.image]?.[area.area_id] }))
+    .filter((p): p is HistoryPoint => p.obs !== undefined)
+}

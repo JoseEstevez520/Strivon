@@ -1,13 +1,14 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Camera, Globe } from 'lucide-react'
 import { ES, GB, PT } from 'country-flag-icons/react/3x2'
+import { AreaDetail } from '@/components/AreaDetail'
 import { DayBar } from '@/components/DayBar'
 import { PhotoStage } from '@/components/PhotoStage'
 import { PickerButton } from '@/components/PickerButton'
 import { TaskGroup } from '@/components/TaskGroup'
 import { buildMockState } from '@/data/mock'
 import { I18nProvider, LANGS, useI18n } from '@/lib/i18n'
-import { cameras, snapshot, tasksAt, type Group } from '@/lib/tasks'
+import { cameras, historyOf, snapshot, tasksAt, type Group } from '@/lib/tasks'
 import { clock } from '@/lib/time'
 
 const GROUPS: Group[] = ['restock', 'moveBack', 'later', 'allGood']
@@ -57,6 +58,12 @@ function Screen() {
     setPlaying((p) => !p)
   }
 
+  const jumpTo = (ts: number) => {
+    setPlaying(false)
+    const i = times.findIndex((x) => x >= ts)
+    setIndex(i < 0 ? times.length - 1 : i)
+  }
+  const selectedTask = tasks.find((x) => x.area.area_id === selected)
   const cameraTasks = tasks.filter((x) => x.area.camera === camera)
   const photo = snapshot(state, camera, at)
 
@@ -110,6 +117,14 @@ function Screen() {
             playing={playing}
             onTogglePlay={togglePlay}
           />
+          {selectedTask && (
+            <AreaDetail
+              task={selectedTask}
+              history={historyOf(state, selectedTask.area)}
+              onJump={jumpTo}
+              onClose={() => setSelected(null)}
+            />
+          )}
         </div>
 
         <div className="order-1 lg:order-2">

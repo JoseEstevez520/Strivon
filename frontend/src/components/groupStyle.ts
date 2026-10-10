@@ -15,3 +15,9 @@ export const GROUP_ICON: Record<Group, LucideIcon> = {
   later: Clock,
   allGood: CircleCheck,
 }
+
+export const LEVEL_COLOR = {
+  empty: 'var(--danger)',
+  half: 'var(--fg-muted)',
+  full: 'var(--success)',
+} as const
