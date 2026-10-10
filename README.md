@@ -1,17 +1,7 @@
-<p align="center">
-  <img src="assets/partners/junctionx.png" alt="JunctionX Lisbon" height="64">
-  &nbsp;&nbsp;&nbsp;
-  <img src="assets/partners/sensei.png" alt="Sensei" height="64">
-</p>
-
 <h1 align="center">Strivon</h1>
 
 <p align="center">
   <strong>Strivon looks at a shelf of fruit and vegetables and tells store staff which areas hold the wrong product and which ones need restocking.</strong>
-</p>
-
-<p align="center">
-  Built for the Sensei challenge at JunctionX Lisbon 2026.
 </p>
 
 ## What is Strivon?
@@ -27,7 +17,18 @@ it holding the product it should, and how full is it?
 - `assets/` logos and README images.
 - `data/` and `outputs/` challenge images and generated predictions. Not committed.
 
-## Credits
+## Built at
 
-JunctionX Lisbon and Sensei logos belong to their owners and are used here to credit the event
-and the challenge.
+<p align="center">
+  <sub>Built at JunctionX Lisbon 2026, for the Sensei challenge.</sub>
+</p>
+
+<p align="center">
+  <img src="assets/partners/junctionx.png" alt="JunctionX Lisbon" height="56">
+  &nbsp;&nbsp;&nbsp;
+  <img src="assets/partners/sensei.png" alt="Sensei" height="56">
+</p>
+
+<p align="center">
+  <sub>The JunctionX Lisbon and Sensei logos belong to their owners.</sub>
+</p>
