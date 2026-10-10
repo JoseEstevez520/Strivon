@@ -42,6 +42,16 @@ Answer key `labels_v1`: 1929 areas, maximum 3858 points. "≈ /578" scales the t
 | 27 | Always "right product, full" (`baseline`) |  | none | no | +1653 | -99 | +1554 / 3858 | +233 | +0.806 | +0.344 | 0 |
 <!-- LEADERBOARD:END -->
 
+## Forward split (the one to choose with)
+
+<!-- FORWARD:START -->
+Forward split: trained without each camera's last 2 photos, tested on them (302 areas). Files in `eval/benchmark/preds_forward/`, scored with `python eval/benchmark.py forward <file>`.
+
+| # | Approach | Identification | Stock | Below | Above | Total / max | Per area | ≈ / 578 | Seconds per photo |
+|---:|---|---:|---:|---:|---:|---:|---:|---:|---|
+| 1 | Single image: CLIP ViT-B-32 on the hand-drawn crate + colour + area id, logistic regression (`single_crate`) | +302 | +135 | 21 | 26 | +437 / 604 | +1.447 | +418 | 0.9-1.4 s, 2-8 CPU threads (laptop), no GPU |
+<!-- FORWARD:END -->
+
 Agents' pipeline:
 - "Image only" rows use nothing but the photo under analysis. The product check is a logistic regression on the frozen DINOv2-small view of the whole crate, with no comparison with other photos.
   - The one-pass row reads the product answer from block 8, the last frozen block, and the stock answer from the fine-tuned blocks of the same pass.

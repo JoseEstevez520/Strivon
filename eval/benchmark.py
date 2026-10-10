@@ -3,6 +3,7 @@
 Usage:
     python eval/benchmark.py folds                   # the fold of every photo
     python eval/benchmark.py score predictions.json  # points table and a leaderboard row
+    python eval/benchmark.py forward predictions.json  # score on the forward split (each camera's last 2 photos)
 
 In Python, with eval/ on the path:
     from benchmark import train_test
@@ -31,6 +32,16 @@ def train_test(fold):
         cam, img = photo.split("/")
         (test if f == fold else train).append((cam, img))
     return train, test
+
+
+FORWARD = json.loads((HERE / "benchmark" / "forward.json").read_text(encoding="utf-8")) if (HERE / "benchmark" / "forward.json").exists() else None
+
+
+def forward_train_test():
+    """Forward split (like the hidden set): test = each camera's last 2 photos, train = the rest."""
+    test = {(c, i) for c, imgs in FORWARD["test"].items() for i in imgs}
+    photos = [tuple(p.split("/")) for p in sorted(FOLDS)]
+    return [p for p in photos if p not in test], sorted(test)
 
 
 def last_photos():
@@ -89,6 +100,12 @@ def report(preds):
 if __name__ == "__main__":
     if len(sys.argv) == 2 and sys.argv[1] == "folds":
         print("\n".join(f"{photo} {f}" for photo, f in sorted(FOLDS.items())))
+    elif len(sys.argv) == 3 and sys.argv[1] == "forward":
+        _, test = forward_train_test()
+        t = tally(json.loads(Path(sys.argv[2]).read_text(encoding="utf-8")), set(test))
+        print(f"Forward split ({t['areas']} areas): {t['total']:+d} / {t['max']}, {t['total'] / t['areas']:+.3f} per area, "
+              f"about {round(t['total'] / t['areas'] * 289):+d} / 578. Identification {t['ident']:+d}, stock {t['stock']:+d} "
+              f"(below {t['below']}, above {t['above']}, missing {t['missing']}).")
     elif len(sys.argv) == 3 and sys.argv[1] == "score":
         report(json.loads(Path(sys.argv[2]).read_text(encoding="utf-8")))
     else:
