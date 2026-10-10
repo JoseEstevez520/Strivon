@@ -1,46 +1,43 @@
 # Validation day
 
-Everything runs from `backend/` on one laptop with the data in `data/` and `eval/labels.json` up to date.
+Everything runs from `backend/` on one laptop, with the data in `data/` and `eval/labels.json` up to date.
 
 ## Before (once)
 
 ```bash
 python -m pip install -r requirements.txt
-python -m sensei train
+python -m sensei train-single --no-refs
 ```
 
-`train` builds the features (about 8 minutes the first time, cached after) and fits the supervised
-model on `eval/labels.json` plus André's review. It prints the photo-held-out score and writes
-`outputs/supervised.pkl`.
+`train-single` builds the CLIP ViT-B-32 features (a few minutes the first time, cached after), fits
+the single-image model on `eval/labels.json` plus André's product fixes and saves `outputs/single.pkl`.
 
 ## On the day
 
-1. Put the validation photos in a folder with the same layout as the data: `<folder>/<camera>/<timestamp>.jpg`.
+1. Put the validation photos in a folder laid out like the data: `<folder>/<camera>/<timestamp>.jpg`.
 2. Run:
 
 ```bash
-python -m sensei predict --images PATH/TO/validation --context ../data/images --out ../outputs/predictions_validation.json
+python -m sensei predict --images PATH/TO/validation --out ../outputs/predictions_validation.json
 ```
 
-3. Check the end of the output:
-   - `using supervised model (...)`: if it says label-free instead, `outputs/supervised.pkl` is missing. Run `train` first.
-   - `N areas covered by a person`: areas where a shopper stands in front; those use the nearest labelled photos.
-   - No `VALIDATION PROBLEMS` line. A missing area costs -5, so the command fails loudly if one is missing.
+3. Check the output:
+   - `using the single-image model (only the photo under analysis)`. If not, run `train-single` first.
+   - `0 context images`: Sensei asked us to use only the image under analysis.
+   - No `VALIDATION PROBLEMS` line (a missing area costs -5).
 4. Submit `outputs/predictions_validation.json`.
 
-## How good is it
+## Score and cost
 
 | Check | Result |
 |---|---|
-| Label-free model (no labels) | about 177-202 / 578 |
-| Supervised, 5-fold CV holding out whole photos | 489 / 578 |
-| Rehearsal: 28 photos hidden, real submission command, `eval/score.py` | 485 / 608 and 497 / 608 (about 461-472 / 578) |
+| Team benchmark (`LEADERBOARD.md`), single image, ViT-B-32 | 3205 / 3858, about 480 / 578 |
+| Always "right product, full" | about 233 / 578 |
+| Cost | 0.8 s per photo on 2 CPU threads, no GPU (`python timing.py`) |
 
-Rehearse again with `python rehearse.py --seed N`. It never touches the real model.
+Cost per analysed image for the pitch: 0.8 s on 2 vCPUs. A 2-vCPU cloud machine costs about
+$0.09 per hour, so that is about $0.00002 per photo: about 2 cents per 1000 photos, or about
+$0.40 a day for a store with 14 cameras sending a photo every minute. No GPU, no API calls.
 
-## Why the supervised model works here
-
-The validation photos come from the same cameras on the same day, at times between ours. For each
-area the model looks at how we labelled the same area in the photos just before and after, how much
-the crop changed since then (CLIP embedding and colour), and the label-free signals. Most of the
-points left are half vs full calls, which depend on the labelling rule (see `docs/sensei_questions.jpg`).
+The person detector (`--persons`) adds 0.75 s per photo. None of our photos has a person in front
+of the produce, so it is off by default.

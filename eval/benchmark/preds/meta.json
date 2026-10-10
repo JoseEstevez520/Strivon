@@ -1,0 +1,86 @@
+{
+ "baseline": {
+  "approach": "Always \"right product, full\"",
+  "owner": "",
+  "labels": "none",
+  "other_photos": "no",
+  "seconds": "0"
+ },
+ "single_vitb32": {
+  "approach": "Single image: CLIP ViT-B-32 + colour + area id, logistic regression",
+  "owner": "Miguel",
+  "labels": "the key",
+  "other_photos": "no",
+  "seconds": "0.8 s, 2 CPU threads (laptop), no GPU"
+ },
+ "single_vitb16": {
+  "approach": "Single image: CLIP ViT-B-16 + colour + area id, logistic regression",
+  "owner": "Miguel",
+  "labels": "the key",
+  "other_photos": "no",
+  "seconds": "about 3 s, 20 CPU threads (laptop)"
+ },
+ "single_ref_vitb16": {
+  "approach": "Single image + labelled training crops of the same area as references",
+  "owner": "Miguel",
+  "labels": "the key",
+  "other_photos": "training crops only",
+  "seconds": "about 3 s, 20 CPU threads (laptop)"
+ },
+ "agents_same_day": {
+  "approach": "Agents' pipeline, uses same-day photos",
+  "owner": "André (agents)",
+  "labels": "labels_v1",
+  "other_photos": "yes, same camera and day",
+  "seconds": "2.34 CPU, 0.17 GPU"
+ },
+ "agents_single_photo": {
+  "approach": "Agents' pipeline, each photo on its own",
+  "owner": "André (agents)",
+  "labels": "labels_v1",
+  "other_photos": "no",
+  "seconds": "3.44 CPU, 0.21 GPU"
+ },
+ "agents_same_day_andre_labels": {
+  "approach": "Agents' pipeline, uses same-day photos",
+  "owner": "André (agents)",
+  "labels": "André's 511 + AI pre-labels",
+  "other_photos": "yes, same camera and day",
+  "seconds": "2.34 CPU, 0.17 GPU"
+ },
+ "agents_single_photo_andre_labels": {
+  "approach": "Agents' pipeline, each photo on its own",
+  "owner": "André (agents)",
+  "labels": "André's 511 + AI pre-labels",
+  "other_photos": "no",
+  "seconds": "3.44 CPU, 0.21 GPU"
+ },
+ "agents_9models_same_day": {
+  "approach": "Agents' pipeline, 9-model stock average, uses same-day photos",
+  "owner": "André (agents)",
+  "labels": "labels_v1",
+  "other_photos": "yes, same camera and day",
+  "seconds": "being measured (8 image models per photo)"
+ },
+ "agents_9models_single_photo": {
+  "approach": "Agents' pipeline, 9-model stock average, each photo on its own",
+  "owner": "André (agents)",
+  "labels": "labels_v1",
+  "other_photos": "no",
+  "seconds": "being measured (8 image models per photo)"
+ },
+ "agents_same_day_3heads": {
+  "approach": "Agents' pipeline + 3rd stock head, uses same-day photos",
+  "owner": "André (agents)",
+  "labels": "labels_v1",
+  "other_photos": "yes, same camera and day",
+  "seconds": "2.34 CPU (+ up to 0.6), 0.17 GPU"
+ },
+ "agents_single_photo_3heads": {
+  "approach": "Agents' pipeline + 3rd stock head, each photo on its own",
+  "owner": "André (agents)",
+  "labels": "labels_v1",
+  "other_photos": "no",
+  "seconds": "3.44 CPU (+ up to 0.6), 0.21 GPU"
+ }
+}

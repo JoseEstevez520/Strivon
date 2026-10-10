@@ -11,6 +11,14 @@ Golden rule: work on your own branch (`name/topic`), open a PR to `main` and com
 - `backend/debug_view.py`: draws the predicted stock on an image.
 - Known limits: products with little colour (pineapple) come out as "empty". On some cameras (for example 6468) a product different from the planogram appears, so compliant cannot always be true.
 
+## Status, Saturday night
+
+- Sensei: only the image under analysis may be used, and cost is 20% of the grade. The neighbour
+  model (489) used the photos before and after, so it is out. The new single-image model
+  (`python -m sensei train-single`) scores 480 / 578 on André's benchmark with CLIP ViT-B-32 at
+  0.8 s per photo on 2 CPU threads. See the leaderboard in the README.
+- The 90 suspects were reviewed (56 labels changed).
+
 ## Status, Saturday evening
 
 - All 1962 areas of the 181 photos are labelled (`eval/labels.json`), with 73 notes and the log of who did what.
