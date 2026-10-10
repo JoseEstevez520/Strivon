@@ -26,7 +26,7 @@ function Thinking() {
  */
 export function Chat() {
   const { t, family } = useI18n()
-  const { state, gondola } = useStore()
+  const { state, gondolaFull: gondola } = useStore()
   const { messages, streaming } = useChat()
   const [draft, setDraft] = useState('')
   const input = useRef<HTMLTextAreaElement>(null)

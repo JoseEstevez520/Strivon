@@ -1,0 +1,62 @@
+[
+ {
+  "camera": "6373",
+  "image": "1751028561.jpg",
+  "area_id": "6373_5",
+  "before": "full",
+  "now": "half",
+  "after": "full",
+  "should_be": "full",
+  "why": "same crate as the photos before and after"
+ },
+ {
+  "camera": "6385",
+  "image": "1751032365.jpg",
+  "area_id": "6385_7",
+  "before": "full",
+  "now": "half",
+  "after": "full",
+  "should_be": "full",
+  "why": "same crate as the photos before and after"
+ },
+ {
+  "camera": "6468",
+  "image": "1751044824.jpg",
+  "area_id": "6468_9",
+  "before": "half",
+  "now": "empty",
+  "after": "half",
+  "should_be": "half",
+  "why": "same crate as the photos before and after"
+ },
+ {
+  "camera": "6591",
+  "image": "1751025118.jpg",
+  "area_id": "6591_3",
+  "before": "full",
+  "now": "half",
+  "after": "full",
+  "should_be": "full",
+  "why": "same crate as the photos before and after"
+ },
+ {
+  "camera": "6781",
+  "image": "1751013921.jpg",
+  "area_id": "6781_1",
+  "before": "half",
+  "now": "full",
+  "after": "half",
+  "should_be": "half",
+  "why": "same crate as the photos before and after"
+ },
+ {
+  "camera": "6781",
+  "image": "1751025662.jpg",
+  "area_id": "6781_10",
+  "before": "full",
+  "now": "half",
+  "after": "full",
+  "should_be": "full",
+  "why": "same crate as the photos before and after"
+ }
+]
