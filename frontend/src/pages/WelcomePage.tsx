@@ -182,9 +182,7 @@ export function WelcomePage() {
         </Section>
 
         <Section title="See it" lead="This is the app, not a picture of it. Open any card to see its day, its shelf and the photo.">
-          <div className="scrollbar-subtle h-[40rem] overflow-y-auto border-y border-border py-4">
-            <TaskBoard tasks={tasks} />
-          </div>
+          <TaskBoard tasks={tasks} compact />
         </Section>
 
         <Section title="Team">
