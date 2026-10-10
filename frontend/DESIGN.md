@@ -140,16 +140,20 @@ second has the least text, which was the complaint about the first version.
 
 ## Gondola tiles
 
-A tile is a camera, and the photo is the tile. There is no box around it. A small piece of the
-page tone sits on its lower left edge with the name and how many areas are in each state, in the
-same type as everywhere else and with the same icons the group headings use (alert for restock,
-arrow for move back, clock for later), each with its number. A state with none is left out, and a
-gondola with nothing to do says "All good" in grey. The piece is only as wide as its content and
-the photo is wide (16 by 10), so as little of the photo as possible is covered: the photo is the
-proof of what the app says, and the lower shelf is where the stock shows. The full name is in the
-tooltip. The only things over a photo are this piece and the outlines of the areas. Gradients, dark
-pills and coloured badges were rejected: they are overlays and pills, which the rest of the
-interface does not use.
+A tile is a camera, and nothing goes over its photo. The photo is the proof of what the app says,
+and the lower shelf is where the stock shows, so it sits whole in a quiet box. Under it, in one
+row, the name on the left, which may take two lines instead of being cut off, and on the right how
+many areas are in each state, with the same icons the group headings use (alert for restock, arrow
+for move back, clock for later), each with its number. A state with none is left out, and a
+gondola with nothing to do says "All good" in grey. The row is centred in the space under the
+photo, so tiles with a one-line name and tiles with two keep the air balanced. The full name is in
+the tooltip.
+
+Over a photo there are only the outlines of the areas. A light piece of the page tone over the
+photo was built and rejected because it covered the shelf, and gradients, dark pills and coloured
+badges were rejected because they are overlays and pills, which the rest of the interface does not
+use. A box with the content packed to the left looked unbalanced, and a horizontal tile like a task
+card was not liked.
 
 The tiles are context and the task cards are the work, so the cards are the ones that carry
 colour. The tiles carry only the small coloured icons.
@@ -396,9 +400,10 @@ a collapsing block by hand once, and Base UI and shadcn already had it.
 
 - 2026-10-10. The page no longer scrolls as a whole. The bar is shorter, 48 px, and the content
   scrolls under it, so the scrollbar starts below the header and does not cut it.
-- 2026-10-10. Gondola tiles are the photo with a light piece of the page tone on its lower edge.
-  It was chosen from options built only from tokens that already exist. A box with the content
-  packed left, a horizontal tile and overlays with gradients and pills were tried or rejected.
+- 2026-10-10. Gondola tiles: the photo whole in a quiet box with the name and the counts in one row
+  under it. A light piece over the photo was chosen first and then rejected because it covered the
+  image, so everything extra goes outside the photo. A box with the content packed left was too
+  unbalanced, and a horizontal tile like a task card was not liked.
 
 ## Open questions
 

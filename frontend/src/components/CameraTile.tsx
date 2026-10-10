@@ -8,9 +8,9 @@ import { snapshot, type Group } from '@/lib/tasks'
 const COUNTED: Group[] = ['restock', 'moveBack', 'later']
 
 /**
- * One camera. The photo is the tile, and a small piece of the page tone sits on its lower edge with
- * the name and how many areas are in each state, in the same type and with the same icons as the
- * group headings. There is no box around the photo, so nothing is left to balance.
+ * One camera. The photo sits whole in a quiet box and nothing covers it, because it is the proof of
+ * what the app says. Under it, the name on the left, which may take two lines, and on the right how
+ * many areas are in each state, with the same icons as the group headings.
  */
 export function CameraTile({ camera }: { camera: string }) {
   const { t } = useI18n()
@@ -22,26 +22,20 @@ export function CameraTile({ camera }: { camera: string }) {
   return (
     <Link
       to={`/gondolas/${camera}`}
-      className="group relative block aspect-[16/10] overflow-hidden rounded-2xl bg-[#d6d8d0]"
       title={gondola(camera)}
+      className="flex h-full flex-col gap-2 rounded-2xl bg-surface p-2 transition-colors hover:bg-raised"
     >
-      {src && (
-        <img
-          src={src}
-          alt=""
-          loading="lazy"
-          decoding="async"
-          className="absolute inset-0 size-full object-cover"
-        />
-      )}
-      <div className="absolute bottom-2 left-2 max-w-[calc(100%-1rem)] rounded-xl bg-[color-mix(in_oklab,var(--bg)_93%,transparent)] px-2.5 py-1.5 transition-colors group-hover:bg-raised">
-        <div className="truncate text-label">{gondola(camera)}</div>
-        <div className="flex items-center gap-3.5 text-meta font-medium tabular-nums text-fg-secondary">
+      <div className="relative aspect-[16/10] overflow-hidden rounded-xl bg-[#d6d8d0]">
+        {src && <img src={src} alt="" loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover" />}
+      </div>
+      <div className="flex flex-1 items-center justify-between gap-2.5 px-1 pb-1">
+        <span className="line-clamp-2 min-w-0 text-label">{gondola(camera)}</span>
+        <span className="flex shrink-0 gap-2.5 text-meta font-medium tabular-nums text-fg-secondary">
           {counts.length > 0 ? (
             counts.map(([group, n]) => {
               const Icon = GROUP_ICON[group]
               return (
-                <span key={group} className="flex items-center gap-1.5" title={t[group]}>
+                <span key={group} className="flex items-center gap-1" title={t[group]}>
                   <Icon className="size-3.5" style={{ color: GROUP_COLOR[group] }} aria-hidden />
                   {n}
                   <span className="sr-only">{t[group]}</span>
@@ -51,7 +45,7 @@ export function CameraTile({ camera }: { camera: string }) {
           ) : (
             <span className="font-normal text-fg-muted">{t.allGood}</span>
           )}
-        </div>
+        </span>
       </div>
     </Link>
   )
