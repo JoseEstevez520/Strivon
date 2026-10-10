@@ -57,7 +57,8 @@ npm run dev:landing      # serve it
 npm run build:landing    # build it into dist-landing/
 ```
 
-The `Pages` workflow publishes that build.
+It is hosted on Vercel. Create the project with `frontend` as the root directory; `vercel.json`
+sets the build command and the output folder.
 
 ## The chat model
 
