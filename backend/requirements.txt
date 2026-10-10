@@ -1,3 +1,14 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
 opencv-python-headless
 numpy
 pillow
+scikit-learn
+fastapi
+uvicorn
+# CLIP backend for backend/sensei (CPU is enough). Without it, run predict with --no-clip.
+torch
+torchvision
+open_clip_torch
+# Optional: Claude vision labels (python -m sensei vlm-label)
+anthropic
+python-dotenv
