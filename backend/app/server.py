@@ -146,6 +146,13 @@ def _people() -> dict[str, int]:
     return counts
 
 
+@app.get("/api/suspects")
+def suspects():
+    """Labels the supervised model strongly disagrees with (out-of-fold). Written by `sensei train`."""
+    f = config.ANNOTATIONS_DIR / "review_suspects.json"
+    return json.loads(f.read_text(encoding="utf-8")) if f.exists() else []
+
+
 @app.get("/api/live")
 def live(since: int = -1):
     """Polled every few seconds by every open page so everyone sees new labels at once."""

@@ -37,7 +37,7 @@ const S = {
   annTest: false,
   annName: "",
   trainPerCamera: 8,
-  liveVersion: null, activity: [], people: {}, notes: {},
+  liveVersion: null, activity: [], people: {}, notes: {}, suspects: [], suspIdx: 0,
   productFilter: "",
 };
 
@@ -417,9 +417,11 @@ function renderAnnotate() {
     const lvl = ann?.stock_level;
     const comp = ann ? ann.planogram_compliant : true;
     const note = S.notes?.[cam]?.[img]?.[a.area_id];
+    const sus = (S.suspects || []).find((x) => x.key === `${cam}|${img}|${a.area_id}`);
     return `<div class="acard ${i === S.annFocus ? "focus" : ""} ${ann ? "saved" : ""}" data-acard="${i}">
       <img src="${cropUrl(cam, img, a.area_id)}" alt="" loading="lazy">
       <div class="a-name">${a.index}. ${esc(a.short_name)}</div>
+      ${sus ? `<div class="suspect">Check: model thinks ${LEVEL_LABEL[sus.model]}${sus.labelled_compliant && sus.p_compliant < 0.1 ? " · wrong product" : ""}${!sus.labelled_compliant && sus.p_compliant > 0.9 ? " · right product" : ""}</div>` : ""}
       <div class="segs">${["empty", "half", "full"].map((l, k) => `<button class="${l} ${lvl === l ? "on" : ""} ${S.annShowPred && o?.stock_level === l ? "pred" : ""}" data-set="${a.area_id}|${l}" title="key ${k + 1}">${LEVEL_LABEL[l]}</button>`).join("")}</div>
       <div class="card-row">
         <button class="comp-toggle ${comp ? "" : "bad"}" data-comp="${a.area_id}" title="key X">${comp ? "Right product" : "WRONG product"}${S.annShowPred && o && !o.planogram_compliant ? " (model: wrong)" : ""}</button>
@@ -439,6 +441,7 @@ function renderAnnotate() {
       <h2>Label</h2>
       <select id="ann-cam">${cams().map((c) => `<option value="${c}" ${c === cam ? "selected" : ""}>${c} · ${esc(gondolaName(c))}</option>`).join("")}</select>
       <label class="small ${S.annName ? "" : "need"}">Your name <input id="ann-name" value="${esc(S.annName || "")}" placeholder="e.g. Leonor" size="10"></label>
+      ${S.suspects?.length ? `<button class="ghost small review-btn" data-review="1" title="Labels the model strongly disagrees with. Check each one with the same rule and fix it if needed.">Review suspects ${Math.min(S.suspIdx + 1, S.suspects.length)}/${S.suspects.length} →</button>` : ""}
       <span class="grow"></span>
       <label class="small"><input type="checkbox" id="ann-pred" ${S.annShowPred ? "checked" : ""}> show prediction</label>
       ${list.length > TRAIN() ? "" : "<!--"}<label class="small" title="Photos ${TRAIN() + 1}-${list.length} are kept to check the model. Only open them when it is time to test."><input type="checkbox" id="ann-test" ${S.annTest ? "checked" : ""}> unlock test photos</label>${list.length > TRAIN() ? "" : "-->"}
@@ -565,7 +568,7 @@ async function renderEval() {
 
 /* ---------------- events ---------------- */
 document.addEventListener("click", async (e) => {
-  const t = e.target.closest("[data-tab],[data-open],[data-done],[data-goto],[data-gondola],[data-back],[data-jump],[data-annot],[data-set],[data-comp],[data-annnav],[data-note],[data-annimg],[data-anncam],[data-annjump],[data-acard],[data-run],polygon,.drawer-close,.drawer");
+  const t = e.target.closest("[data-tab],[data-open],[data-done],[data-goto],[data-gondola],[data-back],[data-jump],[data-annot],[data-set],[data-comp],[data-annnav],[data-review],[data-note],[data-annimg],[data-anncam],[data-annjump],[data-acard],[data-run],polygon,.drawer-close,.drawer");
   if (!t) return;
   if (t.matches(".drawer") && e.target === t) return closeDrawer();
   if (t.matches(".drawer-close")) return closeDrawer();
@@ -603,6 +606,15 @@ document.addEventListener("click", async (e) => {
     return saveAnn(S.annCam, S.annImg, aid, cur?.stock_level || o?.stock_level || "full", cur ? !cur.planogram_compliant : false);
   }
   if (t.dataset.annnav) return annNav(+t.dataset.annnav);
+  if (t.dataset.review) {
+    const x = S.suspects[S.suspIdx % S.suspects.length];
+    S.suspIdx = (S.suspIdx + 1) % S.suspects.length;
+    const [c, i, aid] = x.key.split("|");
+    S.annCam = c; S.annImg = i; S.annFocus = areasOf(c).findIndex((q) => q.area_id === aid);
+    render();
+    document.querySelector(".acard.focus")?.scrollIntoView({ block: "center" });
+    return;
+  }
   if (t.dataset.note) { S.annFocus = areasOf(S.annCam).findIndex((x) => x.area_id === t.dataset.note); return editNote(t.dataset.note); }
   if (t.dataset.annimg) { S.annImg = t.dataset.annimg; S.annFocus = 0; store.set("annImg", S.annImg); return render(); }
   if (t.dataset.anncam) { S.annCam = t.dataset.anncam; S.annImg = null; S.annFocus = 0; store.set("annCam", S.annCam); return render(); }
@@ -695,6 +707,7 @@ async function load() {
   try { S.ann = await api("/api/annotations"); } catch { S.ann = {}; }
   try { S.trainPerCamera = (await api("/api/split")).train_per_camera; } catch { /* default 8 */ }
   S.annName = store.get("annName", "");
+  try { S.suspects = await api("/api/suspects"); } catch { S.suspects = []; }
   pollLive();
   const all = new Set();
   for (const c of cams()) for (const r of S.data.images[c]) if (r.ts != null) all.add(r.ts);

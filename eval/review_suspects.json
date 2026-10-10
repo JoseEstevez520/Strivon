@@ -1,0 +1,632 @@
+[
+ {
+  "key": "6443|1751028789.jpg|6443_7",
+  "labelled": "half",
+  "model": "full",
+  "labelled_compliant": true,
+  "p_compliant": 1.0
+ },
+ {
+  "key": "6373|1751040770.jpg|6373_6",
+  "labelled": "half",
+  "model": "full",
+  "labelled_compliant": true,
+  "p_compliant": 1.0
+ },
+ {
+  "key": "6591|1751025118.jpg|6591_3",
+  "labelled": "full",
+  "model": "full",
+  "labelled_compliant": false,
+  "p_compliant": 1.0
+ },
+ {
+  "key": "6594|1751033482.jpg|6594_10",
+  "labelled": "half",
+  "model": "full",
+  "labelled_compliant": true,
+  "p_compliant": 0.999
+ },
+ {
+  "key": "6376|1751005774.jpg|6376_5",
+  "labelled": "full",
+  "model": "full",
+  "labelled_compliant": false,
+  "p_compliant": 1.0
+ },
+ {
+  "key": "6386|1751048137.jpg|6386_1",
+  "labelled": "empty",
+  "model": "full",
+  "labelled_compliant": true,
+  "p_compliant": 1.0
+ },
+ {
+  "key": "6215|1751017244.jpg|6215_4",
+  "labelled": "half",
+  "model": "full",
+  "labelled_compliant": true,
+  "p_compliant": 1.0
+ },
+ {
+  "key": "6386|1751028928.jpg|6386_3",
+  "labelled": "half",
+  "model": "full",
+  "labelled_compliant": true,
+  "p_compliant": 1.0
+ },
+ {
+  "key": "6781|1751025662.jpg|6781_5",
+  "labelled": "half",
+  "model": "full",
+  "labelled_compliant": true,
+  "p_compliant": 1.0
+ },
+ {
+  "key": "6781|1751005810.jpg|6781_3",
+  "labelled": "half",
+  "model": "full",
+  "labelled_compliant": true,
+  "p_compliant": 1.0
+ },
+ {
+  "key": "6383|1751029430.jpg|6383_5",
+  "labelled": "half",
+  "model": "full",
+  "labelled_compliant": true,
+  "p_compliant": 1.0
+ },
+ {
+  "key": "6468|1751005772.jpg|6468_15",
+  "labelled": "full",
+  "model": "full",
+  "labelled_compliant": false,
+  "p_compliant": 0.999
+ },
+ {
+  "key": "6443|1751028789.jpg|6443_10",
+  "labelled": "half",
+  "model": "full",
+  "labelled_compliant": true,
+  "p_compliant": 1.0
+ },
+ {
+  "key": "6215|1751005412.jpg|6215_5",
+  "labelled": "half",
+  "model": "full",
+  "labelled_compliant": false,
+  "p_compliant": 0.009
+ },
+ {
+  "key": "6491|1751044356.jpg|6491_4",
+  "labelled": "half",
+  "model": "full",
+  "labelled_compliant": true,
+  "p_compliant": 1.0
+ },
+ {
+  "key": "6781|1751005810.jpg|6781_2",
+  "labelled": "half",
+  "model": "full",
+  "labelled_compliant": true,
+  "p_compliant": 1.0
+ },
+ {
+  "key": "6591|1751044047.jpg|6591_1",
+  "labelled": "half",
+  "model": "full",
+  "labelled_compliant": true,
+  "p_compliant": 1.0
+ },
+ {
+  "key": "6781|1751033637.jpg|6781_6",
+  "labelled": "half",
+  "model": "full",
+  "labelled_compliant": true,
+  "p_compliant": 1.0
+ },
+ {
+  "key": "6594|1751045458.jpg|6594_4",
+  "labelled": "half",
+  "model": "full",
+  "labelled_compliant": true,
+  "p_compliant": 1.0
+ },
+ {
+  "key": "6215|1751001268.jpg|6215_9",
+  "labelled": "full",
+  "model": "half",
+  "labelled_compliant": true,
+  "p_compliant": 0.995
+ },
+ {
+  "key": "6215|1751005412.jpg|6215_9",
+  "labelled": "half",
+  "model": "full",
+  "labelled_compliant": true,
+  "p_compliant": 0.999
+ },
+ {
+  "key": "6591|1751025118.jpg|6591_8",
+  "labelled": "full",
+  "model": "half",
+  "labelled_compliant": true,
+  "p_compliant": 1.0
+ },
+ {
+  "key": "6594|1751001189.jpg|6594_1",
+  "labelled": "empty",
+  "model": "half",
+  "labelled_compliant": true,
+  "p_compliant": 0.998
+ },
+ {
+  "key": "6781|1751033637.jpg|6781_5",
+  "labelled": "half",
+  "model": "full",
+  "labelled_compliant": true,
+  "p_compliant": 1.0
+ },
+ {
+  "key": "6376|1751005774.jpg|6376_2",
+  "labelled": "half",
+  "model": "empty",
+  "labelled_compliant": true,
+  "p_compliant": 1.0
+ },
+ {
+  "key": "6781|1751009927.jpg|6781_9",
+  "labelled": "full",
+  "model": "half",
+  "labelled_compliant": true,
+  "p_compliant": 1.0
+ },
+ {
+  "key": "6491|1751044356.jpg|6491_5",
+  "labelled": "empty",
+  "model": "half",
+  "labelled_compliant": true,
+  "p_compliant": 0.999
+ },
+ {
+  "key": "6215|1751029718.jpg|6215_4",
+  "labelled": "half",
+  "model": "empty",
+  "labelled_compliant": true,
+  "p_compliant": 0.997
+ },
+ {
+  "key": "6594|1751001189.jpg|6594_8",
+  "labelled": "half",
+  "model": "full",
+  "labelled_compliant": true,
+  "p_compliant": 1.0
+ },
+ {
+  "key": "6594|1751045458.jpg|6594_13",
+  "labelled": "full",
+  "model": "half",
+  "labelled_compliant": true,
+  "p_compliant": 1.0
+ },
+ {
+  "key": "6373|1751040770.jpg|6373_2",
+  "labelled": "empty",
+  "model": "half",
+  "labelled_compliant": false,
+  "p_compliant": 0.586
+ },
+ {
+  "key": "6385|1751036488.jpg|6385_4",
+  "labelled": "empty",
+  "model": "half",
+  "labelled_compliant": true,
+  "p_compliant": 1.0
+ },
+ {
+  "key": "6373|1751037118.jpg|6373_2",
+  "labelled": "full",
+  "model": "half",
+  "labelled_compliant": true,
+  "p_compliant": 0.005
+ },
+ {
+  "key": "6376|1751021977.jpg|6376_3",
+  "labelled": "half",
+  "model": "empty",
+  "labelled_compliant": true,
+  "p_compliant": 1.0
+ },
+ {
+  "key": "6376|1751025657.jpg|6376_4",
+  "labelled": "empty",
+  "model": "full",
+  "labelled_compliant": false,
+  "p_compliant": 0.009
+ },
+ {
+  "key": "6376|1751005774.jpg|6376_11",
+  "labelled": "half",
+  "model": "full",
+  "labelled_compliant": true,
+  "p_compliant": 1.0
+ },
+ {
+  "key": "6373|1751044463.jpg|6373_9",
+  "labelled": "half",
+  "model": "full",
+  "labelled_compliant": true,
+  "p_compliant": 0.999
+ },
+ {
+  "key": "6376|1751049028.jpg|6376_7",
+  "labelled": "half",
+  "model": "empty",
+  "labelled_compliant": true,
+  "p_compliant": 0.29
+ },
+ {
+  "key": "6594|1751041681.jpg|6594_8",
+  "labelled": "full",
+  "model": "half",
+  "labelled_compliant": true,
+  "p_compliant": 1.0
+ },
+ {
+  "key": "6443|1751028789.jpg|6443_12",
+  "labelled": "half",
+  "model": "full",
+  "labelled_compliant": true,
+  "p_compliant": 1.0
+ },
+ {
+  "key": "6594|1751037746.jpg|6594_10",
+  "labelled": "full",
+  "model": "half",
+  "labelled_compliant": true,
+  "p_compliant": 0.999
+ },
+ {
+  "key": "6373|1751044463.jpg|6373_2",
+  "labelled": "half",
+  "model": "empty",
+  "labelled_compliant": false,
+  "p_compliant": 0.387
+ },
+ {
+  "key": "6781|1751005810.jpg|6781_10",
+  "labelled": "full",
+  "model": "half",
+  "labelled_compliant": true,
+  "p_compliant": 1.0
+ },
+ {
+  "key": "6385|1751032365.jpg|6385_4",
+  "labelled": "half",
+  "model": "empty",
+  "labelled_compliant": true,
+  "p_compliant": 1.0
+ },
+ {
+  "key": "6594|1751049768.jpg|6594_4",
+  "labelled": "full",
+  "model": "half",
+  "labelled_compliant": true,
+  "p_compliant": 1.0
+ },
+ {
+  "key": "6383|1751025309.jpg|6383_7",
+  "labelled": "full",
+  "model": "half",
+  "labelled_compliant": true,
+  "p_compliant": 1.0
+ },
+ {
+  "key": "6215|1751033683.jpg|6215_2",
+  "labelled": "full",
+  "model": "half",
+  "labelled_compliant": true,
+  "p_compliant": 1.0
+ },
+ {
+  "key": "6468|1751009863.jpg|6468_8",
+  "labelled": "half",
+  "model": "full",
+  "labelled_compliant": false,
+  "p_compliant": 0.002
+ },
+ {
+  "key": "6371|1751032728.jpg|6371_2",
+  "labelled": "half",
+  "model": "full",
+  "labelled_compliant": true,
+  "p_compliant": 1.0
+ },
+ {
+  "key": "6468|1751001157.jpg|6468_15",
+  "labelled": "half",
+  "model": "full",
+  "labelled_compliant": true,
+  "p_compliant": 0.995
+ },
+ {
+  "key": "6781|1751001200.jpg|6781_10",
+  "labelled": "half",
+  "model": "full",
+  "labelled_compliant": true,
+  "p_compliant": 1.0
+ },
+ {
+  "key": "6491|1751040739.jpg|6491_7",
+  "labelled": "empty",
+  "model": "half",
+  "labelled_compliant": true,
+  "p_compliant": 0.999
+ },
+ {
+  "key": "6376|1751021977.jpg|6376_12",
+  "labelled": "half",
+  "model": "full",
+  "labelled_compliant": true,
+  "p_compliant": 1.0
+ },
+ {
+  "key": "6385|1751028025.jpg|6385_7",
+  "labelled": "half",
+  "model": "full",
+  "labelled_compliant": true,
+  "p_compliant": 1.0
+ },
+ {
+  "key": "6385|1751040277.jpg|6385_4",
+  "labelled": "half",
+  "model": "empty",
+  "labelled_compliant": true,
+  "p_compliant": 1.0
+ },
+ {
+  "key": "6383|1751021577.jpg|6383_7",
+  "labelled": "half",
+  "model": "full",
+  "labelled_compliant": true,
+  "p_compliant": 1.0
+ },
+ {
+  "key": "6215|1751037607.jpg|6215_6",
+  "labelled": "half",
+  "model": "empty",
+  "labelled_compliant": true,
+  "p_compliant": 1.0
+ },
+ {
+  "key": "6462|1751047858.jpg|6462_7",
+  "labelled": "half",
+  "model": "full",
+  "labelled_compliant": true,
+  "p_compliant": 1.0
+ },
+ {
+  "key": "6371|1751001169.jpg|6371_1",
+  "labelled": "full",
+  "model": "half",
+  "labelled_compliant": true,
+  "p_compliant": 0.999
+ },
+ {
+  "key": "6385|1751040277.jpg|6385_8",
+  "labelled": "half",
+  "model": "empty",
+  "labelled_compliant": true,
+  "p_compliant": 1.0
+ },
+ {
+  "key": "6371|1751036943.jpg|6371_5",
+  "labelled": "half",
+  "model": "empty",
+  "labelled_compliant": true,
+  "p_compliant": 1.0
+ },
+ {
+  "key": "6383|1751044960.jpg|6383_1",
+  "labelled": "half",
+  "model": "empty",
+  "labelled_compliant": true,
+  "p_compliant": 1.0
+ },
+ {
+  "key": "6373|1751032836.jpg|6373_4",
+  "labelled": "half",
+  "model": "full",
+  "labelled_compliant": true,
+  "p_compliant": 1.0
+ },
+ {
+  "key": "6376|1751049028.jpg|6376_1",
+  "labelled": "half",
+  "model": "full",
+  "labelled_compliant": true,
+  "p_compliant": 1.0
+ },
+ {
+  "key": "6376|1751029801.jpg|6376_4",
+  "labelled": "full",
+  "model": "empty",
+  "labelled_compliant": false,
+  "p_compliant": 0.05
+ },
+ {
+  "key": "6215|1751045755.jpg|6215_5",
+  "labelled": "half",
+  "model": "full",
+  "labelled_compliant": true,
+  "p_compliant": 1.0
+ },
+ {
+  "key": "6491|1751025495.jpg|6491_9",
+  "labelled": "half",
+  "model": "full",
+  "labelled_compliant": true,
+  "p_compliant": 1.0
+ },
+ {
+  "key": "6215|1751021396.jpg|6215_2",
+  "labelled": "half",
+  "model": "full",
+  "labelled_compliant": true,
+  "p_compliant": 1.0
+ },
+ {
+  "key": "6215|1751001268.jpg|6215_5",
+  "labelled": "full",
+  "model": "half",
+  "labelled_compliant": false,
+  "p_compliant": 0.007
+ },
+ {
+  "key": "6468|1751044824.jpg|6468_9",
+  "labelled": "empty",
+  "model": "half",
+  "labelled_compliant": true,
+  "p_compliant": 0.999
+ },
+ {
+  "key": "6594|1751049768.jpg|6594_13",
+  "labelled": "half",
+  "model": "full",
+  "labelled_compliant": true,
+  "p_compliant": 1.0
+ },
+ {
+  "key": "6385|1751047832.jpg|6385_5",
+  "labelled": "half",
+  "model": "full",
+  "labelled_compliant": true,
+  "p_compliant": 1.0
+ },
+ {
+  "key": "6376|1751009380.jpg|6376_2",
+  "labelled": "empty",
+  "model": "half",
+  "labelled_compliant": true,
+  "p_compliant": 0.999
+ },
+ {
+  "key": "6371|1751005865.jpg|6371_1",
+  "labelled": "half",
+  "model": "full",
+  "labelled_compliant": true,
+  "p_compliant": 0.999
+ },
+ {
+  "key": "6781|1751021920.jpg|6781_10",
+  "labelled": "half",
+  "model": "full",
+  "labelled_compliant": true,
+  "p_compliant": 1.0
+ },
+ {
+  "key": "6373|1751032836.jpg|6373_1",
+  "labelled": "full",
+  "model": "half",
+  "labelled_compliant": true,
+  "p_compliant": 1.0
+ },
+ {
+  "key": "6462|1751047858.jpg|6462_9",
+  "labelled": "empty",
+  "model": "half",
+  "labelled_compliant": true,
+  "p_compliant": 1.0
+ },
+ {
+  "key": "6491|1751005570.jpg|6491_9",
+  "labelled": "half",
+  "model": "full",
+  "labelled_compliant": true,
+  "p_compliant": 0.999
+ },
+ {
+  "key": "6385|1751005283.jpg|6385_1",
+  "labelled": "half",
+  "model": "full",
+  "labelled_compliant": true,
+  "p_compliant": 1.0
+ },
+ {
+  "key": "6385|1751051814.jpg|6385_5",
+  "labelled": "empty",
+  "model": "half",
+  "labelled_compliant": true,
+  "p_compliant": 1.0
+ },
+ {
+  "key": "6468|1751009863.jpg|6468_13",
+  "labelled": "full",
+  "model": "full",
+  "labelled_compliant": false,
+  "p_compliant": 0.941
+ },
+ {
+  "key": "6383|1751044960.jpg|6383_9",
+  "labelled": "half",
+  "model": "full",
+  "labelled_compliant": true,
+  "p_compliant": 1.0
+ },
+ {
+  "key": "6594|1751037746.jpg|6594_8",
+  "labelled": "half",
+  "model": "full",
+  "labelled_compliant": true,
+  "p_compliant": 1.0
+ },
+ {
+  "key": "6491|1751036849.jpg|6491_7",
+  "labelled": "half",
+  "model": "full",
+  "labelled_compliant": true,
+  "p_compliant": 1.0
+ },
+ {
+  "key": "6373|1751028561.jpg|6373_5",
+  "labelled": "half",
+  "model": "full",
+  "labelled_compliant": true,
+  "p_compliant": 1.0
+ },
+ {
+  "key": "6468|1751037301.jpg|6468_3",
+  "labelled": "half",
+  "model": "full",
+  "labelled_compliant": true,
+  "p_compliant": 1.0
+ },
+ {
+  "key": "6383|1751044960.jpg|6383_7",
+  "labelled": "half",
+  "model": "empty",
+  "labelled_compliant": true,
+  "p_compliant": 1.0
+ },
+ {
+  "key": "6591|1751040216.jpg|6591_10",
+  "labelled": "half",
+  "model": "full",
+  "labelled_compliant": true,
+  "p_compliant": 1.0
+ },
+ {
+  "key": "6376|1751041136.jpg|6376_16",
+  "labelled": "half",
+  "model": "full",
+  "labelled_compliant": true,
+  "p_compliant": 1.0
+ },
+ {
+  "key": "6376|1751044933.jpg|6376_16",
+  "labelled": "full",
+  "model": "half",
+  "labelled_compliant": true,
+  "p_compliant": 1.0
+ }
+]
