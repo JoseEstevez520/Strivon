@@ -74,6 +74,10 @@ LLM_API_KEY=...
 
 Without a key the chat does not appear. If the model cannot be reached, the answer says so.
 
+Dictating a question and reading answers aloud go through `/api/voice/transcribe` and
+`/api/voice/speak`, relayed to OpenAI the same way. Add `OPENAI_API_KEY` to `frontend/.env` to
+turn them on; without it the chat has no voice buttons. The microphone needs HTTPS or localhost.
+
 ## Build
 
 ```bash

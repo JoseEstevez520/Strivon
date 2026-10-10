@@ -1,9 +1,10 @@
-import { ArrowDown, ArrowUp } from 'lucide-react'
+import { ArrowDown, ArrowUp, Mic, Square } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import { Renderer } from '@openuidev/react-lang'
 import { library } from './library'
 import { ask } from './ask'
 import { chatStore, useChat } from './store'
+import { clearDictationError, plainText, speak, startDictation, stopDictation, stopSpeaking, useDictation } from './voice'
 import { useI18n } from '@/lib/i18n'
 import { storeStats } from '@/lib/stats'
 import { useStore } from '@/lib/store'
@@ -25,9 +26,10 @@ function Thinking() {
  * (`library.tsx`). It asks a model through `ask.ts`.
  */
 export function Chat() {
-  const { t, family } = useI18n()
+  const { t, lang, family } = useI18n()
   const { state, gondolaFull: gondola } = useStore()
-  const { messages, streaming } = useChat()
+  const { messages, streaming, voice, open } = useChat()
+  const dictation = useDictation()
   const [draft, setDraft] = useState('')
   const input = useRef<HTMLTextAreaElement>(null)
   const scroller = useRef<HTMLDivElement>(null)
@@ -45,6 +47,33 @@ export function Chat() {
     observer.observe(el)
     return () => observer.disconnect()
   }, [])
+
+  // The text lands in the field to be read and sent by the person, never sent on its own.
+  const dictate = () => {
+    if (dictation.state === 'recording') return stopDictation()
+    void startDictation(lang, (text) => {
+      setDraft((d) => (d.trim() ? `${d.trimEnd()} ${text}` : text))
+      input.current?.focus()
+    })
+  }
+
+  // The field grows with what is in it, typed or dictated.
+  useEffect(() => {
+    const el = input.current
+    if (!el) return
+    el.style.height = 'auto'
+    el.style.height = `${Math.min(el.scrollHeight, 128)}px`
+  }, [draft])
+
+  useEffect(() => {
+    if (!open) stopDictation(false)
+  }, [open])
+
+  useEffect(() => {
+    if (!dictation.error) return
+    const timer = setTimeout(clearDictationError, 5000)
+    return () => clearTimeout(timer)
+  }, [dictation.error])
 
   const toBottom = () => scroller.current?.scrollTo({ top: scroller.current.scrollHeight, behavior: 'smooth' })
 
@@ -90,11 +119,18 @@ export function Chat() {
       messages: [...s.messages, { id, role: 'user', text: question }, { id: id + 1, role: 'assistant', text: '' }],
     }))
     setDraft('')
-    if (input.current) input.current.style.height = 'auto'
+    stopSpeaking()
     toTop.current = id
     void ask(history, context, t.chatFailed, (text) =>
       chatStore.set((s) => ({ messages: s.messages.map((x) => (x.id === id + 1 ? { ...x, text } : x)) })),
-    ).then(() => chatStore.set({ streaming: 0 }))
+    ).then(() => {
+      chatStore.set({ streaming: 0 })
+      // Read the finished answer if it is still the latest one and the speaker is on.
+      const { speak: on, messages: now } = chatStore.get()
+      const answer = now.find((x) => x.id === id + 1)
+      const sentences = answer ? plainText(answer.text) : ''
+      if (on && sentences && sentences !== t.chatFailed && now[now.length - 1]?.id === id + 1) void speak(sentences)
+    })
   }
 
   return (
@@ -158,6 +194,12 @@ export function Chat() {
         </button>
       )}
 
+      {dictation.error && (
+        <p role="status" className="px-4 pb-1 text-meta text-fg-secondary sm:px-6">
+          {dictation.error === 'denied' ? t.micDenied : dictation.error === 'missing' ? t.micMissing : t.voiceFailed}
+        </p>
+      )}
+
       <form
         onSubmit={submit}
         className="flex w-full items-end gap-2 px-4 pt-1 pb-4 sm:px-6"
@@ -169,8 +211,6 @@ export function Chat() {
             value={draft}
             onChange={(e) => {
               setDraft(e.target.value)
-              e.target.style.height = 'auto'
-              e.target.style.height = `${Math.min(e.target.scrollHeight, 128)}px`
             }}
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
@@ -183,6 +223,30 @@ export function Chat() {
             className="scrollbar-subtle max-h-32 min-h-11 w-full resize-none bg-transparent px-4 py-[0.6875rem] text-ui outline-none placeholder:text-fg-muted"
           />
         </div>
+        {voice && (
+          <button
+            type="button"
+            onClick={dictate}
+            disabled={dictation.state === 'transcribing'}
+            aria-label={dictation.state === 'recording' ? t.dictateStop : dictation.state === 'transcribing' ? t.transcribing : t.dictate}
+            aria-pressed={dictation.state === 'recording'}
+            className={`grid size-11 shrink-0 cursor-pointer place-items-center rounded-full transition-colors disabled:pointer-events-none ${
+              dictation.state === 'recording' ? 'bg-danger/15 text-danger' : 'bg-surface text-fg-secondary hover:bg-sunk hover:text-fg'
+            }`}
+          >
+            {dictation.state === 'recording' ? (
+              <Square className="size-4 animate-pulse fill-current" />
+            ) : dictation.state === 'transcribing' ? (
+              <span className="flex items-center gap-1" aria-hidden>
+                {[0, 1, 2].map((i) => (
+                  <span key={i} className="size-1 animate-pulse rounded-full bg-fg-muted" style={{ animationDelay: `${i * 200}ms` }} />
+                ))}
+              </span>
+            ) : (
+              <Mic className="size-5" />
+            )}
+          </button>
+        )}
         <button
           type="submit"
           disabled={!draft.trim()}

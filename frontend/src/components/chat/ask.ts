@@ -56,12 +56,14 @@ export async function ask(
   }
 }
 
-/** Whether the server has a model to ask. Without one the chat is not offered. */
-export async function chatAvailable(): Promise<boolean> {
+/** What the server offers: a model to ask, and voice to dictate and read aloud. Without a model the chat is not offered. */
+export async function chatStatus(): Promise<{ enabled: boolean; voice: boolean }> {
   try {
     const res = await fetch('/api/chat/status')
-    return res.ok && Boolean((await res.json()).enabled)
+    if (!res.ok) return { enabled: false, voice: false }
+    const body = await res.json()
+    return { enabled: Boolean(body.enabled), voice: Boolean(body.voice) }
   } catch {
-    return false
+    return { enabled: false, voice: false }
   }
 }

@@ -515,6 +515,12 @@ a collapsing block by hand once, and Base UI and shadcn already had it.
   headline and its chat, closed it to one period when what we want is the analytics of the store.
   The period is now a line of data. A period selector and multi-day code were left out, since they
   could not be tested with one day of photos.
+- 2026-10-11. Voice in the chat, shown only when the server has a key. A round microphone sits
+  left of Send, in the same quiet tone; while it records it turns red with a stop square, and
+  while it transcribes it shows the three dots. The text lands in the field and is never sent
+  by itself. A speaker toggle in the corner reads each finished answer, only the sentences of
+  its text and callout parts and never the figures of a chart. Escape ends a recording before
+  it closes the box. Failures are one short line that clears itself, not a dialog.
 
 ## Roadmap
 
