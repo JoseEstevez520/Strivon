@@ -225,6 +225,22 @@ export function Landing() {
           </ul>
         </Section>
 
+        <Section
+          title="Ask, and get a screen"
+          lead="You can ask the store a question in plain words. The answer is not a paragraph: the chat builds the screen that answers it, with a chart of the day and a card that opens the shelf."
+        >
+          <video
+            className="w-full rounded-2xl bg-bg"
+            src="./video/chat-to-gondola.mp4"
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="metadata"
+            aria-label="Someone asks where the bananas are. The chat answers with a chart of how the shelves emptied through the day and a card. Opening the card shows the gondola's photo with its shelf areas marked."
+          />
+        </Section>
+
         <Section title="See it" lead="The app, shortened. Open a task to see its day and its shelf, or move through the day.">
           <Demo />
         </Section>
