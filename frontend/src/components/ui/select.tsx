@@ -81,21 +81,16 @@ function SelectContent({
           data-slot="select-content"
           data-align-trigger={alignItemWithTrigger}
           className={cn(
-            // Same motion as a task opening: height and a fade, 200 ms in and 150 ms out.
-            "group/popup relative isolate z-50 w-(--anchor-width) overflow-hidden rounded-md bg-raised text-fg shadow-[0_6px_20px_-8px_rgb(0_0_0/0.08)] ring-1 ring-border transition-opacity duration-200 ease-out data-ending-style:opacity-0 data-ending-style:duration-150 data-starting-style:opacity-0 motion-reduce:transition-none",
+            // Base UI's documented popup transition: fade and a small scale from the trigger's side,
+            // 200 ms in and 150 ms out, the same times as a task opening.
+            "relative isolate z-50 max-h-(--available-height) w-(--anchor-width) origin-(--transform-origin) overflow-x-hidden overflow-y-auto rounded-md bg-raised p-1 text-fg shadow-[0_6px_20px_-8px_rgb(0_0_0/0.08)] ring-1 ring-border transition-[opacity,scale] duration-200 ease-out data-ending-style:scale-[0.97] data-ending-style:opacity-0 data-ending-style:duration-150 data-starting-style:scale-[0.97] data-starting-style:opacity-0 motion-reduce:transition-none",
             className
           )}
           {...props}
         >
-          <div className="grid grid-rows-[1fr] transition-[grid-template-rows] duration-200 ease-out group-data-ending-style/popup:grid-rows-[0fr] group-data-ending-style/popup:duration-150 group-data-starting-style/popup:grid-rows-[0fr] motion-reduce:transition-none">
-            <div className="max-h-(--available-height) min-h-0 overflow-x-hidden overflow-y-auto">
-              <div className="p-1">
-                <SelectScrollUpButton />
-                <SelectPrimitive.List>{children}</SelectPrimitive.List>
-                <SelectScrollDownButton />
-              </div>
-            </div>
-          </div>
+          <SelectScrollUpButton />
+          <SelectPrimitive.List>{children}</SelectPrimitive.List>
+          <SelectScrollDownButton />
         </SelectPrimitive.Popup>
       </SelectPrimitive.Positioner>
     </SelectPrimitive.Portal>

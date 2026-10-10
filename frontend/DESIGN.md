@@ -84,7 +84,8 @@ second has the least text, which was the complaint about the first version.
 
 The camera and language selectors are trays without a fill at rest. The fill appears on hover
 and when open. The open list is exactly as wide as its trigger, sits on `raised` with a hairline
-and a very faint shadow, and fades in over 100 ms. The highlighted option goes one tone up and
+and a very faint shadow. It opens with Base UI's documented popup transition, a fade and a
+scale from 0.97, 200 ms in and 150 ms out. The highlighted option goes one tone up and
 the chosen one has a check on the left, with room reserved so options line up whether chosen
 or not. Counts sit at the right of the option in grey.
 
@@ -197,6 +198,12 @@ a collapsing block by hand once, and Base UI and shadcn already had it.
 - 2026-10-10. Scrolling into view happens only when an area is picked on the photo, and once.
   The first version scrolled on every opening from an effect, which felt like the page was
   moving by itself.
+
+- 2026-10-10. The picker list no longer animates its height. Mimicking the task opening with a
+  grid row and an inner scroll container made the list scroll by itself while it grew, because
+  the browser brought the highlighted option into view in a box that was still small. It is
+  back to shadcn's stock structure with the fade and scale that Base UI documents. Rule: do not
+  wrap a Base UI popup in structure of our own to animate it.
 
 ## Open questions
 

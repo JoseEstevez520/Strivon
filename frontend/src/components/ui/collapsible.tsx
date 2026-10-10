@@ -13,7 +13,7 @@ function CollapsibleTrigger({ ...props }: CollapsiblePrimitive.Trigger.Props) {
 
 /**
  * The panel grows to its height and fades in over 200 ms, and folds in 150 ms. It is the one
- * opening motion of the screen: the list picker uses the same times. Base UI exposes the height
+ * opening motion of the screen: the pickers use the same times, with a fade and a small scale. Base UI exposes the height
  * as a variable and marks the first and last frame with data-starting-style and data-ending-style.
  */
 function CollapsibleContent({
