@@ -10,7 +10,7 @@ simulated, so the clips are for showing how the chat works, not as results of th
 | `chat-bananas.mp4` | 1920×1080, 17 s | Ask how the bananas are doing, get a chart and a split, then ask where they sit |
 | `chat-bananas-vertical.mp4` | 1080×1920, 17 s | The same clip for phones and social posts |
 | `chat-restock-first.mp4` | 1920×1080, 12 s | Ask what to restock first, get the gondola to go to and the next three |
-| `chat-to-gondola.mp4` | 1920×1080, 13 s | Open the answer and land on the gondola, with its shelf areas marked |
+| `chat-to-gondola.mp4` | 1920×1080, 17 s | Ask where the bananas are, get a chart of the day, open the card and land on the gondola with its shelf areas marked. It is the clip on the landing |
 
 The three chat clips also come as `*-alpha.webm`, with a transparent background, to
 place over any page or slide. The text is dark, so use them on a light background.
