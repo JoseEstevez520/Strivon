@@ -225,10 +225,18 @@ export function Landing() {
           </ul>
         </Section>
 
-        <Section
-          title="Ask, and get a screen"
-          lead="You can ask the store a question in plain words. The answer is not a paragraph: the chat builds the screen that answers it, with a chart of the day and a card that opens the shelf."
-        >
+        <Section title="See it" lead="The app, shortened. Open a task to see its day and its shelf, or move through the day.">
+          <Demo />
+        </Section>
+
+        <section className="grid items-center gap-8 py-12 sm:py-16 md:grid-cols-[2fr_3fr]">
+          <div>
+            <h2 className="text-title">Ask, and get a screen</h2>
+            <p className="mt-3 text-copy text-fg-secondary">
+              You can ask the store a question in plain words. The answer is not a paragraph: the chat builds the screen that
+              answers it, with a chart of the day and a card that opens the shelf.
+            </p>
+          </div>
           <video
             className="w-full rounded-2xl bg-bg"
             src="./video/chat-to-gondola.mp4"
@@ -239,11 +247,7 @@ export function Landing() {
             preload="metadata"
             aria-label="Someone asks where the bananas are. The chat answers with a chart of how the shelves emptied through the day and a card. Opening the card shows the gondola's photo with its shelf areas marked."
           />
-        </Section>
-
-        <Section title="See it" lead="The app, shortened. Open a task to see its day and its shelf, or move through the day.">
-          <Demo />
-        </Section>
+        </section>
 
         <Section title="Code">
           <a
