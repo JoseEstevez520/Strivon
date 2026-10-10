@@ -4,7 +4,10 @@ import { useEffect, useRef } from 'react'
 export function useScrollIntoView<T extends HTMLElement>(active: boolean) {
   const ref = useRef<T>(null)
   useEffect(() => {
-    if (active) ref.current?.scrollIntoView({ block: 'nearest' })
+    if (!active) return
+    // Wait for the row to finish growing, so the scroll measures its real height.
+    const id = setTimeout(() => ref.current?.scrollIntoView({ block: 'nearest' }), 220)
+    return () => clearTimeout(id)
   }, [active])
   return ref
 }

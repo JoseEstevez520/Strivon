@@ -1,6 +1,7 @@
-import { ChevronDown, ChevronRight } from 'lucide-react'
+import { ChevronRight } from 'lucide-react'
 import type { CSSProperties } from 'react'
 import { AreaHistory } from './AreaHistory'
+import { Collapse } from './Collapse'
 import { GROUP_COLOR } from './groupStyle'
 import { useScrollIntoView } from './useScrollIntoView'
 import { useI18n } from '@/lib/i18n'
@@ -10,8 +11,7 @@ import type { HistoryPoint, Task } from '@/lib/tasks'
 interface Props {
   task: Task
   selected: boolean
-  /** The area's day, given only while the card is open. */
-  history: HistoryPoint[] | null
+  history: HistoryPoint[]
   onSelect: () => void
   onJump: (ts: number) => void
 }
@@ -48,13 +48,13 @@ export function TaskCard({ task, selected, history, onSelect, onJump }: Props) {
         <span className="text-meta tabular-nums text-fg-secondary" title={t.since(since)}>
           {since}
         </span>
-        {selected ? (
-          <ChevronDown className="size-4 text-fg-muted" />
-        ) : (
-          <ChevronRight className="size-4 text-fg-muted" />
-        )}
+        <ChevronRight
+          className={`size-4 text-fg-muted transition-transform duration-200 ease-out motion-reduce:transition-none ${selected ? 'rotate-90' : ''}`}
+        />
       </button>
-      {selected && history && <AreaHistory task={task} history={history} onJump={onJump} />}
+      <Collapse open={selected}>
+        <AreaHistory task={task} history={history} onJump={onJump} />
+      </Collapse>
     </div>
   )
 }

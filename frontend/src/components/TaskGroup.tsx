@@ -1,16 +1,18 @@
+import { useState } from 'react'
 import { AreaHistory } from './AreaHistory'
+import { Collapse } from './Collapse'
 import { GROUP_COLOR, GROUP_ICON } from './groupStyle'
 import { TaskCard } from './TaskCard'
 import { useScrollIntoView } from './useScrollIntoView'
 import { useI18n } from '@/lib/i18n'
+import type { Area } from '@/data/types'
 import type { Group, HistoryPoint, Task } from '@/lib/tasks'
 
 interface Props {
   group: Group
   tasks: Task[]
   selected: string | null
-  /** The selected area's day, so the open row can show it. */
-  history: HistoryPoint[] | null
+  historyOf: (area: Area) => HistoryPoint[]
   onSelect: (areaId: string) => void
   onJump: (ts: number) => void
 }
@@ -18,7 +20,7 @@ interface Props {
 interface RowProps {
   task: Task
   selected: boolean
-  history: HistoryPoint[] | null
+  history: HistoryPoint[]
   onSelect: () => void
   onJump: (ts: number) => void
 }
@@ -42,20 +44,26 @@ function QuietRow({ task, selected, history, onSelect, onJump }: RowProps) {
         <span>{family(task.area.family)}</span>
         <span className="text-meta text-fg-muted">{task.area.camera}</span>
       </button>
-      {selected && history && <AreaHistory task={task} history={history} onJump={onJump} />}
+      <Collapse open={selected}>
+        <AreaHistory task={task} history={history} onJump={onJump} />
+      </Collapse>
     </div>
   )
 }
 
-export function TaskGroup({ group, tasks, selected, history, onSelect, onJump }: Props) {
+export function TaskGroup({ group, tasks, selected, historyOf, onSelect, onJump }: Props) {
   const { t } = useI18n()
+  const open = tasks.find((x) => x.area.area_id === selected)
+  // An area that is fine has no card. The last one opened stays mounted so it can fold away.
+  const [shown, setShown] = useState<Task | null>(null)
+  if (group === 'allGood' && open && open !== shown) setShown(open)
+
   if (tasks.length === 0) return null
   const Icon = GROUP_ICON[group]
-  const open = tasks.find((x) => x.area.area_id === selected)
   const row = (task: Task) => ({
     task,
     selected: selected === task.area.area_id,
-    history: selected === task.area.area_id ? history : null,
+    history: historyOf(task.area),
     onSelect: () => onSelect(task.area.area_id),
     onJump,
   })
@@ -86,8 +94,11 @@ export function TaskGroup({ group, tasks, selected, history, onSelect, onJump }:
         </div>
       )}
 
-      {/* Everything fine stays folded. An area picked on the photo opens here, under its heading. */}
-      {group === 'allGood' && open && <QuietRow {...row(open)} />}
+      {group === 'allGood' && shown && (
+        <Collapse open={Boolean(open)}>
+          <QuietRow {...row(open ?? shown)} />
+        </Collapse>
+      )}
     </section>
   )
 }

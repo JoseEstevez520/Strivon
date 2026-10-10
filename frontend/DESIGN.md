@@ -122,12 +122,17 @@ separate panel. Pressing it again, or Escape, closes it.
   one segment per photo of that camera: green is full, grey is half, red is empty. A thin amber
   bar marks the photos where the product was in the wrong place. Pressing a segment moves the
   whole screen to that time.
-- It opens at once. No height animation, to keep the list light.
+- It opens and closes with a short height animation, 200 ms to open and 150 ms to close, and
+  the chevron turns 90 degrees in step. It is one `Collapse` component that animates a grid
+  row, so no height is measured. The closed content stays mounted and inert, which is what lets
+  it fold away instead of vanishing.
 
 ## Motion
 
-Colour changes take 150 ms and the open picker fades. Nothing else moves. No layout
-animation, no blur, no scaling. Nothing appears or disappears with a transition that moves.
+Colour changes take 150 ms and the open picker fades. A task opens and closes with a height
+animation (200 ms in, 150 ms out) and its chevron turns. That is the only layout animation, and
+it is kept to one row at a time. No blur, no scaling and no glass. Closing is always a little
+faster than opening, as in elastic-ui. With reduced motion, everything is instant.
 
 ## Performance
 
@@ -170,6 +175,10 @@ stay short, since a translation can run longer. The choice is saved in the brows
 - 2026-10-10. The detail panel under the photo is gone. The task opens inside its own card.
   Two reds side by side looked inconsistent, and the panel was off screen on a laptop. This
   also covers phones, since the list comes first and the card opens where it is.
+
+- 2026-10-10. Opening and closing a task animates its height, and the chevron turns instead of
+  swapping icons. The first version opened with a short animation and closed at once, which
+  felt uneven. Both directions now animate, closing slightly faster.
 
 ## Open questions
 

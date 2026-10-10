@@ -69,7 +69,6 @@ function Screen() {
     const i = times.findIndex((x) => x >= ts)
     setIndex(i < 0 ? times.length - 1 : i)
   }
-  const selectedTask = tasks.find((x) => x.area.area_id === selected)
   const cameraTasks = tasks.filter((x) => x.area.camera === camera)
   const photo = snapshot(state, camera, at)
 
@@ -132,7 +131,7 @@ function Screen() {
               group={g}
               tasks={tasks.filter((x) => x.group === g)}
               selected={selected}
-              history={selectedTask ? historyOf(state, selectedTask.area) : null}
+              historyOf={(area) => historyOf(state, area)}
               onSelect={pick}
               onJump={jumpTo}
             />
