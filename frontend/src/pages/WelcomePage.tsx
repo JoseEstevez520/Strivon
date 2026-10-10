@@ -16,6 +16,7 @@ import { DayMap } from '@/components/day/DayMap'
 import { CameraTile } from '@/components/CameraTile'
 import { TaskBoard } from '@/components/TaskBoard'
 import { TaskCard } from '@/components/TaskCard'
+import { useI18n } from '@/lib/i18n'
 import { storeStats } from '@/lib/stats'
 import { useStore } from '@/lib/store'
 import { cardsOf } from '@/lib/tasks'
@@ -56,47 +57,54 @@ const Card = ({ icon: Icon, title, text }: { icon: LucideIcon; title: string; te
 const nothing = () => {}
 
 /**
- * The first screen: the name and what it does on one side, and on the other a few of the app's own
- * parts (task cards and two gondolas) as a still of the screen. They are for looking at, so they
- * cannot be pressed; the live ones are further down.
+ * The first screen: the name and what it does in the middle, and around it a few of the app's own
+ * parts at different sizes, so its range is in view from the start. They are for looking at, so
+ * they cannot be pressed; the live ones are further down.
  */
 function Hero() {
-  const { tasks, gondola, where, historyOf } = useStore()
+  const { t } = useI18n()
+  const { state, tasks, gondola, where, historyOf } = useStore()
+  const stats = useMemo(() => storeStats(state), [state])
   const restock = cardsOf(tasks.filter((x) => x.group === 'restock'))
   const moveBack = cardsOf(tasks.filter((x) => x.group === 'moveBack'))
-  const cards = [restock[0], restock[1], moveBack[0]].filter(Boolean)
-  const tiles = [restock[2], restock[3]].filter(Boolean)
+  const card = (c?: (typeof restock)[number]) =>
+    c && (
+      <TaskCard
+        key={c.key}
+        card={c}
+        selected={null}
+        gondola={gondola}
+        where={where}
+        historyOf={historyOf}
+        onSelect={nothing}
+        onJump={nothing}
+      />
+    )
+  const side = 'pointer-events-none flex flex-col gap-3 select-none'
 
   return (
-    <div className="grid grid-cols-[minmax(0,1fr)] items-center gap-12 py-16 lg:grid-cols-2 lg:py-24">
-      <div className="flex flex-col gap-6">
+    <div className="relative left-1/2 grid w-[min(92vw,80rem)] -translate-x-1/2 grid-cols-[minmax(0,1fr)] min-h-dvh items-center gap-10 px-5 py-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)_minmax(0,1fr)] lg:gap-12">
+      <div aria-hidden className={`${side} order-2 lg:order-1 lg:-translate-y-6`}>
+        {card(restock[0])}
+        {restock[2] && <CameraTile camera={restock[2].tasks[0].area.camera} />}
+        <div className="rounded-lg bg-surface p-3">
+          <DayMap rows={stats.map.slice(0, 3)} hours={stats.hours} limit={3} />
+        </div>
+      </div>
+
+      <div className="order-1 flex flex-col items-center gap-6 text-center lg:order-2">
         <h1 className="text-[clamp(3.5rem,8vw,6.5rem)] leading-none font-semibold tracking-[-0.045em]">Strivon</h1>
         <p className="text-[clamp(1.125rem,1.8vw,1.5rem)] leading-relaxed text-fg-secondary">
-          Ceiling cameras watch the fruit and vegetable shelves. Strivon compares what they see with the planogram and tells the
-          staff what to restock and what to put back.
+          Ceiling cameras watch the fruit and vegetable shelves. Strivon compares what they see with the planogram and tells the staff
+          what to restock and what to put back.
         </p>
       </div>
 
-      <div aria-hidden className="pointer-events-none flex flex-col gap-3 rounded-2xl bg-surface p-4 select-none">
-        <div className="flex flex-col gap-2">
-          {cards.map((c) => (
-            <TaskCard
-              key={c.key}
-              card={c}
-              selected={null}
-              gondola={gondola}
-              where={where}
-              historyOf={historyOf}
-              onSelect={nothing}
-              onJump={nothing}
-            />
-          ))}
-        </div>
-        <div className="grid grid-cols-2 gap-3">
-          {tiles.map((c) => (
-            <CameraTile key={c.key} camera={c.tasks[0].area.camera} />
-          ))}
-        </div>
+      <div aria-hidden className={`${side} order-3 lg:translate-y-10`}>
+        {card(moveBack[0])}
+        <p className="rounded-lg bg-surface px-4 py-3 text-title tabular-nums">{t.insightsHeadline(Math.round(stats.emptyShare * 100))}</p>
+        {card(restock[1])}
+        {card(moveBack[1])}
       </div>
     </div>
   )
