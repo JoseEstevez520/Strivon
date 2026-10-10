@@ -1,4 +1,4 @@
-import { Maximize2, MessageSquare, Minimize2, X } from 'lucide-react'
+import { Maximize2, MessageCircle, Minimize2, X } from 'lucide-react'
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { Chat } from './Chat'
 import { useI18n } from '@/lib/i18n'
@@ -80,7 +80,7 @@ export function ChatBubble() {
           open ? 'pointer-events-none opacity-0 duration-100' : 'opacity-100 delay-200 duration-200 hover:opacity-85'
         }`}
       >
-        <MessageSquare className="size-5" />
+        <MessageCircle className="size-5" />
       </button>
     </div>
   )
