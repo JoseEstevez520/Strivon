@@ -15,7 +15,8 @@ export function CameraTile({ camera }: { camera: string }) {
   const { t } = useI18n()
   const { state, at, tasks, gondola, photoUrl } = useStore()
   const own = tasks.filter((x) => x.area.camera === camera)
-  const counts = COUNTED.map((g) => [g, own.filter((x) => x.group === g).length] as const).filter(([, n]) => n > 0)
+  const counts = COUNTED.map((g) => [g, own.filter((x) => x.group === g).length] as const)
+  const anything = counts.some(([, n]) => n > 0)
   const src = photoUrl?.(camera, snapshot(state, camera, at).image)
 
   return (
@@ -28,13 +29,14 @@ export function CameraTile({ camera }: { camera: string }) {
       </div>
       <div className="flex flex-col gap-1.5 px-1 pb-1">
         <span className="truncate text-label">{gondola(camera)}</span>
-        {counts.length > 0 ? (
-          <span className="flex items-center gap-3 text-meta font-medium tabular-nums text-fg-secondary">
+        {anything ? (
+          // Three fixed columns, so a count sits in the same place on every tile and the row fills the width.
+          <span className="grid grid-cols-3 text-meta font-medium tabular-nums">
             {counts.map(([group, n]) => {
               const Icon = GROUP_ICON[group]
               return (
-                <span key={group} className="flex items-center gap-1" title={t[group]}>
-                  <Icon className="size-3.5" style={{ color: GROUP_COLOR[group] }} aria-hidden />
+                <span key={group} className={`flex items-center gap-1.5 ${n > 0 ? 'text-fg-secondary' : 'text-fg-muted opacity-50'}`} title={t[group]}>
+                  <Icon className="size-3.5" style={n > 0 ? { color: GROUP_COLOR[group] } : undefined} aria-hidden />
                   {n}
                   <span className="sr-only">{t[group]}</span>
                 </span>

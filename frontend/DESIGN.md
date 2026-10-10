@@ -140,7 +140,10 @@ second has the least text, which was the complaint about the first version.
 
 A tile is a camera: its latest photo, what it is called on its own line, and under it how many
 areas are in each state. The states are shown as the same icons the group headings use (alert for
-restock, arrow for move back, clock for later), each with its number, so nothing needs a legend.
+restock, arrow for move back, clock for later), each with its number, so nothing needs a legend. The three counts sit in fixed columns that fill
+the width of the tile, and a state with none is dimmed and stays in its place, so a number is in
+the same spot on every tile. With the text and icons packed to the left, the right half of a tile
+was empty and the wide photo outweighed what was under it.
 The first version had a strip of short coloured lines that did not say what it meant. What is fine
 is not counted: a gondola with nothing to do says "All good" in grey. Every tile has the same
 neutral tone. The photo already brings a lot of colour, and a tinted frame added more with little
