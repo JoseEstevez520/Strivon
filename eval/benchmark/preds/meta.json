@@ -82,5 +82,12 @@
   "labels": "labels_v1",
   "other_photos": "no",
   "seconds": "3.44 CPU (+ up to 0.6), 0.21 GPU"
+ },
+ "lab_image_only": {
+  "approach": "Single image: pixel features of the area and its crate + logistic and tree blend, product check against a bank of training crops",
+  "owner": "José (lab)",
+  "labels": "the key",
+  "other_photos": "training crops only",
+  "seconds": "being measured; features about 0.1 s per photo on 1 CPU thread (partial), no GPU, no CLIP"
  }
 }
