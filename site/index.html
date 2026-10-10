@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Strivon</title>
+<meta name="description" content="Every shelf tells you what it needs before it runs empty.">
+<meta property="og:title" content="Strivon">
+<meta property="og:description" content="Every shelf tells you what it needs before it runs empty.">
+<meta property="og:image" content="img/banner.png">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%231d1d1d'/><text x='16' y='23' font-size='20' font-family='sans-serif' font-weight='600' text-anchor='middle' fill='%23f8f7f4'>s</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f8f7f4;--surface:#efeee9;--sunk:#e6e4dd;--fg:#1d1d1d;--fg2:#51554c;--muted:#686d62;--danger:#c4452f}
+@media (prefers-color-scheme:dark){:root:not([data-keep-light]){color-scheme:light}}
+*{box-sizing:border-box;margin:0}
+html{background:var(--bg);color:var(--fg);font:400 16px/1.6 Inter,system-ui,sans-serif;letter-spacing:-.003em;-webkit-font-smoothing:antialiased}
+body{min-height:100dvh}
+main{max-width:64rem;margin:0 auto;padding:0 1.5rem}
+header{padding:2rem 0 0;font-weight:600;font-size:1.25rem;letter-spacing:-.03em}
+.hero{padding:5rem 0 4rem}
+h1{font-size:clamp(2.5rem,7vw,4.5rem);font-weight:600;letter-spacing:-.04em;line-height:1.05;max-width:16ch}
+.hero p{margin-top:1.5rem;font-size:1.25rem;line-height:1.5;color:var(--fg2);max-width:34rem}
+h2{font-size:1.25rem;font-weight:600;letter-spacing:-.014em;line-height:1.3}
+section{padding:3rem 0}
+.shot{margin-top:1.5rem;background:var(--surface);border-radius:1rem;padding:.5rem}
+.shot img{display:block;width:100%;height:auto;border-radius:.75rem}
+.shot.narrow{max-width:48rem}
+.cap{margin-top:.75rem;font-size:.875rem;color:var(--muted)}
+.lead{margin-top:.5rem;color:var(--fg2);max-width:36rem}
+ol{list-style:none;padding:0;margin-top:1.5rem;display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));counter-reset:s}
+ol li{background:var(--surface);border-radius:1rem;padding:1.25rem;counter-increment:s}
+ol li::before{content:counter(s);display:block;font-size:.875rem;font-weight:500;color:var(--muted);margin-bottom:.5rem}
+ol b{display:block;font-weight:600;margin-bottom:.25rem}
+ol span{color:var(--fg2);font-size:.9375rem}
+.team{margin-top:1.5rem;display:grid;gap:.75rem 2rem;grid-template-columns:repeat(auto-fit,minmax(11rem,1fr))}
+.team div{font-size:.9375rem;color:var(--fg2)}
+.team b{display:block;color:var(--fg);font-weight:500}
+footer{padding:3rem 0 4rem}
+.logos{display:flex;gap:2rem;align-items:center;justify-content:center;margin-bottom:1.5rem}
+.logos img{height:56px;width:auto}
+footer p{font-size:.875rem;color:var(--muted)}
+</style>
+</head>
+<body>
+<main>
+  <header>strivon</header>
+
+  <div class="hero">
+    <h1>Every shelf tells you what it needs before it runs empty.</h1>
+    <p>Ceiling cameras watch the fruit and vegetable shelves. Strivon compares what they see with the planogram and tells the staff what to restock and what to put back.</p>
+  </div>
+
+  <section>
+    <h2>What staff see</h2>
+    <p class="lead">One list for the whole store, grouped by what to do and ordered by what is gone the longest. Restock first, then move back, then leave alone.</p>
+    <div class="shot narrow"><img src="img/tasks.png" alt="The task list: products to restock and to move back, next to the gondolas" loading="lazy"></div>
+  </section>
+
+  <section>
+    <h2>How it works</h2>
+    <ol>
+      <li><b>A camera looks</b><span>Each gondola has a ceiling camera that takes a photo about once an hour.</span></li>
+      <li><b>Each shelf area is checked</b><span>Against the planogram: is it holding the right product, and how full is it?</span></li>
+      <li><b>Staff get the work</b><span>What is empty, what is in the wrong place, and what can wait.</span></li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>How the store is doing</h2>
+    <p class="lead">For whoever runs the store: how much of the time shelves were empty, when it happened and where. Every figure that comes from photos taken an hour apart is marked as an estimate.</p>
+    <div class="shot"><img src="img/insights.png" alt="Insights: share of shelf time empty, a day map of stock by product and hour, and rankings" loading="lazy"></div>
+    <p class="cap">The screens above use invented shelves, so they show no challenge photos.</p>
+  </section>
+
+  <section>
+    <h2>Team</h2>
+    <div class="team">
+      <div><b>José</b>The web app and the integration</div>
+      <div><b>Miguel</b>The AI pipeline</div>
+      <div><b>André</b>Evaluation and data</div>
+      <div><b>Leonor</b>Labelling, design and the pitch</div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="logos">
+      <img src="img/junctionx.png" alt="JunctionX Lisbon">
+      <img src="img/sensei.png" alt="Sensei">
+    </div>
+    <p>Built at JunctionX Lisbon 2026, for the Sensei challenge. The logos belong to their owners.</p>
+  </footer>
+</main>
+</body>
+</html>
