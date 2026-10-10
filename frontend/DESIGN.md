@@ -20,7 +20,7 @@ interface of that web was the problem, not its pages.
 - Tasks is the first page. What to do is the main thing, so the list takes the wider column on
   the left (three fifths), grouped by action, and the context takes two fifths. Cards sit two to
   a row, because a wide card has a large empty gap between the name and the time. A card that is
-  open spans the whole row. On the right are all the cameras with their latest photo and a strip of their state, and when a task
+  open grows in its own column and does not change row, and the card next to it keeps its height. On the right are all the cameras with their latest photo and a strip of their state, and when a task
   is open the panel shows the photo of its camera with the area marked, and a way back to all
   cameras.
 - Gondolas shows the 14 cameras as tiles, in a fixed order. A tile opens the page
@@ -59,9 +59,10 @@ in the text colour. The first version had plain links with a tinted pill next to
 name, which was neither a tab nor a button and broke the calm of the page.
 
 Group headings in the lists stay fixed under the header while their group scrolls, on an opaque
-background. The photo panel stays in view beside the list. The grid of cameras is taller than a
-screen, so it scrolls with the page: a fixed element taller than the screen would hide its
-lower half.
+background. The panel stays in view beside the list and never decides how tall the page is. The grid of
+cameras is taller than a screen, so it scrolls inside the panel. If the panel set the page height,
+opening a task would swap a tall grid for one photo, the page would shrink and the browser would
+move the scroll under the person's finger.
 
 Sources, read on 2026-10-10: NN/g on sticky headers (opaque, as small as possible, shrink only
 for a large logo) and Android's guide to navigation (a bar of three to five destinations on a
@@ -352,6 +353,11 @@ a collapsing block by hand once, and Base UI and shadcn already had it.
 - 2026-10-10. Urgency is defined and shown. It was share of the product that is gone, with the
   camera number as a tie-break, which was arbitrary. Ties now go to what has waited longest. A
   line under the headline said so, and was removed as clutter, leaving a tooltip.
+
+- 2026-10-10. Opening a task no longer makes the page jump. Measured before the fix: the page
+  shrank from 1632 to 1073 px and the pressed card moved 177 px, because the panel changed from
+  a grid to a photo and the open card moved to its own row. Now the panel has a fixed height with
+  its own scroll and the card opens in its column, and the pressed card stays within 0 px.
 
 ## Open questions
 

@@ -32,7 +32,7 @@ function QuietRow({ card, ...rest }: Omit<Props, 'group' | 'tasks'> & { card: Ca
   const many = card.tasks.length > 1
 
   return (
-    <div data-selected={open} className="rounded-md transition-colors hover:bg-surface data-[selected=true]:col-span-full data-[selected=true]:bg-surface">
+    <div data-selected={open} className="rounded-md transition-colors hover:bg-surface data-[selected=true]:bg-surface">
       <Collapsible open={open} onOpenChange={() => onSelect(open ? null : first.area.area_id)}>
         <CollapsibleTrigger className="flex w-full cursor-pointer items-baseline justify-between gap-3 rounded-md px-1 py-1.5 text-left text-fg-secondary">
           <span>{family(first.area.family)}</span>
@@ -123,7 +123,7 @@ export function TaskGroup({ group, tasks, selected, listFine = false, fold = tru
           items={cards}
           limit={fold ? SHOWN[group] : cards.length}
           forced={folded(cards, SHOWN[group], selected)}
-          className="grid grid-flow-dense grid-cols-[minmax(0,1fr)] gap-2 sm:grid-cols-2"
+          className="grid grid-cols-[minmax(0,1fr)] items-start gap-2 sm:grid-cols-2"
         >
           {(card) => <TaskCard key={card.key} card={card} {...props} />}
         </Folded>
@@ -134,7 +134,7 @@ export function TaskGroup({ group, tasks, selected, listFine = false, fold = tru
           items={cards}
           limit={fold && group === 'later' ? SHOWN[group] : cards.length}
           forced={folded(cards, SHOWN[group], selected)}
-          className="grid grid-flow-dense grid-cols-[minmax(0,1fr)] gap-x-4 sm:grid-cols-2"
+          className="grid grid-cols-[minmax(0,1fr)] items-start gap-x-4 sm:grid-cols-2"
         >
           {(card) => <QuietRow key={card.key} card={card} {...props} />}
         </Folded>
