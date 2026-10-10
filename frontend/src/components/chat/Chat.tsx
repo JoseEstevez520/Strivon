@@ -31,24 +31,36 @@ export function Chat() {
   const [draft, setDraft] = useState('')
   const input = useRef<HTMLTextAreaElement>(null)
   const scroller = useRef<HTMLDivElement>(null)
-  // Like the big chats: the thread follows the answer while you are at the bottom, lets go as soon
-  // as you scroll up, and a button takes you back down.
-  const stick = useRef(true)
+  // Like the big chats: sending puts your question at the top and the answer grows below it without
+  // the view moving, so you read it from its first line. A button takes you down if it runs long.
   const [away, setAway] = useState(false)
-
-  const toBottom = (smooth: boolean) =>
-    scroller.current?.scrollTo({ top: scroller.current.scrollHeight, behavior: smooth ? 'smooth' : 'auto' })
+  const [viewHeight, setViewHeight] = useState(0)
+  const toTop = useRef<number | null>(null)
 
   useEffect(() => {
-    if (stick.current) toBottom(false)
+    const el = scroller.current
+    if (!el) return
+    const observer = new ResizeObserver(() => setViewHeight(el.clientHeight))
+    setViewHeight(el.clientHeight)
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
+
+  const toBottom = () => scroller.current?.scrollTo({ top: scroller.current.scrollHeight, behavior: 'smooth' })
+
+  useEffect(() => {
+    const el = scroller.current
+    if (toTop.current === null || !el) return
+    const question = el.querySelector<HTMLElement>(`[data-id="${toTop.current}"]`)
+    toTop.current = null
+    if (!question) return
+    const top = question.getBoundingClientRect().top - el.getBoundingClientRect().top + el.scrollTop - 24
+    el.scrollTo({ top, behavior: 'smooth' })
   }, [messages])
 
   const onScroll = () => {
     const el = scroller.current
-    if (!el) return
-    const atBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 80
-    stick.current = atBottom
-    setAway(!atBottom)
+    if (el) setAway(el.scrollHeight - el.scrollTop - el.clientHeight > 80)
   }
 
   const context = useMemo(() => {
@@ -79,8 +91,7 @@ export function Chat() {
     }))
     setDraft('')
     if (input.current) input.current.style.height = 'auto'
-    stick.current = true
-    toBottom(true)
+    toTop.current = id
     void ask(history, context, t.chatFailed, (text) =>
       chatStore.set((s) => ({ messages: s.messages.map((x) => (x.id === id + 1 ? { ...x, text } : x)) })),
     ).then(() => chatStore.set({ streaming: 0 }))
@@ -97,8 +108,15 @@ export function Chat() {
       >
         {messages.length > 0 ? (
           <ol className="flex flex-col gap-4">
-            {messages.map((m) => (
-              <li key={m.id} data-source={m.role === 'assistant' ? m.text : undefined} className={m.role === 'user' ? 'ml-auto max-w-[85%] rounded-xl bg-surface px-3 py-2 text-ui' : 'flex flex-col gap-3 px-1'}>
+            {messages.map((m, i) => (
+              <li
+                key={m.id}
+                data-id={m.id}
+                data-source={m.role === 'assistant' ? m.text : undefined}
+                // The last answer is at least a screen tall, so a short one still lets the question reach the top.
+                style={i === messages.length - 1 && m.role === 'assistant' ? { minHeight: Math.max(0, viewHeight - 130) } : undefined}
+                className={m.role === 'user' ? 'ml-auto max-w-[85%] rounded-xl bg-surface px-3 py-2 text-ui' : 'flex flex-col gap-3 px-1'}
+              >
                 {m.role === 'user' ? (
                   m.text
                 ) : m.text ? (
@@ -133,10 +151,7 @@ export function Chat() {
         <button
           type="button"
           aria-label={t.latest}
-          onClick={() => {
-            stick.current = true
-            toBottom(true)
-          }}
+          onClick={toBottom}
           className="absolute bottom-20 left-1/2 z-10 grid size-8 -translate-x-1/2 cursor-pointer place-items-center rounded-full bg-fg text-bg transition-opacity hover:opacity-85"
         >
           <ArrowDown className="size-4" />
