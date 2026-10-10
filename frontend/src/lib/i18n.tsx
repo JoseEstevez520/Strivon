@@ -23,7 +23,6 @@ interface Strings {
   level: Record<'empty' | 'half' | 'full', string>
   throughDay: string
   close: string
-  areaOf: (camera: string, index: number) => string
   families: Record<string, string>
 }
 
@@ -31,7 +30,6 @@ const en: Strings = {
   level: { empty: 'Empty', half: 'Half full', full: 'Full' },
   throughDay: 'Through the day',
   close: 'Close',
-  areaOf: (c, i) => `Camera ${c} · area ${i}`,
   headline: (n) => (n === 0 ? 'Nothing to do right now' : n === 1 ? 'One thing to do now' : `${n} things to do now`),
   photoFrom: (t) => `Photos up to ${t}`,
   camera: 'Camera',
@@ -55,7 +53,6 @@ const pt: Strings = {
   level: { empty: 'Vazio', half: 'A meio', full: 'Cheio' },
   throughDay: 'Ao longo do dia',
   close: 'Fechar',
-  areaOf: (c, i) => `Câmara ${c} · área ${i}`,
   headline: (n) => (n === 0 ? 'Nada a fazer agora' : n === 1 ? 'Uma coisa a fazer agora' : `${n} coisas a fazer agora`),
   photoFrom: (t) => `Fotos até às ${t}`,
   camera: 'Câmara',
@@ -79,7 +76,6 @@ const es: Strings = {
   level: { empty: 'Vacío', half: 'A medias', full: 'Lleno' },
   throughDay: 'A lo largo del día',
   close: 'Cerrar',
-  areaOf: (c, i) => `Cámara ${c} · zona ${i}`,
   headline: (n) => (n === 0 ? 'Nada que hacer ahora' : n === 1 ? 'Una cosa que hacer ahora' : `${n} cosas que hacer ahora`),
   photoFrom: (t) => `Fotos hasta las ${t}`,
   camera: 'Cámara',

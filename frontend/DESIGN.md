@@ -121,11 +121,12 @@ separate panel. Pressing it again, or Escape, closes it.
   fired again each time a row remounted and made the page jump.
   Later areas open on the neutral tone. Areas that are fine have no card, so they open as a
   row under the "All good" heading.
-- Inside: the camera and area in `fg-secondary`, followed by the stock level only when the
-  product is misplaced, since the group already says the stock for the rest. Then a strip with
-  one segment per photo of that camera: green is full, grey is half, red is empty. A thin amber
-  bar marks the photos where the product was in the wrong place. Pressing a segment moves the
-  whole screen to that time.
+- Inside, only the strip of the day: one segment per photo of that camera. Green is full, grey
+  is half, red is empty. A thin amber bar marks the photos where the product was in the wrong
+  place. Pressing a segment moves the whole screen to that time. There is no line with the
+  camera, the area number or the stock level. The camera is already in the picker and under the
+  photo, the area is marked on the photo, and a number such as "area 3" means nothing to the
+  person on the floor.
 - It opens and closes with a short height animation, 200 ms to open and 150 ms to close, and
   the chevron turns 90 degrees in step. It is shadcn's `Collapsible`, which sits on Base UI: it
   exposes the panel height as a variable and marks the first and last frame, and we animate
@@ -204,6 +205,10 @@ a collapsing block by hand once, and Base UI and shadcn already had it.
   the browser brought the highlighted option into view in a box that was still small. It is
   back to shadcn's stock structure with the fade and scale that Base UI documents. Rule: do not
   wrap a Base UI popup in structure of our own to animate it.
+
+- 2026-10-10. Removed the "Camera 6215 · area 3 · Full" line from the open task. It repeated
+  what the picker and the photo caption already say, the area index is internal, and "Full"
+  next to "Looks like Kiwi" read as if the pear were full. Rule: do not show internal ids.
 
 ## Open questions
 

@@ -10,23 +10,16 @@ interface Props {
 }
 
 /**
- * What an open task adds to its own row: where the area is, and how it went through the day.
+ * What an open task adds to its own row: how the area went through the day.
  * It lives inside the card that was pressed, so there is one object and one colour.
  */
 export function AreaHistory({ task, history, onJump }: Props) {
   const { t } = useI18n()
-  const { area, obs, record } = task
-  // The group already says the stock for the other groups. Only a misplaced product hides it.
-  const stock = task.group === 'moveBack' ? ` · ${t.level[obs.stock_level]}` : ''
+  const { record } = task
 
   return (
     <div className="px-3 pt-1 pb-3">
-      <p className="text-meta text-fg-secondary">
-        {t.areaOf(area.camera, area.index)}
-        {stock}
-      </p>
-
-      <h3 className="mt-4 mb-2 text-label text-fg-secondary">{t.throughDay}</h3>
+      <h3 className="mb-2 text-label text-fg-secondary">{t.throughDay}</h3>
       <div className="flex gap-1" role="list">
         {history.map((p) => {
           const current = p.record.image === record.image
