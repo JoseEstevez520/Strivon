@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { ChevronDown } from 'lucide-react'
+import { Link } from 'react-router'
 import { useI18n } from '@/lib/i18n'
 import { clock } from '@/lib/time'
 import type { MapRow } from '@/lib/stats'
@@ -16,7 +17,7 @@ function tone(share: number | null): string {
  * Products as rows and hours as columns, one red hue for how much of a product was empty. A cell
  * with no camera looking at it stays blank. The most affected products show first and the rest fold.
  */
-export function DayMap({ rows, hours, limit = 10 }: { rows: MapRow[]; hours: number[]; limit?: number }) {
+export function DayMap({ rows, hours, limit = 10, linkTo }: { rows: MapRow[]; hours: number[]; limit?: number; linkTo?: (product: string) => string }) {
   const { t, family } = useI18n()
   const [all, setAll] = useState(false)
   const shown = all ? rows : rows.slice(0, limit)
@@ -36,7 +37,13 @@ export function DayMap({ rows, hours, limit = 10 }: { rows: MapRow[]; hours: num
       <div className="flex flex-col gap-[3px]">
         {shown.map((row) => (
           <div key={row.product} className="grid items-center gap-x-[3px]" style={{ gridTemplateColumns: columns }}>
-            <span className="truncate pr-2 text-meta text-fg-secondary">{family(row.product)}</span>
+            {linkTo ? (
+              <Link to={linkTo(row.product)} className="truncate pr-2 text-meta text-fg-secondary transition-colors hover:text-fg">
+                {family(row.product)}
+              </Link>
+            ) : (
+              <span className="truncate pr-2 text-meta text-fg-secondary">{family(row.product)}</span>
+            )}
             {row.cells.map((share, i) => (
               <span
                 key={hours[i]}

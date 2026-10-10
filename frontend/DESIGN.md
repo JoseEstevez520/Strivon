@@ -458,6 +458,12 @@ a collapsing block by hand once, and Base UI and shadcn already had it.
   no legend boxes or gridlines beyond a hairline. The model is told the product keys, where each
   product sits and which are worst (names only), plus four worked examples, and may never write a
   digit: every figure comes from a part.
+- 2026-10-10. What the chat answers leads to its page: a ranked gondola to its gondola, a task row
+  to the area open on its gondola, a product to its row on the Products page, which opens and scrolls
+  to it. The conversation lives outside the components, so coming back leaves the chat open as it
+  was. The thread scrolls like the big chats: it follows the answer while you are at the bottom,
+  lets go when you scroll up and offers a button back down. Its two ends fade out with a mask, the
+  one place a gradient is used, because a hard cut through a chart reads as an error.
 - 2026-10-10. The bubble grows into the chat box and folds back (width, height and radius, 300 ms).
   It is the one exception to "no layout animation", allowed because it is a single small element
   with a fixed-size box inside it, so nothing inside reflows. Blur, glass and aurora stay out. The writing field is a soft tray that grows with the text, Enter sends,

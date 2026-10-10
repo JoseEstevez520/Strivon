@@ -1,6 +1,7 @@
 import { createLibrary, defineComponent } from '@openuidev/react-lang'
 import { Info } from 'lucide-react'
 import { useMemo } from 'react'
+import { Link } from 'react-router'
 import { z } from 'zod'
 import { AreaCrop } from '@/components/AreaCrop'
 import { CameraTile } from '@/components/CameraTile'
@@ -39,9 +40,21 @@ function useData() {
   return { t, family, ...store, stats, scope, nameOf }
 }
 
-const Block = ({ title, children }: { title?: string; children: React.ReactNode }) => (
+const gondolaTo = (camera: string) => `/gondolas/${camera}`
+const scopeTo = (s: { product?: string; camera?: string }) => (s.camera ? gondolaTo(s.camera) : s.product ? productTo(s.product) : undefined)
+const productTo = (product: string) => `/products?product=${encodeURIComponent(product)}`
+
+/** A titled block. With `to`, the title leads to the page that holds what the block is about. */
+const Block = ({ title, to, children }: { title?: string; to?: string; children: React.ReactNode }) => (
   <div>
-    {title && <p className="mb-2 px-1 text-label text-fg-muted">{title}</p>}
+    {title &&
+      (to ? (
+        <Link to={to} className="mb-2 inline-block px-1 text-label text-fg-muted transition-colors hover:text-fg">
+          {title}
+        </Link>
+      ) : (
+        <p className="mb-2 px-1 text-label text-fg-muted">{title}</p>
+      ))}
     {children}
   </div>
 )
@@ -85,9 +98,11 @@ const Metrics = defineComponent({
     return (
       <ul className="grid grid-cols-2 gap-3 sm:grid-cols-[repeat(auto-fit,minmax(9rem,1fr))]">
         {props.items.map((m) => (
-          <li key={m} className="rounded-xl bg-surface px-4 py-3">
-            <p className="text-title tabular-nums">{value[m]}</p>
-            <p className="mt-0.5 text-meta text-fg-muted">{t.metrics[m]}</p>
+          <li key={m}>
+            <Link to={m === 'restock' || m === 'moveBack' ? '/' : '/insights'} className="block rounded-xl bg-surface px-4 py-3 transition-colors hover:bg-sunk">
+              <p className="text-title tabular-nums">{value[m]}</p>
+              <p className="mt-0.5 text-meta text-fg-muted">{t.metrics[m]}</p>
+            </Link>
           </li>
         ))}
       </ul>
@@ -104,8 +119,8 @@ const Ranked = defineComponent({
     const top = props.top ?? 5
     const items =
       props.by === 'products'
-        ? stats.map.slice(0, top).map((r) => ({ key: r.product, label: family(r.product), share: r.share }))
-        : stats.byGondola.slice(0, top).map((g) => ({ key: g.camera, label: gondola(g.camera), share: g.share }))
+        ? stats.map.slice(0, top).map((r) => ({ key: r.product, label: family(r.product), share: r.share, to: productTo(r.product) }))
+        : stats.byGondola.slice(0, top).map((g) => ({ key: g.camera, label: gondola(g.camera), share: g.share, to: gondolaTo(g.camera) }))
     return (
       <Block title={props.by === 'products' ? t.worstProducts : t.worstGondolas}>
         <RankedBars items={items} />
@@ -130,7 +145,7 @@ const Bars = defineComponent({
     const shown = (picked.length >= 2 ? picked : all).slice(0, props.top ?? 6)
     return (
       <Block title={t.colEmpty}>
-        <VBars items={shown.map((r) => ({ key: r.key, label: props.by === 'products' ? family(r.key) : gondola(r.key), value: r.empty }))} />
+        <VBars items={shown.map((r) => ({ key: r.key, label: props.by === 'products' ? family(r.key) : gondola(r.key), value: r.empty, to: props.by === 'products' ? productTo(r.key) : gondolaTo(r.key) }))} />
       </Block>
     )
   },
@@ -147,7 +162,11 @@ const Table = defineComponent({
     const data = rows(state, props.by)
       .slice(0, props.top ?? 6)
       .map((r) => ({
-        name: props.by === 'products' ? family(r.key) : gondola(r.key),
+        name: (
+          <Link to={props.by === 'products' ? productTo(r.key) : gondolaTo(r.key)} className="transition-colors hover:underline">
+            {props.by === 'products' ? family(r.key) : gondola(r.key)}
+          </Link>
+        ),
         empty: pct(r.empty),
         half: pct(r.half),
         wrong: pct(r.wrong),
@@ -176,7 +195,7 @@ const Trend = defineComponent({
     const s = scope(props.product, props.camera)
     const data = useMemo(() => trend(state, s), [state, s.product, s.camera]) // oxlint-disable-line
     return (
-      <Block title={t.trendTitle(nameOf(s))}>
+      <Block title={t.trendTitle(nameOf(s))} to={scopeTo(s)}>
         <TrendChart hours={data.hours} values={data.values} label={t.trendTitle(nameOf(s))} />
       </Block>
     )
@@ -193,7 +212,7 @@ const Mix = defineComponent({
     const s = scope(props.product, props.camera)
     const b = useMemo(() => breakdown(state, s), [state, s.product, s.camera]) // oxlint-disable-line
     return (
-      <Block title={t.mixTitle(nameOf(s))}>
+      <Block title={t.mixTitle(nameOf(s))} to={scopeTo(s)}>
         <StackBar
           parts={[
             { key: 'empty', label: t.level.empty, share: b.empty, color: 'var(--danger)' },
@@ -217,7 +236,7 @@ const Heat = defineComponent({
   component: function Heat({ props }) {
     const { stats } = useData()
     const picked = stats.map.filter((r) => props.products?.includes(r.product))
-    return <DayMap rows={picked.length ? picked : stats.map} hours={stats.hours} limit={picked.length || 8} />
+    return <DayMap rows={picked.length ? picked : stats.map} hours={stats.hours} limit={picked.length || 8} linkTo={productTo} />
   },
 })
 
@@ -236,18 +255,20 @@ const Tasks = defineComponent({
             const first = c.tasks[0]
             const place = c.tasks.length > 1 ? t.areasCount(c.tasks.length) : where(first.area, first.obs.observed_family)
             return (
-              <li
-                key={c.key}
-                style={{ '--c': GROUP_COLOR[props.group] } as React.CSSProperties}
-                className="flex items-center gap-3 rounded-lg bg-[color-mix(in_oklab,var(--c)_13%,transparent)] p-2 pr-3"
-              >
-                <AreaCrop area={first.area} image={first.record.image} />
-                <span className="min-w-0 flex-1">
-                  <span className="block text-label">{family(first.area.family)}</span>
-                  <span className="block truncate text-meta text-fg-secondary">{place}</span>
-                </span>
-                <span className="text-meta tabular-nums text-fg-secondary">{clock(first.since ?? first.record.ts)}</span>
-                <Icon className="size-4 text-[var(--c)]" aria-hidden />
+              <li key={c.key}>
+                <Link
+                  to={`${gondolaTo(first.area.camera)}?area=${first.area.area_id}`}
+                  style={{ '--c': GROUP_COLOR[props.group] } as React.CSSProperties}
+                  className="flex items-center gap-3 rounded-lg bg-[color-mix(in_oklab,var(--c)_13%,transparent)] p-2 pr-3 transition-colors hover:bg-[color-mix(in_oklab,var(--c)_19%,transparent)]"
+                >
+                  <AreaCrop area={first.area} image={first.record.image} />
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-label">{family(first.area.family)}</span>
+                    <span className="block truncate text-meta text-fg-secondary">{place}</span>
+                  </span>
+                  <span className="text-meta tabular-nums text-fg-secondary">{clock(first.since ?? first.record.ts)}</span>
+                  <Icon className="size-4 text-[var(--c)]" aria-hidden />
+                </Link>
               </li>
             )
           })}
@@ -271,7 +292,7 @@ const Where = defineComponent({
     }, [state, s.product])
     if (!cameras.length) return null
     return (
-      <Block title={`${nameOf(s)} · ${t.navGondolas}`}>
+      <Block title={`${nameOf(s)} · ${t.navGondolas}`} to={scopeTo(s)}>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           {cameras.map((c) => (
             <CameraTile key={c} camera={c} />
