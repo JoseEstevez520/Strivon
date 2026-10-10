@@ -27,7 +27,7 @@ export function PickerButton({ icon, label, value, onChange, options, className 
   return (
     <Select items={items} value={value} onValueChange={(v) => v && onChange(v)}>
       <SelectTrigger aria-label={label} className={className}>
-        <span className="text-fg-muted [&_svg]:size-4">{chosen?.icon ?? icon}</span>
+        <span className="flex text-fg-muted [&_svg:not(.flag)]:size-4">{chosen?.icon ?? icon}</span>
         <SelectValue />
       </SelectTrigger>
       <SelectContent align="end">

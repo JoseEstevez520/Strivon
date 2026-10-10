@@ -11,7 +11,7 @@ import { cameras, snapshot, tasksAt, type Group } from '@/lib/tasks'
 import { clock } from '@/lib/time'
 
 const GROUPS: Group[] = ['restock', 'moveBack', 'later', 'allGood']
-const flag = 'h-3.5 w-5 rounded-[3px]'
+const flag = 'flag block h-3.5 w-[21px] shrink-0 rounded-[3px]'
 const LANG_OPTIONS = {
   en: { label: 'English', icon: <GB className={flag} /> },
   pt: { label: 'Português', icon: <PT className={flag} /> },
