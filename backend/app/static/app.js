@@ -34,6 +34,10 @@ const S = {
   annImg: null,
   annFocus: 0,
   annShowPred: true,
+  annTest: false,
+  annName: "",
+  trainPerCamera: 8,
+  liveVersion: null, activity: [], people: {},
   productFilter: "",
 };
 
@@ -353,12 +357,52 @@ function annCount() {
   for (const cam in S.ann) for (const img in S.ann[cam]) { const k = Object.keys(S.ann[cam][img]).length; n += k; if (k) imgs++; }
   return { n, imgs };
 }
+const TRAIN = () => S.trainPerCamera || 8;
+const isTest = (cam, img) => (S.data.images[cam] || []).findIndex((r) => r.image === img) >= TRAIN();
 function ensureAnnSel() {
   if (!S.annCam) S.annCam = store.get("annCam", cams()[0]);
   if (!S.data.images[S.annCam]) S.annCam = cams()[0];
   const list = S.data.images[S.annCam];
-  if (!S.annImg || !list.find((r) => r.image === S.annImg)) S.annImg = store.get("annImg", null);
-  if (!S.annImg || !list.find((r) => r.image === S.annImg)) S.annImg = list[Math.floor(list.length / 2)].image;
+  const ok = (img) => list.find((r) => r.image === img) && (S.annTest || !isTest(S.annCam, img));
+  if (!S.annImg || !ok(S.annImg)) S.annImg = store.get("annImg", null);
+  if (!S.annImg || !ok(S.annImg)) {
+    // first train photo that is not fully labelled yet
+    const n = areasOf(S.annCam).length;
+    const next = list.slice(0, TRAIN()).find((r) => Object.keys(S.ann[S.annCam]?.[r.image] || {}).length < n);
+    S.annImg = (next || list[0]).image;
+  }
+}
+function trainProgress(cam) {
+  const n = areasOf(cam).length;
+  const train = (S.data.images[cam] || []).slice(0, TRAIN());
+  const done = train.reduce((s, r) => s + Object.keys(S.ann[cam]?.[r.image] || {}).length, 0);
+  return { done, total: n * train.length };
+}
+function ago(t) {
+  const s = Math.max(0, Math.round(Date.now() / 1000 - t));
+  return s < 60 ? `${s}s ago` : s < 3600 ? `${Math.round(s / 60)} min ago` : `${Math.round(s / 3600)} h ago`;
+}
+function renderLive() {
+  const people = Object.entries(S.people || {}).sort((a, b) => b[1] - a[1]);
+  const all = cams().map((c) => ({ c, ...trainProgress(c) }));
+  const sum = all.reduce((s, x) => ({ done: s.done + x.done, total: s.total + x.total }), { done: 0, total: 0 });
+  const pct = (d, t) => (t ? (100 * d) / t : 0);
+  const feed = (S.activity || []).slice(0, 14).map((e) => {
+    const a = S.data.areas[e.area_id];
+    const idx = (S.data.images[e.camera] || []).findIndex((r) => r.image === e.image) + 1;
+    const what = e.action === "delete" ? "removed" : `${LEVEL_LABEL[e.stock_level]}${e.planogram_compliant ? "" : " · wrong product"}`;
+    return `<div class="feed-row" data-annjump="${e.camera}|${e.image}|${e.area_id}"><b>${esc(e.by || "unnamed")}</b> ${e.camera} photo ${idx} · ${a ? a.index + ". " + esc(a.short_name) : esc(e.area_id)} → ${what} <span class="muted">${ago(e.t)}</span></div>`;
+  }).join("");
+  return `<div class="card live">
+      <div style="display:flex;align-items:center;gap:8px"><span class="live-dot"></span><h3>Live</h3><span class="muted small">everyone sees new labels within 3 s</span></div>
+      <div class="small" style="margin:8px 0 4px"><b>${sum.done}</b> of ${sum.total} areas labelled on photos 1-${TRAIN()} (${Math.round(pct(sum.done, sum.total))}%)</div>
+      <div class="progress" style="width:100%"><div style="width:${pct(sum.done, sum.total)}%"></div></div>
+      <div class="section-title">Per camera</div>
+      <div class="cam-progress">${all.map((x) => `<div class="cp ${x.c === S.annCam ? "cur" : ""}" data-anncam="${x.c}" title="${esc(gondolaName(x.c))}"><span>${x.c}</span><div class="progress"><div style="width:${pct(x.done, x.total)}%"></div></div><span class="muted">${x.done}/${x.total}</span></div>`).join("")}</div>
+      ${people.length ? `<div class="section-title">Who labelled</div><div class="people">${people.map(([n, k]) => `<span class="pill neutral">${esc(n === "?" || !n ? "unnamed" : n)} · ${k}</span>`).join("")}</div>` : ""}
+      <div class="section-title">Latest</div>
+      <div class="feed">${feed || `<div class="muted small">Nothing yet.</div>`}</div>
+    </div>`;
 }
 function renderAnnotate() {
   ensureAnnSel();
@@ -366,8 +410,7 @@ function renderAnnotate() {
   const list = S.data.images[cam];
   const idx = list.findIndex((r) => r.image === img);
   const areas = areasOf(cam);
-  const done = areas.filter((a) => S.ann[cam]?.[img]?.[a.area_id]).length;
-  const tot = annCount();
+  const testPhoto = isTest(cam, img);
   const cards = areas.map((a, i) => {
     const ann = S.ann[cam]?.[img]?.[a.area_id];
     const o = obs(cam, img, a.area_id);
@@ -380,42 +423,70 @@ function renderAnnotate() {
       <button class="comp-toggle ${comp ? "" : "bad"}" data-comp="${a.area_id}" title="key X">${comp ? "Right product" : "WRONG product"}${S.annShowPred && o && !o.planogram_compliant ? " (model: wrong)" : ""}</button>
     </div>`;
   }).join("");
+  const chips = list.map((r, i) => {
+    const n = Object.keys(S.ann[cam]?.[r.image] || {}).length;
+    const test = i >= TRAIN();
+    const locked = test && !S.annTest;
+    const state = n === 0 ? "" : n >= areas.length ? "full-done" : "part-done";
+    return `<button class="chip ${r.image === img ? "cur" : ""} ${state} ${test ? "test" : ""}" ${locked ? "disabled" : ""} data-annimg="${r.image}" title="${hhmm(r.ts)} · ${n}/${areas.length} labelled${test ? " · held out for testing" : ""}">${test ? "&#128274;" : ""}${i + 1}<small>${hhmm(r.ts)}</small></button>`;
+  }).join("");
   return `<div class="ann-head">
       <h2>Label</h2>
       <select id="ann-cam">${cams().map((c) => `<option value="${c}" ${c === cam ? "selected" : ""}>${c} · ${esc(gondolaName(c))}</option>`).join("")}</select>
-      <button class="ghost" data-annnav="-1" ${idx <= 0 ? "disabled" : ""}>← Previous</button>
-      <strong>${hhmm(list[idx].ts)}</strong><span class="muted small">${esc(img)} (${idx + 1}/${list.length})</span>
-      <button class="ghost" data-annnav="1" ${idx >= list.length - 1 ? "disabled" : ""}>Next →</button>
+      <label class="small ${S.annName ? "" : "need"}">Your name <input id="ann-name" value="${esc(S.annName || "")}" placeholder="e.g. Leonor" size="10"></label>
       <span class="grow"></span>
       <label class="small"><input type="checkbox" id="ann-pred" ${S.annShowPred ? "checked" : ""}> show prediction</label>
-      <div title="${tot.n} areas labelled in ${tot.imgs} photos"><div class="small muted">${done}/${areas.length} in this photo · ${tot.n} in total</div><div class="progress"><div style="width:${(100 * done) / areas.length}%"></div></div></div>
+      <label class="small" title="Photos ${TRAIN() + 1}-${list.length} are kept to check the model. Only open them when it is time to test."><input type="checkbox" id="ann-test" ${S.annTest ? "checked" : ""}> unlock test photos</label>
       <a class="ghost small" href="/api/export/labels.json">Export</a>
     </div>
-    <div class="help" style="margin-bottom:10px"><span><span class="kbd">←</span><span class="kbd">→</span> area</span><span><span class="kbd">1</span><span class="kbd">2</span><span class="kbd">3</span> empty/half/full</span><span><span class="kbd">X</span> wrong product</span><span><span class="kbd">Enter</span> accept prediction</span><span><span class="kbd">Del</span> delete</span><span><span class="kbd">N</span>/<span class="kbd">P</span> next/previous photo</span></div>
+    <div class="chips">${chips}</div>
+    ${testPhoto ? `<div class="warn">Test photo (${idx + 1} of ${list.length}). Labels here only check the model; they are never used to calibrate it.</div>` : ""}
+    <div class="help" style="margin:8px 0 10px"><span><span class="kbd">←</span><span class="kbd">→</span> area</span><span><span class="kbd">1</span><span class="kbd">2</span><span class="kbd">3</span> empty/half/full</span><span><span class="kbd">X</span> wrong product</span><span><span class="kbd">Enter</span> accept prediction</span><span><span class="kbd">Del</span> delete</span><span><span class="kbd">N</span>/<span class="kbd">P</span> next/previous photo</span></div>
     <div class="ann-layout">
-      <div style="position:sticky;top:78px">${stageSvg(cam, img, { sel: areas[S.annFocus]?.area_id, statusFn: (a) => { const x = S.ann[cam]?.[img]?.[a.area_id]; return x ? (x.planogram_compliant ? x.stock_level : "wrong") : "unknown"; } })}
-        <p class="muted small">Sensei's rule: <b>round down</b>. <b>Empty</b> = needs restocking now (nothing, or one or two units left). <b>Full</b> = completely full; one unit missing is already <b>Half</b>. <b>Wrong</b> = the product shown is not the planogram one (an empty area counts as right).</p></div>
+      <div class="ann-left">${stageSvg(cam, img, { sel: areas[S.annFocus]?.area_id, statusFn: (a) => { const x = S.ann[cam]?.[img]?.[a.area_id]; return x ? (x.planogram_compliant ? x.stock_level : "wrong") : "unknown"; } })}
+        <p class="muted small">Sensei's rule: <b>round down</b>. <b>Empty</b> = needs restocking now (nothing, or one or two units left). <b>Full</b> = completely full; one unit missing is already <b>Half</b>. <b>Wrong</b> = the product shown is not the planogram one (an empty area counts as right).</p>
+        ${renderLive()}</div>
       <div class="ann-grid">${cards}</div>
     </div>`;
 }
 async function saveAnn(cam, img, aid, level, comp) {
+  if (!S.annName) { toast("Write your name first (top of the page)"); $("#ann-name")?.focus(); return; }
   ((S.ann[cam] ||= {})[img] ||= {})[aid] = { planogram_compliant: comp, stock_level: level, stock_value: { empty: 0, half: 0.5, full: 1 }[level] };
   render();
-  try { await api(`/api/annotations/${cam}/${encodeURIComponent(img)}/${aid}`, { method: "PUT", headers: { "content-type": "application/json" }, body: JSON.stringify({ planogram_compliant: comp, stock_level: level }) }); }
-  catch (e) { toast("Could not save: " + e.message); }
+  try {
+    await api(`/api/annotations/${cam}/${encodeURIComponent(img)}/${aid}`, { method: "PUT", headers: { "content-type": "application/json" }, body: JSON.stringify({ planogram_compliant: comp, stock_level: level, by: S.annName, allow_test: !!S.annTest }) });
+    pollLive();
+  } catch (e) { toast("Could not save: " + e.message); }
 }
 async function deleteAnn(cam, img, aid) {
   delete S.ann[cam]?.[img]?.[aid];
   render();
-  await api(`/api/annotations/${cam}/${encodeURIComponent(img)}/${aid}`, { method: "DELETE" });
+  await api(`/api/annotations/${cam}/${encodeURIComponent(img)}/${aid}?by=${encodeURIComponent(S.annName || "")}`, { method: "DELETE" });
+  pollLive();
 }
 function annNav(d) {
   const list = S.data.images[S.annCam];
+  const max = S.annTest ? list.length - 1 : Math.min(list.length, TRAIN()) - 1;
   const i = list.findIndex((r) => r.image === S.annImg);
-  const j = Math.max(0, Math.min(list.length - 1, i + d));
+  const j = Math.max(0, Math.min(max, i + d));
   S.annImg = list[j].image; S.annFocus = 0;
   store.set("annImg", S.annImg);
   render();
+}
+
+/* Live sync: every open page polls the server, so everyone sees new labels within seconds. */
+async function pollLive() {
+  clearTimeout(pollLive._t);
+  try {
+    const r = await api(`/api/live?since=${S.liveVersion ?? -1}`);
+    if (r.changed) {
+      S.liveVersion = r.version;
+      S.ann = r.labels; S.activity = r.activity; S.people = r.people;
+      const typing = document.activeElement && document.activeElement.matches("input[type=search],#ann-name");
+      if (!typing && (S.tab === "annotate" || S.tab === "eval")) render();
+    }
+  } catch { /* server restarting: try again */ }
+  pollLive._t = setTimeout(pollLive, 3000);
 }
 
 /* ---------------- Score ---------------- */
@@ -436,6 +507,10 @@ async function renderEval() {
           <h3>Score on our labelled areas</h3>
           <p class="muted small">Same rules as the challenge: product +1/−2, stock +1/−2 (below)/−3 (above).</p>
           ${rep.n_areas ? `<div class="score-big">${rep.total} <span class="muted" style="font-size:18px">/ ${rep.maximum}</span></div>
+          ${rep.splits ? `<div class="split-row">
+            <div><div class="small muted">Photos 1-${TRAIN()} (labelled, used to calibrate)</div><b>${rep.splits.train.total}</b> <span class="muted">/ ${rep.splits.train.maximum}</span></div>
+            <div><div class="small muted">Test photos (held out)</div><b>${rep.splits.test.n_areas ? rep.splits.test.total : "—"}</b> <span class="muted">${rep.splits.test.n_areas ? "/ " + rep.splits.test.maximum : "not labelled yet"}</span></div>
+          </div>` : ""}
           <table class="tbl" style="box-shadow:none;margin-top:8px"><thead><tr><th>Case</th><th class="num-cell">Areas</th><th class="num-cell">Pts</th></tr></thead><tbody>
           ${rep.table.map((r) => `<tr><td>${esc(CASE_LABEL[r.case] || r.case)}</td><td class="num-cell">${r.areas}</td><td class="num-cell">${r.areas * r.each > 0 ? "+" : ""}${r.areas * r.each}</td></tr>`).join("")}
           </tbody></table>` : `<div class="empty-state">No labels yet. Use the <b>Label</b> tab.</div>`}
@@ -457,7 +532,7 @@ async function renderEval() {
         <div class="toolbar"><h2>Errors</h2><span class="muted">${errors.length} areas with at least one error — worst first</span></div>
         <div class="err-grid">${errors.slice(0, 120).map((r) => `<div class="err" data-open="${r.camera}|${r.image}|${r.area_id}">
           <img loading="lazy" src="${cropUrl(r.camera, r.image, r.area_id)}" alt="">
-          <div style="font-weight:600">${esc(S.data.areas[r.area_id]?.short_name || r.area_id)} <span class="muted">${r.points >= 0 ? "+" : ""}${r.points}</span></div>
+          <div style="font-weight:600">${esc(S.data.areas[r.area_id]?.short_name || r.area_id)} <span class="muted">${r.points >= 0 ? "+" : ""}${r.points} · ${r.split === "test" ? "test" : "train"}</span></div>
           <div>Stock: predicted <b>${lvl(r.pred?.stock_value)}</b> · real <b>${lvl(r.gt.stock_value)}</b></div>
           <div>Product: predicted <b>${r.pred ? (r.pred.planogram_compliant ? "right" : "wrong") : "—"}</b> · real <b>${r.gt.planogram_compliant ? "right" : "wrong"}</b></div>
         </div>`).join("")}</div>
@@ -468,7 +543,7 @@ async function renderEval() {
 
 /* ---------------- events ---------------- */
 document.addEventListener("click", async (e) => {
-  const t = e.target.closest("[data-tab],[data-open],[data-done],[data-goto],[data-gondola],[data-back],[data-jump],[data-annot],[data-set],[data-comp],[data-annnav],[data-acard],[data-run],polygon,.drawer-close,.drawer");
+  const t = e.target.closest("[data-tab],[data-open],[data-done],[data-goto],[data-gondola],[data-back],[data-jump],[data-annot],[data-set],[data-comp],[data-annnav],[data-annimg],[data-anncam],[data-annjump],[data-acard],[data-run],polygon,.drawer-close,.drawer");
   if (!t) return;
   if (t.matches(".drawer") && e.target === t) return closeDrawer();
   if (t.matches(".drawer-close")) return closeDrawer();
@@ -506,6 +581,13 @@ document.addEventListener("click", async (e) => {
     return saveAnn(S.annCam, S.annImg, aid, cur?.stock_level || o?.stock_level || "full", cur ? !cur.planogram_compliant : false);
   }
   if (t.dataset.annnav) return annNav(+t.dataset.annnav);
+  if (t.dataset.annimg) { S.annImg = t.dataset.annimg; S.annFocus = 0; store.set("annImg", S.annImg); return render(); }
+  if (t.dataset.anncam) { S.annCam = t.dataset.anncam; S.annImg = null; S.annFocus = 0; store.set("annCam", S.annCam); return render(); }
+  if (t.dataset.annjump) {
+    const [c, i, aid] = t.dataset.annjump.split("|");
+    if (isTest(c, i) && !S.annTest) return toast("That is a test photo (locked)");
+    S.annCam = c; S.annImg = i; S.annFocus = areasOf(c).findIndex((x) => x.area_id === aid); return render();
+  }
   if (t.dataset.acard && !e.target.closest("button")) { S.annFocus = +t.dataset.acard; return render(); }
   if (t.dataset.run !== undefined) {
     try { await api("/api/run", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ calibrate: t.dataset.run === "1" }) }); }
@@ -528,6 +610,11 @@ document.addEventListener("input", (e) => {
 document.addEventListener("change", (e) => {
   if (e.target.id === "ann-cam") { S.annCam = e.target.value; S.annImg = null; S.annFocus = 0; store.set("annCam", S.annCam); render(); }
   if (e.target.id === "ann-pred") { S.annShowPred = e.target.checked; render(); }
+  if (e.target.id === "ann-test") {
+    if (e.target.checked && !confirm("Test photos are kept to check the model. Unlock them only when it is time to test. Unlock?")) { e.target.checked = false; return; }
+    S.annTest = e.target.checked; S.annImg = null; render();
+  }
+  if (e.target.id === "ann-name") { S.annName = e.target.value.trim(); store.set("annName", S.annName); render(); }
 });
 $("#now").addEventListener("click", () => setTime(S.times[S.times.length - 1]));
 
@@ -575,6 +662,9 @@ async function load() {
     return;
   }
   try { S.ann = await api("/api/annotations"); } catch { S.ann = {}; }
+  try { S.trainPerCamera = (await api("/api/split")).train_per_camera; } catch { /* default 8 */ }
+  S.annName = store.get("annName", "");
+  pollLive();
   const all = new Set();
   for (const c of cams()) for (const r of S.data.images[c]) if (r.ts != null) all.add(r.ts);
   S.times = [...all].sort((a, b) => a - b);
