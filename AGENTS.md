@@ -16,6 +16,7 @@ planogram_compliant and stock_level for each shelf area.
 - Strategy and scoring: docs/PLAN.md
 - Who does what: docs/TASKS.md
 - What the app shows: docs/APP.md
+- How the frontend looks, and why: frontend/DESIGN.md
 - What Sensei told us, including the stock levels: docs/SENSEI_INFO.md
 - Workflow, branches and language: CONTRIBUTING.md
 - Setup and prior code: README.md
