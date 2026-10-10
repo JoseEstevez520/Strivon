@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Camera, Globe } from 'lucide-react'
 import { ES, GB, PT } from 'country-flag-icons/react/3x2'
-import { AreaDetail } from '@/components/AreaDetail'
 import { DayBar } from '@/components/DayBar'
 import { PhotoStage } from '@/components/PhotoStage'
 import { PickerButton } from '@/components/PickerButton'
@@ -49,10 +48,17 @@ function Screen() {
     return () => clearInterval(id)
   }, [playing, times.length])
 
+  // Pressing the open one closes it. Picking an area also brings its camera's photo.
   const pick = (areaId: string) => {
-    setSelected(areaId)
+    setSelected((cur) => (cur === areaId ? null : areaId))
     setCamera(state.areas[areaId].camera)
   }
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setSelected(null)
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
   const togglePlay = () => {
     if (!playing && index >= times.length - 1) setIndex(0)
     setPlaying((p) => !p)
@@ -117,14 +123,6 @@ function Screen() {
             playing={playing}
             onTogglePlay={togglePlay}
           />
-          {selectedTask && (
-            <AreaDetail
-              task={selectedTask}
-              history={historyOf(state, selectedTask.area)}
-              onJump={jumpTo}
-              onClose={() => setSelected(null)}
-            />
-          )}
         </div>
 
         <div className="order-1 lg:order-2">
@@ -134,7 +132,9 @@ function Screen() {
               group={g}
               tasks={tasks.filter((x) => x.group === g)}
               selected={selected}
+              history={selectedTask ? historyOf(state, selectedTask.area) : null}
               onSelect={pick}
+              onJump={jumpTo}
             />
           ))}
         </div>

@@ -1,40 +1,60 @@
-import { ChevronRight } from 'lucide-react'
+import { ChevronDown, ChevronRight } from 'lucide-react'
 import type { CSSProperties } from 'react'
+import { AreaHistory } from './AreaHistory'
 import { GROUP_COLOR } from './groupStyle'
+import { useScrollIntoView } from './useScrollIntoView'
 import { useI18n } from '@/lib/i18n'
 import { clock } from '@/lib/time'
-import type { Task } from '@/lib/tasks'
+import type { HistoryPoint, Task } from '@/lib/tasks'
 
 interface Props {
   task: Task
   selected: boolean
+  /** The area's day, given only while the card is open. */
+  history: HistoryPoint[] | null
   onSelect: () => void
+  onJump: (ts: number) => void
 }
 
-/** A task that needs doing now. The product leads; the group above already says the action. */
-export function TaskCard({ task, selected, onSelect }: Props) {
+/**
+ * A task that needs doing now. The product leads; the group above already says the action.
+ * Pressed, the card opens in place and shows how the area went through the day.
+ */
+export function TaskCard({ task, selected, history, onSelect, onJump }: Props) {
   const { t, family } = useI18n()
+  const ref = useScrollIntoView<HTMLDivElement>(selected)
   // Restock needs no second line: its group already says "empty". Only a wrong place carries news.
   const reason = task.group === 'moveBack' ? t.wrongPlace(family(task.obs.observed_family ?? '')) : null
   const since = clock(task.since)
 
   return (
-    <button
-      type="button"
-      onClick={onSelect}
-      aria-pressed={selected}
+    <div
+      ref={ref}
+      data-selected={selected}
       style={{ '--c': GROUP_COLOR[task.group] } as CSSProperties}
-      className="flex w-full cursor-pointer items-center gap-3 rounded-lg bg-[color-mix(in_oklab,var(--c)_13%,transparent)] p-2 pr-3 text-left transition-colors hover:bg-[color-mix(in_oklab,var(--c)_19%,transparent)] aria-pressed:bg-[color-mix(in_oklab,var(--c)_26%,transparent)]"
+      className="rounded-lg bg-[color-mix(in_oklab,var(--c)_13%,transparent)] transition-colors hover:bg-[color-mix(in_oklab,var(--c)_19%,transparent)] data-[selected=true]:bg-[color-mix(in_oklab,var(--c)_19%,transparent)]"
     >
-      <div className="size-12 shrink-0 rounded-md bg-[color-mix(in_oklab,var(--c)_22%,#d6d8d0)]" aria-hidden />
-      <div className="min-w-0 flex-1">
-        <div className="text-label">{family(task.area.family)}</div>
-        {reason && <div className="text-meta text-fg-secondary">{reason}</div>}
-      </div>
-      <span className="text-meta tabular-nums text-fg-secondary" title={t.since(since)}>
-        {since}
-      </span>
-      <ChevronRight className="size-4 text-fg-muted" />
-    </button>
+      <button
+        type="button"
+        onClick={onSelect}
+        aria-expanded={selected}
+        className="flex w-full cursor-pointer items-center gap-3 rounded-lg p-2 pr-3 text-left"
+      >
+        <div className="size-12 shrink-0 rounded-md bg-[color-mix(in_oklab,var(--c)_22%,#d6d8d0)]" aria-hidden />
+        <div className="min-w-0 flex-1">
+          <div className="text-label">{family(task.area.family)}</div>
+          {reason && <div className="text-meta text-fg-secondary">{reason}</div>}
+        </div>
+        <span className="text-meta tabular-nums text-fg-secondary" title={t.since(since)}>
+          {since}
+        </span>
+        {selected ? (
+          <ChevronDown className="size-4 text-fg-muted" />
+        ) : (
+          <ChevronRight className="size-4 text-fg-muted" />
+        )}
+      </button>
+      {selected && history && <AreaHistory task={task} history={history} onJump={onJump} />}
+    </div>
   )
 }

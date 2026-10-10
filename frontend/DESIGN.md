@@ -55,8 +55,8 @@ smaller. Times and counts use tabular figures so columns line up.
 The screen is grey and warm. Colour means a state and nothing else.
 
 - Restock is red, move back is amber, later is grey and all good is green.
-- A card that asks for action takes a soft tint of its colour, 13% at rest, 19% on hover and
-  26% when selected. There is no border. The tint is how elastic-ui's warning callout works.
+- A card that asks for action takes a soft tint of its colour, 13% at rest and 19% on hover and
+  while open. There is no border. The tint is how elastic-ui's warning callout works.
 - The icon next to each group heading carries the colour. The heading text stays grey.
 - Small text on a tint uses `fg-secondary`. `fg-muted` has a contrast of 4.96 on the page and
   4.57 on `surface`, but it drops to between 3.4 and 4.3 on the tints, which is under the 4.5
@@ -106,20 +106,23 @@ photo. Moving it by hand stops the play button. Play steps forward about once a 
 stops at the end. Still to do: tick marks at each stop, arrow keys, and a larger touch target
 for the handle.
 
-## Area detail
+## Opening a task
 
-It opens under the photo when a card or an area is selected, and Escape closes it. It is built
-by the same rules as the card, and it shares the card's background: the same soft tint of the
-state colour at 13%, and a thumbnail with the card's colour. That way it reads as the card
-opened. Areas in later or all good have no tint, so their detail stays on `surface`.
+Pressing a card opens it in place and shows how its area went through the day. There is no
+separate panel. Pressing it again, or Escape, closes it.
 
-- The thumbnail sits on the left. Next to it, stacked: the product, the camera and area in
-  `fg-secondary`, and one status line. The time and the close button are at the top right.
-- The status line is the stock level, and adds the product only when it is wrong. There are no
-  label and value pairs.
-- Below, a strip with one segment per photo of that camera. Green is full, grey is half and
-  red is empty. A thin amber bar marks the photos where the product was in the wrong place.
-  Selecting a segment moves the whole screen to that time.
+- It is one object with one colour. The card keeps its tint, at 19% while open, and the history
+  sits inside it. A panel somewhere else on the screen showed a second shade of the same red,
+  and on a laptop it sat below the fold.
+- An area picked on the photo opens its own row, and the page scrolls to bring it into view.
+  Later areas open on the neutral tone. Areas that are fine have no card, so they open as a
+  row under the "All good" heading.
+- Inside: the camera and area in `fg-secondary`, followed by the stock level only when the
+  product is misplaced, since the group already says the stock for the rest. Then a strip with
+  one segment per photo of that camera: green is full, grey is half, red is empty. A thin amber
+  bar marks the photos where the product was in the wrong place. Pressing a segment moves the
+  whole screen to that time.
+- It opens at once. No height animation, to keep the list light.
 
 ## Motion
 
@@ -164,6 +167,9 @@ stay short, since a translation can run longer. The choice is saved in the brows
 
 - 2026-10-10. Area detail takes its card's tint instead of a fixed grey panel. A grey block
   under the photo read as something separate from the card that was pressed.
+- 2026-10-10. The detail panel under the photo is gone. The task opens inside its own card.
+  Two reds side by side looked inconsistent, and the panel was off screen on a laptop. This
+  also covers phones, since the list comes first and the card opens where it is.
 
 ## Open questions
 
@@ -171,5 +177,6 @@ stay short, since a translation can run longer. The choice is saved in the brows
   English belongs to.
 - Whether uncertain "move back" items should go in their own group, since a false alarm costs
   staff time and trust.
-- The detail on a phone should be a bottom sheet. It is not built yet.
+- On a phone the photo comes after the list. A short link from an open card to the photo may
+  be needed.
 - A products view, with stock summed per product.
