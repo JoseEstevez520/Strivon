@@ -117,5 +117,12 @@
   "labels": "the key",
   "other_photos": "training crops only",
   "seconds": "about 0.9 CPU (stock 0.9 + product 0.01, product measured on a loaded machine)"
+ },
+ "lab_image_only_ensemble": {
+  "approach": "Single image, no CLIP: weighted average of three lab stock models (pixel features, slot references, a small fine-tuned MobileNetV3) + product check against a bank of training crops",
+  "owner": "Jose (lab)",
+  "labels": "the key",
+  "other_photos": "training crops only",
+  "seconds": "about 0.2 CPU, 2 threads, measured on a loaded laptop; no GPU"
  }
 }
