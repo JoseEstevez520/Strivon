@@ -14,8 +14,9 @@ interface Props {
 /** A task that needs doing now. The product leads; the group above already says the action. */
 export function TaskCard({ task, selected, onSelect }: Props) {
   const { t, family } = useI18n()
-  const reason =
-    task.group === 'moveBack' ? t.wrongPlace(family(task.obs.observed_family ?? '')) : t.empty
+  // Restock needs no second line: its group already says "empty". Only a wrong place carries news.
+  const reason = task.group === 'moveBack' ? t.wrongPlace(family(task.obs.observed_family ?? '')) : null
+  const since = clock(task.since)
 
   return (
     <button
@@ -28,10 +29,11 @@ export function TaskCard({ task, selected, onSelect }: Props) {
       <div className="size-12 shrink-0 rounded-md bg-[color-mix(in_oklab,var(--c)_22%,#d6d8d0)]" aria-hidden />
       <div className="min-w-0 flex-1">
         <div className="text-label">{family(task.area.family)}</div>
-        <div className="text-meta tabular-nums text-fg-muted">
-          {reason} · {t.since(clock(task.since))}
-        </div>
+        {reason && <div className="text-meta text-fg-secondary">{reason}</div>}
       </div>
+      <span className="text-meta tabular-nums text-fg-secondary" title={t.since(since)}>
+        {since}
+      </span>
       <ChevronRight className="size-4 text-fg-muted" />
     </button>
   )
