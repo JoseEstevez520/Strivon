@@ -50,6 +50,9 @@ def main(argv=None) -> int:
     cb_.add_argument("--out", required=True)
     cb_.add_argument("--weights", nargs="*", type=float, help="weights of the --stock files when they carry p_stock")
 
+    sub.add_parser("dino-bench", help="benchmark the fine-tuned DINOv2-small crate model (about 1 h on CPU)")
+    sub.add_parser("dino-train", help="fit the fine-tuned DINOv2-small crate model on eval/labels.json")
+
     sub.add_parser("bench", help="André's benchmark (LEADERBOARD.md) for the single-image models")
     st = sub.add_parser("train-single", help="fit the single-image model on all labels (outputs/single.pkl)")
     st.add_argument("--no-refs", action="store_true", help="kept for compatibility (references are off by default)")
@@ -126,6 +129,12 @@ def main(argv=None) -> int:
         if problems:
             print("VALIDATION PROBLEMS:\n  " + "\n  ".join(problems[:20]))
             return 1
+        return 0
+
+    if a.cmd in ("dino-bench", "dino-train"):
+        from . import dino
+
+        dino.bench() if a.cmd == "dino-bench" else dino.train()
         return 0
 
     if a.cmd == "bench":
