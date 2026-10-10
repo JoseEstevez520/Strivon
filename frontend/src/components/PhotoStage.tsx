@@ -1,4 +1,5 @@
 import { GROUP_COLOR } from './groupStyle'
+import { FAMILY_ICON, ICON_BODY } from '@/model/produceIcons'
 import { IMAGE_SIZE } from '@/model/types'
 import type { Task } from '@/lib/tasks'
 
@@ -8,10 +9,12 @@ interface Props {
   onSelect: (areaId: string) => void
   /** The camera photo. A flat placeholder shows when there is none. */
   src?: string | null
+  /** Mark what is missing or misplaced with its product's icon on a red or amber disc, and colour empty areas stronger. */
+  marks?: boolean
 }
 
 /** The camera photo with every shelf area drawn over it. */
-export function PhotoStage({ tasks, selected, onSelect, src }: Props) {
+export function PhotoStage({ tasks, selected, onSelect, src, marks = false }: Props) {
   return (
     <div className="relative aspect-video overflow-hidden rounded-xl bg-[#d6d8d0]">
       {src && <img src={src} alt="" decoding="async" className="absolute inset-0 size-full object-cover" />}
@@ -33,7 +36,7 @@ export function PhotoStage({ tasks, selected, onSelect, src }: Props) {
                 points={points}
                 onClick={() => onSelect(task.area.area_id)}
                 fill={color}
-                fillOpacity={on ? 0.3 : 0.12}
+                fillOpacity={on ? 0.4 : marks && task.group === 'restock' ? 0.34 : 0.12}
                 stroke={color}
                 strokeWidth={on ? 8 : 5}
                 strokeLinejoin="round"
@@ -42,6 +45,26 @@ export function PhotoStage({ tasks, selected, onSelect, src }: Props) {
             </g>
           )
         })}
+        {marks &&
+          tasks
+            .filter((x) => x.group === 'restock' || x.group === 'moveBack')
+            .map((task) => {
+              const xs = task.area.quad.map((p) => p[0])
+              const ys = task.area.quad.map((p) => p[1])
+              const cx = xs.reduce((a, b) => a + b, 0) / 4
+              const cy = ys.reduce((a, b) => a + b, 0) / 4
+              const size = Math.max(26, Math.min(58, Math.min(Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys)) * 0.5))
+              const body = ICON_BODY[FAMILY_ICON[task.area.family]]
+              const color = GROUP_COLOR[task.group]
+              return (
+                <g key={`mark-${task.area.area_id}`} pointerEvents="none">
+                  <circle cx={cx} cy={cy} r={size * 0.78} fill={color} stroke="white" strokeWidth={4} />
+                  {body && (
+                    <g transform={`translate(${cx - size / 2} ${cy - size / 2}) scale(${size / 32})`} color="white" dangerouslySetInnerHTML={{ __html: body }} />
+                  )}
+                </g>
+              )
+            })}
       </svg>
     </div>
   )
