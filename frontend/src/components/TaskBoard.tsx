@@ -11,6 +11,8 @@ import { clock } from '@/lib/time'
 import { useSelection } from '@/lib/useSelection'
 
 const GROUPS: Group[] = ['restock', 'moveBack', 'later', 'allGood']
+// On a gondola's own page everything is already in that gondola, so a place would only repeat it.
+const nowhere = () => ''
 
 interface Props {
   /** The tasks to list. */
@@ -47,7 +49,7 @@ export function TaskBoard({ tasks, camera, listFine = false, initialSelected = n
             selected={selected}
             listFine={listFine}
             gondola={gondola}
-            where={where}
+            where={camera ? nowhere : where}
             historyOf={historyOf}
             onSelect={select}
             onJump={jumpTo}

@@ -42,7 +42,9 @@ export function buildRealState(planogram: Planogram, photos: Record<string, stri
         index: Number.parseInt(p.area_id.split('_')[1] ?? '0', 10),
         quad: [c.top_left, c.top_right, c.bottom_right, c.bottom_left],
         family: familyOf(p.product_name),
-        product_id: p.product_id,
+        // Cards and the products page show the family name, so they group by family. Two catalogue
+        // ids of one family (two kinds of red apple) are one product on screen.
+        product_id: familyOf(p.product_name),
       }
     }
   }

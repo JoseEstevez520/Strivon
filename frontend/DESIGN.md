@@ -95,7 +95,8 @@ A card says each thing once. The group heading already says the action, so the c
 - A second line appears only when it carries news. For one area it says where, by the other
   products of its gondola ("with Cabbage"), without repeating the card's own product. If the
   gondola holds only that product, there is no second line. Move back adds what is there
-  instead ("Looks like Kiwi"). Where an area is matters because the list covers the whole store.
+  instead ("Looks like Kiwi"). Where an area is matters because the list covers the whole store. On a gondola's own page the
+  place is left out, since everything there is already in that gondola.
 - The thumbnail takes a little of the card's colour so the card reads as one object.
 - Later is not a card. It is a plain line with the product on the left and where on the right.
   All good is a single line with a count.
@@ -140,6 +141,9 @@ defaults to the main checkout's `data/` folder). The challenge data is never cop
 repo or the build. If the folder is not there, the screen falls back to invented shelves of the
 same size.
 
+- Everything groups by family, because the name on screen is the family name. The planogram has
+  94 catalogue ids, and two ids of one family (two kinds of red apple) would show as two cards
+  with the same name. The catalogue id is not used by the interface.
 - Product families come from the catalogue names with the rules of `sensei/catalog.py`, ported
   to `src/model/catalog.ts` in the same order. A change there needs the same change here.
 - What the pipeline says about each area (stock and whether the product is right) is still
@@ -264,6 +268,9 @@ a collapsing block by hand once, and Base UI and shadcn already had it.
 - 2026-10-10. Real photos from the local data folder, with crops and camera tiles. They change how
   the screen reads: it looks like a store and not a diagram.
 - 2026-10-10. The language picker shows only the flag, to take less room.
+
+- 2026-10-10. Products group by family and not by catalogue id. With real data the first version
+  listed 94 numeric ids, and the same product appeared twice on the first page.
 
 ## Open questions
 
