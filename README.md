@@ -86,8 +86,12 @@ Forward split: trained without each camera's last 2 photos, tested on them (302 
 | # | Approach | Identification | Stock | Below | Above | Total / max | Per area | ≈ / 578 | Seconds per photo |
 |---:|---|---:|---:|---:|---:|---:|---:|---:|---|
 | 1 | Combined: stock = the lower of Miguel's CLIP crate model and José's lab ensemble, product check from the CLIP crate model (`combo_min_crate_lab`) | +302 | +150 | 24 | 20 | +452 / 604 | +1.497 | +433 | about 1.1-1.5 CPU (0.9-1.4 + 0.14) |
-| 2 | Single image: CLIP ViT-B-32 on the hand-drawn crate + colour + area id, logistic regression (`single_crate`) | +302 | +135 | 21 | 26 | +437 / 604 | +1.447 | +418 | 0.9-1.4 s, 2-8 CPU threads (laptop), no GPU |
-| 3 | Single image, no CLIP: weighted average of three lab stock models (pixel features, slot references, a small fine-tuned MobileNetV3) + product check against a bank of training crops, colours balanced per crop (the shipped model, `python lab/predict.py`) (`lab_image_only_ensemble`) | +299 | +124 | 14 | 34 | +423 / 604 | +1.401 | +405 | 0.14 CPU per photo (1 thread, warm); 0.31 per photo over a batch of 28 including a 4.8 startup (torch import 3.8); i7 laptop, no GPU |
+| 2 | Agents' FINAL model R3: one-pass DINOv2-S retrained on newer labels + block-8 stock head, seed 0 (`agents_R3_s0`) | +299 | +151 | 17 | 25 | +450 / 604 | +1.490 | +431 | 0.74-0.82 CPU, 0.06 GPU |
+| 3 | Agents' FINAL model R3: one-pass DINOv2-S retrained on newer labels + block-8 stock head, seed 1 (`agents_R3_s1`) | +299 | +142 | 16 | 28 | +441 / 604 | +1.460 | +422 | 0.74-0.82 CPU, 0.06 GPU |
+| 4 | Agents' one-pass DINOv2-S, round-1 pick, seed 1 (`agents_R0_shipped_s1`) | +299 | +139 | 13 | 31 | +438 / 604 | +1.450 | +419 | 0.82 CPU, 0.06 GPU |
+| 5 | Single image: CLIP ViT-B-32 on the hand-drawn crate + colour + area id, logistic regression (`single_crate`) | +302 | +135 | 21 | 26 | +437 / 604 | +1.447 | +418 | 0.9-1.4 s, 2-8 CPU threads (laptop), no GPU |
+| 6 | Agents' one-pass DINOv2-S, round-1 pick, seed 0 (`agents_R0_shipped_s0`) | +299 | +136 | 26 | 22 | +435 / 604 | +1.440 | +416 | 0.82 CPU, 0.06 GPU |
+| 7 | Single image, no CLIP: weighted average of three lab stock models (pixel features, slot references, a small fine-tuned MobileNetV3) + product check against a bank of training crops, colours balanced per crop (the shipped model, `python lab/predict.py`) (`lab_image_only_ensemble`) | +299 | +124 | 14 | 34 | +423 / 604 | +1.401 | +405 | 0.14 CPU per photo (1 thread, warm); 0.31 per photo over a batch of 28 including a 4.8 startup (torch import 3.8); i7 laptop, no GPU |
 <!-- FORWARD:END -->
 
 ## Prior code

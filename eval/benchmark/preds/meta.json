@@ -194,5 +194,33 @@
   "labels": "the key",
   "other_photos": "no",
   "seconds": "about 1.1-1.5 CPU (0.9-1.4 + 0.14)"
+ },
+ "agents_R0_shipped_s0": {
+  "approach": "Agents' one-pass DINOv2-S, round-1 pick, seed 0",
+  "owner": "André (agents)",
+  "labels": "labels_v1",
+  "other_photos": "no",
+  "seconds": "0.82 CPU, 0.06 GPU"
+ },
+ "agents_R0_shipped_s1": {
+  "approach": "Agents' one-pass DINOv2-S, round-1 pick, seed 1",
+  "owner": "André (agents)",
+  "labels": "labels_v1",
+  "other_photos": "no",
+  "seconds": "0.82 CPU, 0.06 GPU"
+ },
+ "agents_R3_s0": {
+  "approach": "Agents' FINAL model R3: one-pass DINOv2-S retrained on newer labels + block-8 stock head, seed 0",
+  "owner": "André (agents)",
+  "labels": "eval/labels.json @1221ec3",
+  "other_photos": "no",
+  "seconds": "0.74-0.82 CPU, 0.06 GPU"
+ },
+ "agents_R3_s1": {
+  "approach": "Agents' FINAL model R3: one-pass DINOv2-S retrained on newer labels + block-8 stock head, seed 1",
+  "owner": "André (agents)",
+  "labels": "eval/labels.json @1221ec3",
+  "other_photos": "no",
+  "seconds": "0.74-0.82 CPU, 0.06 GPU"
  }
 }
