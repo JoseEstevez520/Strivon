@@ -17,8 +17,6 @@ right product, and how full is it? Store staff get what to restock and what to m
 
 Written during the hackathon, except:
 
-- The design rules of `frontend/` come from elastic-ui, a component library by José made before the
-  event. They were rewritten for this project.
 - `frontend/src/model/catalog.ts` ports the product family rules of `backend/sensei/catalog.py`.
 - The interface uses React, Vite, Tailwind CSS, shadcn/ui, Base UI, OpenUI, Lucide and
   country-flag-icons, all MIT. Versions are in `frontend/package.json`.
