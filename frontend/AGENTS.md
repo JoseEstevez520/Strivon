@@ -7,6 +7,9 @@ The staff screen of Strivon: React, Vite, Tailwind v4 and shadcn.
 - Compare new work against `DESIGN.md` and not only against the last component built.
 - Search before you build: the repo, then Base UI and shadcn (`npx shadcn@latest view <name>`),
   then the registry and GitHub. Write your own only when nothing fits.
+- Do not name a folder `data` inside the frontend. The repo's root `.gitignore` ignores `data/`
+  at any depth, to keep the challenge data out, and it would silently hide the code. The
+  frontend's model lives in `src/model`.
 - Use the tokens in `src/index.css`. Do not add colours, sizes or radii of your own.
 - Text a person reads is in English by default, with the Portuguese and Spanish versions in
   `src/lib/i18n.tsx`.
