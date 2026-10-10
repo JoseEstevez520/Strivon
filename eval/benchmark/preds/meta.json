@@ -119,7 +119,7 @@
   "seconds": "about 0.9 CPU (stock 0.9 + product 0.01, product measured on a loaded machine)"
  },
  "lab_image_only_ensemble": {
-  "approach": "Single image, no CLIP: weighted average of three lab stock models (pixel features, slot references, a small fine-tuned MobileNetV3) + product check against a bank of training crops",
+  "approach": "Single image, no CLIP: weighted average of three lab stock models (pixel features, slot references, a small fine-tuned MobileNetV3) + product check against a bank of training crops, colours balanced per crop (the shipped model, `python lab/predict.py`)",
   "owner": "Jose (lab)",
   "labels": "the key",
   "other_photos": "training crops only",
