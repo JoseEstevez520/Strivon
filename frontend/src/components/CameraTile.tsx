@@ -21,7 +21,7 @@ export function CameraTile({ camera }: { camera: string }) {
   // Louder the more there is to restock, so a gondola with one empty area does not look like one
   // with seven. When nearly every tile has something, the difference is what tells them apart.
   const restock = own.filter((x) => x.group === 'restock').length
-  const tint = worst === 'restock' ? Math.min(7 + 3 * restock, 22) : 10
+  const tint = worst === 'restock' ? Math.min(6 + 2 * restock, 16) : 10
 
   return (
     <Link
@@ -37,19 +37,19 @@ export function CameraTile({ camera }: { camera: string }) {
       <div className="relative aspect-video overflow-hidden rounded-lg bg-[#d6d8d0]">
         {src && <img src={src} alt="" loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover" />}
       </div>
-      <div className="flex items-center justify-between gap-2 px-1">
-        <span className="min-w-0 truncate text-label">{gondola(camera)}</span>
-        {worst ? (
-          <span className="flex shrink-0 items-center gap-1.5 text-meta font-medium tabular-nums text-fg-secondary">
-            <Icon className="size-3.5" style={{ color: GROUP_COLOR[worst] }} />
-            {t.toDo(pending)}
-          </span>
-        ) : (
-          <span className="shrink-0 text-meta text-fg-muted">{t.allGood}</span>
-        )}
-      </div>
-      <div className="px-1 pb-1">
-        <StateStrip tasks={own} />
+      <div className="flex flex-col gap-2 px-1 pb-1">
+        <span className="truncate text-label">{gondola(camera)}</span>
+        <div className="flex items-center gap-3">
+          {worst ? (
+            <span className="flex shrink-0 items-center gap-1.5 text-meta font-medium tabular-nums text-fg-secondary">
+              <Icon className="size-3.5" style={{ color: GROUP_COLOR[worst] }} />
+              {t.toDo(pending)}
+            </span>
+          ) : (
+            <span className="shrink-0 text-meta text-fg-muted">{t.allGood}</span>
+          )}
+          <StateStrip tasks={own} className="flex-1" />
+        </div>
       </div>
     </Link>
   )

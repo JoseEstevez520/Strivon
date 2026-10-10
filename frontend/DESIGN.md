@@ -138,12 +138,13 @@ second has the least text, which was the complaint about the first version.
 
 ## Gondola tiles
 
-A tile is a camera: its latest photo, what it is called, a count and a strip of its areas. It is
-built like a task card. A gondola with something to restock is tinted red and one with only
+A tile is a camera: its latest photo, what it is called on its own line, and under it the count
+beside a strip of its areas. It is built like a task card. A gondola with something to restock is tinted red and one with only
 misplaced products is tinted amber. The tint is stronger the more there is to restock, so a
 gondola with one empty area does not look like one with seven. A gondola that is fine stays on
-the neutral tone with "All good" in grey. The count carries the state icon, with the text in
-grey, as in the group headings. The photo is not what tells the state, the tint, the count and
+the neutral tone with "All good" in grey. The strip colours only the areas that need action, red and amber, and leaves the rest as a pale
+grey, so the segments that matter are the ones that show. The count carries the state icon, with
+the text in grey, as in the group headings. The photo is not what tells the state, the tint, the count and
 the strip are.
 
 The order is fixed, by camera, and does not follow urgency. The staff learn where each gondola
@@ -369,6 +370,10 @@ a collapsing block by hand once, and Base UI and shadcn already had it.
 
 - 2026-10-10. Scrollbars are quiet: invisible at rest and a thin faint line on hover, for the page
   and for the camera panel. The browser's default grey bar stood out against the flat screen.
+
+- 2026-10-10. Gondola tiles simplified. They had a tinted frame, a red icon and a strip in four
+  colours, and the name was cut off by the count. The name now has its own line, the count sits
+  beside the strip, the strip colours only what needs action and the tint is lighter.
 
 ## Open questions
 
