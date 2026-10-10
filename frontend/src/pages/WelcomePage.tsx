@@ -13,11 +13,9 @@ import {
 } from 'lucide-react'
 import { useMemo } from 'react'
 import { DayMap } from '@/components/day/DayMap'
-import { RankedBars } from '@/components/day/RankedBars'
 import { CameraTile } from '@/components/CameraTile'
 import { TaskBoard } from '@/components/TaskBoard'
 import { TaskCard } from '@/components/TaskCard'
-import { useI18n } from '@/lib/i18n'
 import { storeStats } from '@/lib/stats'
 import { useStore } from '@/lib/store'
 import { cardsOf } from '@/lib/tasks'
@@ -37,12 +35,7 @@ const TODAY: [LucideIcon, string, string][] = [
   [Languages, 'English, Portuguese and Spanish', 'The whole app, in the language of whoever is on shift.'],
 ]
 
-const TEAM = [
-  ['José', 'The web app and the integration'],
-  ['Miguel', 'The AI pipeline'],
-  ['André', 'Evaluation and data'],
-  ['Leonor', 'Labelling, design and the pitch'],
-]
+const TEAM = ['Jose', 'Miguel', 'André', 'Leonor']
 
 const Section = ({ title, lead, children }: { title: string; lead?: string; children: React.ReactNode }) => (
   <section className="py-12 sm:py-16">
@@ -63,51 +56,47 @@ const Card = ({ icon: Icon, title, text }: { icon: LucideIcon; title: string; te
 const nothing = () => {}
 
 /**
- * The first screen. The headline sets what a camera sees against what Strivon does, and around it
- * float the app's own parts (tasks, a gondola, a card to move back), so the product is in view
- * from the first second. They are for looking at: the live ones are further down.
+ * The first screen: the name and what it does on one side, and on the other a few of the app's own
+ * parts (task cards and two gondolas) as a still of the screen. They are for looking at, so they
+ * cannot be pressed; the live ones are further down.
  */
 function Hero() {
   const { tasks, gondola, where, historyOf } = useStore()
   const restock = cardsOf(tasks.filter((x) => x.group === 'restock'))
   const moveBack = cardsOf(tasks.filter((x) => x.group === 'moveBack'))
-  const card = (c?: (typeof restock)[number]) =>
-    c && (
-      <TaskCard
-        key={c.key}
-        card={c}
-        selected={null}
-        gondola={gondola}
-        where={where}
-        historyOf={historyOf}
-        onSelect={nothing}
-        onJump={nothing}
-      />
-    )
-  const left = [card(restock[0]), restock[2] && <CameraTile key="tile" camera={restock[2].tasks[0].area.camera} />]
-  const right = [card(moveBack[0]), card(restock[1]), card(moveBack[1])]
-  const floaters = 'pointer-events-none flex flex-col gap-3 select-none'
+  const cards = [restock[0], restock[1], moveBack[0]].filter(Boolean)
+  const tiles = [restock[2], restock[3]].filter(Boolean)
 
   return (
-    <div className="relative left-1/2 grid w-[min(92vw,88rem)] -translate-x-1/2 grid-cols-[minmax(0,1fr)] items-center gap-10 px-5 py-14 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)_minmax(0,1fr)] lg:gap-14 lg:py-20">
-      <div aria-hidden className={`${floaters} order-2 lg:order-1 lg:-translate-y-4 lg:-rotate-1`}>
-        {left}
-      </div>
-
-      <div className="order-1 flex flex-col items-center gap-6 text-center lg:order-2">
-        <p className="font-mono text-meta tracking-[0.14em] text-fg-muted uppercase">Shelf monitoring for fresh produce</p>
-        <h1 className="text-[clamp(2.25rem,4.6vw,4rem)] leading-[1.06] text-balance font-semibold tracking-[-0.04em]">
-          <span className="block text-fg-muted">A camera sees the shelf.</span>
-          <span className="block">Strivon tells you what to do.</span>
-        </h1>
-        <p className="text-[clamp(1.0625rem,1.6vw,1.25rem)] leading-relaxed text-fg-secondary">
-          Ceiling cameras watch the fruit and vegetable shelves. Strivon compares what they see with the planogram and tells the staff
-          what to restock and what to put back, before anyone has to go looking.
+    <div className="grid grid-cols-[minmax(0,1fr)] items-center gap-12 py-16 lg:grid-cols-2 lg:py-24">
+      <div className="flex flex-col gap-6">
+        <h1 className="text-[clamp(3.5rem,8vw,6.5rem)] leading-none font-semibold tracking-[-0.045em]">Strivon</h1>
+        <p className="text-[clamp(1.125rem,1.8vw,1.5rem)] leading-relaxed text-fg-secondary">
+          Ceiling cameras watch the fruit and vegetable shelves. Strivon compares what they see with the planogram and tells the
+          staff what to restock and what to put back.
         </p>
       </div>
 
-      <div aria-hidden className={`${floaters} order-3 lg:translate-y-6 lg:rotate-1`}>
-        {right}
+      <div aria-hidden className="pointer-events-none flex flex-col gap-3 rounded-2xl bg-surface p-4 select-none">
+        <div className="flex flex-col gap-2">
+          {cards.map((c) => (
+            <TaskCard
+              key={c.key}
+              card={c}
+              selected={null}
+              gondola={gondola}
+              where={where}
+              historyOf={historyOf}
+              onSelect={nothing}
+              onJump={nothing}
+            />
+          ))}
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          {tiles.map((c) => (
+            <CameraTile key={c.key} camera={c.tasks[0].area.camera} />
+          ))}
+        </div>
       </div>
     </div>
   )
@@ -120,8 +109,7 @@ function Hero() {
  * layout so it reads as one page.
  */
 export function WelcomePage() {
-  const { t, family } = useI18n()
-  const { state, tasks, gondola } = useStore()
+  const { state, tasks } = useStore()
   const stats = useMemo(() => storeStats(state), [state])
 
   return (
@@ -173,32 +161,16 @@ export function WelcomePage() {
           </div>
         </Section>
 
-        <Section
-          title="How the store is doing"
-          lead="How much of the time shelves were empty, when it happened and where. Figures from photos taken an hour apart are estimates."
-        >
+        <Section title="How the store is doing" lead="How much of the time each product was empty, hour by hour. Photos come an hour apart, so these are estimates.">
           <DayMap rows={stats.map} hours={stats.hours} />
-          <div className="mt-10 grid gap-x-10 gap-y-8 lg:grid-cols-2">
-            <div>
-              <p className="mb-1 px-1 text-label text-fg-muted">{t.worstProducts}</p>
-              <RankedBars items={stats.map.slice(0, 5).map((r) => ({ key: r.product, label: family(r.product), share: r.share }))} />
-            </div>
-            <div>
-              <p className="mb-1 px-1 text-label text-fg-muted">{t.worstGondolas}</p>
-              <RankedBars items={stats.byGondola.slice(0, 5).map((g) => ({ key: g.camera, label: gondola(g.camera), share: g.share }))} />
-            </div>
-          </div>
         </Section>
 
         <Section title="Team">
-          <dl className="grid gap-x-8 gap-y-4 sm:grid-cols-2 lg:grid-cols-4">
-            {TEAM.map(([name, role]) => (
-              <div key={name}>
-                <dt className="text-label">{name}</dt>
-                <dd className="text-ui text-fg-secondary">{role}</dd>
-              </div>
+          <ul className="flex flex-wrap gap-x-10 gap-y-2 text-copy">
+            {TEAM.map((name) => (
+              <li key={name}>{name}</li>
             ))}
-          </dl>
+          </ul>
         </Section>
 
         <footer className="pt-12">
