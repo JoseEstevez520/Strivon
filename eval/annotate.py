@@ -1,14 +1,17 @@
-"""Tiny local labelling tool. Run: python eval/annotate.py  ->  open http://localhost:8765
+"""Local labelling tool.
 
-Shows a sample of (image, area) pairs, spread across cameras. For each one, label the real
-stock (empty/half/full) and whether the product shown is the one the planogram expects.
-Labels are saved to eval/labels.json in the same format as the hidden annotations.json, so
-`python eval/score.py outputs/predictions.json eval/labels.json` works directly.
-Keyboard: 1=empty 2=half 3=full, Y=compliant N=not compliant, Enter=save and next, Backspace=back.
+Run: python eval/annotate.py [--cams 6215,6371] [--per-camera 8] [--share]
+Then open http://localhost:8765
+
+For each camera it takes the first N images (default 8, by capture time) and walks through
+EVERY planogram area of each image, in planogram order. Labels go to eval/labels.json in the
+same format as the hidden annotations.json, so this works directly:
+    python eval/score.py outputs/predictions.json eval/labels.json
+--share lets teammates on the same Wi-Fi use it; use --cams to split cameras between people.
+Keyboard: 1=empty 2=half 3=full, Y=right product, N=wrong product, Enter=save and next, Backspace=back.
 """
-import io
+import argparse
 import json
-import random
 import sys
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
@@ -20,25 +23,30 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "backend"))
 from crops import IMAGES, ROOT, corners, load_planogram, warp_area  # noqa: E402
 
 LABELS = ROOT / "eval" / "labels.json"
-N = int(sys.argv[1]) if len(sys.argv) > 1 else 60
+ap = argparse.ArgumentParser()
+ap.add_argument("--cams", default="", help="comma separated camera ids (default: all)")
+ap.add_argument("--per-camera", type=int, default=8)
+ap.add_argument("--share", action="store_true")
+ARGS = ap.parse_args()
+
 CAMS = load_planogram()
-random.seed(7)
-PAIRS = []  # (cam, image, area_id): round-robin over cameras so every camera is covered
-pool = {c: [(c, f.name, a["area_id"]) for f in sorted((IMAGES / c).glob("*.jpg"))
-            for a in CAMS[c]["products"]] for c in CAMS}
-for c in pool:
-    random.shuffle(pool[c])
-while len(PAIRS) < N:
-    for c in pool:
-        if pool[c] and len(PAIRS) < N:
-            PAIRS.append(pool[c].pop())
+WANTED = [c for c in ARGS.cams.split(",") if c] or list(CAMS)
+FILES = {c: sorted(p.name for p in (IMAGES / c).glob("*.jpg")) for c in WANTED}
+PAIRS = [(c, img, a["area_id"])
+         for c in WANTED
+         for img in FILES[c][:ARGS.per_camera]
+         for a in CAMS[c]["products"]]
 labels = json.loads(LABELS.read_text()) if LABELS.exists() else {}
 
 PAGE = """<!doctype html><meta charset=utf-8><title>Annotate</title>
 <style>body{font:16px system-ui;margin:20px;background:#111;color:#eee}img{max-width:48%;border:2px solid #444}
 button{font-size:18px;padding:10px 18px;margin:4px;border-radius:8px;border:0;cursor:pointer}
-.sel{outline:3px solid #4ade80}#prod{font-size:22px;margin:8px 0}</style>
+.sel{outline:3px solid #4ade80}#prod{font-size:22px;margin:8px 0}
+#legend{color:#aaa;margin:6px 0 10px;max-width:900px}
+.pk{background:#7c3aed;border-radius:6px;padding:2px 8px;font-size:15px;margin-left:8px}</style>
 <div id=prog></div><div id=prod></div>
+<div id=legend>Empty = one or two units left (time to restock). Half = anything in between.
+Full = completely full; if a single unit is missing, it is half. Packaged products: one unit is one package.</div>
 <img id=full><img id=crop><div>
 <b>Stock:</b> <button data-s=0>1 empty</button><button data-s=0.5>2 half</button><button data-s=1>3 full</button><br>
 <b>Right product?</b> <button data-c=true>Y yes</button><button data-c=false>N no</button><br>
@@ -48,8 +56,8 @@ let i=0,s=null,c=null,items=[];
 const q=(x)=>document.querySelector(x);
 async function load(){items=await (await fetch('/items')).json();i=items.findIndex(x=>!x.done);if(i<0)i=0;show()}
 function show(){const it=items[i];s=it.stock;c=it.compliant;
- q('#prog').textContent=`${i+1}/${items.length}  (${items.filter(x=>x.done).length} done)  camera ${it.cam}`;
- q('#prod').textContent='Planogram expects: '+it.product;
+ q('#prog').textContent=`${i+1}/${items.length}  (${items.filter(x=>x.done).length} done)  camera ${it.cam}, image ${it.n}, area ${it.area}`;
+ q('#prod').innerHTML='Planogram expects: <b>'+it.product+'</b>'+(it.packaged?'<span class=pk>packaged</span>':'');
  q('#full').src=`/full?cam=${it.cam}&img=${it.img}&area=${it.area}`;q('#crop').src=`/crop?cam=${it.cam}&img=${it.img}&area=${it.area}`;mark()}
 function mark(){document.querySelectorAll('[data-s]').forEach(b=>b.classList.toggle('sel',s!==null&&+b.dataset.s===s));
  document.querySelectorAll('[data-c]').forEach(b=>b.classList.toggle('sel',c!==null&&(b.dataset.c==='true')===c))}
@@ -88,10 +96,13 @@ class H(BaseHTTPRequestHandler):
             out = []
             for cam, img, area in PAIRS:
                 a = next(x for x in CAMS[cam]["products"] if x["area_id"] == area)
-                l = labels.get(cam, {}).get(img, {}).get(area)
-                out.append({"cam": cam, "img": img, "area": area, "product": a["product_name"],
-                            "done": l is not None, "stock": l and l["stock_value"],
-                            "compliant": l and l["planogram_compliant"]})
+                lab = labels.get(cam, {}).get(img, {}).get(area)
+                name = a["product_name"]
+                out.append({"cam": cam, "img": img, "area": area, "product": name,
+                            "packaged": not name.rstrip().endswith("KG"),
+                            "n": FILES[cam].index(img) + 1,
+                            "done": lab is not None, "stock": lab and lab["stock_value"],
+                            "compliant": lab and lab["planogram_compliant"]})
             return self.send(json.dumps(out).encode(), "application/json")
         a = next(x for x in CAMS[q["cam"]]["products"] if x["area_id"] == q["area"])
         img = cv2.imread(str(IMAGES / q["cam"] / q["img"]))
@@ -112,5 +123,10 @@ class H(BaseHTTPRequestHandler):
 
 
 if __name__ == "__main__":
-    print(f"{len(PAIRS)} areas to label -> http://localhost:8765")
-    HTTPServer(("localhost", 8765), H).serve_forever()
+    if ARGS.share:
+        import socket
+        ip = socket.gethostbyname(socket.gethostname())
+        print(f"{len(PAIRS)} areas. Send this to your teammate (same Wi-Fi): http://{ip}:8765")
+    else:
+        print(f"{len(PAIRS)} areas to label -> http://localhost:8765")
+    HTTPServer(("0.0.0.0" if ARGS.share else "localhost", 8765), H).serve_forever()
