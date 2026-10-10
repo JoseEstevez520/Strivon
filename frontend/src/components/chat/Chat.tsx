@@ -93,10 +93,10 @@ export function Chat() {
         onScroll={onScroll}
         // The thread fades out at both ends instead of being cut by an edge.
         style={{ maskImage: 'linear-gradient(to bottom, transparent 0, #000 2.75rem, #000 calc(100% - 1.5rem), transparent 100%)' }}
-        className="scrollbar-subtle min-h-0 flex-1 overflow-y-auto px-3 pt-12 pb-6"
+        className="scrollbar-subtle min-h-0 flex-1 overflow-y-auto px-4 pt-12 pb-6 sm:px-6"
       >
         {messages.length > 0 ? (
-          <ol className="mx-auto flex max-w-3xl flex-col gap-3">
+          <ol className="flex flex-col gap-4">
             {messages.map((m) => (
               <li key={m.id} data-source={m.role === 'assistant' ? m.text : undefined} className={m.role === 'user' ? 'ml-auto max-w-[85%] rounded-xl bg-surface px-3 py-2 text-ui' : 'flex flex-col gap-3 px-1'}>
                 {m.role === 'user' ? (
@@ -110,7 +110,7 @@ export function Chat() {
             ))}
           </ol>
         ) : (
-          <ul className="mx-auto flex max-w-3xl flex-col">
+          <ul className="flex flex-col">
             {t.suggestions.map((s) => (
               <li key={s}>
                 <button
@@ -145,7 +145,7 @@ export function Chat() {
 
       <form
         onSubmit={submit}
-        className="mx-auto flex w-full max-w-3xl items-end gap-2 p-3 pt-1"
+        className="flex w-full items-end gap-2 px-4 pt-1 pb-4 sm:px-6"
       >
         <div className="flex min-w-0 flex-1 items-end rounded-2xl bg-surface transition-colors has-[textarea:focus]:bg-sunk">
           <textarea

@@ -26,7 +26,7 @@ export function VBars({ items }: { items: VBarItem[] }) {
         )
         const cls = 'flex h-full min-w-0 flex-1 flex-col justify-end gap-1.5'
         return (
-          <li key={i.key} className="flex min-w-0 flex-1">
+          <li key={i.key} className="flex max-w-28 min-w-0 flex-1">
             {i.to ? (
               <Link to={i.to} className={`${cls} w-full rounded-md transition-colors hover:bg-surface`}>
                 {body}
