@@ -36,6 +36,8 @@ interface Strings {
   gondolaN: (n: number) => string
   loading: string
   navInsights: string
+  navMap: string
+  planHeadline: (n: number) => string
   goFirst: string
   thenGo: string
   bring: string
@@ -95,6 +97,8 @@ const en: Strings = {
   gondolaN: (n) => `Gondola ${n}`,
   loading: 'Checking the shelves…',
   navInsights: 'Insights',
+  navMap: 'Map',
+  planHeadline: (n) => (n === 0 ? 'Every gondola is fine' : n === 1 ? '1 gondola needs attention' : `${n} gondolas need attention`),
   goFirst: 'Go first',
   thenGo: 'Then',
   bring: 'Bring',
@@ -170,6 +174,8 @@ const pt: Strings = {
   gondolaN: (n) => `Gôndola ${n}`,
   loading: 'A verificar as prateleiras…',
   navInsights: 'Análise',
+  navMap: 'Mapa',
+  planHeadline: (n) => (n === 0 ? 'Todas as gôndolas estão bem' : n === 1 ? '1 gôndola precisa de atenção' : `${n} gôndolas precisam de atenção`),
   goFirst: 'Vai primeiro',
   thenGo: 'Depois',
   bring: 'Levar',
@@ -245,6 +251,8 @@ const es: Strings = {
   gondolaN: (n) => `Góndola ${n}`,
   loading: 'Revisando las estanterías…',
   navInsights: 'Análisis',
+  navMap: 'Mapa',
+  planHeadline: (n) => (n === 0 ? 'Todas las góndolas están bien' : n === 1 ? '1 góndola necesita atención' : `${n} góndolas necesitan atención`),
   goFirst: 'Ve primero',
   thenGo: 'Después',
   bring: 'Llevar',

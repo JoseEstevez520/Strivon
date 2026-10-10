@@ -468,6 +468,12 @@ a collapsing block by hand once, and Base UI and shadcn already had it.
   was. The thread scrolls like the big chats: it follows the answer while you are at the bottom,
   lets go when you scroll up and offers a button back down. Its two ends fade out with a mask, the
   one place a gradient is used, because a hard cut through a chart reads as an error.
+- 2026-10-10. The Map page shows the store as a plan: one block per gondola, tinted by the worst
+  thing it has (red for restock, amber for wrong product, neutral when fine, in the same tints as
+  the task cards), with the warnings counted in a corner and one small square per shelf area. Pick a
+  block and its photo and tasks show beside it; the day bar changes the whole map. We do not have
+  the real plan, so the blocks sit in rows; `src/model/layout.ts` holds where each one goes and the
+  map follows once it is filled in.
 - 2026-10-10. The chat no longer follows the answer down. Sending puts your question at the top of
   the thread and the answer grows below it without the view moving, so it is read from its first
   line, as in the big chats; a round button takes you down when it runs long. The last answer is
