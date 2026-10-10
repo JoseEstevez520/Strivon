@@ -85,7 +85,7 @@
  },
  "lab_image_only": {
   "approach": "Single image: pixel features of the area and its crate + logistic and tree blend, product check against a bank of training crops",
-  "owner": "José (lab)",
+  "owner": "Jose (lab)",
   "labels": "the key",
   "other_photos": "training crops only",
   "seconds": "being measured; features about 0.1 s per photo on 1 CPU thread (partial), no GPU, no CLIP"
