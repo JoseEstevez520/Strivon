@@ -1,5 +1,6 @@
 import { ChevronRight } from 'lucide-react'
 import type { CSSProperties } from 'react'
+import { AreaCrop } from './AreaCrop'
 import { AreaHistory } from './AreaHistory'
 import { GROUP_COLOR } from './groupStyle'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
@@ -45,7 +46,7 @@ export function TaskCard({ card, selected, gondola, where, historyOf, onSelect, 
     >
       <Collapsible open={open} onOpenChange={() => onSelect(open ? null : first.area.area_id)}>
         <CollapsibleTrigger className="flex w-full cursor-pointer items-center gap-3 rounded-lg p-2 pr-3 text-left">
-          <div className="size-12 shrink-0 rounded-md bg-[color-mix(in_oklab,var(--c)_22%,#d6d8d0)]" aria-hidden />
+          <AreaCrop area={first.area} image={first.record.image} />
           <div className="min-w-0 flex-1">
             <div className="text-label">{family(first.area.family)}</div>
             {second && <div className="truncate text-meta text-fg-secondary">{second}</div>}

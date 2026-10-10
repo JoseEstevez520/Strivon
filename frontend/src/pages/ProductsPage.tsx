@@ -1,12 +1,12 @@
 import { useMemo, useState } from 'react'
 import { Search } from 'lucide-react'
 import { Link } from 'react-router'
-import { ACTION } from '@/components/TaskBoard'
+import { DayBar } from '@/components/DayBar'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { Input } from '@/components/ui/input'
 import { useI18n } from '@/lib/i18n'
 import { useStore } from '@/lib/store'
-import type { Task } from '@/lib/tasks'
+import { ACTION, type Task } from '@/lib/tasks'
 import { clock } from '@/lib/time'
 
 const VALUE = { empty: 0, half: 0.5, full: 1 } as const
@@ -102,6 +102,7 @@ export function ProductsPage() {
           />
         </div>
       </div>
+      <DayBar className="mb-6" />
       {shown.length === 0 ? (
         <p className="text-ui text-fg-secondary">{t.noMatches}</p>
       ) : (

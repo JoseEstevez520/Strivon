@@ -2,6 +2,9 @@ import type { Area, ImageRecord, Observation, StoreState } from '@/data/types'
 
 export type Group = 'restock' | 'moveBack' | 'later' | 'allGood'
 
+/** The groups that ask someone to do something. */
+export const ACTION: Group[] = ['restock', 'moveBack']
+
 export interface Task {
   area: Area
   obs: Observation

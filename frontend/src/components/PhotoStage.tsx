@@ -6,18 +6,18 @@ interface Props {
   tasks: Task[]
   selected: string | null
   onSelect: (areaId: string) => void
+  /** The camera photo. A flat placeholder shows when there is none. */
+  src?: string | null
 }
 
-/**
- * The camera photo with every shelf area drawn over it. The photo is a flat placeholder until the
- * real image comes from the API.
- */
-export function PhotoStage({ tasks, selected, onSelect }: Props) {
+/** The camera photo with every shelf area drawn over it. */
+export function PhotoStage({ tasks, selected, onSelect, src }: Props) {
   return (
-    <div className="overflow-hidden rounded-xl bg-[#d6d8d0]">
+    <div className="relative aspect-video overflow-hidden rounded-xl bg-[#d6d8d0]">
+      {src && <img src={src} alt="" decoding="async" className="absolute inset-0 size-full object-cover" />}
       <svg
         viewBox={`0 0 ${IMAGE_SIZE.width} ${IMAGE_SIZE.height}`}
-        className="block w-full"
+        className="absolute inset-0 size-full"
         role="img"
         aria-label="Camera photo with shelf areas"
       >
@@ -26,17 +26,20 @@ export function PhotoStage({ tasks, selected, onSelect }: Props) {
           const color = GROUP_COLOR[task.group]
           const on = selected === task.area.area_id
           return (
-            <polygon
-              key={task.area.area_id}
-              points={points}
-              onClick={() => onSelect(task.area.area_id)}
-              fill={color}
-              fillOpacity={on ? 0.2 : 0}
-              stroke={color}
-              strokeWidth={on ? 4 : 2.5}
-              strokeLinejoin="round"
-              className="cursor-pointer transition-[fill-opacity] hover:fill-opacity-10"
-            />
+            <g key={task.area.area_id}>
+              {/* A pale outline under the colour, so it reads over a busy photo. */}
+              <polygon points={points} fill="none" stroke="white" strokeOpacity={0.6} strokeWidth={on ? 13 : 9} strokeLinejoin="round" pointerEvents="none" />
+              <polygon
+                points={points}
+                onClick={() => onSelect(task.area.area_id)}
+                fill={color}
+                fillOpacity={on ? 0.3 : 0.12}
+                stroke={color}
+                strokeWidth={on ? 8 : 5}
+                strokeLinejoin="round"
+                className="cursor-pointer transition-[fill-opacity] hover:fill-opacity-20"
+              />
+            </g>
           )
         })}
       </svg>

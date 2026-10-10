@@ -1,14 +1,13 @@
-import { Link } from 'react-router'
-import { ACTION } from '@/components/TaskBoard'
-import { StateStrip } from '@/components/StateStrip'
+import { CameraTile } from '@/components/CameraTile'
+import { DayBar } from '@/components/DayBar'
 import { useI18n } from '@/lib/i18n'
 import { useStore } from '@/lib/store'
-import { cameras } from '@/lib/tasks'
+import { ACTION, cameras } from '@/lib/tasks'
 
 /** Every gondola of the store at a glance, the ones that need someone first. */
 export function GondolasPage() {
   const { t } = useI18n()
-  const { state, tasks, gondola } = useStore()
+  const { state, tasks } = useStore()
 
   const rows = cameras(state)
     .map((camera) => {
@@ -21,21 +20,11 @@ export function GondolasPage() {
   return (
     <>
       <h1 className="mb-8 text-display">{t.gondolasHeadline(needing)}</h1>
-      <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+      <DayBar className="mb-6" />
+      <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {rows.map((r) => (
           <li key={r.camera}>
-            <Link
-              to={`/gondolas/${r.camera}`}
-              className="flex h-full flex-col justify-between gap-4 rounded-xl bg-surface p-4 transition-colors hover:bg-raised"
-            >
-              <div className="flex items-start justify-between gap-3">
-                <span className="text-label">{gondola(r.camera)}</span>
-                <span className="shrink-0 text-meta tabular-nums text-fg-secondary">
-                  {r.pending > 0 ? t.toDo(r.pending) : t.allGood}
-                </span>
-              </div>
-              <StateStrip tasks={r.own} />
-            </Link>
+            <CameraTile camera={r.camera} />
           </li>
         ))}
       </ul>

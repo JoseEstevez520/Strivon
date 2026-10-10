@@ -1,10 +1,8 @@
 import { Globe } from 'lucide-react'
 import { ES, GB, PT } from 'country-flag-icons/react/3x2'
 import { NavLink, Outlet } from 'react-router'
-import { DayBar } from './DayBar'
 import { PickerButton } from './PickerButton'
 import { LANGS, useI18n } from '@/lib/i18n'
-import { useStore } from '@/lib/store'
 
 const flag = 'flag block h-3.5 w-[21px] shrink-0 rounded-[3px]'
 const LANG_OPTIONS = {
@@ -19,12 +17,11 @@ const link =
 /** The bar every page shares: where you are, what time the store is shown at, and the language. */
 export function Layout() {
   const { t, lang, setLang } = useI18n()
-  const { times, index, setIndex, playing, togglePlay } = useStore()
 
   return (
     <>
-      <div className="sticky top-0 z-30 bg-bg">
-        <div className="mx-auto max-w-6xl px-5 pt-4 pb-3">
+      <div>
+        <div className="mx-auto max-w-6xl px-5 pt-4">
           <header className="flex items-center gap-4">
             <span className="text-title tracking-tight">strivon</span>
             <nav className="flex gap-1" aria-label="Pages">
@@ -49,7 +46,6 @@ export function Layout() {
               />
             </div>
           </header>
-          <DayBar times={times} index={index} onChange={setIndex} playing={playing} onTogglePlay={togglePlay} />
         </div>
       </div>
       <main className="mx-auto max-w-6xl px-5 pt-8 pb-14">

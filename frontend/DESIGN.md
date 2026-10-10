@@ -8,9 +8,27 @@ next change starts from what we already learned and not from a blank page.
 
 A store employee opens it at the start of a shift and needs to see what to do. The challenge
 judges score how clearly and how quickly that reads, and the score only breaks ties, but it is
-the part of the work people see. So there is one screen, with no tabs: the actions, the camera
-photo with the shelf areas, and a bar to move through the day. The team's own tools (labelling
-and scoring) stay in the old interface under `/tools`.
+the part of the work people see. The store has 14 cameras and about 150 shelf areas, so the
+interface has a few pages, as the first web did, with the design rebuilt. The team's own tools
+(labelling and scoring) stay in the old interface under `/tools`.
+
+## Pages
+
+The pages are the structure of the first web, kept because they fit what the staff do. The
+interface of that web was the problem, not its pages.
+
+- Tasks is the first page. The list of what to do is on the left, grouped by action. On the
+  right are all the cameras with their latest photo and a strip of their state, and when a task
+  is open the panel shows the photo of its camera with the area marked, and a way back to all
+  cameras.
+- Gondolas shows the 14 cameras as tiles, the ones that need someone first. A tile opens the page
+  of that gondola: its photo, and its own tasks with every area that is fine.
+- Products shows the stock of each product summed over all its areas, the ones running out first,
+  with a search. A product opens into the places where it sits.
+
+The day bar is not in the header. It sits where the photos are, under the camera panel on the
+first page and on a gondola page, and under the headline on the pages that have no photo. The
+moment it chooses is shared by every page.
 
 ## Where the rules come from
 
@@ -70,11 +88,17 @@ A card says each thing once. The group heading already says the action, so the c
 
 - The product name leads and sits centred when it is alone.
 - The time of the photo is at the right edge, in `fg-secondary`, followed by a chevron.
-- A second line appears only when it carries news. Restock has none, because the heading says
-  the shelf is empty. Move back has one ("Looks like Kiwi"), because that is new.
+- The thumbnail is a crop of the real photo showing the area.
+- A product that is short in several areas is one card, so a whole store of tasks stays short.
+  Its second line says how many ("3 areas") and opening it lists where, one line per gondola.
+  Misplaced products stay one card per area, because each is a different wrong thing.
+- A second line appears only when it carries news. For one area it says where, by the other
+  products of its gondola ("with Cabbage"), without repeating the card's own product. If the
+  gondola holds only that product, there is no second line. Move back adds what is there
+  instead ("Looks like Kiwi"). Where an area is matters because the list covers the whole store.
 - The thumbnail takes a little of the card's colour so the card reads as one object.
-- Later is not a card. It is a plain line with the product on the left and the camera on the
-  right. All good is a single line with a count.
+- Later is not a card. It is a plain line with the product on the left and where on the right.
+  All good is a single line with a count.
 
 We compared three layouts and chose the second: name and time on one line with the reason
 under it, name alone with the time as the right edge, or elapsed time as a large figure. The
@@ -82,19 +106,20 @@ second has the least text, which was the complaint about the first version.
 
 ## Pickers
 
-The camera and language selectors are trays without a fill at rest. The fill appears on hover
-and when open. The open list is exactly as wide as its trigger, sits on `raised` with a hairline
-and a very faint shadow. It opens with Base UI's documented popup transition, a fade and a
+The language selector is a tray without a fill at rest. The fill appears on hover
+and when open. The trigger shows only the flag, which takes little room, and the open list is wide enough for
+flag and name. A picker that shows its value keeps its list exactly as wide as its trigger.
+The list sits on `raised` with a hairline and a very faint shadow. It opens with Base UI's documented popup transition, a fade and a
 scale from 0.97, 200 ms in and 150 ms out. The highlighted option goes one tone up and
 the chosen one has a check on the left, with room reserved so options line up whether chosen
-or not. Counts sit at the right of the option in grey.
+or not.
 
 Languages have a flag before the name. Flags keep their own 3:2 size and are excluded from the
 rule that forces icons to 16 px. Order is English, Portuguese, Spanish.
 
 ## Time
 
-The photos of a camera come about every 55 minutes, and nothing between them is known. So a
+The photos of a camera come about every hour, 13 in the day, and nothing between them is known. So a
 time on a card is when we first saw that state, not when it began. We show the clock time and
 put "since 15:20" in the tooltip, and we avoid wording like "for 25 min" that claims more
 precision than the data has. The camera caption shows the time of the photo being displayed,
@@ -106,6 +131,23 @@ One stop for each moment any camera took a photo, so scrubbing jumps from real p
 photo. Moving it by hand stops the play button. Play steps forward about once a second and
 stops at the end. Still to do: tick marks at each stop, arrow keys, and a larger touch target
 for the handle.
+
+## Data
+
+The cameras, the shelf areas and the photos are the real ones. In development the Vite server
+reads them from a folder outside the repository, read-only, set with `STRIVON_DATA_DIR` (it
+defaults to the main checkout's `data/` folder). The challenge data is never copied into the
+repo or the build. If the folder is not there, the screen falls back to invented shelves of the
+same size.
+
+- Product families come from the catalogue names with the rules of `sensei/catalog.py`, ported
+  to `src/data/catalog.ts` in the same order. A change there needs the same change here.
+- What the pipeline says about each area (stock and whether the product is right) is still
+  simulated, in `src/data/simulate.ts`, with the pipeline's shape. The photos are real and the
+  states are not, so a shelf marked empty can show a full one until the real predictions are
+  connected.
+- A crop is the full photo shifted and scaled with CSS to show one area. It is not rectified like
+  the pipeline's crop, and every crop of a camera reuses the same file.
 
 ## Opening a task
 
@@ -210,10 +252,24 @@ a collapsing block by hand once, and Base UI and shadcn already had it.
   what the picker and the photo caption already say, the area index is internal, and "Full"
   next to "Looks like Kiwi" read as if the pear were full. Rule: do not show internal ids.
 
+- 2026-10-10. Pages again, after the camera picker failed: with 14 cameras a dropdown was doing
+  navigation, filtering and summary at once. The structure of the first web was right and its
+  interface was not, so the pages come back as Tasks, Gondolas and Products. The camera picker
+  is gone and the cameras are shown as tiles.
+- 2026-10-10. The day bar moved out of the header. It was not clear why the time sat at the top
+  of every page, so it now sits with the photos.
+- 2026-10-10. Tasks are grouped by product and the store is simulated at its real size. At 35
+  tasks the first version was a wall of cards, with the same product repeated and a page 4000
+  pixels tall. The simulation had only 18 areas and hid the problem.
+- 2026-10-10. Real photos from the local data folder, with crops and camera tiles. They change how
+  the screen reads: it looks like a store and not a diagram.
+- 2026-10-10. The language picker shows only the flag, to take less room.
+
 ## Open questions
 
 - The English flag is the UK flag. A code such as EN would avoid the question of which country
   English belongs to.
+- The real predictions need to replace the simulated states.
 - Whether uncertain "move back" items should go in their own group, since a false alarm costs
   staff time and trust.
 - On a phone the photo comes after the list. A short link from an open card to the photo may

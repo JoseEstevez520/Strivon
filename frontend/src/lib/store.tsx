@@ -1,11 +1,13 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
-import { buildMockState } from '@/data/mock'
-import type { Area, StoreState } from '@/data/types'
+import { loadSource, type Source } from '@/data/source'
+import type { Area } from '@/data/types'
 import { useI18n } from './i18n'
 import { gondolaFamilies, historyOf, tasksAt, type HistoryPoint, type Task } from './tasks'
 
 interface Store {
-  state: StoreState
+  state: Source['state']
+  /** The URL of a camera's photo, or null when there are no real photos. */
+  photoUrl: Source['photoUrl']
   /** Every moment any camera took a photo, in order. */
   times: number[]
   index: number
@@ -28,10 +30,28 @@ interface Store {
 
 const Context = createContext<Store | null>(null)
 
-/** The store's state at the chosen moment, shared by every page. Time is the same everywhere. */
+/** Loads the store, then shares its state at the chosen moment with every page. */
 export function StoreProvider({ children }: { children: ReactNode }) {
+  const { t } = useI18n()
+  const [source, setSource] = useState<Source | null>(null)
+
+  useEffect(() => {
+    let live = true
+    loadSource().then((s) => live && setSource(s))
+    return () => {
+      live = false
+    }
+  }, [])
+
+  if (!source) {
+    return <p className="grid min-h-screen place-items-center text-ui text-fg-secondary">{t.loading}</p>
+  }
+  return <LoadedStore source={source}>{children}</LoadedStore>
+}
+
+function LoadedStore({ source, children }: { source: Source; children: ReactNode }) {
   const { t, family } = useI18n()
-  const state = useMemo(() => buildMockState(), [])
+  const { state, photoUrl } = source
   const times = useMemo(
     () => [...new Set(Object.values(state.images).flatMap((l) => l.map((r) => r.ts)))].sort((a, b) => a - b),
     [state],
@@ -57,6 +77,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     const at = times[index]
     return {
       state,
+      photoUrl,
       times,
       index,
       at,
@@ -84,7 +105,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       },
       historyOf: (area) => historyOf(state, area),
     }
-  }, [state, times, index, playing, family, t])
+  }, [state, photoUrl, times, index, playing, family, t])
 
   return <Context.Provider value={value}>{children}</Context.Provider>
 }

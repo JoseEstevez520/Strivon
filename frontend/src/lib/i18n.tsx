@@ -34,6 +34,7 @@ interface Strings {
   searchProducts: string
   shortOf: (short: number, total: number) => string
   allGondolas: string
+  loading: string
   withProduct: (names: string) => string
   noMatches: string
   areasCount: (n: number) => string
@@ -53,6 +54,7 @@ const en: Strings = {
   searchProducts: 'Search products',
   shortOf: (s, n) => (s === 0 ? 'All fine' : `${s} of ${n} areas short`),
   allGondolas: 'All gondolas',
+  loading: 'Checking the shelves…',
   withProduct: (x) => `with ${x}`,
   noMatches: 'Nothing matches',
   areasCount: (n) => `${n} areas`,
@@ -88,6 +90,7 @@ const pt: Strings = {
   searchProducts: 'Procurar produtos',
   shortOf: (s, n) => (s === 0 ? 'Tudo bem' : `${s} de ${n} áreas em falta`),
   allGondolas: 'Todas as gôndolas',
+  loading: 'A verificar as prateleiras…',
   withProduct: (x) => `com ${x}`,
   noMatches: 'Nada encontrado',
   areasCount: (n) => `${n} áreas`,
@@ -123,6 +126,7 @@ const es: Strings = {
   searchProducts: 'Buscar productos',
   shortOf: (s, n) => (s === 0 ? 'Todo bien' : `${s} de ${n} zonas con falta`),
   allGondolas: 'Todas las góndolas',
+  loading: 'Revisando las estanterías…',
   withProduct: (x) => `con ${x}`,
   noMatches: 'Sin resultados',
   areasCount: (n) => `${n} zonas`,

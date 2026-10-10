@@ -1,7 +1,7 @@
-import { ACTION, TaskBoard } from '@/components/TaskBoard'
+import { TaskBoard } from '@/components/TaskBoard'
 import { useI18n } from '@/lib/i18n'
 import { useStore } from '@/lib/store'
-import { cardsOf } from '@/lib/tasks'
+import { ACTION, cardsOf } from '@/lib/tasks'
 import { clock } from '@/lib/time'
 
 /** What to do now, across the whole store. */

@@ -1,23 +1,17 @@
 import { Clock, Pause, Play } from 'lucide-react'
 import { useI18n } from '@/lib/i18n'
+import { useStore } from '@/lib/store'
 import { clock } from '@/lib/time'
 
-interface Props {
-  times: number[]
-  index: number
-  onChange: (index: number) => void
-  playing: boolean
-  onTogglePlay: () => void
-}
-
 /** The day, one stop for every moment a photo arrived from any camera. */
-export function DayBar({ times, index, onChange, playing, onTogglePlay }: Props) {
+export function DayBar({ className = '' }: { className?: string }) {
   const { t } = useI18n()
+  const { times, index, setIndex, playing, togglePlay } = useStore()
   return (
-    <div className="mt-3 flex items-center gap-3 text-meta tabular-nums text-fg-muted">
+    <div className={`flex items-center gap-3 text-meta tabular-nums text-fg-muted ${className}`}>
       <button
         type="button"
-        onClick={onTogglePlay}
+        onClick={togglePlay}
         aria-label={playing ? t.pause : t.play}
         className="grid size-8 cursor-pointer place-items-center rounded-md transition-colors hover:bg-surface [&_svg]:size-4"
       >
@@ -31,7 +25,7 @@ export function DayBar({ times, index, onChange, playing, onTogglePlay }: Props)
         max={times.length - 1}
         step={1}
         value={index}
-        onChange={(e) => onChange(Number(e.target.value))}
+        onChange={(e) => setIndex(Number(e.target.value))}
         aria-label={t.day}
         className="day-range flex-1"
       />
