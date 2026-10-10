@@ -25,6 +25,17 @@ interface Strings {
   throughDay: string
   close: string
   allCameras: string
+  navTasks: string
+  navGondolas: string
+  navProducts: string
+  toDo: (n: number) => string
+  gondolasHeadline: (n: number) => string
+  productsHeadline: (n: number) => string
+  searchProducts: string
+  shortOf: (short: number, total: number) => string
+  allGondolas: string
+  withProduct: (names: string) => string
+  noMatches: string
   areasCount: (n: number) => string
 }
 
@@ -33,6 +44,17 @@ const en: Strings = {
   throughDay: 'Through the day',
   close: 'Close',
   allCameras: 'All cameras',
+  navTasks: 'Tasks',
+  navGondolas: 'Gondolas',
+  navProducts: 'Products',
+  toDo: (n) => `${n} to do`,
+  gondolasHeadline: (n) => (n === 0 ? 'Every gondola is fine' : n === 1 ? 'One gondola needs attention' : `${n} gondolas need attention`),
+  productsHeadline: (n) => (n === 1 ? 'One product' : `${n} products`),
+  searchProducts: 'Search products',
+  shortOf: (s, n) => (s === 0 ? 'All fine' : `${s} of ${n} areas short`),
+  allGondolas: 'All gondolas',
+  withProduct: (x) => `with ${x}`,
+  noMatches: 'Nothing matches',
   areasCount: (n) => `${n} areas`,
   headline: (n) => (n === 0 ? 'Nothing to do right now' : n === 1 ? 'One thing to do now' : `${n} things to do now`),
   photoFrom: (t) => `Photos up to ${t}`,
@@ -57,6 +79,17 @@ const pt: Strings = {
   throughDay: 'Ao longo do dia',
   close: 'Fechar',
   allCameras: 'Todas as câmaras',
+  navTasks: 'Tarefas',
+  navGondolas: 'Gôndolas',
+  navProducts: 'Produtos',
+  toDo: (n) => `${n} a fazer`,
+  gondolasHeadline: (n) => (n === 0 ? 'Todas as gôndolas estão bem' : n === 1 ? 'Uma gôndola precisa de atenção' : `${n} gôndolas precisam de atenção`),
+  productsHeadline: (n) => (n === 1 ? 'Um produto' : `${n} produtos`),
+  searchProducts: 'Procurar produtos',
+  shortOf: (s, n) => (s === 0 ? 'Tudo bem' : `${s} de ${n} áreas em falta`),
+  allGondolas: 'Todas as gôndolas',
+  withProduct: (x) => `com ${x}`,
+  noMatches: 'Nada encontrado',
   areasCount: (n) => `${n} áreas`,
   headline: (n) => (n === 0 ? 'Nada a fazer agora' : n === 1 ? 'Uma coisa a fazer agora' : `${n} coisas a fazer agora`),
   photoFrom: (t) => `Fotos até às ${t}`,
@@ -81,6 +114,17 @@ const es: Strings = {
   throughDay: 'A lo largo del día',
   close: 'Cerrar',
   allCameras: 'Todas las cámaras',
+  navTasks: 'Tareas',
+  navGondolas: 'Góndolas',
+  navProducts: 'Productos',
+  toDo: (n) => `${n} por hacer`,
+  gondolasHeadline: (n) => (n === 0 ? 'Todas las góndolas están bien' : n === 1 ? 'Una góndola necesita atención' : `${n} góndolas necesitan atención`),
+  productsHeadline: (n) => (n === 1 ? 'Un producto' : `${n} productos`),
+  searchProducts: 'Buscar productos',
+  shortOf: (s, n) => (s === 0 ? 'Todo bien' : `${s} de ${n} zonas con falta`),
+  allGondolas: 'Todas las góndolas',
+  withProduct: (x) => `con ${x}`,
+  noMatches: 'Sin resultados',
   areasCount: (n) => `${n} zonas`,
   headline: (n) => (n === 0 ? 'Nada que hacer ahora' : n === 1 ? 'Una cosa que hacer ahora' : `${n} cosas que hacer ahora`),
   photoFrom: (t) => `Fotos hasta las ${t}`,

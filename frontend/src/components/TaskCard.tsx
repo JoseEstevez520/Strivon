@@ -13,6 +13,7 @@ interface Props {
   /** The area open right now, if it belongs to this card. */
   selected: string | null
   gondola: (camera: string) => string
+  where: (area: Area) => string
   historyOf: (area: Area) => HistoryPoint[]
   onSelect: (areaId: string | null) => void
   onJump: (ts: number) => void
@@ -23,17 +24,17 @@ interface Props {
  * that is short in several places is one card: its second line says how many, and opening it
  * lists where. Pressed, a card opens in place and shows how the area went through the day.
  */
-export function TaskCard({ card, selected, gondola, historyOf, onSelect, onJump }: Props) {
+export function TaskCard({ card, selected, gondola, where, historyOf, onSelect, onJump }: Props) {
   const { t, family } = useI18n()
   const first = card.tasks[0]
   const open = card.tasks.some((x) => x.area.area_id === selected)
   const many = card.tasks.length > 1
-  const where = gondola(first.area.camera)
+  const place = where(first.area)
   const second = many
     ? t.areasCount(card.tasks.length)
     : card.group === 'moveBack'
-      ? `${t.wrongPlace(family(first.obs.observed_family ?? ''))} · ${where}`
-      : where
+      ? [t.wrongPlace(family(first.obs.observed_family ?? '')), place].filter(Boolean).join(' · ')
+      : place
   const since = clock(first.since)
 
   return (
@@ -47,7 +48,7 @@ export function TaskCard({ card, selected, gondola, historyOf, onSelect, onJump 
           <div className="size-12 shrink-0 rounded-md bg-[color-mix(in_oklab,var(--c)_22%,#d6d8d0)]" aria-hidden />
           <div className="min-w-0 flex-1">
             <div className="text-label">{family(first.area.family)}</div>
-            <div className="truncate text-meta text-fg-secondary">{second}</div>
+            {second && <div className="truncate text-meta text-fg-secondary">{second}</div>}
           </div>
           <span className="text-meta tabular-nums text-fg-secondary" title={t.since(since)}>
             {since}

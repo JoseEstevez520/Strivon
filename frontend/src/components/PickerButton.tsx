@@ -20,19 +20,21 @@ interface Props {
   options: PickerOption[]
   /** The trigger's width, which the open list repeats exactly. */
   className?: string
+  /** Show only the icon on the trigger. The open list still shows icon and name. */
+  iconOnly?: boolean
 }
 
 /** A tray that opens a short list. Used for the camera and the language. */
-export function PickerButton({ icon, label, value, onChange, options, className }: Props) {
+export function PickerButton({ icon, label, value, onChange, options, className, iconOnly = false }: Props) {
   const items = options.map((o) => ({ value: o.value, label: o.label }))
   const chosen = options.find((o) => o.value === value)
   return (
     <Select items={items} value={value} onValueChange={(v) => v && onChange(v)}>
       <SelectTrigger aria-label={label} className={className}>
         <span className="flex text-fg-muted [&_svg:not(.flag)]:size-4">{chosen?.icon ?? icon}</span>
-        <SelectValue />
+        <SelectValue className={iconOnly ? 'sr-only' : undefined} />
       </SelectTrigger>
-      <SelectContent align="end">
+      <SelectContent align="end" className={iconOnly ? "w-auto min-w-44" : undefined}>
         {options.map((o) => (
           <SelectItem key={o.value} value={o.value}>
             <span className="flex min-w-0 flex-1 flex-col gap-1.5">

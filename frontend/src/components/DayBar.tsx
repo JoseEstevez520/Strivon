@@ -14,7 +14,7 @@ interface Props {
 export function DayBar({ times, index, onChange, playing, onTogglePlay }: Props) {
   const { t } = useI18n()
   return (
-    <div className="mt-4 flex items-center gap-3 text-meta tabular-nums text-fg-muted">
+    <div className="mt-3 flex items-center gap-3 text-meta tabular-nums text-fg-muted">
       <button
         type="button"
         onClick={onTogglePlay}

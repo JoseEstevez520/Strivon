@@ -97,7 +97,7 @@ export interface Card {
   tasks: Task[]
 }
 
-const GROUPED: Group[] = ['restock', 'later']
+const GROUPED: Group[] = ['restock', 'later', 'allGood']
 
 export function cardKey(task: Task): string {
   return GROUPED.includes(task.group) ? `${task.group}:${task.area.product_id}` : task.area.area_id

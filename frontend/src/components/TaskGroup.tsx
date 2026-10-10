@@ -12,15 +12,18 @@ interface Props {
   tasks: Task[]
   selected: string | null
   gondola: (camera: string) => string
+  where: (area: Area) => string
   historyOf: (area: Area) => HistoryPoint[]
   onSelect: (areaId: string | null) => void
   onJump: (ts: number) => void
+  /** List every area that is fine, instead of only the one opened from the photo. */
+  listFine?: boolean
 }
 
 /** A product that can wait: a quiet line instead of a card. It opens like one. */
 function QuietRow({ card, ...rest }: Omit<Props, 'group' | 'tasks'> & { card: Card }) {
   const { t, family } = useI18n()
-  const { selected, gondola, historyOf, onSelect, onJump } = rest
+  const { selected, gondola, where, historyOf, onSelect, onJump } = rest
   const first = card.tasks[0]
   const open = card.tasks.some((x) => x.area.area_id === selected)
   const many = card.tasks.length > 1
@@ -31,7 +34,7 @@ function QuietRow({ card, ...rest }: Omit<Props, 'group' | 'tasks'> & { card: Ca
         <CollapsibleTrigger className="flex w-full cursor-pointer items-baseline justify-between gap-3 rounded-md px-1 py-1.5 text-left text-fg-secondary">
           <span>{family(first.area.family)}</span>
           <span className="min-w-0 truncate text-meta text-fg-muted">
-            {many ? t.areasCount(card.tasks.length) : gondola(first.area.camera)}
+            {many ? t.areasCount(card.tasks.length) : where(first.area)}
           </span>
         </CollapsibleTrigger>
         <CollapsibleContent>
@@ -46,7 +49,7 @@ function QuietRow({ card, ...rest }: Omit<Props, 'group' | 'tasks'> & { card: Ca
   )
 }
 
-export function TaskGroup({ group, tasks, selected, ...rest }: Props) {
+export function TaskGroup({ group, tasks, selected, listFine = false, ...rest }: Props) {
   const { t } = useI18n()
   const open = tasks.find((x) => x.area.area_id === selected)
   // An area that is fine has no card. The last one opened stays mounted so it can fold away.
@@ -55,7 +58,7 @@ export function TaskGroup({ group, tasks, selected, ...rest }: Props) {
 
   if (tasks.length === 0) return null
   const Icon = GROUP_ICON[group]
-  const cards = group === 'allGood' ? [] : cardsOf(tasks)
+  const cards = group === 'allGood' && !listFine ? [] : cardsOf(tasks)
   const props = { selected, ...rest }
 
   return (
@@ -74,7 +77,7 @@ export function TaskGroup({ group, tasks, selected, ...rest }: Props) {
         </div>
       )}
 
-      {group === 'later' && (
+      {(group === 'later' || (group === 'allGood' && listFine)) && (
         <div>
           {cards.map((card) => (
             <QuietRow key={card.key} card={card} {...props} />
@@ -82,7 +85,7 @@ export function TaskGroup({ group, tasks, selected, ...rest }: Props) {
         </div>
       )}
 
-      {group === 'allGood' && shown && (
+      {group === 'allGood' && !listFine && shown && (
         <Collapsible open={Boolean(open)}>
           <CollapsibleContent>
             <QuietRow card={{ key: shown.area.area_id, group, tasks: [open ?? shown] }} {...props} />
