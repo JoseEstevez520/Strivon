@@ -80,7 +80,7 @@ function Hero() {
         onJump={nothing}
       />
     )
-  const side = 'pointer-events-none flex flex-col gap-3 select-none'
+  const side = 'pointer-events-none flex flex-col gap-3 opacity-50 select-none'
 
   return (
     <div className="relative left-1/2 grid w-[min(92vw,80rem)] -translate-x-1/2 grid-cols-[minmax(0,1fr)] min-h-dvh items-center gap-10 px-5 py-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)_minmax(0,1fr)] lg:gap-12">
