@@ -109,7 +109,9 @@ for the handle.
 ## Area detail
 
 It opens under the photo when a card or an area is selected, and Escape closes it. It is built
-by the same rules as the card.
+by the same rules as the card, and it shares the card's background: the same soft tint of the
+state colour at 13%, and a thumbnail with the card's colour. That way it reads as the card
+opened. Areas in later or all good have no tint, so their detail stays on `surface`.
 
 - The thumbnail sits on the left. Next to it, stacked: the product, the camera and area in
   `fg-secondary`, and one status line. The time and the close button are at the top right.
@@ -159,6 +161,9 @@ stay short, since a translation can run longer. The choice is saved in the brows
 - 2026-10-10. Muted text darkened from `#7a7e72` to `#686d62` after measuring contrast.
 - 2026-10-10. Area detail rebuilt after a review: the first version used label and value pairs
   and repeated what the list said, and it did not apply what we had learned from the card.
+
+- 2026-10-10. Area detail takes its card's tint instead of a fixed grey panel. A grey block
+  under the photo read as something separate from the card that was pressed.
 
 ## Open questions
 

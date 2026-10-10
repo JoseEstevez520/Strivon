@@ -1,6 +1,6 @@
-import { useEffect } from 'react'
+import { useEffect, type CSSProperties } from 'react'
 import { X } from 'lucide-react'
-import { LEVEL_COLOR } from './groupStyle'
+import { GROUP_COLOR, LEVEL_COLOR } from './groupStyle'
 import { useI18n } from '@/lib/i18n'
 import { clock } from '@/lib/time'
 import type { HistoryPoint, Task } from '@/lib/tasks'
@@ -28,10 +28,19 @@ export function AreaDetail({ task, history, onJump, onClose }: Props) {
     ? t.level[obs.stock_level]
     : `${t.level[obs.stock_level]} · ${t.wrongPlace(family(obs.observed_family ?? ''))}`
 
+  // The panel shares its card's tint, so it reads as the card opened. Later and all good have none.
+  const tinted = task.group === 'restock' || task.group === 'moveBack'
+
   return (
-    <section className="mt-6 rounded-xl bg-surface p-4">
+    <section
+      style={{ '--c': GROUP_COLOR[task.group] } as CSSProperties}
+      className={`mt-6 rounded-xl p-4 ${tinted ? 'bg-[color-mix(in_oklab,var(--c)_13%,transparent)]' : 'bg-surface'}`}
+    >
       <div className="flex items-center gap-4">
-        <div className="size-24 shrink-0 rounded-md bg-[#d6d8d0]" aria-hidden />
+        <div
+          className={`size-24 shrink-0 rounded-md ${tinted ? 'bg-[color-mix(in_oklab,var(--c)_22%,#d6d8d0)]' : 'bg-[#d6d8d0]'}`}
+          aria-hidden
+        />
         <div className="min-w-0 flex-1">
           <h2 className="text-title">{family(area.family)}</h2>
           <p className="text-meta text-fg-secondary">{t.areaOf(area.camera, area.index)}</p>
