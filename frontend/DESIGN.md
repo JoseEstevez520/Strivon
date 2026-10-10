@@ -451,6 +451,10 @@ a collapsing block by hand once, and Base UI and shadcn already had it.
   estimate. The assistant is empty on purpose: the parts an answer is made of are built, the
   answering is not.
 
+- 2026-10-10. The logo is a 3×3 of day-map slots with a stretch of gone ones running corner to
+  corner, next to the name in lower case. It is the same shape as the hero, the banner and the day
+  map, so one idea carries the brand. Red stays for the gone slots. It is also the favicon, and it
+  holds up at 16 px, which the wider and the single-row versions did not.
 - 2026-10-10. The bubble grows into the chat box and folds back (width, height and radius, 300 ms).
   It is the one exception to "no layout animation", allowed because it is a single small element
   with a fixed-size box inside it, so nothing inside reflows. Blur, glass and aurora stay out. The writing field is a soft tray that grows with the text, Enter sends,
