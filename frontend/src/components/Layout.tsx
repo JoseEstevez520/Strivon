@@ -1,9 +1,9 @@
 import { Apple, Globe, LayoutGrid, ListChecks, type LucideIcon } from 'lucide-react'
 import { ES, GB, PT } from 'country-flag-icons/react/3x2'
-import { Link, NavLink, Outlet } from 'react-router'
+import { useEffect, useRef, useState } from 'react'
+import { Link, NavLink, Outlet, useLocation } from 'react-router'
 import { PickerButton } from './PickerButton'
 import { LANGS, useI18n } from '@/lib/i18n'
-import { useScrolled } from '@/lib/useScrolled'
 
 const flag = 'flag block h-3.5 w-[21px] shrink-0 rounded-[3px]'
 const LANG_OPTIONS = {
@@ -26,20 +26,27 @@ const PAGES: Page[] = [
 ]
 
 /**
- * A fixed, opaque bar: the name on the left, the pages in the middle and the language on the
- * right. The page you are on is the one in the text colour, with no shape or line. A line under
- * the bar shows only once the page has moved. On a phone the pages move to a bar at the bottom.
+ * The window does not scroll. The bar is on top across the whole width, and what is under it
+ * scrolls in its own container, so the scrollbar starts below the bar and never cuts it. The
+ * name is on the left, the pages in the middle and the language on the right, and the page you
+ * are on is the one in the text colour, with no shape or line. A line under the bar shows only
+ * once the content has moved. On a phone the pages move to a bar at the bottom.
  */
 export function Layout() {
   const { t, lang, setLang } = useI18n()
-  const scrolled = useScrolled()
+  const [scrolled, setScrolled] = useState(false)
+  const scroller = useRef<HTMLDivElement>(null)
+  const { pathname } = useLocation()
+
+  // A new page starts at the top, as a browser would with a new document.
+  useEffect(() => {
+    scroller.current?.scrollTo(0, 0)
+  }, [pathname])
 
   return (
-    <>
-      <header
-        className={`sticky top-0 z-30 border-b bg-bg transition-colors ${scrolled ? 'border-border' : 'border-transparent'}`}
-      >
-        <div className="mx-auto grid h-14 max-w-7xl grid-cols-[1fr_auto_1fr] items-center px-5">
+    <div className="flex h-dvh flex-col">
+      <header className={`shrink-0 border-b bg-bg transition-colors ${scrolled ? 'border-border' : 'border-transparent'}`}>
+        <div className="mx-auto grid h-12 max-w-7xl grid-cols-[1fr_auto_1fr] items-center px-5">
           <Link to="/" className="justify-self-start rounded-sm text-title tracking-tight">
             strivon
           </Link>
@@ -69,12 +76,18 @@ export function Layout() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-7xl px-5 pt-8 pb-24 md:pb-14">
-        <Outlet />
-      </main>
+      <div
+        ref={scroller}
+        onScroll={(e) => setScrolled(e.currentTarget.scrollTop >= 1)}
+        className="min-h-0 flex-1 overflow-y-auto scrollbar-subtle [scrollbar-gutter:stable]"
+      >
+        <main className="mx-auto max-w-7xl px-5 pt-8 pb-14">
+          <Outlet />
+        </main>
+      </div>
 
       <nav
-        className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-3 border-t border-border bg-bg pb-[env(safe-area-inset-bottom)] md:hidden"
+        className="grid shrink-0 grid-cols-3 border-t border-border bg-bg pb-[env(safe-area-inset-bottom)] md:hidden"
         aria-label="Pages"
       >
         {PAGES.map(({ to, end, icon: Icon, label }) => (
@@ -89,6 +102,6 @@ export function Layout() {
           </NavLink>
         ))}
       </nav>
-    </>
+    </div>
   )
 }

@@ -112,7 +112,7 @@ export function TaskGroup({ group, tasks, selected, listFine = false, fold = tru
 
   return (
     <section className="mt-7 first:mt-0">
-      <h2 className="sticky top-14 z-10 flex h-9 items-center gap-2 bg-bg px-1 text-label text-fg-muted">
+      <h2 className="sticky top-0 z-10 flex h-9 items-center gap-2 bg-bg px-1 text-label text-fg-muted">
         <Icon className="size-4" style={{ color: GROUP_COLOR[group] }} />
         {t[group]}
         <span className="ml-auto text-meta font-normal tabular-nums">{group === 'allGood' ? tasks.length : cards.length}</span>

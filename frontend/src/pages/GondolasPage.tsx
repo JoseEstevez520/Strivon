@@ -21,7 +21,7 @@ export function GondolasPage() {
     <>
       <h1 className="mb-8 text-display">{t.gondolasHeadline(needing)}</h1>
       <DayBar className="mb-6" />
-      <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {rows.map((r) => (
           <li key={r.camera}>
             <CameraTile camera={r.camera} />

@@ -57,7 +57,7 @@ export function TaskBoard({ tasks, camera, listFine = false, initialSelected = n
       {/* The panel stays in view beside the list and never decides how tall the page is. The grid of
           cameras is taller than a screen, so it scrolls inside the panel. If it set the page
           height, opening a task would swap it for one photo and the page would shrink under you. */}
-      <div className="lg:sticky lg:top-[4.5rem] lg:max-h-[calc(100vh-5.5rem)] lg:overflow-y-auto lg:overscroll-contain scrollbar-subtle">
+      <div className="lg:sticky lg:top-4 lg:max-h-[calc(100dvh-5rem)] lg:overflow-y-auto lg:overscroll-contain scrollbar-subtle">
         {photoCamera && photo ? (
           <>
             <div className="flex h-9 items-center justify-between gap-3 px-1 text-meta tabular-nums text-fg-muted">
@@ -99,7 +99,7 @@ export function TaskBoard({ tasks, camera, listFine = false, initialSelected = n
               <LayoutGrid className="size-4" />
               {t.navGondolas}
             </h2>
-          <ul className="grid grid-cols-2 gap-2">
+          <ul className="grid grid-cols-2 gap-3">
             {cameras(state).map((c) => (
               <li key={c}>
                 <CameraTile camera={c} />

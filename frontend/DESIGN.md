@@ -49,10 +49,12 @@ uses cool greys. There is no accent colour. Only the light theme exists for now.
 
 ## Header and navigation
 
-The header is fixed, opaque and 56 px tall. The name is on the left, the language on the right
+The header is opaque, 48 px tall and spans the whole width. The name is on the left, the language on the right
 and the pages in the middle, each with an icon and its label. The page you are on is the one in
 the text colour and the others are grey. There is no underline and no filled shape. A hairline appears under the header only once the page has moved. It does not
-shrink or hide: it is already small.
+shrink or hide: it is already small. The window itself does not scroll. The content under the
+header scrolls in its own container, so the scrollbar starts below the bar and the bar is never
+cut by it.
 
 On a phone the pages move to a bar at the bottom, with the icon over the label and the active one
 in the text colour. The first version had plain links with a tinted pill next to the
@@ -138,17 +140,19 @@ second has the least text, which was the complaint about the first version.
 
 ## Gondola tiles
 
-A tile is a camera: its latest photo, what it is called on its own line, and under it how many
-areas are in each state. The states are shown as the same icons the group headings use (alert for
-restock, arrow for move back, clock for later), each with its number, so nothing needs a legend. The three counts sit in fixed columns that fill
-the width of the tile, and a state with none is dimmed and stays in its place, so a number is in
-the same spot on every tile. With the text and icons packed to the left, the right half of a tile
-was empty and the wide photo outweighed what was under it.
-The first version had a strip of short coloured lines that did not say what it meant. What is fine
-is not counted: a gondola with nothing to do says "All good" in grey. Every tile has the same
-neutral tone. The photo already brings a lot of colour, and a tinted frame added more with little
-contrast, so the only colour is in the small icons. The tiles are context and the task cards are
-the work, so the cards are the ones that carry colour.
+A tile is a camera, and the photo is the tile. There is no box around it. A small piece of the
+page tone sits on its lower left edge with the name and how many areas are in each state, in the
+same type as everywhere else and with the same icons the group headings use (alert for restock,
+arrow for move back, clock for later), each with its number. A state with none is left out, and a
+gondola with nothing to do says "All good" in grey. The piece is only as wide as its content and
+the photo is wide (16 by 10), so as little of the photo as possible is covered: the photo is the
+proof of what the app says, and the lower shelf is where the stock shows. The full name is in the
+tooltip. The only things over a photo are this piece and the outlines of the areas. Gradients, dark
+pills and coloured badges were rejected: they are overlays and pills, which the rest of the
+interface does not use.
+
+The tiles are context and the task cards are the work, so the cards are the ones that carry
+colour. The tiles carry only the small coloured icons.
 
 The order is fixed, by camera, and does not follow urgency. The staff learn where each gondola
 is, and tiles that jump around as the day bar moves make that impossible.
@@ -241,8 +245,8 @@ separate panel. Pressing it again, or Escape, closes it.
 ## Scrollbars
 
 Scrollbars are the quiet ones of elastic-ui, ported as `scrollbar-subtle` in `src/index.css`: a
-line of 6 px with no track and no arrows, invisible at rest and drawn faintly while the pointer
-is over what scrolls. They apply to the page and to the camera panel. The browser's own bars are
+line of 6 px with no track and no arrows. It is always visible, so you can tell there is more, but
+faint, and a step darker while the pointer is over what scrolls. They apply to the content area, which scrolls under the header, and to the camera panel. The browser's own bars are
 wide and grey and fought with the flat style. The space for the page bar stays reserved so
 nothing shifts when it appears.
 
@@ -371,8 +375,9 @@ a collapsing block by hand once, and Base UI and shadcn already had it.
   a grid to a photo and the open card moved to its own row. Now the panel has a fixed height with
   its own scroll and the card opens in its column, and the pressed card stays within 0 px.
 
-- 2026-10-10. Scrollbars are quiet: invisible at rest and a thin faint line on hover, for the page
-  and for the camera panel. The browser's default grey bar stood out against the flat screen.
+- 2026-10-10. Scrollbars are quiet: a thin faint line, always visible, for the content and the
+  camera panel. The browser's default grey bar stood out against the flat screen. A first version
+  was invisible at rest and was asked back, since it hid that there was more.
 
 - 2026-10-10. Gondola tiles simplified. They had a tinted frame, a red icon and a strip in four
   colours, and the name was cut off by the count. The name now has its own line, the count sits
@@ -387,6 +392,12 @@ a collapsing block by hand once, and Base UI and shadcn already had it.
   elsewhere on the screen.
 
 - 2026-10-10. The quiet scrollbar became thicker, 6 px instead of 3, so it can be grabbed and seen.
+
+- 2026-10-10. The page no longer scrolls as a whole. The bar is shorter, 48 px, and the content
+  scrolls under it, so the scrollbar starts below the header and does not cut it.
+- 2026-10-10. Gondola tiles are the photo with a light piece of the page tone on its lower edge.
+  It was chosen from options built only from tokens that already exist. A box with the content
+  packed left, a horizontal tile and overlays with gradients and pills were tried or rejected.
 
 ## Open questions
 
