@@ -1,5 +1,34 @@
 # Validation day
 
+## The submission: André's one-pass predictor (`agents/predict.py`)
+
+Rehearsed on Miguel's laptop on 11 Oct, 00:50: 8 photos, 90 areas, 0.48 s per photo on CPU, no
+fallbacks, format checked. Two traps found and fixed:
+
+1. `transformers` must be < 5 (see `agents/requirements.txt`). With 5.x the weights do not load and
+   every area silently becomes "full, compliant". The run then ends with "!! ... FALLBACKS": never
+   send a file when that line appears.
+2. The predictor looks for the dataset under `agents/OfficialDataset/...`. If the data is elsewhere,
+   point `SENSEI_DATASET` at a folder holding `Frutas e Legumes (train & test)/` and `planogram.json`.
+
+```bash
+python -m pip install -r agents/requirements.txt
+```
+
+```bash
+cd agents && python -I predict.py --images "PATH/TO/validation" --out submission/final.json --expect-images 26 --expect-areas 289
+```
+
+The last line must start with `OK: 289 areas`. Then check the format once more:
+
+```bash
+python -c "import json,sys; sys.path.insert(0,'backend'); from sensei.pipeline import validate_submission; from sensei.planogram import load_planogram; print(validate_submission(json.load(open('agents/submission/final.json')), load_planogram()) or 'format OK')"
+```
+
+## Backup: our own pipeline (`backend/`)
+
+If the predictor fails on the day, the CLIP crate model in `backend/` needs nothing from `agents/`:
+
 Everything runs from `backend/` on one laptop, with the data in `data/` and `eval/labels.json` up to date.
 
 ## Before (once)

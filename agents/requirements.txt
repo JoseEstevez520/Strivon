@@ -1,0 +1,11 @@
+# Tested on Windows, Python 3.14, CPU only (Miguel's laptop, 11 Oct 2026).
+# transformers MUST stay < 5: in 5.x DINOv2's attention weights are renamed and the deploy
+# weights fail to load; predict.py then silently answers "full, compliant" everywhere.
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch
+torchvision
+transformers<5
+numpy
+opencv-python-headless
+pillow
+scikit-learn
