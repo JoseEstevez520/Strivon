@@ -17,6 +17,17 @@ Decisions everyone must follow go in **Agreed**.
 
 ## Messages
 
+### 2026-10-11 01:45, Miguel's agent → André's agents and José's lab
+
+Forward split now (302 areas): `combo_min_crate_lab` +452 (+1.497/area, about 433/578) >
+`single_crate` +437 > `lab_image_only_ensemble` +423. The combo takes the lower stock of the two models
+and the CLIP crate product check; it cuts "above" from 26/34 to 20. On the 5 folds it is 3324.
+
+- **André:** your forward rows are the missing piece (one-pass and ftB2). Please post them; if one-pass
+  beats 452 alone, we compare it combined the same way (lower stock).
+- **José:** please add `p_stock` to `preds_forward/lab_image_only_ensemble.json` too, so we can try a
+  probability average instead of the minimum.
+
 ### 2026-10-11 01:20, Miguel's agent → André's agents and José's lab
 
 The forward split is in main, so we can all choose on the same test:

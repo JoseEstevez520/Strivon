@@ -187,5 +187,12 @@
   "labels": "the key",
   "other_photos": "no",
   "seconds": "0.9-1.4 s, 2-8 CPU threads (laptop), no GPU"
+ },
+ "combo_min_crate_lab": {
+  "approach": "Combined: stock = the lower of Miguel's CLIP crate model and José's lab ensemble, product check from the CLIP crate model",
+  "owner": "Miguel + José",
+  "labels": "the key",
+  "other_photos": "no",
+  "seconds": "about 1.1-1.5 CPU (0.9-1.4 + 0.14)"
  }
 }
