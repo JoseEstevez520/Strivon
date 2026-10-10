@@ -1,18 +1,12 @@
-import { ArrowUp } from 'lucide-react'
+import { ArrowDown, ArrowUp } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import { Renderer } from '@openuidev/react-lang'
 import { library } from './library'
 import { ask } from './ask'
+import { chatStore, useChat } from './store'
 import { useI18n } from '@/lib/i18n'
 import { storeStats } from '@/lib/stats'
 import { useStore } from '@/lib/store'
-
-/** A question, or an answer as the OpenUI Lang a model writes. */
-interface Message {
-  id: number
-  role: 'user' | 'assistant'
-  text: string
-}
 
 /** Three dots that fade in turn while the answer has not started. Only opacity moves. */
 function Thinking() {
@@ -33,16 +27,29 @@ function Thinking() {
 export function Chat() {
   const { t, family } = useI18n()
   const { state, gondola } = useStore()
-  const [messages, setMessages] = useState<Message[]>([])
+  const { messages, streaming } = useChat()
   const [draft, setDraft] = useState('')
   const input = useRef<HTMLTextAreaElement>(null)
-  const end = useRef<HTMLDivElement>(null)
-  const [streaming, setStreaming] = useState(0)
-  const next = useRef(1)
+  const scroller = useRef<HTMLDivElement>(null)
+  // Like the big chats: the thread follows the answer while you are at the bottom, lets go as soon
+  // as you scroll up, and a button takes you back down.
+  const stick = useRef(true)
+  const [away, setAway] = useState(false)
+
+  const toBottom = (smooth: boolean) =>
+    scroller.current?.scrollTo({ top: scroller.current.scrollHeight, behavior: smooth ? 'smooth' : 'auto' })
 
   useEffect(() => {
-    if (messages.length) end.current?.scrollIntoView({ block: 'nearest' })
-  }, [messages.length])
+    if (stick.current) toBottom(false)
+  }, [messages])
+
+  const onScroll = () => {
+    const el = scroller.current
+    if (!el) return
+    const atBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 80
+    stick.current = atBottom
+    setAway(!atBottom)
+  }
 
   const context = useMemo(() => {
     const stats = storeStats(state)
@@ -63,21 +70,31 @@ export function Chat() {
     e.preventDefault()
     const question = draft.trim()
     if (!question) return
-    const id = next.current
-    next.current += 2
+    const id = chatStore.get().next
     const history = [...messages.map(({ role, text }) => ({ role, text })), { role: 'user' as const, text: question }]
-    setMessages((m) => [...m, { id, role: 'user', text: question }, { id: id + 1, role: 'assistant', text: '' }])
+    chatStore.set((s) => ({
+      next: s.next + 2,
+      streaming: id + 1,
+      messages: [...s.messages, { id, role: 'user', text: question }, { id: id + 1, role: 'assistant', text: '' }],
+    }))
     setDraft('')
     if (input.current) input.current.style.height = 'auto'
-    setStreaming(id + 1)
-    void ask(history, context, t.chatFailed, (text) => setMessages((m) => m.map((x) => (x.id === id + 1 ? { ...x, text } : x)))).then(() =>
-      setStreaming(0),
-    )
+    stick.current = true
+    toBottom(true)
+    void ask(history, context, t.chatFailed, (text) =>
+      chatStore.set((s) => ({ messages: s.messages.map((x) => (x.id === id + 1 ? { ...x, text } : x)) })),
+    ).then(() => chatStore.set({ streaming: 0 }))
   }
 
   return (
-    <section aria-label={t.askTitle} className="flex min-h-0 flex-1 flex-col">
-      <div className="scrollbar-subtle min-h-0 flex-1 overflow-y-auto px-3 pt-12 pb-2">
+    <section aria-label={t.askTitle} className="relative flex min-h-0 flex-1 flex-col">
+      <div
+        ref={scroller}
+        onScroll={onScroll}
+        // The thread fades out at both ends instead of being cut by an edge.
+        style={{ maskImage: 'linear-gradient(to bottom, transparent 0, #000 2.75rem, #000 calc(100% - 1.5rem), transparent 100%)' }}
+        className="scrollbar-subtle min-h-0 flex-1 overflow-y-auto px-3 pt-12 pb-6"
+      >
         {messages.length > 0 ? (
           <ol className="mx-auto flex max-w-3xl flex-col gap-3">
             {messages.map((m) => (
@@ -91,7 +108,6 @@ export function Chat() {
                 )}
               </li>
             ))}
-            <div ref={end} />
           </ol>
         ) : (
           <ul className="mx-auto flex max-w-3xl flex-col">
@@ -112,6 +128,20 @@ export function Chat() {
           </ul>
         )}
       </div>
+
+      {away && (
+        <button
+          type="button"
+          aria-label={t.latest}
+          onClick={() => {
+            stick.current = true
+            toBottom(true)
+          }}
+          className="absolute bottom-20 left-1/2 z-10 grid size-8 -translate-x-1/2 cursor-pointer place-items-center rounded-full bg-fg text-bg transition-opacity hover:opacity-85"
+        >
+          <ArrowDown className="size-4" />
+        </button>
+      )}
 
       <form
         onSubmit={submit}

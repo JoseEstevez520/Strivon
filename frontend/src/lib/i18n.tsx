@@ -60,6 +60,7 @@ interface Strings {
   askPlaceholder: string
   send: string
   thinking: string
+  latest: string
   chatFailed: string
   larger: string
   smaller: string
@@ -113,6 +114,7 @@ const en: Strings = {
   askPlaceholder: 'Ask about your store',
   send: 'Send',
   thinking: 'Thinking',
+  latest: 'Go to the latest',
   chatFailed: 'The assistant did not answer. Try again.',
   larger: 'Make it larger',
   smaller: 'Make it smaller',
@@ -182,6 +184,7 @@ const pt: Strings = {
   askPlaceholder: 'Pergunte sobre a sua loja',
   send: 'Enviar',
   thinking: 'A pensar',
+  latest: 'Ir para a última',
   chatFailed: 'O assistente não respondeu. Tenta outra vez.',
   larger: 'Aumentar',
   smaller: 'Reduzir',
@@ -251,6 +254,7 @@ const es: Strings = {
   askPlaceholder: 'Pregunta sobre tu tienda',
   send: 'Enviar',
   thinking: 'Pensando',
+  latest: 'Ir a la última',
   chatFailed: 'El asistente no ha respondido. Inténtalo de nuevo.',
   larger: 'Agrandar',
   smaller: 'Reducir',

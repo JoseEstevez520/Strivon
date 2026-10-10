@@ -1,6 +1,6 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Search } from 'lucide-react'
-import { Link } from 'react-router'
+import { Link, useSearchParams } from 'react-router'
 import { DayBar } from '@/components/DayBar'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { Input } from '@/components/ui/input'
@@ -20,15 +20,20 @@ interface Row {
 }
 
 /** The state of a product summed over every area it sits in. */
-function ProductRow({ row }: { row: Row }) {
+function ProductRow({ row, focused }: { row: Row; focused: boolean }) {
   const { t, family } = useI18n()
   const { gondola } = useStore()
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(focused)
+  const ref = useRef<HTMLLIElement>(null)
+  // Arriving from a link to this product: bring it into view.
+  useEffect(() => {
+    if (focused) ref.current?.scrollIntoView({ block: 'center' })
+  }, [focused])
   const percent = Math.round(row.fill * 100)
   const tone = row.fill >= 0.7 ? 'var(--success)' : row.fill >= 0.35 ? 'var(--warning)' : 'var(--danger)'
 
   return (
-    <li className="rounded-lg transition-colors hover:bg-surface data-[open=true]:bg-surface" data-open={open}>
+    <li ref={ref} className="rounded-lg transition-colors hover:bg-surface data-[open=true]:bg-surface" data-open={open}>
       <Collapsible open={open} onOpenChange={setOpen}>
         <CollapsibleTrigger className="grid w-full cursor-pointer grid-cols-[1fr_auto] items-center gap-x-4 gap-y-1.5 rounded-lg px-3 py-2.5 text-left sm:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)_3rem]">
           <span>
@@ -69,6 +74,7 @@ export function ProductsPage() {
   const { t, family } = useI18n()
   const { tasks } = useStore()
   const [query, setQuery] = useState('')
+  const focus = useSearchParams()[0].get('product')
 
   const rows = useMemo<Row[]>(() => {
     const byProduct = new Map<string, Task[]>()
@@ -108,7 +114,7 @@ export function ProductsPage() {
       ) : (
         <ul className="flex flex-col">
           {shown.map((r) => (
-            <ProductRow key={r.product} row={r} />
+            <ProductRow key={r.product} row={r} focused={r.product === focus} />
           ))}
         </ul>
       )}
