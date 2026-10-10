@@ -117,7 +117,7 @@ function Hero() {
   return (
     <div className="relative grid min-h-dvh place-items-center overflow-hidden px-5">
       {/* The same width and margins as the rest of the page, so the slots never reach its edges. */}
-      <div className="absolute inset-0 mx-auto max-w-6xl px-5 py-6">
+      <div className="absolute inset-0 mx-auto max-w-6xl px-5 py-[max(1.25rem,calc((100vw-72rem)/2+1.25rem))]">
         <div className="relative size-full">
           <Slots />
         </div>
