@@ -23,36 +23,34 @@ export function AreaDetail({ task, history, onJump, onClose }: Props) {
     return () => window.removeEventListener('keydown', onKey)
   }, [onClose])
 
-  const product = obs.planogram_compliant ? t.inPlace : t.wrongPlace(family(obs.observed_family ?? ''))
+  // Say each thing once: the level always, the product only when it is wrong (that is the news).
+  const status = obs.planogram_compliant
+    ? t.level[obs.stock_level]
+    : `${t.level[obs.stock_level]} · ${t.wrongPlace(family(obs.observed_family ?? ''))}`
 
   return (
-    <section className="mt-6 rounded-xl bg-surface p-5">
-      <header className="flex items-start justify-between gap-4">
-        <div>
+    <section className="mt-6 rounded-xl bg-surface p-4">
+      <div className="flex items-center gap-4">
+        <div className="size-24 shrink-0 rounded-md bg-[#d6d8d0]" aria-hidden />
+        <div className="min-w-0 flex-1">
           <h2 className="text-title">{family(area.family)}</h2>
           <p className="text-meta text-fg-secondary">{t.areaOf(area.camera, area.index)}</p>
+          <p className="mt-2 text-ui">{status}</p>
         </div>
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label={t.close}
-          className="grid size-8 cursor-pointer place-items-center rounded-md text-fg-muted transition-colors hover:bg-raised"
-        >
-          <X className="size-4" />
-        </button>
-      </header>
-
-      <div className="mt-4 flex gap-4">
-        <div className="h-28 w-40 shrink-0 rounded-md bg-[#d6d8d0]" aria-hidden />
-        <dl className="grid content-center gap-x-6 gap-y-2 text-ui [grid-template-columns:auto_1fr]">
-          <dt className="text-fg-secondary">{t.stock}</dt>
-          <dd className="font-medium">{t.level[obs.stock_level]}</dd>
-          <dt className="text-fg-secondary">{t.product}</dt>
-          <dd className="font-medium">{product}</dd>
-        </dl>
+        <div className="flex items-center gap-1 self-start">
+          <span className="text-meta tabular-nums text-fg-secondary">{clock(record.ts)}</span>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label={t.close}
+            className="grid size-8 cursor-pointer place-items-center rounded-md text-fg-muted transition-colors hover:bg-raised"
+          >
+            <X className="size-4" />
+          </button>
+        </div>
       </div>
 
-      <h3 className="mt-6 mb-2 text-label text-fg-secondary">{t.throughDay}</h3>
+      <h3 className="mt-5 mb-2 text-label text-fg-secondary">{t.throughDay}</h3>
       <div className="flex gap-1" role="list">
         {history.map((p) => {
           const current = p.record.image === record.image

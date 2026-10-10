@@ -21,9 +21,6 @@ interface Strings {
   since: (time: string) => string
   areasFine: (n: number) => string
   level: Record<'empty' | 'half' | 'full', string>
-  stock: string
-  product: string
-  inPlace: string
   throughDay: string
   close: string
   areaOf: (camera: string, index: number) => string
@@ -32,9 +29,6 @@ interface Strings {
 
 const en: Strings = {
   level: { empty: 'Empty', half: 'Half full', full: 'Full' },
-  stock: 'Stock',
-  product: 'Product',
-  inPlace: 'In its place',
   throughDay: 'Through the day',
   close: 'Close',
   areaOf: (c, i) => `Camera ${c} · area ${i}`,
@@ -59,9 +53,6 @@ const en: Strings = {
 
 const pt: Strings = {
   level: { empty: 'Vazio', half: 'A meio', full: 'Cheio' },
-  stock: 'Stock',
-  product: 'Produto',
-  inPlace: 'No sítio certo',
   throughDay: 'Ao longo do dia',
   close: 'Fechar',
   areaOf: (c, i) => `Câmara ${c} · área ${i}`,
@@ -86,9 +77,6 @@ const pt: Strings = {
 
 const es: Strings = {
   level: { empty: 'Vacío', half: 'A medias', full: 'Lleno' },
-  stock: 'Stock',
-  product: 'Producto',
-  inPlace: 'En su sitio',
   throughDay: 'A lo largo del día',
   close: 'Cerrar',
   areaOf: (c, i) => `Cámara ${c} · zona ${i}`,
