@@ -29,12 +29,14 @@ interface Props {
   dayBar?: boolean
   /** Empty and half full side by side, with what is wrong below, instead of one group after another. */
   split?: boolean
+  /** Icons of what is missing, on the photo. */
+  marks?: boolean
   /** What shows in the side panel when nothing is open, in place of the grid of gondolas. */
   aside?: ReactNode
 }
 
 /** The tasks on one side. On the other, every camera, or the photo of what is open. */
-export function TaskBoard({ tasks, camera, listFine = false, initialSelected = null, compact = false, dayBar = true, split = false, aside }: Props) {
+export function TaskBoard({ tasks, camera, listFine = false, initialSelected = null, compact = false, dayBar = true, split = false, aside, marks = false }: Props) {
   const { t } = useI18n()
   const { state, at, tasks: all, gondola, where, historyOf, jumpTo, photoUrl } = useStore()
   const [selected, select] = useSelection(initialSelected)
@@ -127,6 +129,7 @@ export function TaskBoard({ tasks, camera, listFine = false, initialSelected = n
               tasks={all.filter((x) => x.area.camera === photoCamera)}
               selected={selected}
               src={photoUrl?.(photoCamera, photo.image)}
+              marks={marks}
               onSelect={(id) => select(selected === id ? null : id, 'photo')}
             />
           </>

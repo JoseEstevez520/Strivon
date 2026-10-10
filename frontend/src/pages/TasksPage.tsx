@@ -22,7 +22,7 @@ export function TasksPage() {
         <p className="text-meta tabular-nums text-fg-muted">{t.photoFrom(clock(at))}</p>
       </div>
       <DayBar className="mb-6" />
-      <TaskBoard tasks={tasks} dayBar={false} split aside={<Suggestions />} />
+      <TaskBoard tasks={tasks} dayBar={false} split marks aside={<Suggestions />} />
     </>
   )
 }

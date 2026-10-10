@@ -487,6 +487,13 @@ a collapsing block by hand once, and Base UI and shadcn already had it.
   products) repeated between gondolas, were cut short in tiles, changed with what the model saw
   and are not what anyone in a store says. Places with room for both show "Gondola 4 · Potato ·
   Onion"; the numbers are placeholders until the store gives us its own.
+- 2026-10-11. Every shelf area has its product's icon (Fluent Emoji High Contrast, MIT, in
+  `src/model/produceIcons.ts`), so what is missing reads without words. A gondola is drawn as a card
+  of those icons, one tile per area in shelf order: red for empty with a "!", amber for the wrong
+  product with a return mark, grey for half full, white for fine. It sits under the photo of the
+  gondola to go to first. On the photo, an area that is empty or misplaced also carries its icon on
+  a red or amber disc and empty areas are tinted stronger. That is an overlay on a photo, which these
+  rules avoid, so it is an experiment on the Tasks page only, to be judged by using it.
 - 2026-10-10. The bubble grows into the chat box and folds back (width, height and radius, 300 ms).
   It is the one exception to "no layout animation", allowed because it is a single small element
   with a fixed-size box inside it, so nothing inside reflows. Blur, glass and aurora stay out. The writing field is a soft tray that grows with the text, Enter sends,

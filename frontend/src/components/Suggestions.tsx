@@ -2,6 +2,7 @@ import { ChevronRight } from 'lucide-react'
 import { useMemo } from 'react'
 import { Link } from 'react-router'
 import { GROUP_COLOR, GROUP_ICON } from './groupStyle'
+import { ShelfCard } from './ShelfCard'
 import { useI18n } from '@/lib/i18n'
 import { useStore } from '@/lib/store'
 import { suggest, type Suggestion } from '@/lib/suggest'
@@ -38,7 +39,7 @@ function Counts({ s }: { s: Suggestion }) {
  * The first is the one to go to; the next two are the ones after it.
  */
 export function Suggestions() {
-  const { t, family } = useI18n()
+  const { t } = useI18n()
   const { state, tasks, at, gondola, gondolaWhat, photoUrl } = useStore()
   const list = useMemo(() => suggest(tasks), [tasks])
   if (list.length === 0) return null
@@ -69,15 +70,7 @@ export function Suggestions() {
             <Counts s={first} />
           </div>
           {first.emptySince !== null && <p className="mt-2 text-meta text-fg-muted">{t.emptySince(clock(first.emptySince))}</p>}
-          {first.bring.length > 0 && (
-            <p className="mt-3 text-ui text-fg-secondary">
-              <span className="text-fg-muted">{t.bring}: </span>
-              {first.bring
-                .slice(0, 5)
-                .map((b) => (b.n > 1 ? `${family(b.family)} ×${b.n}` : family(b.family)))
-                .join(' · ')}
-            </p>
-          )}
+          <ShelfCard tasks={tasks.filter((x) => x.area.camera === first.camera)} className="mt-3" />
         </div>
       </Link>
 
