@@ -139,13 +139,12 @@ second has the least text, which was the complaint about the first version.
 ## Gondola tiles
 
 A tile is a camera: its latest photo, what it is called on its own line, and under it the count
-beside a strip of its areas. It is built like a task card. A gondola with something to restock is tinted red and one with only
-misplaced products is tinted amber. The tint is stronger the more there is to restock, so a
-gondola with one empty area does not look like one with seven. A gondola that is fine stays on
-the neutral tone with "All good" in grey. The strip colours only the areas that need action, red and amber, and leaves the rest as a pale
-grey, so the segments that matter are the ones that show. The count carries the state icon, with
-the text in grey, as in the group headings. The photo is not what tells the state, the tint, the count and
-the strip are.
+beside a strip of its areas. Every tile has the same neutral tone. The photo already brings a lot
+of colour, and a tinted frame around it added more with little contrast, so the colour lives only
+where it means something: the strip colours the areas that need action, red and amber, and leaves
+the rest as a pale grey, and the count carries the state icon with the text in grey, as in the
+group headings. A gondola that is fine says "All good" in grey with no icon. The tiles are
+context and the task cards are the work, so the cards are the ones that carry colour.
 
 The order is fixed, by camera, and does not follow urgency. The staff learn where each gondola
 is, and tiles that jump around as the day bar moves make that impossible.
@@ -374,6 +373,10 @@ a collapsing block by hand once, and Base UI and shadcn already had it.
 - 2026-10-10. Gondola tiles simplified. They had a tinted frame, a red icon and a strip in four
   colours, and the name was cut off by the count. The name now has its own line, the count sits
   beside the strip, the strip colours only what needs action and the tint is lighter.
+
+- 2026-10-10. Gondola tiles lost their tint. With a coloured photo inside, a pink or amber frame
+  made too many colours with little contrast, and the tiles are context, not the work. The task
+  cards keep their tint, which was liked.
 
 ## Open questions
 
