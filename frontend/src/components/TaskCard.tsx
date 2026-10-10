@@ -23,9 +23,9 @@ export function TaskCard({ task, selected, onSelect }: Props) {
       onClick={onSelect}
       aria-pressed={selected}
       style={{ '--c': GROUP_COLOR[task.group] } as CSSProperties}
-      className="flex w-full cursor-pointer items-center gap-3 rounded-lg bg-[color-mix(in_oklab,var(--c)_7%,transparent)] p-2 pr-3 text-left transition-colors hover:bg-[color-mix(in_oklab,var(--c)_11%,transparent)] aria-pressed:bg-[color-mix(in_oklab,var(--c)_15%,transparent)]"
+      className="flex w-full cursor-pointer items-center gap-3 rounded-lg bg-[color-mix(in_oklab,var(--c)_13%,transparent)] p-2 pr-3 text-left transition-colors hover:bg-[color-mix(in_oklab,var(--c)_19%,transparent)] aria-pressed:bg-[color-mix(in_oklab,var(--c)_26%,transparent)]"
     >
-      <div className="size-12 shrink-0 rounded-md bg-[#d6d8d0]" aria-hidden />
+      <div className="size-12 shrink-0 rounded-md bg-[color-mix(in_oklab,var(--c)_22%,#d6d8d0)]" aria-hidden />
       <div className="min-w-0 flex-1">
         <div className="text-label">{family(task.area.family)}</div>
         <div className="text-meta tabular-nums text-fg-muted">
