@@ -37,13 +37,13 @@ An area missing from the output counts as -2 and -3. **Always answer every area.
 
 ## Tasks and owners (to confirm)
 
-- [ ] Repo and structure (José)
+- [ ] Repo and structure (Jose)
 - [ ] Crop pipeline per area, with polygon visualisation (Miguel)
 - [ ] Local scorer that replicates the PDF rules (Miguel)
 - [ ] Hand-label about 40 areas for pseudo-validation (Leonor and everyone)
 - [ ] Zero-shot product classifier (André)
-- [ ] Stock estimator (Miguel and José)
-- [ ] UI and dashboard (José, Leonor on design)
+- [ ] Stock estimator (Miguel and Jose)
+- [ ] UI and dashboard (Jose, Leonor on design)
 - [ ] Pitch, demo and README (Leonor and Miguel)
 - [ ] Submission in the required format (everyone reviews it first)
 

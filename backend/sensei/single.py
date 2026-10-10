@@ -155,6 +155,66 @@ class SingleModel:
         return out
 
 
+# Gradient boosting on the same per-image features, and the 50/50 blend with the logistic
+# regression. The blend is the best single-image model on the benchmark (3253 vs 3205) at the
+# same cost per photo, since both read the same CLIP features.
+class GBM(SingleModel):
+    """Gradient boosting on PCA of the embedding + the rest + area index."""
+
+    def fit(self, keys, D, ys, yc, area_ids):
+        from sklearn.decomposition import PCA
+        from sklearn.ensemble import HistGradientBoostingClassifier
+
+        self.area_ids = area_ids
+        self.aidx = {a: i for i, a in enumerate(area_ids)}
+        self.pca = PCA(48, random_state=0).fit(D[:, :512])
+        X = self._x(keys, D)
+        cat = [X.shape[1] - 1]
+        self.ms = HistGradientBoostingClassifier(max_iter=300, learning_rate=0.05, max_leaf_nodes=15, l2_regularization=1.0,
+                                                 categorical_features=cat, random_state=0).fit(X, ys)
+        self.mc = HistGradientBoostingClassifier(max_iter=200, learning_rate=0.05, max_leaf_nodes=15, l2_regularization=1.0,
+                                                 categorical_features=cat, random_state=0).fit(X, yc) if len(set(yc)) > 1 else None
+        return self
+
+    def _x(self, keys, D):
+        a = np.array([[self.aidx[k[2]]] for k in keys], np.float32)
+        return np.hstack([self.pca.transform(D[:, :512]), D[:, 512:], a])
+
+    def proba(self, keys, D):
+        X = self._x(keys, D)
+        ps = np.zeros((len(keys), 3))
+        ps[:, self.ms.classes_] = self.ms.predict_proba(X)
+        pc = self.mc.predict_proba(X)[:, list(self.mc.classes_).index(1)] if self.mc is not None else np.ones(len(keys))
+        return ps, pc
+
+
+class Blend(SingleModel):
+    def __init__(self, use_refs=False, C=0.05, w=0.5):
+        super().__init__(use_refs, C)
+        self.w = w
+
+    def fit(self, keys, D, ys, yc, area_ids):
+        self.area_ids = area_ids
+        self.a = SingleModel(False, self.C).fit(keys, D, ys, yc, area_ids)
+        self.b = GBM(False).fit(keys, D, ys, yc, area_ids)
+        return self
+
+    def proba(self, keys, D):
+        pa, ca = self.a.proba(keys, D)
+        pb, cb_ = self.b.proba(keys, D)
+        return self.w * pa + (1 - self.w) * pb, self.w * ca + (1 - self.w) * cb_
+
+
+
+
+def make_model(kind: str = "blend", use_refs: bool = False) -> SingleModel:
+    if kind == "lr":
+        return SingleModel(use_refs)
+    if kind == "gbm":
+        return GBM(False)
+    return Blend(False, 0.05, 0.5)
+
+
 def _points(decisions, y_stock, y_comp):
     pts = 0
     for (lvl, val, comp), ys, yc in zip(decisions, y_stock, y_comp):
@@ -171,7 +231,7 @@ def _tune(model: SingleModel, keys, D, ys, yc, folds_of_train):
     for f in sorted(set(folds_of_train)):
         tr = np.array([i for i, g in enumerate(folds_of_train) if g != f])
         te = np.array([i for i, g in enumerate(folds_of_train) if g == f])
-        m = SingleModel(model.use_refs, model.C).fit([keys[i] for i in tr], D[tr], ys[tr], yc[tr], model.area_ids)
+        m = make_model(getattr(model, "kind", "lr"), model.use_refs).fit([keys[i] for i in tr], D[tr], ys[tr], yc[tr], model.area_ids)
         oof_s[te], oof_c[te] = m.proba([keys[i] for i in te], D[te])
     best = (-1e9, (0.0, 0.0, 0.5))
     for be in np.linspace(-1, 1, 9):
@@ -250,7 +310,9 @@ def bench(variants=None, log=print):
             yc = np.array([int(key[c][i][a]["planogram_compliant"]) for c, i, a in tk])
             folds_tr = [B.FOLDS[f"{c}/{i}"] for c, i, _ in tk]
             Dt = D[[pos[k] for k in tk]]
-            m = SingleModel(name == "single_ref").fit(tk, Dt, ys, yc, area_ids)
+            kind = "blend" if "blend" in name else "lr"
+            m = make_model(kind, name == "single_ref").fit(tk, Dt, ys, yc, area_ids)
+            m.kind = kind
             m = _tune(m, tk, Dt, ys, yc, folds_tr)
             ek = [(c, i, a.area_id) for (c, i) in test for a in pg.cameras[c] if (c, i, a.area_id) in pos]
             ps, pc = m.proba(ek, D[[pos[k] for k in ek]])
@@ -274,7 +336,7 @@ def bench(variants=None, log=print):
     return results
 
 
-def train(use_refs: bool = True, log=print):
+def train(use_refs: bool = False, log=print, kind: str = "blend"):
     """Fit on every label (latest team labels + André's fixes) and save outputs/single.pkl."""
     pg = load_planogram()
     keys, D, pos = _features(pg, log)
@@ -289,7 +351,8 @@ def train(use_refs: bool = True, log=print):
 
     folds = [B.FOLDS.get(f"{k[0]}/{k[1]}", hash(k[1]) % 5) for k in tk]
     Dt = D[[pos[k] for k in tk]]
-    m = SingleModel(use_refs).fit(tk, Dt, ys, yc, [a.area_id for a in pg.areas])
+    m = make_model(kind, use_refs).fit(tk, Dt, ys, yc, [a.area_id for a in pg.areas])
+    m.kind = kind
     m = _tune(m, tk, Dt, ys, yc, folds)
     # learned prior per area, used only when a person hides the area (rounded down by the decision)
     m.area_prior = {}
@@ -303,7 +366,7 @@ def train(use_refs: bool = True, log=print):
     MODEL_PATH.parent.mkdir(parents=True, exist_ok=True)
     with MODEL_PATH.open("wb") as fh:
         pickle.dump(m, fh)
-    log(f"saved {MODEL_PATH} ({len(tk)} areas, refs={'on' if use_refs else 'off'}, bias {m.bias})")
+    log(f"saved {MODEL_PATH} ({kind}, {len(tk)} areas, refs={'on' if use_refs else 'off'}, bias {m.bias})")
     return m
 
 

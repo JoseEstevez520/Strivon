@@ -10,7 +10,7 @@ import { defineConfig, loadEnv, type Plugin } from 'vite'
  * never committed. Point STRIVON_DATA_DIR at the folder that holds `planogram.json` and
  * `images/<camera>/<timestamp>.jpg`.
  */
-function localData(): Plugin {
+export function localData(): Plugin {
   const dir = process.env.STRIVON_DATA_DIR ?? path.resolve(import.meta.dirname, '../data')
   return {
     name: 'strivon-local-data',

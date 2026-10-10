@@ -83,6 +83,41 @@
   "other_photos": "no",
   "seconds": "3.44 CPU (+ up to 0.6), 0.21 GPU"
  },
+ "single_blend_vitb32": {
+  "approach": "Single image: CLIP ViT-B-32 + colour + area id, logistic regression + gradient boosting blend",
+  "owner": "Miguel",
+  "labels": "the key",
+  "other_photos": "no",
+  "seconds": "0.8-1.3 s, 2 CPU threads (laptop), no GPU"
+ },
+ "lab_image_only": {
+  "approach": "Single image: pixel features of the area and its crate + logistic and tree blend, product check against a bank of training crops",
+  "owner": "Jose (lab)",
+  "labels": "the key",
+  "other_photos": "training crops only",
+  "seconds": "being measured; features about 0.1 s per photo on 1 CPU thread (partial), no GPU, no CLIP"
+ },
+ "combo_dinob_stock_clip_product": {
+  "approach": "Combined: stock from André's fine-tuned DINOv2-base, product check from Miguel's CLIP model",
+  "owner": "André + Miguel",
+  "labels": "the key",
+  "other_photos": "no",
+  "seconds": "about 6.4 CPU (stock 5.6 + product 0.8); stock 0.23 GPU"
+ },
+ "combo_dinos_stock_clip_product": {
+  "approach": "Combined, cheap: stock from André's fine-tuned DINOv2-small, product check from Miguel's CLIP model",
+  "owner": "André + Miguel",
+  "labels": "the key",
+  "other_photos": "no",
+  "seconds": "about 1.7 CPU (stock 0.9 + product 0.8)"
+ },
+ "combo_dinos_stock_lab_product": {
+  "approach": "Combined, cheaper: stock from André's fine-tuned DINOv2-small, product check from the lab's image-only model (HSV bank of training crops)",
+  "owner": "André + Jose (lab)",
+  "labels": "the key",
+  "other_photos": "training crops only",
+  "seconds": "about 0.9 CPU (stock 0.9 + product 0.01, product measured on a loaded machine)"
+ },
  "agents_finetuned_b_same_day": {
   "approach": "Agents' pipeline, fine-tuned DINOv2-base stock (2 seeds), uses same-day photos",
   "owner": "André (agents)",

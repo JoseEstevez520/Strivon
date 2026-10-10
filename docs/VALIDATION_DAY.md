@@ -6,7 +6,7 @@ Everything runs from `backend/` on one laptop, with the data in `data/` and `eva
 
 ```bash
 python -m pip install -r requirements.txt
-python -m sensei train-single --no-refs
+python -m sensei train-single
 ```
 
 `train-single` builds the CLIP ViT-B-32 features (a few minutes the first time, cached after), fits
@@ -27,11 +27,31 @@ python -m sensei predict --images PATH/TO/validation --out ../outputs/prediction
    - No `VALIDATION PROBLEMS` line (a missing area costs -5).
 4. Submit `outputs/predictions_validation.json`.
 
+## Best score: combine two models
+
+On the benchmark the best result that uses only the photo under analysis is André's fine-tuned
+DINOv2-base for stock plus our CLIP model for the product check: 3396 / 3858, about 509 / 578.
+
+1. André runs his fine-tuned DINOv2-base model on the validation folder and writes `andre.json`
+   (same format as the submission).
+2. Miguel runs `predict` as above and writes `miguel.json`.
+3. Combine and submit:
+
+```bash
+python -m sensei combine --stock andre.json --product miguel.json --out ../outputs/predictions_validation.json
+```
+
+The command takes stock from the first file and the product check from the second, fills any
+missing area and fails loudly if the result is incomplete. Cheaper option: the DINOv2-small stock
+model instead (3346, about 501 / 578, about 1.7 s per photo on CPU instead of 6.4).
+
+Rehearse it tonight on a copy of a few training photos, so the file names and folders match.
+
 ## Score and cost
 
 | Check | Result |
 |---|---|
-| Team benchmark (`LEADERBOARD.md`), single image, ViT-B-32 | 3205 / 3858, about 480 / 578 |
+| Team benchmark (`LEADERBOARD.md`), single image, ViT-B-32, LR + GBM blend | 3253 / 3858, about 487 / 578 |
 | Always "right product, full" | about 233 / 578 |
 | Cost | 0.8 s per photo on 2 CPU threads, no GPU (`python timing.py`) |
 

@@ -451,6 +451,23 @@ a collapsing block by hand once, and Base UI and shadcn already had it.
   estimate. The assistant is empty on purpose: the parts an answer is made of are built, the
   answering is not.
 
+- 2026-10-10. The logo is a 3×3 of day-map slots with a stretch of gone ones running corner to
+  corner, next to the name in lower case. It is the same shape as the hero, the banner and the day
+  map, so one idea carries the brand. Red stays for the gone slots. It is also the favicon, and it
+  holds up at 16 px, which the wider and the single-row versions did not.
+- 2026-10-10. The chat answers with a clean set of parts, as OpenUI's own library does, and each
+  one is drawn here: `Text`, `Callout`, `Metrics`, `Ranked`, `Bars`, `Table`, `Trend` (a line by
+  hour), `Mix` (one bar of how time split), `DayMap`, `Tasks`, `Where` and `Gondola`. Charts are
+  small SVG or plain markup on the same tokens: one colour for an outcome, neutral for the rest,
+  no legend boxes or gridlines beyond a hairline. The model is told the product keys, where each
+  product sits and which are worst (names only), plus four worked examples, and may never write a
+  digit: every figure comes from a part.
+- 2026-10-10. What the chat answers leads to its page: a ranked gondola to its gondola, a task row
+  to the area open on its gondola, a product to its row on the Products page, which opens and scrolls
+  to it. The conversation lives outside the components, so coming back leaves the chat open as it
+  was. The thread scrolls like the big chats: it follows the answer while you are at the bottom,
+  lets go when you scroll up and offers a button back down. Its two ends fade out with a mask, the
+  one place a gradient is used, because a hard cut through a chart reads as an error.
 - 2026-10-10. The bubble grows into the chat box and folds back (width, height and radius, 300 ms).
   It is the one exception to "no layout animation", allowed because it is a single small element
   with a fixed-size box inside it, so nothing inside reflows. Blur, glass and aurora stay out. The writing field is a soft tray that grows with the text, Enter sends,
