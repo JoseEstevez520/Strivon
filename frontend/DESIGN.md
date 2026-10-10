@@ -123,9 +123,9 @@ separate panel. Pressing it again, or Escape, closes it.
   bar marks the photos where the product was in the wrong place. Pressing a segment moves the
   whole screen to that time.
 - It opens and closes with a short height animation, 200 ms to open and 150 ms to close, and
-  the chevron turns 90 degrees in step. It is one `Collapse` component that animates a grid
-  row, so no height is measured. The closed content stays mounted and inert, which is what lets
-  it fold away instead of vanishing.
+  the chevron turns 90 degrees in step. It is shadcn's `Collapsible`, which sits on Base UI: it
+  exposes the panel height as a variable and marks the first and last frame, and we animate
+  between them. The list pickers open with the same times.
 
 ## Motion
 
@@ -144,6 +144,13 @@ No `backdrop-filter`, no animated filters, no shadows beyond the picker's. Image
 The interface is in English, with Portuguese and Spanish. Product names come from a dictionary
 by product family, because the catalogue names are Portuguese ("BANANA CAT I CNT KG"). Labels
 stay short, since a translation can run longer. The choice is saved in the browser.
+
+## Before building anything
+
+Look for what already exists before writing a component or a helper: first the repo, then the
+packages we already have (Base UI and shadcn cover most of what a screen needs), then the
+registry and GitHub. Write our own only when nothing fits, and say what was searched. We built
+a collapsing block by hand once, and Base UI and shadcn already had it.
 
 ## Before calling a component done
 
@@ -179,6 +186,10 @@ stay short, since a translation can run longer. The choice is saved in the brows
 - 2026-10-10. Opening and closing a task animates its height, and the chevron turns instead of
   swapping icons. The first version opened with a short animation and closed at once, which
   felt uneven. Both directions now animate, closing slightly faster.
+
+- 2026-10-10. The hand-made collapsing block was replaced by shadcn's `Collapsible` (Base UI),
+  after being told to search first. Same look and times, and it brings the accessibility
+  attributes and the unmounting of closed content for free.
 
 ## Open questions
 

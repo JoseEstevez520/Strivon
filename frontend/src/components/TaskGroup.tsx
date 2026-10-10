@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { AreaHistory } from './AreaHistory'
-import { Collapse } from './Collapse'
 import { GROUP_COLOR, GROUP_ICON } from './groupStyle'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { TaskCard } from './TaskCard'
 import { useScrollIntoView } from './useScrollIntoView'
 import { useI18n } from '@/lib/i18n'
@@ -35,18 +35,15 @@ function QuietRow({ task, selected, history, onSelect, onJump }: RowProps) {
       data-selected={selected}
       className="rounded-md transition-colors hover:bg-surface data-[selected=true]:bg-surface"
     >
-      <button
-        type="button"
-        onClick={onSelect}
-        aria-expanded={selected}
-        className="flex w-full cursor-pointer justify-between rounded-md px-1 py-1.5 text-left text-fg-secondary"
-      >
-        <span>{family(task.area.family)}</span>
-        <span className="text-meta text-fg-muted">{task.area.camera}</span>
-      </button>
-      <Collapse open={selected}>
-        <AreaHistory task={task} history={history} onJump={onJump} />
-      </Collapse>
+      <Collapsible open={selected} onOpenChange={() => onSelect()}>
+        <CollapsibleTrigger className="flex w-full cursor-pointer justify-between rounded-md px-1 py-1.5 text-left text-fg-secondary">
+          <span>{family(task.area.family)}</span>
+          <span className="text-meta text-fg-muted">{task.area.camera}</span>
+        </CollapsibleTrigger>
+        <CollapsibleContent>
+          <AreaHistory task={task} history={history} onJump={onJump} />
+        </CollapsibleContent>
+      </Collapsible>
     </div>
   )
 }
@@ -95,9 +92,11 @@ export function TaskGroup({ group, tasks, selected, historyOf, onSelect, onJump 
       )}
 
       {group === 'allGood' && shown && (
-        <Collapse open={Boolean(open)}>
-          <QuietRow {...row(open ?? shown)} />
-        </Collapse>
+        <Collapsible open={Boolean(open)}>
+          <CollapsibleContent>
+            <QuietRow {...row(open ?? shown)} />
+          </CollapsibleContent>
+        </Collapsible>
       )}
     </section>
   )
