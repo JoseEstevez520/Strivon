@@ -37,7 +37,7 @@ const S = {
   annTest: false,
   annName: "",
   trainPerCamera: 8,
-  liveVersion: null, activity: [], people: {},
+  liveVersion: null, activity: [], people: {}, notes: {},
   productFilter: "",
 };
 
@@ -390,7 +390,7 @@ function renderLive() {
   const feed = (S.activity || []).slice(0, 14).map((e) => {
     const a = S.data.areas[e.area_id];
     const idx = (S.data.images[e.camera] || []).findIndex((r) => r.image === e.image) + 1;
-    const what = e.action === "delete" ? "removed" : `${LEVEL_LABEL[e.stock_level]}${e.planogram_compliant ? "" : " · wrong product"}`;
+    const what = e.action === "note" ? (e.text ? `note: "${esc(e.text.slice(0, 60))}"` : "note removed") : e.action === "delete" ? "removed" : `${LEVEL_LABEL[e.stock_level]}${e.planogram_compliant ? "" : " · wrong product"}`;
     return `<div class="feed-row" data-annjump="${e.camera}|${e.image}|${e.area_id}"><b>${esc(e.by || "unnamed")}</b> ${e.camera} photo ${idx} · ${a ? a.index + ". " + esc(a.short_name) : esc(e.area_id)} → ${what} <span class="muted">${ago(e.t)}</span></div>`;
   }).join("");
   return `<div class="card live">
@@ -416,11 +416,16 @@ function renderAnnotate() {
     const o = obs(cam, img, a.area_id);
     const lvl = ann?.stock_level;
     const comp = ann ? ann.planogram_compliant : true;
+    const note = S.notes?.[cam]?.[img]?.[a.area_id];
     return `<div class="acard ${i === S.annFocus ? "focus" : ""} ${ann ? "saved" : ""}" data-acard="${i}">
       <img src="${cropUrl(cam, img, a.area_id)}" alt="" loading="lazy">
       <div class="a-name">${a.index}. ${esc(a.short_name)}</div>
       <div class="segs">${["empty", "half", "full"].map((l, k) => `<button class="${l} ${lvl === l ? "on" : ""} ${S.annShowPred && o?.stock_level === l ? "pred" : ""}" data-set="${a.area_id}|${l}" title="key ${k + 1}">${LEVEL_LABEL[l]}</button>`).join("")}</div>
-      <button class="comp-toggle ${comp ? "" : "bad"}" data-comp="${a.area_id}" title="key X">${comp ? "Right product" : "WRONG product"}${S.annShowPred && o && !o.planogram_compliant ? " (model: wrong)" : ""}</button>
+      <div class="card-row">
+        <button class="comp-toggle ${comp ? "" : "bad"}" data-comp="${a.area_id}" title="key X">${comp ? "Right product" : "WRONG product"}${S.annShowPred && o && !o.planogram_compliant ? " (model: wrong)" : ""}</button>
+        <button class="note-btn ${note ? "has" : ""}" data-note="${a.area_id}" title="Add a note (key M)">&#128221;${note ? "" : " Note"}</button>
+      </div>
+      ${note ? `<div class="note" data-note="${a.area_id}" title="Click to edit">${esc(note.text)} <span class="muted">— ${esc(note.by || "unnamed")}</span></div>` : ""}
     </div>`;
   }).join("");
   const chips = list.map((r, i) => {
@@ -441,7 +446,7 @@ function renderAnnotate() {
     </div>
     <div class="chips">${chips}</div>
     ${testPhoto ? `<div class="warn">Test photo (${idx + 1} of ${list.length}). Labels here only check the model; they are never used to calibrate it.</div>` : ""}
-    <div class="help" style="margin:8px 0 10px"><span><span class="kbd">←</span><span class="kbd">→</span> area</span><span><span class="kbd">1</span><span class="kbd">2</span><span class="kbd">3</span> empty/half/full</span><span><span class="kbd">X</span> wrong product</span><span><span class="kbd">Enter</span> accept prediction</span><span><span class="kbd">Del</span> delete</span><span><span class="kbd">N</span>/<span class="kbd">P</span> next/previous photo</span></div>
+    <div class="help" style="margin:8px 0 10px"><span><span class="kbd">←</span><span class="kbd">→</span> area</span><span><span class="kbd">1</span><span class="kbd">2</span><span class="kbd">3</span> empty/half/full</span><span><span class="kbd">X</span> wrong product</span><span><span class="kbd">M</span> note</span><span><span class="kbd">Enter</span> accept prediction</span><span><span class="kbd">Del</span> delete</span><span><span class="kbd">N</span>/<span class="kbd">P</span> next/previous photo</span></div>
     <div class="ann-layout">
       <div class="ann-left">${stageSvg(cam, img, { sel: areas[S.annFocus]?.area_id, statusFn: (a) => { const x = S.ann[cam]?.[img]?.[a.area_id]; return x ? (x.planogram_compliant ? x.stock_level : "wrong") : "unknown"; } })}
         <p class="muted small">Sensei's rule: <b>round down</b>. <b>Empty</b> = needs restocking now (nothing, or one or two units left). <b>Full</b> = completely full; one unit missing is already <b>Half</b>. <b>Wrong</b> = the product shown is not the planogram one (an empty area counts as right).</p>
@@ -475,6 +480,22 @@ function annNav(d) {
   render();
 }
 
+async function editNote(aid) {
+  if (!S.annName) { toast("Write your name first (top of the page)"); $("#ann-name")?.focus(); return; }
+  const cam = S.annCam, img = S.annImg;
+  const cur = S.notes?.[cam]?.[img]?.[aid]?.text || "";
+  const a = S.data.areas[aid];
+  const text = prompt(`Note for area ${a.index} (${a.short_name}) — e.g. hand in the way, blurry, unsure. Leave empty to delete.`, cur);
+  if (text === null) return;
+  (((S.notes ||= {})[cam] ||= {})[img] ||= {});
+  if (text.trim()) S.notes[cam][img][aid] = { text: text.trim(), by: S.annName }; else delete S.notes[cam][img][aid];
+  render();
+  try {
+    await api(`/api/notes/${cam}/${encodeURIComponent(img)}/${aid}`, { method: "PUT", headers: { "content-type": "application/json" }, body: JSON.stringify({ text, by: S.annName }) });
+    pollLive();
+  } catch (e) { toast("Could not save the note: " + e.message); }
+}
+
 /* Live sync: every open page polls the server, so everyone sees new labels within seconds. */
 async function pollLive() {
   clearTimeout(pollLive._t);
@@ -482,7 +503,7 @@ async function pollLive() {
     const r = await api(`/api/live?since=${S.liveVersion ?? -1}`);
     if (r.changed) {
       S.liveVersion = r.version;
-      S.ann = r.labels; S.activity = r.activity; S.people = r.people;
+      S.ann = r.labels; S.activity = r.activity; S.people = r.people; S.notes = r.notes || {};
       const typing = document.activeElement && document.activeElement.matches("input[type=search],#ann-name");
       if (!typing && (S.tab === "annotate" || S.tab === "eval")) render();
     }
@@ -544,7 +565,7 @@ async function renderEval() {
 
 /* ---------------- events ---------------- */
 document.addEventListener("click", async (e) => {
-  const t = e.target.closest("[data-tab],[data-open],[data-done],[data-goto],[data-gondola],[data-back],[data-jump],[data-annot],[data-set],[data-comp],[data-annnav],[data-annimg],[data-anncam],[data-annjump],[data-acard],[data-run],polygon,.drawer-close,.drawer");
+  const t = e.target.closest("[data-tab],[data-open],[data-done],[data-goto],[data-gondola],[data-back],[data-jump],[data-annot],[data-set],[data-comp],[data-annnav],[data-note],[data-annimg],[data-anncam],[data-annjump],[data-acard],[data-run],polygon,.drawer-close,.drawer");
   if (!t) return;
   if (t.matches(".drawer") && e.target === t) return closeDrawer();
   if (t.matches(".drawer-close")) return closeDrawer();
@@ -582,6 +603,7 @@ document.addEventListener("click", async (e) => {
     return saveAnn(S.annCam, S.annImg, aid, cur?.stock_level || o?.stock_level || "full", cur ? !cur.planogram_compliant : false);
   }
   if (t.dataset.annnav) return annNav(+t.dataset.annnav);
+  if (t.dataset.note) { S.annFocus = areasOf(S.annCam).findIndex((x) => x.area_id === t.dataset.note); return editNote(t.dataset.note); }
   if (t.dataset.annimg) { S.annImg = t.dataset.annimg; S.annFocus = 0; store.set("annImg", S.annImg); return render(); }
   if (t.dataset.anncam) { S.annCam = t.dataset.anncam; S.annImg = null; S.annFocus = 0; store.set("annCam", S.annCam); return render(); }
   if (t.dataset.annjump) {
@@ -637,6 +659,7 @@ document.addEventListener("keydown", (e) => {
     const lvl = ["empty", "half", "full"][+k - 1];
     saveAnn(S.annCam, S.annImg, a.area_id, lvl, cur ? cur.planogram_compliant : true); next(); return render();
   }
+  if (k === "m") { e.preventDefault(); return editNote(a.area_id); }
   if (k === "x") return saveAnn(S.annCam, S.annImg, a.area_id, cur?.stock_level || o?.stock_level || "full", cur ? !cur.planogram_compliant : false);
   if (k === "enter" && o) { saveAnn(S.annCam, S.annImg, a.area_id, o.stock_level, o.planogram_compliant); next(); return render(); }
   if (k === "delete" || k === "backspace") return deleteAnn(S.annCam, S.annImg, a.area_id);
