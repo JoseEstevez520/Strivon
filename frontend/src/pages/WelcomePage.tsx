@@ -14,10 +14,13 @@ import {
 import { useMemo } from 'react'
 import { DayMap } from '@/components/day/DayMap'
 import { RankedBars } from '@/components/day/RankedBars'
+import { CameraTile } from '@/components/CameraTile'
 import { TaskBoard } from '@/components/TaskBoard'
+import { TaskCard } from '@/components/TaskCard'
 import { useI18n } from '@/lib/i18n'
 import { storeStats } from '@/lib/stats'
 import { useStore } from '@/lib/store'
+import { cardsOf } from '@/lib/tasks'
 
 const STEPS: [LucideIcon, string, string][] = [
   [Camera, 'A camera looks', 'Each gondola has a ceiling camera that takes a photo about once an hour.'],
@@ -57,6 +60,59 @@ const Card = ({ icon: Icon, title, text }: { icon: LucideIcon; title: string; te
   </li>
 )
 
+const nothing = () => {}
+
+/**
+ * The first screen. The headline sets what a camera sees against what Strivon does, and around it
+ * float the app's own parts (tasks, a gondola, a card to move back), so the product is in view
+ * from the first second. They are for looking at: the live ones are further down.
+ */
+function Hero() {
+  const { tasks, gondola, where, historyOf } = useStore()
+  const restock = cardsOf(tasks.filter((x) => x.group === 'restock'))
+  const moveBack = cardsOf(tasks.filter((x) => x.group === 'moveBack'))
+  const card = (c?: (typeof restock)[number]) =>
+    c && (
+      <TaskCard
+        key={c.key}
+        card={c}
+        selected={null}
+        gondola={gondola}
+        where={where}
+        historyOf={historyOf}
+        onSelect={nothing}
+        onJump={nothing}
+      />
+    )
+  const left = [card(restock[0]), restock[2] && <CameraTile key="tile" camera={restock[2].tasks[0].area.camera} />]
+  const right = [card(moveBack[0]), card(restock[1]), card(moveBack[1])]
+  const floaters = 'pointer-events-none flex flex-col gap-3 select-none'
+
+  return (
+    <div className="relative left-1/2 grid w-[min(92vw,88rem)] -translate-x-1/2 grid-cols-[minmax(0,1fr)] items-center gap-10 px-5 py-14 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)_minmax(0,1fr)] lg:gap-14 lg:py-20">
+      <div aria-hidden className={`${floaters} order-2 lg:order-1 lg:-translate-y-4 lg:-rotate-1`}>
+        {left}
+      </div>
+
+      <div className="order-1 flex flex-col items-center gap-6 text-center lg:order-2">
+        <p className="font-mono text-meta tracking-[0.14em] text-fg-muted uppercase">Shelf monitoring for fresh produce</p>
+        <h1 className="text-[clamp(2.25rem,4.6vw,4rem)] leading-[1.06] text-balance font-semibold tracking-[-0.04em]">
+          <span className="block text-fg-muted">A camera sees the shelf.</span>
+          <span className="block">Strivon tells you what to do.</span>
+        </h1>
+        <p className="text-[clamp(1.0625rem,1.6vw,1.25rem)] leading-relaxed text-fg-secondary">
+          Ceiling cameras watch the fruit and vegetable shelves. Strivon compares what they see with the planogram and tells the staff
+          what to restock and what to put back, before anyone has to go looking.
+        </p>
+      </div>
+
+      <div aria-hidden className={`${floaters} order-3 lg:translate-y-6 lg:rotate-1`}>
+        {right}
+      </div>
+    </div>
+  )
+}
+
 /**
  * The presentation page, laid out like the project landings: a centred first screen, then one
  * section per idea at the page's one width. It is the app itself, not pictures of it: the task
@@ -69,18 +125,9 @@ export function WelcomePage() {
   const stats = useMemo(() => storeStats(state), [state])
 
   return (
-    <div className="scrollbar-subtle h-dvh overflow-y-auto [scrollbar-gutter:stable]">
+    <div className="scrollbar-subtle h-dvh overflow-x-clip overflow-y-auto [scrollbar-gutter:stable]">
       <main className="mx-auto max-w-6xl px-5 pb-16">
-        <div className="flex min-h-[80dvh] flex-col items-center justify-center gap-8 py-16 text-center">
-          <div className="flex flex-col gap-3">
-            <h1 className="text-[clamp(3rem,9vw,6rem)] leading-none font-semibold tracking-[-0.045em]">Strivon</h1>
-            <p className="text-title font-normal text-fg-secondary">Every shelf tells you what it needs before it runs empty.</p>
-          </div>
-          <p className="text-[clamp(1.125rem,2.2vw,1.5rem)] leading-relaxed text-fg">
-            Ceiling cameras watch the fruit and vegetable shelves. Strivon compares what they see with the planogram and tells
-            the staff what to restock and what to put back.
-          </p>
-        </div>
+        <Hero />
 
         <Section title="What is Strivon?">
           <div className="flex flex-col gap-4 text-copy text-fg-secondary">
