@@ -2,10 +2,11 @@
 looking only at the image under analysis. Needs torch + transformers, no sklearn and no Hugging Face download: the
 backbone is built from deploy/dinov2_small_config.json and every weight comes from the .pt file (works offline).
 
-    m = OnePass(size=224)                      # loads models/stock_4e/deploy/onepass_s224.* (s168 also exists)
+    m = OnePass(size=224, tag="l1221", b8_stock=PATH)  # loads models/stock_4e/deploy/onepass_s224_l1221.*;
+                                               # b8_stock: optional block-8 stock head averaged 1:1 (round-2 R3)
     m.predict(img, areas)  -> {area_id: {"compliant": bool, "p_ok": float, "p_stock": [pE, pH, pF], "stock_value": v}}
 
-usage (check): py -I models/stock_4e/onepass_infer.py [SIZE]   -> answers for the newest photo of two cameras + timing
+usage (check): py -I models/stock_4e/onepass_infer.py [SIZE] [TAG] [B8_STOCK.npz] -> newest photo of two cameras + timing
 """
 import json
 import pathlib
@@ -25,11 +26,11 @@ LEVELS = (0.0, 0.5, 1.0)
 
 
 class OnePass:
-    def __init__(self, size=224, device="cpu", threads=None):
+    def __init__(self, size=224, device="cpu", threads=None, tag="", b8_stock=None):
         from transformers import Dinov2Config, Dinov2Model
         if threads:
             torch.set_num_threads(threads)
-        stem = HERE / "deploy" / f"onepass_s{size}"
+        stem = HERE / "deploy" / (f"onepass_s{size}" + (f"_{tag}" if tag else ""))
         self.meta = json.loads(pathlib.Path(str(stem) + ".json").read_text(encoding="utf-8"))
         sd = torch.load(str(stem) + ".pt", map_location="cpu")
         self.bb = Dinov2Model(Dinov2Config.from_json_file(str(HERE / "deploy" / "dinov2_small_config.json")))
@@ -43,6 +44,10 @@ class OnePass:
         self.mu, self.sd, self.coef, self.b = p["mu"], p["sd"], p["coef"], p["intercept"]
         self.cls = {c: j for j, c in enumerate(p["classes"].tolist())}
         self.size = size
+        self.b8 = None
+        if b8_stock:   # -b7's stock head on the same block-8 features (mu, sd, coef, intercept; classes 0/1/2)
+            q = np.load(b8_stock)
+            self.b8 = (q["mu"], q["sd"], q["coef"], q["intercept"])
         self.mean = torch.tensor(self.meta["normalise"]["mean"]).view(1, 3, 1, 1)
         self.std = torch.tensor(self.meta["normalise"]["std"]).view(1, 3, 1, 1)
 
@@ -61,6 +66,11 @@ class OnePass:
         h, h8 = out.last_hidden_state, out.hidden_states[8]
         ps = torch.softmax(self.head(torch.cat([h[:, 0], h[:, 1:].mean(1)], 1)), 1).cpu().numpy()
         f8 = torch.cat([h8[:, 0], h8[:, 1:].mean(1)], 1).cpu().numpy()
+        if self.b8 is not None:   # R3: average the fine-tuned stock head 1:1 with the block-8 stock head
+            mu8, sd8, c8, b8 = self.b8
+            z8 = ((f8 - mu8) / sd8) @ c8.T + b8
+            p8 = np.exp(z8 - z8.max(1, keepdims=True))
+            ps = (ps + p8 / p8.sum(1, keepdims=True)) / 2
         z = ((f8 - self.mu) / self.sd) @ self.coef.T + self.b
         q = np.exp(z - z.max(1, keepdims=True))
         q /= q.sum(1, keepdims=True)
@@ -77,7 +87,9 @@ if __name__ == "__main__":
     import time
     from common import list_images, load_image, load_planogram
     size = int(sys.argv[1]) if len(sys.argv) > 1 else 224
-    m = OnePass(size, threads=4)
+    tag = sys.argv[2] if len(sys.argv) > 2 else ""
+    b8 = sys.argv[3] if len(sys.argv) > 3 else None
+    m = OnePass(size, threads=4, tag=tag, b8_stock=b8)
     pg = load_planogram()
     newest = {}
     for r in list_images():
