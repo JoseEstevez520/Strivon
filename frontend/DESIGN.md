@@ -516,6 +516,21 @@ a collapsing block by hand once, and Base UI and shadcn already had it.
   The period is now a line of data. A period selector and multi-day code were left out, since they
   could not be tested with one day of photos.
 
+## Roadmap
+
+What we want to build next on the interface, in no fixed order. When one of these starts, move
+what we decide into the sections above and the decisions log.
+
+- A version for managers. Today the app is built for the person with the cart. A manager asks
+  different things: which gondolas keep running out, at what hour, and whether the shifts match
+  that. Before designing it we need to find out how stores usually work: how restocking is
+  planned, who decides what to reorder, how long a shelf area can sit empty before it counts as a
+  problem, and which figures a manager already looks at each day. Write what we find, with its
+  source, in `docs/` and design from that, not from guesses. The Insights page is the starting
+  point; this version may replace it or sit beside it.
+- A store plan with the real layout. The Map page places the gondolas in rows because we do not
+  have the plan of the store. When we get it, fill in `src/model/layout.ts`.
+
 ## Open questions
 
 - The English flag is the UK flag. A code such as EN would avoid the question of which country
