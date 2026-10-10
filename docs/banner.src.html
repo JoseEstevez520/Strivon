@@ -1,0 +1,35 @@
+<!doctype html>
+<!-- Source of docs/banner.png (1280x640). Render with:
+/usr/bin/brave-browser --headless=new --no-sandbox --disable-gpu --hide-scrollbars --window-size=1280,640 --virtual-time-budget=4000 --screenshot=docs/banner.png file://$PWD/docs/banner.src.html -->
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f8f7f4;--fg:#1d1d1d;--muted:#686d62}
+*{box-sizing:border-box;margin:0}
+body{width:1280px;height:640px;background:var(--bg);color:var(--fg);font-family:Inter,system-ui,sans-serif;display:flex;align-items:center;justify-content:space-between;padding:0 96px;overflow:hidden}
+.lock{display:flex;align-items:center;gap:28px}
+.lock svg{display:block}
+h1{font-size:92px;font-weight:600;letter-spacing:-.045em;line-height:1}
+p{margin-top:36px;font-size:30px;line-height:1.3;letter-spacing:-.015em;color:var(--muted);max-width:540px}
+small{display:block;margin-top:44px;font-size:18px;color:var(--muted)}
+#art{width:416px;height:416px;flex:none}
+</style></head><body>
+<div>
+  <div class="lock"><div id="logo"></div><h1>strivon</h1></div>
+  <p>Every shelf tells you what it needs before it runs empty.</p>
+  <small>Sensei challenge · JunctionX Lisbon 2026</small>
+</div>
+<div id="art"></div>
+<script>
+// Fixed pattern, not data. Same cells as the logo (9-unit squares, 2.5 gap, 2.2 radius),
+// same states as Logo.tsx: 0 grey, 1 light, 2 mid, 3 red. The art is the logo grid extended.
+const fill=['#d8d5cc','#e1a898','#d98a77','#c4452f'];
+function grid(n,size){
+  const u=9,g=2.5,total=n*u+(n-1)*g;let s='';
+  for(let r=0;r<n;r++)for(let c=0;c<n;c++){
+    const d=c-r,v=d===0?3:d===1?2:d===-1?1:0;
+    s+=`<rect x="${c*(u+g)}" y="${r*(u+g)}" width="${u}" height="${u}" rx="2.2" fill="${fill[v]}"/>`}
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${total} ${total}" width="${size}" height="${size}">${s}</svg>`}
+document.getElementById('logo').innerHTML=grid(3,96);
+document.getElementById('art').innerHTML=grid(7,416);
+</script></body></html>
