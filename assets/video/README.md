@@ -15,5 +15,7 @@ simulated, so the clips are for showing how the chat works, not as results of th
 The three chat clips also come as `*-alpha.webm`, with a transparent background, to
 place over any page or slide. The text is dark, so use them on a light background.
 
+`chat-to-gondola.gif` is a light copy of that clip for the main README.
+
 The source is a separate Remotion project, kept outside this repo for now. The shelf photo in the
 clips is one of the challenge's camera photos, reduced.
