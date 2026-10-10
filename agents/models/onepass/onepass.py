@@ -7,7 +7,10 @@ answers for the current photo are shared through one registry (keyed by camera, 
     py -I predict.py --images <folder of <camera>/<timestamp>.jpg> --planogram <planogram.json> \
         --stock-model models/onepass/onepass.py --compliance-model models/onepass/onepass.py --out preds.json
 
-Env: ONEPASS_SIZE (default 224), ONEPASS_DEVICE (cpu or cuda, default cpu), ONEPASS_THREADS (default 4).
+Env: ONEPASS_SIZE (default 224), ONEPASS_TAG (default l1221 = weights retrained on the team labels @1221ec3,
+round-2 R3), ONEPASS_DEVICE (cpu or cuda, default cpu), ONEPASS_THREADS (default 4), ONEPASS_B8_HEAD: the free
+block-8 stock head that OnePass averages 1:1 with its fine-tuned p_stock in the same pass. Unset = use
+models/onepass/deploy/stockb8.npz if that file exists, "off" = never, or a path to another .npz.
 """
 import hashlib
 import os
@@ -22,11 +25,21 @@ from onepass_infer import OnePass  # noqa: E402
 _S = sys.modules.setdefault("_onepass_shared", types.SimpleNamespace(model=None, key=None, answers=None))
 
 
+def _b8_head():
+    head = os.environ.get("ONEPASS_B8_HEAD")
+    if head is None:
+        default = Path(__file__).resolve().parent / "deploy" / "stockb8.npz"
+        head = str(default) if default.exists() else "off"
+    return None if head == "off" else head
+
+
 def _model():
     if _S.model is None:
         _S.model = OnePass(size=int(os.environ.get("ONEPASS_SIZE", "224")),
                            device=os.environ.get("ONEPASS_DEVICE", "cpu"),
-                           threads=int(os.environ.get("ONEPASS_THREADS", "4")))
+                           threads=int(os.environ.get("ONEPASS_THREADS", "4")),
+                           tag=os.environ.get("ONEPASS_TAG", "l1221"),
+                           b8_stock=_b8_head())
     return _S.model
 
 
