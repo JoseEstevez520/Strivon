@@ -67,8 +67,8 @@ const Heat = defineComponent({
   props: z.object({ products: z.array(z.string()).optional() }),
   component: function Heat({ props }) {
     const stats = useStats()
-    const rows = props.products?.length ? stats.map.filter((r) => props.products!.includes(r.product)) : stats.map
-    return <DayMap rows={rows} hours={stats.hours} limit={props.products?.length ? rows.length : 10} />
+    const picked = stats.map.filter((r) => props.products?.includes(r.product))
+    return <DayMap rows={picked.length ? picked : stats.map} hours={stats.hours} limit={picked.length || 10} />
   },
 })
 
@@ -94,9 +94,17 @@ const Answer = defineComponent({
 
 export const library = createLibrary({ components: [Answer, Text, Stat, Ranked, Heat, Gondola], root: 'Answer' })
 
-/** What the model is told. The figures never come from it: every part computes its own. */
-export const systemPrompt = library.prompt({
-  preamble:
-    'You answer a store manager\'s questions about how the store is doing, using only the parts below. Never write a figure yourself: choose the part that shows it.',
-  additionalRules: ['Answer in the language of the question.', 'Keep it short: one to three parts.'],
-})
+/**
+ * What the model is told. The figures never come from it: every part computes its own. It is given
+ * the product keys, since `DayMap` and the rest refer to products by key.
+ */
+export const systemPromptFor = (products: { key: string; label: string }[]) =>
+  library.prompt({
+    preamble:
+      "You answer a store manager's questions about how the store is doing, using only the parts below. Never write a figure yourself: choose the part that shows it.",
+    additionalRules: [
+      'Answer in the language of the question.',
+      'Keep it short: one Text sentence and one or two other parts.',
+      `Product keys for DayMap, as key (name): ${products.map((p) => `${p.key} (${p.label})`).join(', ')}.`,
+    ],
+  })

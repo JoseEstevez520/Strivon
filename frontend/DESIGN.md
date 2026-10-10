@@ -452,6 +452,11 @@ a collapsing block by hand once, and Base UI and shadcn already had it.
   estimate. The assistant is empty on purpose: the parts an answer is made of are built, the
   answering is not.
 
+- 2026-10-10. The bubble grows into the chat box and folds back (width, height and radius, 300 ms).
+  It is the one exception to "no layout animation", allowed because it is a single small element
+  with a fixed-size box inside it, so nothing inside reflows. The blur, glass and aurora of
+  elastic-ui stay out. The writing field is a soft tray that grows with the text, Enter sends,
+  and the send button is a dark circle that dims while there is nothing to send.
 - 2026-10-10. The chat draws its answers with OpenUI (`@openuidev/react-lang`, MIT), using the
   app's own components as its library (`components/chat/library.tsx`). The parts take references,
   never figures: `Stat("empty")`, `Ranked("gondolas", 5)`. Each part computes its numbers from the

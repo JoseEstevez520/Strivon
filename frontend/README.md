@@ -46,6 +46,20 @@ are connected, a shelf marked empty can show a full one in the photo.
 The `/api` requests are proxied to the pipeline's server on port 8000, for when the real data
 replaces the simulation.
 
+## The chat model
+
+The Insights chat asks a model through `/api/chat`, which the Vite server relays to any
+OpenAI-compatible endpoint, so the key never reaches the browser. Put these in `frontend/.env`
+(git-ignored, never commit it):
+
+```
+LLM_BASE_URL=https://api.deepseek.com
+LLM_MODEL=deepseek-flash
+LLM_API_KEY=...
+```
+
+Without a key, or without network, the chat falls back to a few answers written by rule.
+
 ## Build
 
 ```bash
