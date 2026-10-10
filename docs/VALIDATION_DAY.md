@@ -6,7 +6,7 @@ Everything runs from `backend/` on one laptop, with the data in `data/` and `eva
 
 ```bash
 python -m pip install -r requirements.txt
-python -m sensei train-single --no-refs
+python -m sensei train-single
 ```
 
 `train-single` builds the CLIP ViT-B-32 features (a few minutes the first time, cached after), fits
@@ -31,7 +31,7 @@ python -m sensei predict --images PATH/TO/validation --out ../outputs/prediction
 
 | Check | Result |
 |---|---|
-| Team benchmark (`LEADERBOARD.md`), single image, ViT-B-32 | 3205 / 3858, about 480 / 578 |
+| Team benchmark (`LEADERBOARD.md`), single image, ViT-B-32, LR + GBM blend | 3253 / 3858, about 487 / 578 |
 | Always "right product, full" | about 233 / 578 |
 | Cost | 0.8 s per photo on 2 CPU threads, no GPU (`python timing.py`) |
 
