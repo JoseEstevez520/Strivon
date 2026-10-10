@@ -49,7 +49,7 @@ replaces the simulation.
 ## The landing
 
 The landing for the presentation is its own page, not a screen of the app. It has its own entry
-(`landing/`), its own build and its own output, and nothing on it leads into the app or back.
+(`landing/`), its own build and its own output, and nothing on it leads into the app or back. It links out only to the repository and its docs.
 It borrows the app's tokens and a few parts, so it needs no extra install.
 
 ```bash

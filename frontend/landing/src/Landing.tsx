@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import {
   ArrowRight,
+  ArrowUpRight,
   Apple,
   Camera,
   ChartNoAxesColumn,
@@ -28,6 +29,13 @@ const TODAY: [LucideIcon, string, string][] = [
   [Play, 'The day, replayed', 'Move through the photos of the day and watch each area change, or open a card to see its day as a strip.'],
   [ChartNoAxesColumn, 'How the store is doing', 'How much of the time shelves were empty, when and where, marked as an estimate because photos come an hour apart.'],
   [Languages, 'English, Portuguese and Spanish', 'The whole app, in the language of whoever is on shift.'],
+]
+
+const REPO = 'https://github.com/JoseEstevez520/Strivon'
+
+const LINKS = [
+  ['Repository', 'The pipeline, the app and this page, with the setup guide.', REPO],
+  ['Docs', 'The plan, who does what and what Sensei told us.', `${REPO}/tree/main/docs`],
 ]
 
 const TEAM = ['Jose', 'Miguel', 'André', 'Leonor']
@@ -217,6 +225,27 @@ export function Landing() {
 
         <Section title="See it" lead="The app, shortened. Open a task to see its day and its shelf, or move through the day.">
           <Demo />
+        </Section>
+
+        <Section title="Code">
+          <ul className="grid gap-4 sm:grid-cols-2">
+            {LINKS.map(([title, text, href]) => (
+              <li key={title}>
+                <a
+                  href={href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="group flex h-full items-start justify-between gap-4 rounded-2xl bg-surface p-5 transition-colors hover:bg-raised"
+                >
+                  <span>
+                    <span className="block text-label text-fg">{title}</span>
+                    <span className="mt-1 block text-ui text-fg-secondary">{text}</span>
+                  </span>
+                  <ArrowUpRight className="size-5 shrink-0 text-fg-muted transition-colors group-hover:text-fg" strokeWidth={1.5} aria-hidden />
+                </a>
+              </li>
+            ))}
+          </ul>
         </Section>
 
         <Section title="Team">
