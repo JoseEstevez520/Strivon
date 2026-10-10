@@ -1,22 +1,27 @@
 import { ArrowUp } from 'lucide-react'
-import { useEffect, useRef, useState, type FormEvent } from 'react'
-import { AnswerBlockView, type AnswerBlock } from './answers'
+import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
+import { Renderer } from '@openuidev/react-lang'
+import { library } from './library'
+import { answer } from './offline'
 import { Input } from '@/components/ui/input'
 import { useI18n } from '@/lib/i18n'
+import { storeStats } from '@/lib/stats'
+import { useStore } from '@/lib/store'
 
+/** A question, or an answer as the OpenUI Lang a model writes. */
 interface Message {
   id: number
   role: 'user' | 'assistant'
-  blocks: AnswerBlock[]
+  text: string
 }
 
 /**
- * A quiet place to ask about the store. The assistant is not connected yet, so every question gets
- * the same plain answer. The thread already holds answers as parts of the app's own components, so
- * connecting one is a matter of returning those parts.
+ * A quiet place to ask about the store. Answers are OpenUI Lang drawn with the app's own components
+ * (`library.tsx`). Until a model is connected, `offline.ts` writes that text from the question.
  */
 export function Chat() {
-  const { t } = useI18n()
+  const { t, family } = useI18n()
+  const { state } = useStore()
   const [messages, setMessages] = useState<Message[]>([])
   const [draft, setDraft] = useState('')
   const input = useRef<HTMLInputElement>(null)
@@ -27,6 +32,8 @@ export function Chat() {
     if (messages.length) end.current?.scrollIntoView({ block: 'nearest' })
   }, [messages.length])
 
+  const products = useMemo(() => storeStats(state).map.map((r) => ({ key: r.product, label: family(r.product) })), [state, family])
+
   const submit = (e: FormEvent) => {
     e.preventDefault()
     const question = draft.trim()
@@ -35,8 +42,8 @@ export function Chat() {
     next.current += 2
     setMessages((m) => [
       ...m,
-      { id, role: 'user', blocks: [{ type: 'text', text: question }] },
-      { id: id + 1, role: 'assistant', blocks: [{ type: 'text', text: t.notConnected }] },
+      { id, role: 'user', text: question },
+      { id: id + 1, role: 'assistant', text: answer(question, products) },
     ])
     setDraft('')
   }
@@ -48,9 +55,7 @@ export function Chat() {
           <ol className="mx-auto flex max-w-3xl flex-col gap-3">
             {messages.map((m) => (
               <li key={m.id} className={m.role === 'user' ? 'ml-auto max-w-[85%] rounded-xl bg-surface px-3 py-2 text-ui' : 'flex flex-col gap-3 px-1'}>
-                {m.blocks.map((b, i) => (
-                  <AnswerBlockView key={i} block={b} />
-                ))}
+                {m.role === 'user' ? m.text : <Renderer response={m.text} library={library} />}
               </li>
             ))}
             <div ref={end} />
