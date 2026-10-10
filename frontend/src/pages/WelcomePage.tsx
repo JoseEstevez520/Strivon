@@ -117,8 +117,7 @@ function Hero() {
  * layout so it reads as one page.
  */
 export function WelcomePage() {
-  const { state, tasks } = useStore()
-  const stats = useMemo(() => storeStats(state), [state])
+  const { tasks } = useStore()
 
   return (
     <div className="scrollbar-subtle h-dvh overflow-x-clip overflow-y-auto [scrollbar-gutter:stable]">
@@ -167,10 +166,6 @@ export function WelcomePage() {
           <div className="scrollbar-subtle h-[40rem] overflow-y-auto border-y border-border py-4">
             <TaskBoard tasks={tasks} />
           </div>
-        </Section>
-
-        <Section title="How the store is doing" lead="How much of the time each product was empty, hour by hour. Photos come an hour apart, so these are estimates.">
-          <DayMap rows={stats.map} hours={stats.hours} />
         </Section>
 
         <Section title="Team">
