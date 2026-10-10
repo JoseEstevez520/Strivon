@@ -41,3 +41,7 @@ Deadline: domingo. Objetivo: maximizar pontos na validação (máx 578) + melhor
 - [ ] UI/dashboard (José/Leonor design)
 - [ ] Pitch + demo + README (Leonor/Miguel)
 - [ ] Submissão no formato exigido (todos revêm antes)
+
+## Notas do dataset
+- Algumas imagens (ex.: a primeira de 6383, de madrugada) têm o expositor tapado por uma cortina: os crops são parede lisa. Precisamos de detetar "tapado" e decidir o output (provavelmente empty / compliant=true) — confirmar com imagens da validação se existirem.
+- Alinhamento dos polígonos verificado visualmente em 6383 e 6468: bom.
