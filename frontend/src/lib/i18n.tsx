@@ -33,10 +33,15 @@ interface Strings {
   searchProducts: string
   shortOf: (short: number, total: number) => string
   allGondolas: string
+  gondolaN: (n: number) => string
   loading: string
   navInsights: string
   navMap: string
   planHeadline: (n: number) => string
+  goFirst: string
+  thenGo: string
+  bring: string
+  emptySince: (time: string) => string
   insightsHeadline: (pct: number) => string
   insightsPeriod: (date: string, from: string, to: string) => string
   insightsSimulatedShort: string
@@ -89,10 +94,15 @@ const en: Strings = {
   searchProducts: 'Search products',
   shortOf: (s, n) => (s === 0 ? 'All fine' : n === 1 ? 'Short' : `${s} of ${n} areas short`),
   allGondolas: 'All gondolas',
+  gondolaN: (n) => `Gondola ${n}`,
   loading: 'Checking the shelves…',
   navInsights: 'Insights',
   navMap: 'Map',
   planHeadline: (n) => (n === 0 ? 'Every gondola is fine' : n === 1 ? '1 gondola needs attention' : `${n} gondolas need attention`),
+  goFirst: 'Go first',
+  thenGo: 'Then',
+  bring: 'Bring',
+  emptySince: (time) => `Empty since ${time}`,
   insightsHeadline: (p) => `~${p}% of shelf time was empty`,
   insightsPeriod: (d, a, b) => `${d} · ${a}–${b}`,
   insightsSimulatedShort: 'simulated',
@@ -161,10 +171,15 @@ const pt: Strings = {
   searchProducts: 'Procurar produtos',
   shortOf: (s, n) => (s === 0 ? 'Tudo bem' : n === 1 ? 'Em falta' : `${s} de ${n} áreas em falta`),
   allGondolas: 'Todas as gôndolas',
+  gondolaN: (n) => `Gôndola ${n}`,
   loading: 'A verificar as prateleiras…',
   navInsights: 'Análise',
   navMap: 'Mapa',
   planHeadline: (n) => (n === 0 ? 'Todas as gôndolas estão bem' : n === 1 ? '1 gôndola precisa de atenção' : `${n} gôndolas precisam de atenção`),
+  goFirst: 'Vai primeiro',
+  thenGo: 'Depois',
+  bring: 'Levar',
+  emptySince: (time) => `Vazio desde as ${time}`,
   insightsHeadline: (p) => `~${p}% do tempo de prateleira esteve vazio`,
   insightsPeriod: (d, a, b) => `${d} · ${a}–${b}`,
   insightsSimulatedShort: 'simulado',
@@ -233,10 +248,15 @@ const es: Strings = {
   searchProducts: 'Buscar productos',
   shortOf: (s, n) => (s === 0 ? 'Todo bien' : n === 1 ? 'Con falta' : `${s} de ${n} zonas con falta`),
   allGondolas: 'Todas las góndolas',
+  gondolaN: (n) => `Góndola ${n}`,
   loading: 'Revisando las estanterías…',
   navInsights: 'Análisis',
   navMap: 'Mapa',
   planHeadline: (n) => (n === 0 ? 'Todas las góndolas están bien' : n === 1 ? '1 góndola necesita atención' : `${n} góndolas necesitan atención`),
+  goFirst: 'Ve primero',
+  thenGo: 'Después',
+  bring: 'Llevar',
+  emptySince: (time) => `Vacío desde las ${time}`,
   insightsHeadline: (p) => `~${p}% del tiempo de estantería estuvo vacío`,
   insightsPeriod: (d, a, b) => `${d} · ${a}–${b}`,
   insightsSimulatedShort: 'simulado',

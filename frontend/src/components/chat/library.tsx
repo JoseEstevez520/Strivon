@@ -36,7 +36,7 @@ function useData() {
     camera: camera && store.state.images[camera] ? camera : undefined,
   })
   const nameOf = (s: Scope) =>
-    [s.product ? family(s.product) : '', s.camera ? store.gondola(s.camera) : ''].filter(Boolean).join(' · ') || t.wholeStore
+    [s.product ? family(s.product) : '', s.camera ? store.gondolaFull(s.camera) : ''].filter(Boolean).join(' · ') || t.wholeStore
   return { t, family, ...store, stats, scope, nameOf }
 }
 
@@ -115,7 +115,7 @@ const Ranked = defineComponent({
   description: 'A ranking by how long things were empty, worst first, as bars with a percentage: "products" or "gondolas".',
   props: z.object({ by: z.enum(['products', 'gondolas']), top: z.number().int().min(1).max(10).optional() }),
   component: function Ranked({ props }) {
-    const { t, family, gondola, stats } = useData()
+    const { t, family, gondolaFull: gondola, stats } = useData()
     const top = props.top ?? 5
     const items =
       props.by === 'products'
@@ -157,7 +157,7 @@ const Table = defineComponent({
     'A table of products or gondolas with how long each was empty, half full and holding the wrong product, worst first. Use it when several figures per item are asked for.',
   props: z.object({ by: z.enum(['products', 'gondolas']), top: z.number().int().min(2).max(12).optional() }),
   component: function Table({ props }) {
-    const { t, family, gondola, state } = useData()
+    const { t, family, gondolaFull: gondola, state } = useData()
     const pct = (v: number) => `${Math.round(v * 100)}%`
     const data = rows(state, props.by)
       .slice(0, props.top ?? 6)

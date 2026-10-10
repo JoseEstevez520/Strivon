@@ -60,14 +60,14 @@
   "owner": "André (agents)",
   "labels": "labels_v1",
   "other_photos": "yes, same camera and day",
-  "seconds": "being measured (8 image models per photo)"
+  "seconds": "stock ≈ 2.4 GPU (2.6 GB VRAM) or up to ≈ 195 CPU, plus the product check"
  },
  "agents_9models_single_photo": {
   "approach": "Agents' pipeline, 9-model stock average, each photo on its own",
   "owner": "André (agents)",
   "labels": "labels_v1",
   "other_photos": "no",
-  "seconds": "being measured (8 image models per photo)"
+  "seconds": "stock ≈ 2.4 GPU (2.6 GB VRAM) or up to ≈ 195 CPU, plus the product check"
  },
  "agents_same_day_3heads": {
   "approach": "Agents' pipeline + 3rd stock head, uses same-day photos",
@@ -123,6 +123,62 @@
   "owner": "Jose (lab)",
   "labels": "the key",
   "other_photos": "training crops only",
-  "seconds": "about 0.2 CPU, 2 threads, measured on a loaded laptop; no GPU"
+  "seconds": "0.14 CPU per photo (1 thread, warm); 0.31 per photo over a batch of 28 including a 4.8 startup (torch import 3.8); i7 laptop, no GPU"
+ },
+ "agents_finetuned_b_same_day": {
+  "approach": "Agents' pipeline, fine-tuned DINOv2-base stock (2 seeds), uses same-day photos",
+  "owner": "André (agents)",
+  "labels": "labels_v1",
+  "other_photos": "yes, same camera and day",
+  "seconds": "≈ 7 CPU (stock 5.6 + product 1.1–1.6), ≈ 0.4 GPU"
+ },
+ "agents_finetuned_b_single_photo": {
+  "approach": "Agents' pipeline, fine-tuned DINOv2-base stock (2 seeds), each photo on its own",
+  "owner": "André (agents)",
+  "labels": "labels_v1",
+  "other_photos": "no",
+  "seconds": "≈ 8.7 CPU (stock 5.6 + product 3.05); stock 0.23 GPU"
+ },
+ "agents_finetuned_s_same_day": {
+  "approach": "Agents' pipeline, fine-tuned DINOv2-small stock, uses same-day photos",
+  "owner": "André (agents)",
+  "labels": "labels_v1",
+  "other_photos": "yes, same camera and day",
+  "seconds": "≈ 2–2.5 CPU (stock 0.9 + product 1.1–1.6), ≈ 0.3 GPU"
+ },
+ "agents_finetuned_s_single_photo": {
+  "approach": "Agents' pipeline, fine-tuned DINOv2-small stock, each photo on its own",
+  "owner": "André (agents)",
+  "labels": "labels_v1",
+  "other_photos": "no",
+  "seconds": "≈ 4 CPU (stock 0.9 + product 3.05); stock 0.12 GPU"
+ },
+ "agents_img_one_pass": {
+  "approach": "Agents, image only, ONE DINOv2-small pass: product from frozen block 8, stock from the fine-tuned blocks",
+  "owner": "André (agents)",
+  "labels": "labels_v1",
+  "other_photos": "no",
+  "seconds": "0.82 CPU (4 threads); GPU being measured"
+ },
+ "agents_img_ftB2": {
+  "approach": "Agents, image only: product head on frozen DINOv2-small + fine-tuned DINOv2-base stock (2 seeds)",
+  "owner": "André (agents)",
+  "labels": "labels_v1",
+  "other_photos": "no",
+  "seconds": "6.67 CPU; ≈ 0.26 GPU (from component timings)"
+ },
+ "agents_img_ftS": {
+  "approach": "Agents, image only: product head on frozen DINOv2-small + fine-tuned DINOv2-small stock (two passes)",
+  "owner": "André (agents)",
+  "labels": "labels_v1",
+  "other_photos": "no",
+  "seconds": "1.75 CPU; ≈ 0.15 GPU (from component timings)"
+ },
+ "agents_img_frozen_S": {
+  "approach": "Agents, image only: frozen DINOv2-small with a product head and a stock head",
+  "owner": "André (agents)",
+  "labels": "labels_v1",
+  "other_photos": "no",
+  "seconds": "0.83 CPU; ≈ 0.12 GPU (from component timings)"
  }
 }

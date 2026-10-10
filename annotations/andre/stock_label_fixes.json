@@ -1,0 +1,52 @@
+[
+ {
+  "camera": "6383",
+  "image": "1751029430.jpg",
+  "time": "14:03",
+  "area_id": "6383_7",
+  "now": "half",
+  "should_be": "full",
+  "before": "12:55 full",
+  "after": "15:04 full"
+ },
+ {
+  "camera": "6385",
+  "image": "1751005283.jpg",
+  "time": "07:21",
+  "area_id": "6385_5",
+  "now": "half",
+  "should_be": "full",
+  "before": "06:12 full",
+  "after": "08:21 full"
+ },
+ {
+  "camera": "6491",
+  "image": "1751021816.jpg",
+  "time": "11:56",
+  "area_id": "6491_7",
+  "now": "full",
+  "should_be": "half",
+  "before": "10:54 half",
+  "after": "12:58 half"
+ },
+ {
+  "camera": "6491",
+  "image": "1751021816.jpg",
+  "time": "11:56",
+  "area_id": "6491_5",
+  "now": "full",
+  "should_be": "half",
+  "before": "10:54 half",
+  "after": "12:58 half"
+ },
+ {
+  "camera": "6781",
+  "image": "1751009927.jpg",
+  "time": "08:38",
+  "area_id": "6781_9",
+  "now": "full",
+  "should_be": "half",
+  "before": "07:30 half",
+  "after": "09:45 half"
+ }
+]

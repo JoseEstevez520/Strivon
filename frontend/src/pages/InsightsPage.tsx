@@ -14,7 +14,7 @@ const Heading = ({ children }: { children: React.ReactNode }) => (
 /** How the store is doing, for whoever runs it: one number, when it happened and where it hurts. */
 export function InsightsPage() {
   const { t, lang, family } = useI18n()
-  const { state, gondola, simulated } = useStore()
+  const { state, gondolaFull: gondola, simulated } = useStore()
   const stats = useMemo(() => storeStats(state), [state])
 
   // What the photos cover is written from the data, so the page never claims a period it does not have.
