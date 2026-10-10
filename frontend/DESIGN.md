@@ -473,11 +473,8 @@ a collapsing block by hand once, and Base UI and shadcn already had it.
   line, as in the big chats; a round button takes you down when it runs long. The last answer is
   at least a screen tall so that even a short one lets the question reach the top. On a phone the
   enlarge button is hidden: the box already takes the screen.
-- 2026-10-11. Tasks has a timeline of the day above the list: one column per hour, red for what had
-  to be restocked on top of amber for what was in the wrong place, as it stood at the last photo of
-  that hour. The moment you are looking at is lit; press or drag to go to another and the whole page
-  follows, and the play button plays the day. It replaces the slider under the gondola panel on this
-  page only; other pages keep the slider.
+- 2026-10-11. Tasks has the same day bar as Gondolas, under the headline and above the list, not
+  under the gondola panel. One time control, in the same place on both pages.
 - 2026-10-10. The bubble grows into the chat box and folds back (width, height and radius, 300 ms).
   It is the one exception to "no layout animation", allowed because it is a single small element
   with a fixed-size box inside it, so nothing inside reflows. Blur, glass and aurora stay out. The writing field is a soft tray that grows with the text, Enter sends,
