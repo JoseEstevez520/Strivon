@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Camera, Globe } from 'lucide-react'
+import { ES, GB, PT } from 'country-flag-icons/react/3x2'
 import { DayBar } from '@/components/DayBar'
 import { PhotoStage } from '@/components/PhotoStage'
 import { PickerButton } from '@/components/PickerButton'
@@ -10,7 +11,12 @@ import { cameras, snapshot, tasksAt, type Group } from '@/lib/tasks'
 import { clock } from '@/lib/time'
 
 const GROUPS: Group[] = ['restock', 'moveBack', 'later', 'allGood']
-const LANG_LABEL = { en: 'EN', pt: 'PT', es: 'ES' } as const
+const flag = 'h-3.5 w-5 rounded-[3px]'
+const LANG_OPTIONS = {
+  en: { label: 'English', icon: <GB className={flag} /> },
+  pt: { label: 'Português', icon: <PT className={flag} /> },
+  es: { label: 'Español', icon: <ES className={flag} /> },
+} as const
 
 function Screen() {
   const { t, lang, setLang } = useI18n()
@@ -75,11 +81,11 @@ function Screen() {
         />
         <PickerButton
           icon={<Globe />}
-          className="w-24"
+          className="w-44"
           label={t.language}
           value={lang}
           onChange={(v) => setLang(v as typeof lang)}
-          options={LANGS.map((l) => ({ value: l, label: LANG_LABEL[l] }))}
+          options={LANGS.map((l) => ({ value: l, ...LANG_OPTIONS[l] }))}
         />
       </header>
 

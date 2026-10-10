@@ -6,6 +6,8 @@ export interface PickerOption {
   label: string
   /** Quiet text at the right of the option, such as a count. */
   hint?: string
+  /** Shown before the label, in the list and on the trigger when chosen. */
+  icon?: ReactNode
 }
 
 interface Props {
@@ -21,16 +23,20 @@ interface Props {
 /** A tray that opens a short list. Used for the camera and the language. */
 export function PickerButton({ icon, label, value, onChange, options, className }: Props) {
   const items = options.map((o) => ({ value: o.value, label: o.label }))
+  const chosen = options.find((o) => o.value === value)
   return (
     <Select items={items} value={value} onValueChange={(v) => v && onChange(v)}>
       <SelectTrigger aria-label={label} className={className}>
-        <span className="text-fg-muted [&_svg]:size-4">{icon}</span>
+        <span className="text-fg-muted [&_svg]:size-4">{chosen?.icon ?? icon}</span>
         <SelectValue />
       </SelectTrigger>
       <SelectContent align="end">
         {options.map((o) => (
           <SelectItem key={o.value} value={o.value}>
-            {o.label}
+            <span className="flex items-center gap-2">
+              {o.icon}
+              {o.label}
+            </span>
             {o.hint && <span className="text-meta tabular-nums text-fg-muted">{o.hint}</span>}
           </SelectItem>
         ))}
