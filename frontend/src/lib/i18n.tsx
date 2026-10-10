@@ -35,6 +35,7 @@ interface Strings {
   shortOf: (short: number, total: number) => string
   allGondolas: string
   loading: string
+  orderNote: string
   showMore: (n: number) => string
   showAll: (n: number) => string
   showFewer: string
@@ -58,6 +59,7 @@ const en: Strings = {
   shortOf: (s, n) => (s === 0 ? 'All fine' : n === 1 ? 'Short' : `${s} of ${n} areas short`),
   allGondolas: 'All gondolas',
   loading: 'Checking the shelves…',
+  orderNote: 'Most urgent first: what is out in most places, then what has waited longest.',
   showMore: (n) => `Show ${n} more`,
   showAll: (n) => `Show ${n}`,
   showFewer: 'Show fewer',
@@ -97,6 +99,7 @@ const pt: Strings = {
   shortOf: (s, n) => (s === 0 ? 'Tudo bem' : n === 1 ? 'Em falta' : `${s} de ${n} áreas em falta`),
   allGondolas: 'Todas as gôndolas',
   loading: 'A verificar as prateleiras…',
+  orderNote: 'O mais urgente primeiro: o que falta em mais sítios e, depois, o que espera há mais tempo.',
   showMore: (n) => `Mostrar mais ${n}`,
   showAll: (n) => `Mostrar ${n}`,
   showFewer: 'Mostrar menos',
@@ -136,6 +139,7 @@ const es: Strings = {
   shortOf: (s, n) => (s === 0 ? 'Todo bien' : n === 1 ? 'Con falta' : `${s} de ${n} zonas con falta`),
   allGondolas: 'Todas las góndolas',
   loading: 'Revisando las estanterías…',
+  orderNote: 'Lo más urgente primero: lo que falta en más sitios y, después, lo que lleva más tiempo esperando.',
   showMore: (n) => `Mostrar ${n} más`,
   showAll: (n) => `Mostrar ${n}`,
   showFewer: 'Mostrar menos',

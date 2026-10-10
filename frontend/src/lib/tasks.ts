@@ -12,7 +12,10 @@ export interface Task {
   group: Group
   /** When the area first reached this state, going back from the photo shown. */
   since: number | null
-  /** The fraction of this product's areas that need restocking: how urgent the product is. */
+  /**
+   * How much of the product is gone across the whole store, 0 to 1: an empty area counts 1 and a
+   * half-empty one 0.5. A product that is out everywhere cannot be bought at all, so it comes first.
+   */
   urgency: number
 }
 
@@ -73,7 +76,15 @@ export function tasksAt(s: StoreState, at: number): Task[] {
       since: since(s, r.area, r.record.image, r.group),
       urgency: product[r.area.product_id].score / product[r.area.product_id].n,
     }))
-    .sort((a, b) => b.urgency - a.urgency || a.area.camera.localeCompare(b.area.camera) || a.area.index - b.area.index)
+    // Most urgent first. Equal urgency goes to what has waited longest, which is the time the card
+    // shows, and the camera and area only decide what is still tied.
+    .sort(
+      (a, b) =>
+        b.urgency - a.urgency ||
+        (a.since ?? 0) - (b.since ?? 0) ||
+        a.area.camera.localeCompare(b.area.camera) ||
+        a.area.index - b.area.index,
+    )
 }
 
 export interface HistoryPoint {

@@ -196,6 +196,18 @@ same size.
 - A crop is the full photo shifted and scaled with CSS to show one area. It is not rectified like
   the pipeline's crop, and every crop of a camera reuses the same file.
 
+## Urgency
+
+The order of the cards is the order of the work, so what defines it is written on the screen in
+one line under the headline. A product's urgency is how much of it is gone across the whole
+store: an empty area counts 1 and a half-empty one 0.5, divided by the areas it has. A product
+that is out everywhere cannot be bought at all, so it comes first. When two products are equally
+short, the one that has waited longer goes first, which is the time shown on the card. The camera
+only decides what is still tied. Inside a card, the areas that have waited longest come first.
+
+Move back has no confidence to order by yet, because the simulated states carry none. The
+pipeline gives a probability of mismatch, and the lowest should go first when it is connected.
+
 ## Opening a task
 
 Pressing a card opens it in place and shows how its area went through the day. There is no
@@ -336,6 +348,10 @@ a collapsing block by hand once, and Base UI and shadcn already had it.
 - 2026-10-10. Long groups fold behind "Show N more", with totals in the headings. A worker
   starting a shift needs what to do now, so the first screen shows the most urgent six, four and
   none of the later ones. The page went from about 4000 px to 1600.
+
+- 2026-10-10. Urgency is defined and shown. It was share of the product that is gone, with the
+  camera number as a tie-break, which was arbitrary. Ties now go to what has waited longest, and
+  a line under the headline says so.
 
 ## Open questions
 

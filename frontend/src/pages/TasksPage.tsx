@@ -12,8 +12,11 @@ export function TasksPage() {
 
   return (
     <>
-      <div className="mb-8 flex flex-wrap items-end justify-between gap-2">
-        <h1 className="text-display">{t.headline(count)}</h1>
+      <div className="mb-8 flex flex-wrap items-end justify-between gap-x-6 gap-y-2">
+        <div>
+          <h1 className="text-display">{t.headline(count)}</h1>
+          <p className="mt-1 text-meta text-fg-muted">{t.orderNote}</p>
+        </div>
         <p className="text-meta tabular-nums text-fg-muted">{t.photoFrom(clock(at))}</p>
       </div>
       <TaskBoard tasks={tasks} />
