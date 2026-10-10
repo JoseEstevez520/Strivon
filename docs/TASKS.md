@@ -1,40 +1,45 @@
-# Tarefas por pessoa
+# Tasks per person
 
-Deadline: domingo. Score = soma por área (máx 578). Ver `docs/PLAN.md` para a estratégia.
-Regra de ouro: trabalhar em branch própria (`nome/tema`), PR para `main`, commits com a conta de cada um.
+Deadline: Sunday. The score is the sum over areas (max 578). See `docs/PLAN.md` for the strategy.
+Golden rule: work on your own branch (`name/topic`), open a PR to `main` and commit with your own account.
 
-## Estado atual (já feito)
-- `backend/crops.py`: recorte por homografia de cada área.
-- `backend/baseline.py`: stock por cor (calibrado por área ao longo do dia) + compliant=true.
-- `eval/score.py`: scorer com as regras do PDF.
-- `backend/debug_view.py`: desenha o stock previsto numa imagem.
-- Limites conhecidos: produtos pouco coloridos (ananás) saem "empty"; em algumas câmaras (ex. 6468)
-  aparece produto diferente do planograma, por isso compliant não pode ser sempre true.
+## Done so far
 
-## Miguel — pipeline de IA (core do score)
-1. Classificador de produto por área (VLM ou CLIP/SigLIP) para `planogram_compliant`. Depende de a organização permitir APIs externas.
-2. Estimador de stock melhorado (vazio/meio/cheio) e decisão com a matriz de custos (viés para baixo).
-3. Tratamento de imagens com cortina/oclusões por mãos.
-4. Gerar o ficheiro final de submissão no formato exigido.
+- `backend/crops.py`: crop of each area with a homography.
+- `backend/baseline.py`: colour-based stock (calibrated per area over the day) and compliant = true.
+- `eval/score.py`: scorer with the PDF rules.
+- `backend/debug_view.py`: draws the predicted stock on an image.
+- Known limits: products with little colour (pineapple) come out as "empty". On some cameras (for example 6468) a product different from the planogram appears, so compliant cannot always be true.
 
-## José — app e integração
-1. `backend/`: API (FastAPI) que lê `outputs/predictions.json` e serve por câmara/imagem/área.
-2. `frontend/`: vista para staff: lista priorizada "repor primeiro / mover para o sítio / ok", mapa da gondola com as áreas coloridas sobre a imagem. É o desempate, mas tem de ser clara em 5 segundos.
-3. Deploy (Vercel) e link para a demo.
+## Miguel: AI pipeline (the core of the score)
 
-## André — avaliação e dados (segundo cérebro técnico)
-1. Ferramenta de anotação rápida (script ou página simples): mostra o recorte + produto esperado e grava `empty/half/full` e `compliant` em `eval/labels.json`. A Leonor usa-a.
-2. Corre o scorer sobre `eval/labels.json` e mostra score por câmara e por tipo de erro (above/below/ident) — onde se perdem pontos.
-3. Ajuste de thresholds do baseline (`EMPTY_BELOW`, `HALF_BELOW` em `baseline.py`) com essas labels.
-4. Investigar as imagens: lista de imagens com cortina, oclusão por pessoas, e câmaras onde o planograma não bate certo.
+1. Product classifier per area (VLM or CLIP/SigLIP) for `planogram_compliant`. It depends on the organisers allowing external APIs.
+2. Better stock estimator (empty, half, full) and the decision with the cost matrix (lean low).
+3. Handling of images with a curtain or hands in the way.
+4. Generate the final submission file in the required format.
 
-## Leonor — anotação, produto e pitch (sem código pesado)
-1. Anotar ~40-60 áreas à mão com a ferramenta do André: variadas por câmara e hora, incluindo casos difíceis. É a nossa "validação" e vale pontos diretos.
-2. Escrever o pitch (problema, solução, impacto: menos desperdício, menos ruturas, auditoria sem pessoas) e o guião da demo (2-3 min).
-3. Design: protótipo (Figma ou papel) do ecrã do staff para o José implementar; logo/nome Strivon e slides.
-4. README final e vídeo da demo.
+## José: app and integration
 
-## Prazos sugeridos
-- Sábado manhã: labels da Leonor + app a ler predictions.json.
-- Sábado noite: classificador de produto integrado e score medido nas labels.
-- Domingo manhã: congelar modelo, gerar submissão, ensaiar pitch. Nada novo depois disto.
+1. `backend/`: a FastAPI API that reads `outputs/predictions.json` and serves it by camera, image and area.
+2. `frontend/`: the staff view, with a prioritised list ("restock first / move back to place / ok") and a map of the gondola with the areas coloured over the image. It breaks ties, but it has to be clear in 5 seconds.
+3. Deploy (Vercel) and a link to the demo.
+
+## André: evaluation and data (second technical brain)
+
+1. Quick labelling tool (a script or a simple page): shows the crop and the expected product and saves `empty/half/full` and `compliant` to `eval/labels.json`. Leonor uses it.
+2. Run the scorer on `eval/labels.json` and show the score per camera and per error type (above, below, identification), to see where points are lost.
+3. Tune the baseline thresholds (`EMPTY_BELOW`, `HALF_BELOW` in `baseline.py`) with those labels.
+4. Look through the images: a list of images with a curtain, people in the way, and cameras where the planogram does not match.
+
+## Leonor: labelling, product and pitch (no heavy code)
+
+1. Label about 40-60 areas by hand with André's tool, varied by camera and time and including hard cases. This is our "validation" and it is worth points directly.
+2. Write the pitch (problem, solution, impact: less waste, fewer empty shelves, audits without people) and the demo script (2-3 min).
+3. Design: a prototype (Figma or paper) of the staff screen for José to build, plus the Strivon logo and name, and the slides.
+4. Final README and the demo video.
+
+## Suggested deadlines
+
+- Saturday morning: Leonor's labels and the app reading predictions.json.
+- Saturday night: product classifier integrated and the score measured on the labels.
+- Sunday morning: freeze the model, generate the submission, rehearse the pitch. Nothing new after this.
