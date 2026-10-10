@@ -32,6 +32,7 @@ def main(argv=None) -> int:
     p.add_argument("--model", default="auto", choices=["auto", "single", "neighbours", "label-free"],
                    help="auto = single-image model if trained (the one to submit)")
     p.add_argument("--persons", action="store_true", help="run the person detector (+0.7 s/photo)")
+    p.add_argument("--probs-out", help="also write a copy with p_stock / p_compliant per area, for `combine`")
 
     s = sub.add_parser("score", help="score a submission against annotations (challenge rules)")
     s.add_argument("--pred", default=str(config.PREDICTIONS_PATH))
@@ -47,11 +48,13 @@ def main(argv=None) -> int:
     cb_.add_argument("--stock", nargs="+", required=True, help="prediction file(s) used for stock (lower median)")
     cb_.add_argument("--product", nargs="+", required=True, help="prediction file(s) used for the product check (vote)")
     cb_.add_argument("--out", required=True)
+    cb_.add_argument("--weights", nargs="*", type=float, help="weights of the --stock files when they carry p_stock")
 
     sub.add_parser("bench", help="André's benchmark (LEADERBOARD.md) for the single-image models")
     st = sub.add_parser("train-single", help="fit the single-image model on all labels (outputs/single.pkl)")
     st.add_argument("--no-refs", action="store_true", help="kept for compatibility (references are off by default)")
-    st.add_argument("--kind", default="blend", choices=["blend", "lr", "gbm"], help="blend = logistic regression + gradient boosting (best)")
+    st.add_argument("--kind", default="lr", choices=["blend", "lr", "gbm"], help="lr on crate crops is the best (3255); blend on polygons 3253")
+    st.add_argument("--polygons", action="store_true", help="use the planogram polygons instead of the hand-drawn crates")
 
     m = sub.add_parser("vlm-label", help="(optional) label images with Claude vision; needs ANTHROPIC_API_KEY")
     m.add_argument("--images", default=str(config.IMAGES_DIR))
@@ -73,6 +76,11 @@ def main(argv=None) -> int:
                   model="label-free" if a.label_free else a.model, use_occlusion=a.persons)
         problems = validate_submission(res["submission"], load_planogram())
         write(res, a.out, a.details)
+        if a.probs_out:
+            det = res["details"]["observations"]
+            withp = {c: {i: {k: {**v, "p_stock": det[c][i][k]["p_stock"], "p_compliant": det[c][i][k]["p_compliant"]}
+                             for k, v in ar.items()} for i, ar in imgs.items()} for c, imgs in res["submission"].items()}
+            Path(a.probs_out).write_text(json.dumps(withp), encoding="utf-8")
         n = sum(len(x) for imgs in res["submission"].values() for x in imgs.values())
         print(f"wrote {a.out} ({n} areas) and {a.details}")
         if problems:
@@ -109,11 +117,12 @@ def main(argv=None) -> int:
         from .pipeline import validate_submission
         from .planogram import load_planogram
 
-        out, stats = combine(a.stock, a.product)
+        out, stats = combine(a.stock, a.product, a.weights)
         Path(a.out).parent.mkdir(parents=True, exist_ok=True)
         Path(a.out).write_text(json.dumps(out, indent=1), encoding="utf-8")
         problems = validate_submission(out, load_planogram())
-        print(f"wrote {a.out}: {stats['areas']} areas, {stats['stock_from_fallback']} without a stock file")
+        print(f"wrote {a.out}: {stats['areas']} areas, {stats.get('stock_from_probs', 0)} from averaged probabilities, "
+              f"{stats['stock_from_fallback']} without a stock file")
         if problems:
             print("VALIDATION PROBLEMS:\n  " + "\n  ".join(problems[:20]))
             return 1
@@ -128,7 +137,7 @@ def main(argv=None) -> int:
     if a.cmd == "train-single":
         from .single import train as train_single
 
-        train_single(use_refs=False, kind=a.kind)
+        train_single(use_refs=False, kind=a.kind, crates=not a.polygons)
         return 0
 
     if a.cmd == "vlm-label":

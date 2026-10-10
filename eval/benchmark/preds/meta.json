@@ -98,14 +98,14 @@
   "seconds": "being measured; features about 0.1 s per photo on 1 CPU thread (partial), no GPU, no CLIP"
  },
  "combo_dinob_stock_clip_product": {
-  "approach": "Combined: stock from André's fine-tuned DINOv2-base, product check from Miguel's CLIP model",
+  "approach": "Combined: stock from André's fine-tuned DINOv2-base, product check from Miguel's CLIP crate model",
   "owner": "André + Miguel",
   "labels": "the key",
   "other_photos": "no",
   "seconds": "about 6.4 CPU (stock 5.6 + product 0.8); stock 0.23 GPU"
  },
  "combo_dinos_stock_clip_product": {
-  "approach": "Combined, cheap: stock from André's fine-tuned DINOv2-small, product check from Miguel's CLIP model",
+  "approach": "Combined, cheap: stock from André's fine-tuned DINOv2-small, product check from Miguel's CLIP crate model",
   "owner": "André + Miguel",
   "labels": "the key",
   "other_photos": "no",
@@ -180,5 +180,12 @@
   "labels": "labels_v1",
   "other_photos": "no",
   "seconds": "0.83 CPU; ≈ 0.12 GPU (from component timings)"
+ },
+ "single_crate": {
+  "approach": "Single image: CLIP ViT-B-32 on the hand-drawn crate + colour + area id, logistic regression",
+  "owner": "Miguel (crates by Jose)",
+  "labels": "the key",
+  "other_photos": "no",
+  "seconds": "0.9-1.4 s, 2-8 CPU threads (laptop), no GPU"
  }
 }

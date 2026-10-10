@@ -247,9 +247,9 @@ def _tune(model: SingleModel, keys, D, ys, yc, folds_of_train):
 
 # --------------------------------------------------------------------------- data
 
-def _features(pg, log=print):
+def _features(pg, log=print, crates: bool = False):
     refs = discover(config.IMAGES_DIR, pg)
-    feats = extract(refs, pg, log=log)
+    feats = extract(refs, pg, log=log, crates=crates)
     fz = ImageFeaturizer(pg)
     keys = sorted(feats)
     D = np.stack([fz.dense(k, feats[k]) for k in keys])
@@ -295,7 +295,8 @@ def bench(variants=None, log=print):
     variants = variants or tuple(os.environ.get("SENSEI_BENCH_VARIANTS", "single,single_ref").split(","))
     tag = "" if cb.MODEL == "ViT-B-32" else "_" + cb.MODEL.replace("-", "").lower()
     pg = load_planogram()
-    keys, D, pos = _features(pg, log)
+    crates = any("crate" in v for v in variants)
+    keys, D, pos = _features(pg, log, crates=crates)
     key = B.KEY
     area_ids = [a.area_id for a in pg.areas]
     results = {}
@@ -310,14 +311,17 @@ def bench(variants=None, log=print):
             yc = np.array([int(key[c][i][a]["planogram_compliant"]) for c, i, a in tk])
             folds_tr = [B.FOLDS[f"{c}/{i}"] for c, i, _ in tk]
             Dt = D[[pos[k] for k in tk]]
-            kind = "blend" if "blend" in name else "lr"
+            kind = "blend" if "blend" in name else "lr"  # names: single, single_blend, single_crate, single_blend_crate
             m = make_model(kind, name == "single_ref").fit(tk, Dt, ys, yc, area_ids)
             m.kind = kind
             m = _tune(m, tk, Dt, ys, yc, folds_tr)
             ek = [(c, i, a.area_id) for (c, i) in test for a in pg.cameras[c] if (c, i, a.area_id) in pos]
             ps, pc = m.proba(ek, D[[pos[k] for k in ek]])
-            for k, (lvl, val, comp) in zip(ek, m.decide(ps, pc)):
-                preds.setdefault(k[0], {}).setdefault(k[1], {})[k[2]] = {"planogram_compliant": comp, "stock_level": lvl, "stock_value": val}
+            be, bf, _ = m.bias
+            for k, (lvl, val, comp), p in zip(ek, m.decide(ps, pc), ps):
+                q = p * np.exp([be, 0.0, bf])  # the tuned bias, so averaging these keeps our decision
+                preds.setdefault(k[0], {}).setdefault(k[1], {})[k[2]] = {"planogram_compliant": comp, "stock_level": lvl, "stock_value": val,
+                                                                         "p_stock": [round(float(x), 4) for x in q / q.sum()]}
             assert not (trs & tes)
             log(f"  {name}: fold {fold} done, bias {m.bias}")
         out = BENCH / "preds" / f"{name}{tag}.json"
@@ -329,17 +333,17 @@ def bench(variants=None, log=print):
                          "per_area": t["total"] / t["areas"], "last_per_area": last["total"] / last["areas"],
                          "per_578": round(t["total"] / t["areas"] * 289), "fit_seconds": round(time.time() - t0)}
         log(f"{name}{tag}: {results[name + tag]}")
-    rp = BENCH / "preds" / "single_results.json"
+    rp = config.OUTPUTS_DIR / "single_results.json"
     allres = json.loads(rp.read_text()) if rp.exists() else {}
     allres.update(results)
     rp.write_text(json.dumps(allres, indent=1))
     return results
 
 
-def train(use_refs: bool = False, log=print, kind: str = "blend"):
+def train(use_refs: bool = False, log=print, kind: str = "lr", crates: bool = True):
     """Fit on every label (latest team labels + André's fixes) and save outputs/single.pkl."""
     pg = load_planogram()
-    keys, D, pos = _features(pg, log)
+    keys, D, pos = _features(pg, log, crates=crates)
     labels = training_labels(log)
     tk = [k for k in sorted(labels) if k in pos]
     ys = np.array([LIDX[labels[k]["stock_level"]] for k in tk])
@@ -353,6 +357,7 @@ def train(use_refs: bool = False, log=print, kind: str = "blend"):
     Dt = D[[pos[k] for k in tk]]
     m = make_model(kind, use_refs).fit(tk, Dt, ys, yc, [a.area_id for a in pg.areas])
     m.kind = kind
+    m.crates = crates
     m = _tune(m, tk, Dt, ys, yc, folds)
     # learned prior per area, used only when a person hides the area (rounded down by the decision)
     m.area_prior = {}
@@ -366,7 +371,7 @@ def train(use_refs: bool = False, log=print, kind: str = "blend"):
     MODEL_PATH.parent.mkdir(parents=True, exist_ok=True)
     with MODEL_PATH.open("wb") as fh:
         pickle.dump(m, fh)
-    log(f"saved {MODEL_PATH} ({kind}, {len(tk)} areas, refs={'on' if use_refs else 'off'}, bias {m.bias})")
+    log(f"saved {MODEL_PATH} ({kind}, crates={crates}, {len(tk)} areas, refs={'on' if use_refs else 'off'}, bias {m.bias})")
     return m
 
 

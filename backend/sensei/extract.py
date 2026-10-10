@@ -63,22 +63,34 @@ class AreaFeatures:
     emb: np.ndarray | None  # CLIP embedding (L2 normalised) or None
 
 
-def _cache_path(ref: ImageRef, use_clip: bool, scale: float = 1.0) -> Path:
+def _cache_path(ref: ImageRef, use_clip: bool, scale: float = 1.0, crates: bool = False) -> Path:
     st = ref.path.stat()
-    key = f"{ref.path.resolve()}|{st.st_size}|{int(st.st_mtime)}|{config.CROP_SIZE}|{clip_backend.MODEL if use_clip else 'noclip'}|v1" + (f"|s{scale}" if scale != 1.0 else "")
+    key = f"{ref.path.resolve()}|{st.st_size}|{int(st.st_mtime)}|{config.CROP_SIZE}|{clip_backend.MODEL if use_clip else 'noclip'}|v1" + (f"|s{scale}" if scale != 1.0 else "") + ("|crate" if crates else "")
     h = hashlib.sha1(key.encode()).hexdigest()[:16]
     return config.CACHE_DIR / f"{ref.camera}_{Path(ref.name).stem}_{h}.npz"
 
 
-def crops_for(ref: ImageRef, planogram: Planogram, scale: float = 1.0) -> tuple[list[str], list[np.ndarray], list[np.ndarray]]:
+def crate_quads() -> dict[str, np.ndarray]:
+    """area_id -> the whole crate it sits in, drawn by hand by José (lab/cache/crates.json).
+    The team labels judge the whole crate, and the planogram lines often cut part of it off."""
+    import json
+
+    d = json.loads((Path(__file__).parent / "crates.json").read_text(encoding="utf-8"))
+    by_id = {c["id"]: np.array(c["quad"], np.float32) for cams in d["cameras"].values() for c in cams}
+    return {aid: by_id[cid] for aid, cid in d["area_to_crate"].items() if cid in by_id}
+
+
+def crops_for(ref: ImageRef, planogram: Planogram, scale: float = 1.0, crates: bool = False) -> tuple[list[str], list[np.ndarray], list[np.ndarray]]:
     img = cv2.imread(str(ref.path))
     if img is None:
         raise IOError(f"cannot read {ref.path}")
     if img.shape[1::-1] != config.IMAGE_SIZE:
         img = cv2.resize(img, config.IMAGE_SIZE)
     ids, crops, masks = [], [], []
+    cq = crate_quads() if crates else {}
     for a in planogram.cameras[ref.camera]:
-        c, m = rectify(img, scaled_quad(a.quad, scale))
+        q = cq.get(a.area_id, a.quad) if crates else scaled_quad(a.quad, scale)
+        c, m = rectify(img, q)
         ids.append(a.area_id)
         crops.append(c)
         masks.append(m)
@@ -94,13 +106,13 @@ def scaled_quad(quad: np.ndarray, scale: float) -> np.ndarray:
     return (c + (quad - c) * scale).astype(np.float32)
 
 
-def extract(refs: list[ImageRef], planogram: Planogram, use_clip: bool | None = None, log=print, scale: float = 1.0) -> dict[tuple[str, str, str], AreaFeatures]:
+def extract(refs: list[ImageRef], planogram: Planogram, use_clip: bool | None = None, log=print, scale: float = 1.0, crates: bool = False) -> dict[tuple[str, str, str], AreaFeatures]:
     if use_clip is None:
         use_clip = clip_backend.available()
     config.CACHE_DIR.mkdir(parents=True, exist_ok=True)
     out: dict[tuple[str, str, str], AreaFeatures] = {}
     for i, ref in enumerate(refs):
-        cp = _cache_path(ref, use_clip, scale)
+        cp = _cache_path(ref, use_clip, scale, crates)
         if cp.exists():
             z = np.load(cp, allow_pickle=False)
             ids = [str(x) for x in z["ids"]]
@@ -108,7 +120,7 @@ def extract(refs: list[ImageRef], planogram: Planogram, use_clip: bool | None = 
             for j, aid in enumerate(ids):
                 out[(ref.camera, ref.name, aid)] = AreaFeatures(z["scalars"][j], z["hist"][j], embs[j] if embs is not None else None)
             continue
-        ids, crops, masks = crops_for(ref, planogram, scale)
+        ids, crops, masks = crops_for(ref, planogram, scale, crates)
         scal = np.stack([scalar_features(c, m) for c, m in zip(crops, masks)])
         hist = np.stack([hsv_hist(c, m) for c, m in zip(crops, masks)])
         emb = clip_backend.embed_images(crops) if use_clip else np.zeros((len(ids), 0), np.float32)

@@ -2104,7 +2104,7 @@
     "stock_value": 1.0
    },
    "6376_5": {
-    "planogram_compliant": false,
+    "planogram_compliant": true,
     "stock_level": "full",
     "stock_value": 1.0
    },
@@ -2268,7 +2268,7 @@
     "stock_value": 1.0
    },
    "6376_5": {
-    "planogram_compliant": false,
+    "planogram_compliant": true,
     "stock_level": "full",
     "stock_value": 1.0
    },
@@ -8877,7 +8877,7 @@
     "stock_value": 1.0
    },
    "6594_2": {
-    "planogram_compliant": false,
+    "planogram_compliant": true,
     "stock_level": "half",
     "stock_value": 0.5
    },

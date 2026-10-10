@@ -6,7 +6,8 @@ format. This merges them, area by area, and checks that nothing is missing.
     python -m sensei combine --stock andre.json --product miguel.json --out final.json
     python -m sensei combine --stock a.json b.json c.json --product m.json j.json l.json --out final.json
 
-Several --stock files: the lower median of their levels (round down on a tie, Sensei: "in case of
+Several --stock files: if every file has "p_stock" ([empty, half, full] probabilities) they are
+averaged (optional --weights) and the level with the most expected points is chosen; otherwise the lower median of their levels (round down on a tie, Sensei: "in case of
 doubt it is better to under estimate"). Several --product files: majority vote (ties: the first file).
 If an area is missing from every stock file, the first product file's stock is used, so the result
 never misses an area.
@@ -31,8 +32,9 @@ def _get(d, c, i, a):
     return d.get(c, {}).get(i, {}).get(a)
 
 
-def combine(stock_files: list, product_files: list) -> tuple[dict, dict]:
+def combine(stock_files: list, product_files: list, weights: list | None = None) -> tuple[dict, dict]:
     stocks = [_load(p) for p in stock_files]
+    weights = weights or [1.0] * len(stocks)
     products = [_load(p) for p in product_files]
     base = products[0]
     out: dict = {}
@@ -46,8 +48,19 @@ def combine(stock_files: list, product_files: list) -> tuple[dict, dict]:
                     keys.add((c, i, a))
     for c, i, a in sorted(keys):
         stats["areas"] += 1
-        levels = sorted(LEVELS.index(x["stock_level"]) for d in stocks if (x := _get(d, c, i, a)))
-        if levels:
+        pairs = [(x, w) for d, w in zip(stocks, weights) if (x := _get(d, c, i, a))]
+        rows = [x for x, _ in pairs]
+        probs = [(x["p_stock"], w) for x, w in pairs if "p_stock" in x]
+        levels = sorted(LEVELS.index(x["stock_level"]) for x in rows)
+        if probs and len(probs) == len(rows):
+            # every model gave probabilities: average them and pick the level with the most
+            # expected points under the scoring rules (over-estimating costs -3, under -2)
+            from .decision import decide_stock
+
+            avg = [sum(p[j] * w for p, w in probs) / sum(w for _, w in probs) for j in range(3)]
+            lvl = decide_stock(avg)[0]
+            stats["stock_from_probs"] = stats.get("stock_from_probs", 0) + 1
+        elif levels:
             lvl = LEVELS[levels[(len(levels) - 1) // 2]]
         else:
             fb = next((x for d in products if (x := _get(d, c, i, a))), None)

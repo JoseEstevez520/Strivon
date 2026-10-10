@@ -52,7 +52,8 @@ def run(
                 context.append(r)
                 seen.add(r.path.resolve())
     log(f"{len(targets)} target images, {len(context)} context images, CLIP={'on' if (use_clip if use_clip is not None else clip_backend.available()) else 'off'}")
-    feats = extract(targets + context, pg, use_clip=use_clip, log=log)
+    use_crates = bool(single_model is not None and getattr(single_model, "crates", False))
+    feats = extract(targets + context, pg, use_clip=use_clip, log=log, crates=use_crates)
     obs = LabelFreeModel(pg, feats).run()  # label-free signals, only shown in the app's "why" panel
     cal = calibrate.load()
     sup = None
@@ -60,7 +61,7 @@ def run(
     tkeys = [(r.camera, r.name, a.area_id) for r in targets for a in pg.cameras[r.camera]]
 
     if single_model is not None:
-        sup, _ = single.predict(single_model, pg, tkeys, feats)
+        sup, _ = single.predict(single_model, pg, tkeys, feats)  # crate crops when the model uses them
         cal = None
         log("using the single-image model (only the photo under analysis)")
         if use_occlusion:

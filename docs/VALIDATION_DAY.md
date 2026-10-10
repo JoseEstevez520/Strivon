@@ -30,7 +30,7 @@ python -m sensei predict --images PATH/TO/validation --out ../outputs/prediction
 ## Best score: combine two models
 
 On the benchmark the best result that uses only the photo under analysis is André's fine-tuned
-DINOv2-base for stock plus our CLIP model for the product check: 3396 / 3858, about 509 / 578.
+DINOv2-base for stock plus our CLIP model for the product check: 3399 / 3858, about 509 / 578.
 
 1. André runs his fine-tuned DINOv2-base model on the validation folder and writes `andre.json`
    (same format as the submission).
@@ -43,7 +43,7 @@ python -m sensei combine --stock andre.json --product miguel.json --out ../outpu
 
 The command takes stock from the first file and the product check from the second, fills any
 missing area and fails loudly if the result is incomplete. Cheaper option: the DINOv2-small stock
-model instead (3346, about 501 / 578, about 1.7 s per photo on CPU instead of 6.4).
+model instead (3349, about 502 / 578, about 1.7 s per photo on CPU instead of 6.4).
 
 Rehearse it tonight on a copy of a few training photos, so the file names and folders match.
 
