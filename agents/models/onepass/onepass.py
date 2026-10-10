@@ -1,0 +1,50 @@
+"""predict.py adapter for -4e's one-pass image-only model (models/stock_4e/onepass_infer.py). Owner: -d1.
+
+One DINOv2-S pass per photo gives both answers (product and stock), using only the image under analysis.
+predict.py asks for stock and compliance separately and loads this file once per role, so the model and the
+answers for the current photo are shared through one registry (keyed by camera, areas and a hash of the pixels).
+
+    py -I predict.py --images <folder of <camera>/<timestamp>.jpg> --planogram <planogram.json> \
+        --stock-model models/onepass/onepass.py --compliance-model models/onepass/onepass.py --out preds.json
+
+Env: ONEPASS_SIZE (default 168), ONEPASS_DEVICE (cpu or cuda, default cpu), ONEPASS_THREADS (default 4).
+"""
+import hashlib
+import os
+import sys
+import types
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / "models" / "stock_4e"))
+from onepass_infer import OnePass  # noqa: E402
+
+_S = sys.modules.setdefault("_onepass_shared", types.SimpleNamespace(model=None, key=None, answers=None))
+
+
+def _model():
+    if _S.model is None:
+        _S.model = OnePass(size=int(os.environ.get("ONEPASS_SIZE", "168")),
+                           device=os.environ.get("ONEPASS_DEVICE", "cpu"),
+                           threads=int(os.environ.get("ONEPASS_THREADS", "4")))
+    return _S.model
+
+
+def prepare(images=None, context=False):
+    _model()
+
+
+def _answers(img, cam, areas):
+    key = (cam, tuple(a["area_id"] for a in areas), hashlib.md5(img.tobytes()).hexdigest())
+    if _S.key != key:
+        _S.key, _S.answers = key, _model().predict(img, areas)
+    return _S.answers
+
+
+def predict_stock_image(img, cam, areas, ts=None, context=False):
+    """{area_id: {0: p_empty, 0.5: p_half, 1: p_full}}; predict.py picks the best-expected-points level."""
+    return {aid: dict(zip((0, 0.5, 1), r["p_stock"])) for aid, r in _answers(img, cam, areas).items()}
+
+
+def predict_compliant_image(img, cam, areas, ts=None, context=False):
+    return {aid: r["compliant"] for aid, r in _answers(img, cam, areas).items()}
