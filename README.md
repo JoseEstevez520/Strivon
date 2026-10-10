@@ -60,6 +60,7 @@ Forward split: trained without each camera's last 2 photos, tested on them (302 
 | # | Approach | Identification | Stock | Below | Above | Total / max | Per area | ≈ / 578 | Seconds per photo |
 |---:|---|---:|---:|---:|---:|---:|---:|---:|---|
 | 1 | Single image: CLIP ViT-B-32 on the hand-drawn crate + colour + area id, logistic regression (`single_crate`) | +302 | +135 | 21 | 26 | +437 / 604 | +1.447 | +418 | 0.9-1.4 s, 2-8 CPU threads (laptop), no GPU |
+| 2 | Single image, no CLIP: weighted average of three lab stock models (pixel features, slot references, a small fine-tuned MobileNetV3) + product check against a bank of training crops, colours balanced per crop (the shipped model, `python lab/predict.py`) (`lab_image_only_ensemble`) | +299 | +124 | 14 | 34 | +423 / 604 | +1.401 | +405 | 0.14 CPU per photo (1 thread, warm); 0.31 per photo over a batch of 28 including a 4.8 startup (torch import 3.8); i7 laptop, no GPU |
 <!-- FORWARD:END -->
 
 ## Prior code
