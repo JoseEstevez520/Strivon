@@ -34,6 +34,27 @@ interface Strings {
   shortOf: (short: number, total: number) => string
   allGondolas: string
   loading: string
+  navInsights: string
+  insightsHeadline: (pct: number) => string
+  insightsPeriod: (date: string, from: string, to: string) => string
+  insightsSimulatedShort: string
+  insightsEstimate: string
+  insightsSimulated: string
+  mapTitle: string
+  mapCell: (product: string, hour: string, pct: number) => string
+  mapLess: string
+  mapMore: string
+  worstProducts: string
+  worstGondolas: string
+  complianceLine: (pct: number) => string
+  askTitle: string
+  askPlaceholder: string
+  send: string
+  thinking: string
+  chatFailed: string
+  larger: string
+  smaller: string
+  suggestions: string[]
   orderNote: string
   showMore: (n: number) => string
   showAll: (n: number) => string
@@ -57,6 +78,27 @@ const en: Strings = {
   shortOf: (s, n) => (s === 0 ? 'All fine' : n === 1 ? 'Short' : `${s} of ${n} areas short`),
   allGondolas: 'All gondolas',
   loading: 'Checking the shelves…',
+  navInsights: 'Insights',
+  insightsHeadline: (p) => `~${p}% of shelf time was empty`,
+  insightsPeriod: (d, a, b) => `${d} · ${a}–${b}`,
+  insightsSimulatedShort: 'simulated',
+  insightsEstimate: 'Estimated from about 13 photos per camera.',
+  insightsSimulated: 'Provisional: the stock states are simulated.',
+  mapTitle: 'Stock over time',
+  mapCell: (p, hour, pct) => `${p}, ${hour}: ${pct}% of its areas empty`,
+  mapLess: 'None',
+  mapMore: 'All empty',
+  worstProducts: 'Products empty the longest',
+  worstGondolas: 'Gondolas empty the longest',
+  complianceLine: (p) => `${p}% of the time, areas held the product the planogram expects`,
+  askTitle: 'Ask about your store',
+  askPlaceholder: 'Ask about your store',
+  send: 'Send',
+  thinking: 'Thinking',
+  chatFailed: 'The assistant did not answer. Try again.',
+  larger: 'Make it larger',
+  smaller: 'Make it smaller',
+  suggestions: ['Which gondolas need attention?', 'How are the bananas doing?', 'How much of the time were areas empty?', 'What should I restock first?'],
   orderNote: 'Most urgent first: what is out in most places, then what has waited longest.',
   showMore: (n) => `Show ${n} more`,
   showAll: (n) => `Show ${n}`,
@@ -96,6 +138,27 @@ const pt: Strings = {
   shortOf: (s, n) => (s === 0 ? 'Tudo bem' : n === 1 ? 'Em falta' : `${s} de ${n} áreas em falta`),
   allGondolas: 'Todas as gôndolas',
   loading: 'A verificar as prateleiras…',
+  navInsights: 'Análise',
+  insightsHeadline: (p) => `~${p}% do tempo de prateleira esteve vazio`,
+  insightsPeriod: (d, a, b) => `${d} · ${a}–${b}`,
+  insightsSimulatedShort: 'simulado',
+  insightsEstimate: 'Estimado com cerca de 13 fotos por câmara.',
+  insightsSimulated: 'Provisório: os estados de stock são simulados.',
+  mapTitle: 'Stock ao longo do tempo',
+  mapCell: (p, hour, pct) => `${p}, ${hour}: ${pct}% das áreas vazias`,
+  mapLess: 'Nenhuma',
+  mapMore: 'Todas vazias',
+  worstProducts: 'Produtos vazios há mais tempo',
+  worstGondolas: 'Gôndolas vazias há mais tempo',
+  complianceLine: (p) => `${p}% do tempo, as áreas tinham o produto que o planograma espera`,
+  askTitle: 'Pergunte sobre a sua loja',
+  askPlaceholder: 'Pergunte sobre a sua loja',
+  send: 'Enviar',
+  thinking: 'A pensar',
+  chatFailed: 'O assistente não respondeu. Tenta outra vez.',
+  larger: 'Aumentar',
+  smaller: 'Reduzir',
+  suggestions: ['Que gôndolas precisam de atenção?', 'Como estão as bananas?', 'Que parte do tempo estiveram as áreas vazias?', 'O que devo repor primeiro?'],
   orderNote: 'O mais urgente primeiro: o que falta em mais sítios e, depois, o que espera há mais tempo.',
   showMore: (n) => `Mostrar mais ${n}`,
   showAll: (n) => `Mostrar ${n}`,
@@ -135,6 +198,27 @@ const es: Strings = {
   shortOf: (s, n) => (s === 0 ? 'Todo bien' : n === 1 ? 'Con falta' : `${s} de ${n} zonas con falta`),
   allGondolas: 'Todas las góndolas',
   loading: 'Revisando las estanterías…',
+  navInsights: 'Análisis',
+  insightsHeadline: (p) => `~${p}% del tiempo de estantería estuvo vacío`,
+  insightsPeriod: (d, a, b) => `${d} · ${a}–${b}`,
+  insightsSimulatedShort: 'simulado',
+  insightsEstimate: 'Estimado con unas 13 fotos por cámara.',
+  insightsSimulated: 'Provisional: los estados de stock están simulados.',
+  mapTitle: 'Stock a lo largo del tiempo',
+  mapCell: (p, hour, pct) => `${p}, ${hour}: ${pct}% de sus zonas vacías`,
+  mapLess: 'Ninguna',
+  mapMore: 'Todas vacías',
+  worstProducts: 'Productos vacíos más tiempo',
+  worstGondolas: 'Góndolas vacías más tiempo',
+  complianceLine: (p) => `${p}% del tiempo, las zonas tenían el producto que espera el planograma`,
+  askTitle: 'Pregunta sobre tu tienda',
+  askPlaceholder: 'Pregunta sobre tu tienda',
+  send: 'Enviar',
+  thinking: 'Pensando',
+  chatFailed: 'El asistente no ha respondido. Inténtalo de nuevo.',
+  larger: 'Agrandar',
+  smaller: 'Reducir',
+  suggestions: ['¿Qué góndolas necesitan atención?', '¿Cómo van los plátanos?', '¿Qué parte del tiempo estuvieron vacías las zonas?', '¿Qué repongo primero?'],
   orderNote: 'Lo más urgente primero: lo que falta en más sitios y, después, lo que lleva más tiempo esperando.',
   showMore: (n) => `Mostrar ${n} más`,
   showAll: (n) => `Mostrar ${n}`,

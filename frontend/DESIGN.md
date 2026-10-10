@@ -28,24 +28,28 @@ interface of that web was the problem, not its pages.
 - Products shows the stock of each product summed over all its areas, the ones running out first,
   with a search. A product opens into the places where it sits.
 
+- Insights is for whoever runs the store. One sentence leads: what share of the time shelf areas
+  were empty. Under it, a map of stock over time, the products and gondolas that were empty the
+  longest, and the share of the time areas held the right product. A quiet field below it asks
+  about the store.
+
 The day bar is not in the header. It sits where the photos are, under the camera panel on the
 first page and on a gondola page, and under the headline on the pages that have no photo. The
 moment it chooses is shared by every page.
 
 ## Where the rules come from
 
-The visual rules come from elastic-ui, José's own design system. We keep its static rules and
-leave its motion out.
+The visual rules are static: tones, type, radii and colour. Motion is kept to a minimum.
 
 Kept: depth from tones instead of borders and shadows, fields drawn as trays, five type sizes
 and three weights, small radii, colour only for outcomes, icons only where they help, and
 Lucide for icons.
 
-Left out: morphs, glass, the aurora, layout animation and blur. They are the reason elastic-ui
-lags, and this screen recalculates the whole list every time the day bar moves.
+Left out: morphs, glass, the aurora, layout animation and blur. They make a screen lag,
+and this one recalculates the whole list every time the day bar moves.
 
-Where we differ on purpose: the neutrals are warm, taken from Sensei's site, where elastic-ui
-uses cool greys. There is no accent colour. Only the light theme exists for now.
+Where we differ on purpose: the neutrals are warm, taken from Sensei's site, where cool greys
+are the usual choice. There is no accent colour. Only the light theme exists for now.
 
 ## Header and navigation
 
@@ -100,7 +104,7 @@ The screen is grey and warm. Colour means a state and nothing else.
 
 - Restock is red, move back is amber, later is grey and all good is green.
 - A card that asks for action takes a soft tint of its colour, 13% at rest and 19% on hover and
-  while open. There is no border. The tint is how elastic-ui's warning callout works.
+  while open. There is no border. The tint takes the place of a border.
 - The icon next to each group heading carries the colour. The heading text stays grey.
 - Small text on a tint uses `fg-secondary`. `fg-muted` has a contrast of 4.96 on the page and
   4.57 on `surface`, but it drops to between 3.4 and 4.3 on the tints, which is under the 4.5
@@ -221,6 +225,44 @@ only decides what is still tied. Inside a card, the areas that have waited longe
 Move back has no confidence to order by yet, because the simulated states carry none. The
 pipeline gives a probability of mismatch, and the lowest should go first when it is connected.
 
+## The Insights page
+
+It answers how the store is doing, with figures that are true of the data and no more. It is not a
+page about one day. The data we have covers one day, and the page says which period it covers, in
+one line written from the data ("Jun 27, 2025, 06:12 to 20:16"), so it never claims a period it
+does not have. Nothing in the copy says "today". With more days, the same sections take a longer
+period.
+
+- The lead is a share, not a sum. A first version said "487 hours" empty, which is the hours of
+  all 152 areas added up and means nothing to a person. "Empty 24% of the time" is understood at
+  once, and a share compares products and gondolas with a different number of areas.
+- The map has products as rows and hours as columns, in one red hue in four steps by thirds of the
+  areas that were empty. A cell that no camera was looking at is left blank, and nothing empty is a
+  quiet tone. The most affected products show first and the rest fold. One hue reads as intensity,
+  and a scale with two colours would suggest a middle point that has no meaning here.
+- The rankings are bars inside the row, with the label on the left and the percentage on the right,
+  in a neutral tone. The number says how much, and colour is kept for what a state means.
+- All of it is an estimate. A camera takes about 13 photos in the day, and what happened between
+  them is unknown, so each photo stands for half the gap before it and half the gap after it. The
+  page says so in one quiet line, and also says when the stock states are simulated. Without real
+  predictions this page must not be shown as results.
+
+## The assistant
+
+A field asks about the store, with four suggested questions. A suggestion fills the field and does not
+send it, so it can be edited. The assistant is not connected yet and every question gets the same
+plain answer. What is built is the part that does not change when it is connected.
+
+- An answer is a list of parts, and each part is one of the app's own components: text, a lead
+  figure, a ranking, the day map or a gondola tile. The assistant may only use those. The numbers
+  inside are worked out by code from the data, and the model, or the rule, only chooses and arranges.
+  This keeps every answer in the same look as the app and checkable against its photo.
+- To connect it: first recognise the question by intent with simple rules, which works without a
+  network or a key, and returns those parts. Later a model replaces the rule. OpenUI, whose renderer
+  only draws the components that are registered, is a fit for that, and the same components are what
+  it would register. Whether the challenge allows external APIs decides which model can be used, and
+  nothing sent to one should include photos.
+
 ## Opening a task
 
 Pressing a card opens it in place and shows how its area went through the day. There is no
@@ -248,7 +290,7 @@ separate panel. Pressing it again, or Escape, closes it.
 
 ## Scrollbars
 
-Scrollbars are the quiet ones of elastic-ui, ported as `scrollbar-subtle` in `src/index.css`: a
+Scrollbars are quiet ones, set as `scrollbar-subtle` in `src/index.css`: a
 line of 6 px with no track and no arrows. It is invisible at rest and drawn faintly only while the
 pointer is over what scrolls, a step darker on the line itself. It was made always visible once and
 asked back to this: it should show only when you go there. They apply to the content area, which scrolls under the header, and to the camera panel. The browser's own bars are
@@ -260,7 +302,7 @@ nothing shifts when it appears.
 Colour changes take 150 ms and the open picker fades. A task opens and closes with a height
 animation (200 ms in, 150 ms out) and its chevron turns. That is the only layout animation, and
 it is kept to one row at a time. No blur, no scaling and no glass. Closing is always a little
-faster than opening, as in elastic-ui. With reduced motion, everything is instant.
+faster than opening. With reduced motion, everything is instant.
 
 ## Performance
 
@@ -405,10 +447,40 @@ a collapsing block by hand once, and Base UI and shadcn already had it.
   image, so everything extra goes outside the photo. A box with the content packed left was too
   unbalanced, and a horizontal tile like a task card was not liked.
 
+- 2026-10-10. A Day page and an assistant field. The page is descriptive and says it is an
+  estimate. The assistant is empty on purpose: the parts an answer is made of are built, the
+  answering is not.
+
+- 2026-10-10. The bubble grows into the chat box and folds back (width, height and radius, 300 ms).
+  It is the one exception to "no layout animation", allowed because it is a single small element
+  with a fixed-size box inside it, so nothing inside reflows. Blur, glass and aurora stay out. The writing field is a soft tray that grows with the text, Enter sends,
+  and the send button is a dark circle that dims while there is nothing to send.
+- 2026-10-10. The chat draws its answers with OpenUI (`@openuidev/react-lang`, MIT), using the
+  app's own components as its library (`components/chat/library.tsx`). The parts take references,
+  never figures: `Stat("empty")`, `Ranked("gondolas", 5)`. Each part computes its numbers from the
+  store, so a model can choose and arrange but cannot invent a value. The chat only exists when the
+  server has a key (`/api/chat/status`): without one the bubble is not drawn, rather than showing a
+  chat that cannot answer. While the answer has not started, three dots fade in turn; once it
+  streams, the parts appear as they arrive.
+- 2026-10-10. The chat can grow: a button in its corner switches it between a small box and a wide one for charts (the swap is instant). The chat is a round button in the corner of Insights only, not of every page. It
+  opens a box that grows from the corner without glass or blur, and closing keeps the conversation. It lives where the answers are, and
+  the other pages have no use for it.
+- 2026-10-10. The Insights headline puts the number first ("~24% of shelf time was empty"), as the
+  other pages do. The "~" says it is an estimate, with the detail on hover, and the period sits in
+  a small line on the right with "simulated" while it is. Three disclaimers in a line under the
+  title were clutter, and the sentence read like a report.
+- 2026-10-10. The Day page became Insights. Naming it after a day, and writing "today" in its
+  headline and its chat, closed it to one period when what we want is the analytics of the store.
+  The period is now a line of data. A period selector and multi-day code were left out, since they
+  could not be tested with one day of photos.
+
 ## Open questions
 
 - The English flag is the UK flag. A code such as EN would avoid the question of which country
   English belongs to.
+- The Insights page and every figure on it depend on the real predictions replacing the simulated
+  states. Until then it cannot be shown as results.
+- Whether the challenge allows external APIs, which decides how the assistant can answer.
 - The real predictions need to replace the simulated states. With the simulated ones, 12 of 14
   gondolas have something to restock, which flattens the tiles. The real figures may differ.
 - Whether uncertain "move back" items should go in their own group, since a false alarm costs

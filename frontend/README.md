@@ -3,9 +3,10 @@
 The web for store staff. It shows what to do across the whole store, every gondola with its camera
 photo, and the stock of each product. It is built with React, Vite, Tailwind v4 and shadcn/ui.
 
-There are three pages. Tasks lists the work, grouped by action and ordered by urgency, beside the
+There are four pages. Tasks lists the work, grouped by action and ordered by urgency, beside the
 cameras. Gondolas shows the 14 cameras and what each one needs. Products shows the stock of each
-product summed over all its shelf areas. `DESIGN.md` has the rules for how it looks and the reasons
+product summed over all its shelf areas. Insights says how the store is doing, with a chat bubble to ask about it.
+`DESIGN.md` has the rules for how it looks and the reasons
 behind each decision.
 
 ## Run it
@@ -44,6 +45,20 @@ are connected, a shelf marked empty can show a full one in the photo.
 
 The `/api` requests are proxied to the pipeline's server on port 8000, for when the real data
 replaces the simulation.
+
+## The chat model
+
+The Insights chat asks a model through `/api/chat`, which the Vite server relays to any
+OpenAI-compatible endpoint, so the key never reaches the browser. Put these in `frontend/.env`
+(git-ignored, never commit it):
+
+```
+LLM_BASE_URL=https://api.deepseek.com
+LLM_MODEL=deepseek-flash
+LLM_API_KEY=...
+```
+
+Without a key the chat does not appear. If the model cannot be reached, the answer says so.
 
 ## Build
 

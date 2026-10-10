@@ -1,38 +1,22 @@
-<h1 align="center">Strivon</h1>
-
 <p align="center">
-  <strong>Strivon looks at a shelf of fruit and vegetables and tells store staff which areas hold the wrong product and which ones need restocking.</strong>
+  <img src="docs/banner.png" alt="Strivon: every shelf tells you what it needs before it runs empty" width="100%">
 </p>
 
-## What is Strivon?
-
-Given an image from a ceiling camera and the store planogram, Strivon checks each shelf area: is
-it holding the product it should, and how full is it?
+Strivon checks each shelf area from a ceiling camera and the store planogram: is it holding the
+right product, and how full is it? Store staff get what to restock and what to move back.
 
 ## Layout
 
-- `backend/` Python: the pipeline that writes the predictions, and the dashboard and labelling server.
-- `frontend/` React and shadcn/ui: the view for store staff.
-- `eval/` the scoring script and our own test labels.
-- `annotations/` labels made by the team.
-- `docs/` plan, tasks, app notes and what Sensei told us.
-- `assets/` logos and README images.
-- `data/` and `outputs/` challenge images and generated predictions. Not committed.
-
-## Prior code
-
-The code was written during the hackathon. These parts come from before it or from other projects:
-
-- The design rules of `frontend/` and its quiet scrollbar style come from elastic-ui, a component
-  library by José, who wrote it before the event. They were rewritten for this project and only
-  the static rules were kept.
-- `frontend/src/model/catalog.ts` ports the product family rules of `backend/sensei/catalog.py`.
-- The interface uses React, Vite, Tailwind CSS, shadcn/ui, Base UI, Lucide and country-flag-icons,
-  all under the MIT licence. The versions are in `frontend/package.json`.
+- `backend/` the pipeline that writes the predictions, and the server.
+- `frontend/` the web for store staff.
+- `eval/` and `annotations/` scoring and our own labels.
+- `docs/` plan, tasks and notes.
+- `data/` and `outputs/` challenge images and predictions. Not committed.
 
 ## Leaderboard
 
-Every approach scored the same way on the team benchmark (5 folds of whole photos, challenge points). Rules and how to add a row: [LEADERBOARD.md](LEADERBOARD.md). Refresh with `python eval/leaderboard.py`.
+Every approach scored the same way on the team benchmark. Rules: [LEADERBOARD.md](LEADERBOARD.md).
+Refresh with `python eval/leaderboard.py`.
 
 <!-- LEADERBOARD:START -->
 Answer key `labels_v1`: 1929 areas, maximum 3858 points. "≈ /578" scales the total to the 289 hidden validation areas.
@@ -45,11 +29,15 @@ Answer key `labels_v1`: 1929 areas, maximum 3858 points. "≈ /578" scales the t
 | 4 | Always "right product, full" (`baseline`) |  | none | no | +1653 | -99 | +1554 / 3858 | +233 | +0.806 | +0.344 | 0 |
 <!-- LEADERBOARD:END -->
 
-## Built at
+## Prior code
 
-<p align="center">
-  <sub>Built at JunctionX Lisbon 2026, for the Sensei challenge.</sub>
-</p>
+Written during the hackathon, except:
+
+- `frontend/src/model/catalog.ts` ports the product family rules of `backend/sensei/catalog.py`.
+- The interface uses React, Vite, Tailwind CSS, shadcn/ui, Base UI, OpenUI, Lucide and
+  country-flag-icons, all MIT. Versions are in `frontend/package.json`.
+
+Built at JunctionX Lisbon 2026, for the Sensei challenge.
 
 <p align="center">
   <img src="assets/partners/junctionx.png" alt="JunctionX Lisbon" height="56">
@@ -57,6 +45,4 @@ Answer key `labels_v1`: 1929 areas, maximum 3858 points. "≈ /578" scales the t
   <img src="assets/partners/sensei.png" alt="Sensei" height="56">
 </p>
 
-<p align="center">
-  <sub>The JunctionX Lisbon and Sensei logos belong to their owners.</sub>
-</p>
+The JunctionX Lisbon and Sensei logos belong to their owners.

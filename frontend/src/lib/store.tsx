@@ -8,6 +8,8 @@ interface Store {
   state: Source['state']
   /** The URL of a camera's photo, or null when there are no real photos. */
   photoUrl: Source['photoUrl']
+  /** True while the stock states are invented, so pages with figures can say so. */
+  simulated: boolean
   /** Every moment any camera took a photo, in order. */
   times: number[]
   index: number
@@ -52,7 +54,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
 function LoadedStore({ source, children }: { source: Source; children: ReactNode }) {
   const { t, family } = useI18n()
-  const { state, photoUrl } = source
+  const { state, photoUrl, simulated } = source
   const times = useMemo(
     () => [...new Set(Object.values(state.images).flatMap((l) => l.map((r) => r.ts)))].sort((a, b) => a - b),
     [state],
@@ -79,6 +81,7 @@ function LoadedStore({ source, children }: { source: Source; children: ReactNode
     return {
       state,
       photoUrl,
+      simulated,
       times,
       index,
       at,
@@ -106,7 +109,7 @@ function LoadedStore({ source, children }: { source: Source; children: ReactNode
       },
       historyOf: (area) => historyOf(state, area),
     }
-  }, [state, photoUrl, times, index, playing, family, t])
+  }, [state, photoUrl, simulated, times, index, playing, family, t])
 
   return <Context.Provider value={value}>{children}</Context.Provider>
 }
