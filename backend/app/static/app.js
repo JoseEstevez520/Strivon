@@ -395,7 +395,7 @@ function renderLive() {
   }).join("");
   return `<div class="card live">
       <div style="display:flex;align-items:center;gap:8px"><span class="live-dot"></span><h3>Live</h3><span class="muted small">everyone sees new labels within 3 s</span></div>
-      <div class="small" style="margin:8px 0 4px"><b>${sum.done}</b> of ${sum.total} areas labelled on photos 1-${TRAIN()} (${Math.round(pct(sum.done, sum.total))}%)</div>
+      <div class="small" style="margin:8px 0 4px"><b>${sum.done}</b> of ${sum.total} areas labelled (${Math.round(pct(sum.done, sum.total))}%)</div>
       <div class="progress" style="width:100%"><div style="width:${pct(sum.done, sum.total)}%"></div></div>
       <div class="section-title">Per camera</div>
       <div class="cam-progress">${all.map((x) => `<div class="cp ${x.c === S.annCam ? "cur" : ""}" data-anncam="${x.c}" title="${esc(gondolaName(x.c))}"><span>${x.c}</span><div class="progress"><div style="width:${pct(x.done, x.total)}%"></div></div><span class="muted">${x.done}/${x.total}</span></div>`).join("")}</div>
@@ -441,7 +441,7 @@ function renderAnnotate() {
       <label class="small ${S.annName ? "" : "need"}">Your name <input id="ann-name" value="${esc(S.annName || "")}" placeholder="e.g. Leonor" size="10"></label>
       <span class="grow"></span>
       <label class="small"><input type="checkbox" id="ann-pred" ${S.annShowPred ? "checked" : ""}> show prediction</label>
-      <label class="small" title="Photos ${TRAIN() + 1}-${list.length} are kept to check the model. Only open them when it is time to test."><input type="checkbox" id="ann-test" ${S.annTest ? "checked" : ""}> unlock test photos</label>
+      ${list.length > TRAIN() ? "" : "<!--"}<label class="small" title="Photos ${TRAIN() + 1}-${list.length} are kept to check the model. Only open them when it is time to test."><input type="checkbox" id="ann-test" ${S.annTest ? "checked" : ""}> unlock test photos</label>${list.length > TRAIN() ? "" : "-->"}
       <a class="ghost small" href="/api/export/labels.json">Export</a>
     </div>
     <div class="chips">${chips}</div>

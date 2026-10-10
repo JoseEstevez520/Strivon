@@ -29,4 +29,4 @@ SCORE_STOCK_CORRECT, SCORE_STOCK_BELOW, SCORE_STOCK_ABOVE = 1, -2, -3
 
 # Labelling split: the first N photos of each camera (by capture time) are labelled and used
 # for calibration; the remaining ones are held out to check the model.
-TRAIN_PER_CAMERA = 8
+TRAIN_PER_CAMERA = 1000  # no held-out photos: every photo can be labelled (model checked with cross-validation)
