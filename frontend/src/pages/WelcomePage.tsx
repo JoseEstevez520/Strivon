@@ -49,6 +49,7 @@ const Card = ({ icon: Icon, title, text }: { icon: LucideIcon; title: string; te
 )
 
 const CELL = { w: 76, h: 44, gap: 8 }
+/** One red hue in three steps, by how much of a slot is gone, as on the day map. */
 const tone = (pct: number) => `color-mix(in oklab, var(--danger) ${pct}%, var(--sunk))`
 
 /** A fixed pseudo-random value for a slot, so it keeps its state when the window is resized. */
@@ -57,12 +58,10 @@ const hash = (r: number, c: number) => {
   return x - Math.floor(x)
 }
 
-/** One red hue in three steps, by how much of a slot is gone, as on the day map. */
-const slotFill = (v: number) => (v < 0.25 ? tone(84) : v < 0.5 ? tone(52) : v < 0.75 ? tone(28) : 'var(--sunk)')
 
 /**
- * A scatter of slots like the day map's, made of real elements in a grid that is sized to hold
- * whole slots, so none is cut at the edge. They keep away from the centre so the name reads.
+ * The day map's slots, made of real elements in a grid sized to hold whole ones, so none is cut at
+ * the edge.
  */
 function Slots() {
   const ref = useRef<HTMLDivElement>(null)
@@ -82,17 +81,15 @@ function Slots() {
     return () => observer.disconnect()
   }, [])
 
+  // Every slot is there, as on the day map: grey where nothing is wrong, and a stretch of gone ones
+  // running corner to corner.
   const cells = []
   for (let r = 0; r < size.rows; r++) {
     for (let c = 0; c < size.cols; c++) {
-      const dx = (c + 0.5) / size.cols - 0.5
-      const dy = (r + 0.5) / size.rows - 0.5
-      const far = Math.hypot(dx * 1.1, dy * 2) > 0.55
-      const v = hash(r, c)
-      const shown = far && hash(c, r) > 0.55
-      cells.push(
-        <span key={`${r}-${c}`} className="rounded-[7px]" style={{ background: shown ? slotFill(v) : 'transparent', opacity: 0.8 }} />,
-      )
+      const k = Math.min(1, size.cols / 13)
+      const d = (Math.abs(c + 0.5 - ((r + 0.5) / size.rows) * size.cols) + (hash(r, c) - 0.5) * 1.4) / k
+      const fill = d < 1 ? tone(84) : d < 2 ? tone(52) : d < 3.2 ? tone(28) : 'var(--sunk)'
+      cells.push(<span key={`${r}-${c}`} className="rounded-[7px]" style={{ background: fill }} />)
     }
   }
 
@@ -109,26 +106,25 @@ function Slots() {
 }
 
 /**
- * The first screen, the height of the window: the name and what it does in the middle, and around
- * them a scatter of slots like the day map's, some of them gone. Nothing literal, and nothing to
- * press.
+ * The first screen, the height of the window: the name and what it does, and under them the day
+ * map's slots with a stretch of them gone. Nothing literal, and nothing to press.
  */
 function Hero() {
   return (
-    <div className="relative grid min-h-dvh place-items-center overflow-hidden px-5">
-      {/* The same width and margins as the rest of the page, so the slots never reach its edges. */}
-      <div className="absolute inset-0 mx-auto max-w-6xl px-5 py-[max(1.25rem,calc((100vw-72rem)/2+1.25rem))]">
-        <div className="relative size-full">
-          <Slots />
-        </div>
-      </div>
-
-      <div className="relative flex max-w-3xl flex-col items-center gap-6 text-center">
+    <div className="flex min-h-dvh flex-col px-5">
+      <div className="mx-auto flex max-w-3xl flex-1 flex-col items-center justify-center gap-6 py-12 text-center">
         <h1 className="text-[clamp(3.5rem,9vw,7rem)] leading-none font-semibold tracking-[-0.045em]">Strivon</h1>
         <p className="text-[clamp(1.125rem,1.8vw,1.5rem)] leading-relaxed text-fg-secondary">
           Ceiling cameras watch the fruit and vegetable shelves. Strivon compares what they see with the planogram and tells the staff
           what to restock and what to put back.
         </p>
+      </div>
+
+      {/* Under the text, never behind it, and with the same margin below as the page has at its sides. */}
+      <div className="mx-auto w-full max-w-6xl pb-[max(1.25rem,calc((100vw-72rem)/2))]">
+        <div className="relative h-[34dvh] min-h-48">
+          <Slots />
+        </div>
       </div>
     </div>
   )
