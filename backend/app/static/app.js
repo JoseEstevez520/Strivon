@@ -665,6 +665,13 @@ document.addEventListener("keydown", (e) => {
   if (k === "delete" || k === "backspace") return deleteAnn(S.annCam, S.annImg, a.area_id);
 });
 
+function syncTopbarHeight() {
+  const h = document.querySelector(".topbar")?.offsetHeight || 57;
+  document.documentElement.style.setProperty("--topbar-h", h + "px");
+}
+window.addEventListener("resize", syncTopbarHeight);
+syncTopbarHeight();
+
 function setTime(ts) {
   S.T = ts;
   const i = S.times.findIndex((t) => t >= ts);
