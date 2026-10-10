@@ -14,13 +14,17 @@ interface State {
   next: number
   open: boolean
   wide: boolean
+  /** Whether the server can do voice. */
+  voice: boolean
+  /** Whether finished answers are read aloud. */
+  speak: boolean
 }
 
 /**
  * The conversation lives outside the components, so a link in an answer can take you to another
  * page and the chat is as you left it when you come back, answer still arriving or not.
  */
-let state: State = { messages: [], streaming: 0, next: 1, open: false, wide: false }
+let state: State = { messages: [], streaming: 0, next: 1, open: false, wide: false, voice: false, speak: false }
 const listeners = new Set<() => void>()
 
 export const chatStore = {

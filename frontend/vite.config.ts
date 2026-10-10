@@ -59,7 +59,7 @@ function chatRelay(): Plugin {
         // The chat only shows when there is a key, and this is how the screen finds out.
         if (req.method === 'GET' && req.url === '/status') {
           res.setHeader('content-type', 'application/json')
-          return res.end(JSON.stringify({ enabled: Boolean(env.LLM_API_KEY) }))
+          return res.end(JSON.stringify({ enabled: Boolean(env.LLM_API_KEY), voice: Boolean(env.OPENAI_API_KEY) }))
         }
         if (req.method !== 'POST' || !env.LLM_API_KEY) return next()
         let body = ''
@@ -89,8 +89,98 @@ function chatRelay(): Plugin {
   }
 }
 
+/**
+ * Development only: relays dictation and read-aloud to OpenAI, so the key stays on the server.
+ * Set OPENAI_API_KEY in `frontend/.env` (git-ignored). Without it both routes answer 503 and the
+ * chat shows no voice buttons. The same caps as the production relay apply: per address, per day,
+ * and on the size of what comes in.
+ */
+function voiceRelay(): Plugin {
+  const PER_IP = { max: 20, windowMs: 5 * 60 * 1000 }
+  const PER_DAY = 800
+  const MAX_AUDIO = 4_000_000
+  const MAX_TEXT = 1500
+  const seen = new Map<string, number[]>()
+  let day = { stamp: new Date().toDateString(), n: 0 }
+  const allowed = (ip: string) => {
+    const now = Date.now()
+    if (day.stamp !== new Date().toDateString()) day = { stamp: new Date().toDateString(), n: 0 }
+    if (day.n >= PER_DAY) return false
+    const recent = (seen.get(ip) ?? []).filter((t) => now - t < PER_IP.windowMs)
+    if (recent.length >= PER_IP.max) return false
+    recent.push(now)
+    seen.set(ip, recent)
+    day.n++
+    return true
+  }
+  return {
+    name: 'strivon-voice-relay',
+    apply: 'serve',
+    configureServer(server) {
+      const key = loadEnv('development', import.meta.dirname, '').OPENAI_API_KEY
+      server.middlewares.use('/api/voice', async (req, res, next) => {
+        const url = new URL(req.url ?? '/', 'http://local')
+        const route = url.pathname
+        if (req.method !== 'POST' || (route !== '/transcribe' && route !== '/speak')) return next()
+        const fail = (status: number, error: string) => {
+          res.statusCode = status
+          res.setHeader('content-type', 'application/json')
+          res.end(JSON.stringify({ error }))
+        }
+        if (!key) return fail(503, 'no key')
+        if (!allowed(req.socket.remoteAddress ?? '?')) return fail(429, 'too many requests')
+        const chunks: Buffer[] = []
+        let size = 0
+        for await (const chunk of req) {
+          size += chunk.length
+          if (size > MAX_AUDIO) return fail(413, 'too large')
+          chunks.push(chunk)
+        }
+        const raw = Buffer.concat(chunks)
+        try {
+          if (route === '/speak') {
+            const text = (JSON.parse(raw.toString('utf8')) as { text?: unknown }).text
+            if (typeof text !== 'string' || !text.trim() || text.length > MAX_TEXT) return fail(400, 'bad request')
+            const upstream = await fetch('https://api.openai.com/v1/audio/speech', {
+              method: 'POST',
+              headers: { 'content-type': 'application/json', authorization: `Bearer ${key}` },
+              body: JSON.stringify({ model: 'gpt-4o-mini-tts', voice: 'alloy', input: text, response_format: 'mp3' }),
+            })
+            if (!upstream.ok || !upstream.body) return fail(502, 'speech failed')
+            res.setHeader('content-type', 'audio/mpeg')
+            res.setHeader('cache-control', 'no-store')
+            for await (const chunk of upstream.body) res.write(chunk)
+            return void res.end()
+          }
+          const type = String(req.headers['content-type'] ?? '').split(';')[0]
+          const language = url.searchParams.get('language') ?? ''
+          if (!/^(audio|video)\/(webm|mp4|mpeg|ogg|wav|x-wav|m4a|x-m4a)$/.test(type)) return fail(400, 'bad request')
+          if (raw.length < 200 || (language && !/^[a-z]{2}$/.test(language))) return fail(400, 'bad request')
+          const form = new FormData()
+          form.append('model', 'gpt-4o-mini-transcribe')
+          if (language) form.append('language', language)
+          const ext = type.split('/')[1].replace('mpeg', 'mp3').replace('x-', '')
+          form.append('file', new Blob([raw], { type }), `voice.${ext}`)
+          const upstream = await fetch('https://api.openai.com/v1/audio/transcriptions', {
+            method: 'POST',
+            headers: { authorization: `Bearer ${key}` },
+            body: form,
+          })
+          if (!upstream.ok) return fail(502, 'transcription failed')
+          const text = String(((await upstream.json()) as { text?: unknown }).text ?? '').trim()
+          res.setHeader('content-type', 'application/json')
+          res.end(JSON.stringify({ text }))
+        } catch {
+          if (!res.headersSent) fail(502, 'voice failed')
+          else res.end()
+        }
+      })
+    },
+  }
+}
+
 export default defineConfig({
-  plugins: [react(), tailwindcss(), localData(), chatRelay()],
+  plugins: [react(), tailwindcss(), localData(), chatRelay(), voiceRelay()],
   resolve: {
     alias: { '@': path.resolve(import.meta.dirname, './src') },
   },

@@ -1,8 +1,9 @@
-import { Maximize2, MessageCircle, Minimize2, X } from 'lucide-react'
+import { Maximize2, MessageCircle, Minimize2, Volume2, VolumeX, X } from 'lucide-react'
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
-import { chatAvailable } from './ask'
+import { chatStatus } from './ask'
 import { Chat } from './Chat'
 import { chatStore, useChat } from './store'
+import { isRecording, stopDictation, stopSpeaking } from './voice'
 import { useI18n } from '@/lib/i18n'
 
 const corner =
@@ -15,21 +16,33 @@ const corner =
  */
 export function ChatBubble() {
   const { t } = useI18n()
-  const { open, wide } = useChat()
-  const setOpen = (open: boolean) => chatStore.set({ open })
+  const { open, wide, voice, speak } = useChat()
+  const setOpen = (open: boolean) => {
+    chatStore.set({ open })
+    // Closing the box is closing the ears and the microphone too.
+    if (!open) {
+      stopSpeaking()
+      stopDictation(false)
+    }
+  }
   const setWide = (fn: (w: boolean) => boolean) => chatStore.set((s) => ({ wide: fn(s.wide) }))
   const [available, setAvailable] = useState(false)
   const root = useRef<HTMLDivElement>(null)
   const trigger = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
-    void chatAvailable().then(setAvailable)
+    void chatStatus().then((status) => {
+      setAvailable(status.enabled)
+      chatStore.set({ voice: status.voice })
+    })
   }, [])
 
   useEffect(() => {
     if (!open) return
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
+        // While the microphone is open, Escape ends the recording and leaves the box as it is.
+        if (isRecording()) return stopDictation()
         setOpen(false)
         trigger.current?.focus({ preventScroll: true })
       }
@@ -69,6 +82,20 @@ export function ChatBubble() {
           }`}
         >
           <div className="absolute top-2 right-2 z-10 flex gap-1">
+            {voice && (
+              <button
+                type="button"
+                aria-label={speak ? t.readAloudOff : t.readAloudOn}
+                aria-pressed={speak}
+                onClick={() => {
+                  if (speak) stopSpeaking()
+                  chatStore.set({ speak: !speak })
+                }}
+                className={`${corner} ${speak ? 'bg-surface text-fg' : ''}`}
+              >
+                {speak ? <Volume2 className="size-4" /> : <VolumeX className="size-4" />}
+              </button>
+            )}
             {/* On a phone the box already takes the screen, so there is nothing to enlarge. */}
             <button type="button" aria-label={wide ? t.smaller : t.larger} onClick={() => setWide((w) => !w)} className={corner.replace('grid ', 'hidden sm:grid ')}>
               {wide ? <Minimize2 className="size-4" /> : <Maximize2 className="size-4" />}

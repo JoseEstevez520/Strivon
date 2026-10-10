@@ -69,6 +69,14 @@ interface Strings {
   thinking: string
   latest: string
   chatFailed: string
+  dictate: string
+  dictateStop: string
+  transcribing: string
+  readAloudOn: string
+  readAloudOff: string
+  micDenied: string
+  micMissing: string
+  voiceFailed: string
   larger: string
   smaller: string
   suggestions: string[]
@@ -130,6 +138,14 @@ const en: Strings = {
   thinking: 'Thinking',
   latest: 'Go to the latest',
   chatFailed: 'The assistant did not answer. Try again.',
+  dictate: 'Dictate a question',
+  dictateStop: 'Stop recording',
+  transcribing: 'Transcribing',
+  readAloudOn: 'Read answers aloud',
+  readAloudOff: 'Stop reading aloud',
+  micDenied: 'Microphone blocked. Allow it in the browser.',
+  micMissing: 'No microphone found.',
+  voiceFailed: 'Could not hear that. Try again.',
   larger: 'Make it larger',
   smaller: 'Make it smaller',
   suggestions: ['Which gondolas need attention?', 'How are the bananas doing?', 'How much of the time were areas empty?', 'What should I restock first?'],
@@ -207,6 +223,14 @@ const pt: Strings = {
   thinking: 'A pensar',
   latest: 'Ir para a última',
   chatFailed: 'O assistente não respondeu. Tenta outra vez.',
+  dictate: 'Ditar uma pergunta',
+  dictateStop: 'Parar a gravação',
+  transcribing: 'A transcrever',
+  readAloudOn: 'Ler respostas em voz alta',
+  readAloudOff: 'Parar a leitura em voz alta',
+  micDenied: 'Microfone bloqueado. Permite-o no navegador.',
+  micMissing: 'Nenhum microfone encontrado.',
+  voiceFailed: 'Não deu para ouvir. Tenta outra vez.',
   larger: 'Aumentar',
   smaller: 'Reduzir',
   suggestions: ['Que gôndolas precisam de atenção?', 'Como estão as bananas?', 'Que parte do tempo estiveram as áreas vazias?', 'O que devo repor primeiro?'],
@@ -284,6 +308,14 @@ const es: Strings = {
   thinking: 'Pensando',
   latest: 'Ir a la última',
   chatFailed: 'El asistente no ha respondido. Inténtalo de nuevo.',
+  dictate: 'Dictar una pregunta',
+  dictateStop: 'Parar la grabación',
+  transcribing: 'Transcribiendo',
+  readAloudOn: 'Leer las respuestas en voz alta',
+  readAloudOff: 'Dejar de leer en voz alta',
+  micDenied: 'Micrófono bloqueado. Permítelo en el navegador.',
+  micMissing: 'No se encuentra ningún micrófono.',
+  voiceFailed: 'No se ha podido oír. Inténtalo de nuevo.',
   larger: 'Agrandar',
   smaller: 'Reducir',
   suggestions: ['¿Qué góndolas necesitan atención?', '¿Cómo van los plátanos?', '¿Qué parte del tiempo estuvieron vacías las zonas?', '¿Qué repongo primero?'],
