@@ -116,7 +116,12 @@ function Slots() {
 function Hero() {
   return (
     <div className="relative grid min-h-dvh place-items-center overflow-hidden px-5">
-      <Slots />
+      {/* The same width and margins as the rest of the page, so the slots never reach its edges. */}
+      <div className="absolute inset-0 mx-auto max-w-6xl px-5 py-6">
+        <div className="relative size-full">
+          <Slots />
+        </div>
+      </div>
 
       <div className="relative flex max-w-3xl flex-col items-center gap-6 text-center">
         <h1 className="text-[clamp(3.5rem,9vw,7rem)] leading-none font-semibold tracking-[-0.045em]">Strivon</h1>
