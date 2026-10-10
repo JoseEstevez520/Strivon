@@ -1,5 +1,7 @@
 import { systemPromptFor } from './library'
 
+export type ChatContext = Parameters<typeof systemPromptFor>[0]
+
 export interface Turn {
   role: 'user' | 'assistant'
   text: string
@@ -15,7 +17,7 @@ const bare = (text: string) => text.replace(/^```[a-z-]*\n?/i, '').replace(/```\
  */
 export async function ask(
   history: Turn[],
-  products: { key: string; label: string }[],
+  context: ChatContext,
   failed: string,
   onText: (text: string) => void,
 ): Promise<void> {
@@ -24,7 +26,7 @@ export async function ask(
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({
-        system: systemPromptFor(products),
+        system: systemPromptFor(context),
         messages: history.map((m) => ({ role: m.role, content: m.text })),
       }),
     })
