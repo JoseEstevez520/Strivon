@@ -1,0 +1,12 @@
+{
+ "single_crate": {
+  "total": 3255,
+  "max": 3858,
+  "ident": 1911,
+  "stock": 1344,
+  "per_area": 1.687402799377916,
+  "last_per_area": 1.4569536423841059,
+  "per_578": 488,
+  "fit_seconds": 39
+ }
+}

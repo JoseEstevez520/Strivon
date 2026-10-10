@@ -26,7 +26,7 @@ config.CACHE_DIR = tmp / "cache"  # cold run
 trefs = discover(tmp, pg)
 extract(trefs[:1], pg, log=None)  # load the model once, as on the day
 t0 = time.time()
-feats = extract(trefs[1:], pg, log=None)
+feats = extract(trefs[1:], pg, log=None, crates=getattr(__import__("sensei.single").single.load(), "crates", False))
 t_clip = (time.time() - t0) / (len(trefs) - 1)
 from sensei.occlusion import person_boxes  # noqa: E402
 
