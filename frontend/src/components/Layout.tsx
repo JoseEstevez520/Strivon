@@ -27,7 +27,7 @@ const PAGES: Page[] = [
 
 /**
  * A fixed, opaque bar: the name on the left, the pages in the middle and the language on the
- * right. The page you are on is marked with a thin underline, not a filled shape. A line under
+ * right. The page you are on is the one in the text colour, with no shape or line. A line under
  * the bar shows only once the page has moved. On a phone the pages move to a bar at the bottom.
  */
 export function Layout() {
@@ -49,7 +49,7 @@ export function Layout() {
                 key={to}
                 to={to}
                 end={end}
-                className="relative flex h-full items-center gap-2 px-3 text-label text-fg-muted transition-colors after:absolute after:inset-x-3 after:bottom-0 after:h-0.5 after:bg-fg after:opacity-0 hover:text-fg aria-[current=page]:text-fg aria-[current=page]:after:opacity-100"
+                className="flex h-full items-center gap-2 px-3 text-label text-fg-muted transition-colors hover:text-fg aria-[current=page]:text-fg"
               >
                 <Icon className="size-4" />
                 {t[label]}
@@ -82,7 +82,7 @@ export function Layout() {
             key={to}
             to={to}
             end={end}
-            className="relative flex min-h-16 flex-col items-center justify-center gap-1 text-meta text-fg-muted transition-colors before:absolute before:inset-x-6 before:top-0 before:h-0.5 before:bg-fg before:opacity-0 aria-[current=page]:text-fg aria-[current=page]:before:opacity-100"
+            className="flex min-h-16 flex-col items-center justify-center gap-1 text-meta text-fg-muted transition-colors aria-[current=page]:text-fg"
           >
             <Icon className="size-5" />
             {t[label]}

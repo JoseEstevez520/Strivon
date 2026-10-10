@@ -50,13 +50,12 @@ uses cool greys. There is no accent colour. Only the light theme exists for now.
 ## Header and navigation
 
 The header is fixed, opaque and 56 px tall. The name is on the left, the language on the right
-and the pages in the middle, each with an icon and its label. The page you are on is marked with
-a 2 px underline in the text colour, the way elastic-ui's underline tabs do it, and not with a
-filled shape. A hairline appears under the header only once the page has moved. It does not
+and the pages in the middle, each with an icon and its label. The page you are on is the one in
+the text colour and the others are grey. There is no underline and no filled shape. A hairline appears under the header only once the page has moved. It does not
 shrink or hide: it is already small.
 
-On a phone the pages move to a bar at the bottom, with the icon over the label and a thin line
-on top of the active one. The first version had plain links with a tinted pill next to the
+On a phone the pages move to a bar at the bottom, with the icon over the label and the active one
+in the text colour. The first version had plain links with a tinted pill next to the
 name, which was neither a tab nor a button and broke the calm of the page.
 
 Group headings in the lists stay fixed under the header while their group scrolls, on an opaque
@@ -318,6 +317,9 @@ a collapsing block by hand once, and Base UI and shadcn already had it.
 - 2026-10-10. Gondola tiles are tinted when there is something to restock, graded by how much,
   and keep a fixed order. The first sort by urgency made tiles move, and with 12 of 14 tinted
   the same, none stood out.
+
+- 2026-10-10. The active page is marked only by the text colour. The 2 px underline copied from
+  the library's tabs was removed because it was not liked.
 
 ## Open questions
 
