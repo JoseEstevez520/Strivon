@@ -8,6 +8,8 @@ Answer key `labels_v1`: 1929 areas in 179 photos, so the maximum is 3858 points.
 
 | Approach | Owner | Labels trained on | Looks at other photos? | Identification | Stock | Total / max | Per area | Last photo, per area | Seconds per photo |
 |---|---|---|---|---:|---:|---:|---:|---:|---|
+| Agents' pipeline + 3rd stock head, uses same-day photos | André (agents) | labels_v1 | yes, same camera and day | +1881 | +1389 | +3270 / 3858 | +1.695 | +1.503 | 2.34 CPU (+ up to 0.6), 0.17 GPU |
+| Agents' pipeline + 3rd stock head, each photo on its own | André (agents) | labels_v1 | no | +1839 | +1385 | +3224 / 3858 | +1.671 | +1.483 | 3.44 CPU (+ up to 0.6), 0.21 GPU |
 | Agents' pipeline, uses same-day photos | André (agents) | labels_v1 | yes, same camera and day | +1881 | +1371 | +3252 / 3858 | +1.686 | +1.543 | 2.34 CPU, 0.17 GPU |
 | Agents' pipeline, each photo on its own | André (agents) | labels_v1 | no | +1839 | +1351 | +3190 / 3858 | +1.654 | +1.457 | 3.44 CPU, 0.21 GPU |
 | Agents' pipeline, uses same-day photos | André (agents) | André's 511 + AI pre-labels | yes, same camera and day | +1860 | +1011 | +2871 / 3858 | +1.488 | +1.146 | 2.34 CPU, 0.17 GPU |
@@ -17,6 +19,7 @@ Answer key `labels_v1`: 1929 areas in 179 photos, so the maximum is 3858 points.
 Agents' pipeline:
 - The product check is SigLIP2-base zero-shot plus nearest neighbours over the training folds' crops.
 - Stock is the average of two stock models.
+- "+ 3rd stock head" adds a plain logistic regression on the same DINOv2-small crate features as a third member of that average. It was the best of 5 heads tried on this benchmark, so part of its gain may come from that choice. It also scores lower on the last photo.
 - The same-day version reuses the answer of the same area in a similar-looking photo of the same camera. That's why it also runs faster.
 - Seconds are end to end, on the 14 newest photos, after a 12.5 s start-up. Machine: Ryzen 9 5900HS laptop CPU (4 threads) and RTX 3060 Laptop GPU.
 - The code isn't in this repo yet.
