@@ -1,0 +1,13 @@
+# challenge photos and anything derived from their pixels must never be committed
+cache/*
+!cache/crates.json
+!cache/e_crates_manual.py
+__pycache__/
+*.npz
+*.jpg
+*.png
+
+# trained weights contain crop histograms derived from the challenge photos
+models/
+preds5/
+preds6/
