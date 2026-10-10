@@ -69,7 +69,8 @@ export function ChatBubble() {
           }`}
         >
           <div className="absolute top-2 right-2 z-10 flex gap-1">
-            <button type="button" aria-label={wide ? t.smaller : t.larger} onClick={() => setWide((w) => !w)} className={corner}>
+            {/* On a phone the box already takes the screen, so there is nothing to enlarge. */}
+            <button type="button" aria-label={wide ? t.smaller : t.larger} onClick={() => setWide((w) => !w)} className={corner.replace('grid ', 'hidden sm:grid ')}>
               {wide ? <Minimize2 className="size-4" /> : <Maximize2 className="size-4" />}
             </button>
             <button type="button" aria-label={t.close} onClick={() => setOpen(false)} className={corner}>

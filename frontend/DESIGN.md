@@ -468,6 +468,11 @@ a collapsing block by hand once, and Base UI and shadcn already had it.
   was. The thread scrolls like the big chats: it follows the answer while you are at the bottom,
   lets go when you scroll up and offers a button back down. Its two ends fade out with a mask, the
   one place a gradient is used, because a hard cut through a chart reads as an error.
+- 2026-10-10. The chat no longer follows the answer down. Sending puts your question at the top of
+  the thread and the answer grows below it without the view moving, so it is read from its first
+  line, as in the big chats; a round button takes you down when it runs long. The last answer is
+  at least a screen tall so that even a short one lets the question reach the top. On a phone the
+  enlarge button is hidden: the box already takes the screen.
 - 2026-10-10. The bubble grows into the chat box and folds back (width, height and radius, 300 ms).
   It is the one exception to "no layout animation", allowed because it is a single small element
   with a fixed-size box inside it, so nothing inside reflows. Blur, glass and aurora stay out. The writing field is a soft tray that grows with the text, Enter sends,
