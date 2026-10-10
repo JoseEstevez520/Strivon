@@ -28,7 +28,7 @@ export interface Stats {
  * photos come about an hour apart and nothing between them is known, so every figure built on this
  * is an estimate.
  */
-function weights(frames: ImageRecord[]): number[] {
+export function weights(frames: ImageRecord[]): number[] {
   return frames.map((f, i) => {
     const before = i > 0 ? f.ts - frames[i - 1].ts : 0
     const after = i < frames.length - 1 ? frames[i + 1].ts - f.ts : 0
@@ -36,7 +36,7 @@ function weights(frames: ImageRecord[]): number[] {
   })
 }
 
-const HOUR = 3600
+export const HOUR = 3600
 
 /** The summary of the period the photos cover, from the observations of every area in every photo. */
 export function storeStats(state: StoreState): Stats {
@@ -100,7 +100,7 @@ export function storeStats(state: StoreState): Stats {
 }
 
 /** The share of a product's areas that were empty at a moment, counting only cameras that were taking photos then. */
-function cell(state: StoreState, areas: Area[], at: number): number | null {
+export function cell(state: StoreState, areas: Area[], at: number): number | null {
   let seen = 0
   let empty = 0
   for (const area of areas) {

@@ -21,7 +21,8 @@ def run(
     camera: str | None = None,
     use_clip: bool | None = None,
     use_supervised: bool = True,
-    use_occlusion: bool = True,
+    use_occlusion: bool = False,
+    model: str = "auto",
     log=print,
 ) -> dict:
     """Predict every planogram area of every image in `images_dir`.
@@ -34,6 +35,15 @@ def run(
     targets = discover(images_dir, pg, camera)
     if not targets:
         raise SystemExit(f"no images found in {images_dir}")
+    from . import single, supervised
+
+    # Default: the single-image model. Sensei asked us to use only the image under analysis, so
+    # with it no other photo is read (no context, no neighbours).
+    single_model = single.load() if model in ("auto", "single") else None
+    if model == "single" and single_model is None:
+        raise SystemExit("outputs/single.pkl not found: run `python -m sensei train-single` first")
+    if single_model is not None:
+        context_dirs = []
     context: list[ImageRef] = []
     seen = {t.path.resolve() for t in targets}
     for d in context_dirs or []:
@@ -43,50 +53,41 @@ def run(
                 seen.add(r.path.resolve())
     log(f"{len(targets)} target images, {len(context)} context images, CLIP={'on' if (use_clip if use_clip is not None else clip_backend.available()) else 'off'}")
     feats = extract(targets + context, pg, use_clip=use_clip, log=log)
-    obs = LabelFreeModel(pg, feats).run()
+    obs = LabelFreeModel(pg, feats).run()  # label-free signals, only shown in the app's "why" panel
     cal = calibrate.load()
     sup = None
     occluded_cover: dict = {}
-    from . import supervised
+    tkeys = [(r.camera, r.name, a.area_id) for r in targets for a in pg.cameras[r.camera]]
 
-    sup_model = supervised.load() if use_supervised else None
-    if sup_model is not None and config.LABELS_PATH.exists():
-        ts = {(r.camera, r.name): r.ts for r in targets + context}
-        tkeys = [(r.camera, r.name, a.area_id) for r in targets for a in pg.cameras[r.camera]]
-        feats_ctx = (extract(targets + context, pg, use_clip=use_clip, log=log, scale=supervised.CTX_SCALE)
-                     if sup_model.get("use_ctx") else None)
-        sup = supervised.predict(sup_model, tkeys, feats, obs, ts, feats_ctx)
-        cv = sup_model["report"]["supervised_cv_tuned"]
-        log(f"using supervised model (photo-held-out CV: {cv['per_289']}/578 on 289 areas)")
+    if single_model is not None:
+        sup, _ = single.predict(single_model, pg, tkeys, feats)
         cal = None
-        # Shoppers in front of an area: none in our photos, so the model never saw one.
-        # Fall back on the nearest labelled photos of the same area (round down).
+        log("using the single-image model (only the photo under analysis)")
         if use_occlusion:
-            from .occlusion import covered_fraction, person_boxes
+            # A person in front of the area: the photo shows little of the shelf, so use what the
+            # model learned for that area in general (its training prior), rounded down.
+            from .occlusion import COVER_MIN, covered_fraction, person_boxes
 
-            labels = supervised.load_training_labels(log=None)
             n_occ = 0
             for r in targets:
                 boxes = person_boxes(r.path)
-                if not boxes:
-                    continue
-                for a in pg.cameras[r.camera]:
-                    cover = covered_fraction(a.quad, boxes)
+                for a in pg.cameras[r.camera] if boxes else []:
                     k = (r.camera, r.name, a.area_id)
-                    occluded_cover[k] = cover
-                    if cover < 0.25:
-                        continue
-                    near = sorted((abs(ts[(c, i)] - ts[(r.camera, r.name)]), lab) for (c, i, aid), lab in labels.items()
-                                  if c == r.camera and aid == a.area_id and i != r.name and (c, i) in ts)[:2]
-                    if not near:
-                        continue
-                    lvl = min(config.LEVEL_NAMES.index(lab["stock_level"]) for _, lab in near)
-                    ps = np.full(3, 0.02)
-                    ps[lvl] = 0.96
-                    sup[k] = (ps, 0.95 if near[0][1]["planogram_compliant"] else 0.05)
-                    n_occ += 1
+                    occluded_cover[k] = covered_fraction(a.quad, boxes)
+                    prior = single_model.area_prior.get(a.area_id) if hasattr(single_model, "area_prior") else None
+                    if occluded_cover[k] >= COVER_MIN and prior is not None:
+                        sup[k] = prior
+                        n_occ += 1
             if n_occ:
-                log(f"{n_occ} areas covered by a person: used the nearest labelled photos instead")
+                log(f"{n_occ} areas covered by a person: used the area's learned prior")
+    elif model in ("auto", "neighbours") and use_supervised and supervised.load() is not None:
+        # Uses the labelled photos taken before/after: NOT allowed for the submission (Sensei),
+        # kept only to compare on the leaderboard.
+        sup_model = supervised.load()
+        ts = {(r.camera, r.name): r.ts for r in targets + context}
+        sup = supervised.predict(sup_model, tkeys, feats, obs, ts)
+        log("WARNING: neighbour model (uses other photos), not allowed for the submission")
+        cal = None
     elif cal is not None:
         log(f"using calibrated model ({cal.get('name', 'calibration.json')})")
 
@@ -135,7 +136,7 @@ def run(
             "images_dir": str(Path(images_dir).resolve()),
             "backend": ("clip:" + clip_backend.MODEL) if feats_have_clip(feats) else "heuristic",
             "calibrated": cal is not None or sup is not None,
-            "model": "supervised" if sup is not None else ("calibrated" if cal is not None else "label-free"),
+            "model": ("single-image" if single_model is not None else "neighbours") if sup is not None else ("calibrated" if cal is not None else "label-free"),
             "areas": {a.area_id: a.to_json() for a in pg.areas},
             "images": images,
             "observations": details,

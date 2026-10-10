@@ -11,6 +11,14 @@ Golden rule: work on your own branch (`name/topic`), open a PR to `main` and com
 - `backend/debug_view.py`: draws the predicted stock on an image.
 - Known limits: products with little colour (pineapple) come out as "empty". On some cameras (for example 6468) a product different from the planogram appears, so compliant cannot always be true.
 
+## Status, Saturday night
+
+- Sensei: only the image under analysis may be used, and cost is 20% of the grade. The neighbour
+  model (489) used the photos before and after, so it is out. The new single-image model
+  (`python -m sensei train-single`) scores 480 / 578 on André's benchmark with CLIP ViT-B-32 at
+  0.8 s per photo on 2 CPU threads. See the leaderboard in the README.
+- The 90 suspects were reviewed (56 labels changed).
+
 ## Status, Saturday evening
 
 - All 1962 areas of the 181 photos are labelled (`eval/labels.json`), with 73 notes and the log of who did what.
@@ -32,7 +40,7 @@ Golden rule: work on your own branch (`name/topic`), open a PR to `main` and com
 mentors and write their answers in `docs/SENSEI_INFO.md`: half vs full (2 cases), empty vs half
 (2 cases), whole crate vs outlined area, shutter photos. Then the pitch and demo script.
 
-**José: clean the labels (about 20 minutes).** In the app, Label tab, press "Review suspects":
+**Jose: clean the labels (about 20 minutes).** In the app, Label tab, press "Review suspects":
 90 labels the model strongly disagrees with. Fix the ones that break the rule; leave the ones that
 are right. After the Sensei answers, apply their rule to the same list.
 
@@ -55,7 +63,7 @@ on the Tasks tab with real predictions.
 3. Handling of images with a curtain or hands in the way.
 4. Generate the final submission file in the required format.
 
-### José: app and integration
+### Jose: app and integration
 
 1. `backend/`: a FastAPI API that reads `outputs/predictions.json` and serves it by camera, image and area.
 2. `frontend/`: the staff view, with a prioritised list ("restock first / move back to place / ok") and a map of the gondola with the areas coloured over the image. It breaks ties, but it has to be clear in 5 seconds.
@@ -72,7 +80,7 @@ on the Tasks tab with real predictions.
 
 1. Label about 40-60 areas by hand with André's tool, varied by camera and time and including hard cases. This is our "validation" and it is worth points directly.
 2. Write the pitch (problem, solution, impact: less waste, fewer empty shelves, audits without people) and the demo script (2-3 min).
-3. Design: a prototype (Figma or paper) of the staff screen for José to build, plus the Strivon logo and name, and the slides.
+3. Design: a prototype (Figma or paper) of the staff screen for Jose to build, plus the Strivon logo and name, and the slides.
 4. Final README and the demo video.
 
 ## Suggested deadlines

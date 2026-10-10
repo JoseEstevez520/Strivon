@@ -2,6 +2,7 @@ import { Maximize2, MessageCircle, Minimize2, X } from 'lucide-react'
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { chatAvailable } from './ask'
 import { Chat } from './Chat'
+import { chatStore, useChat } from './store'
 import { useI18n } from '@/lib/i18n'
 
 const corner =
@@ -14,8 +15,9 @@ const corner =
  */
 export function ChatBubble() {
   const { t } = useI18n()
-  const [open, setOpen] = useState(false)
-  const [wide, setWide] = useState(false)
+  const { open, wide } = useChat()
+  const setOpen = (open: boolean) => chatStore.set({ open })
+  const setWide = (fn: (w: boolean) => boolean) => chatStore.set((s) => ({ wide: fn(s.wide) }))
   const [available, setAvailable] = useState(false)
   const root = useRef<HTMLDivElement>(null)
   const trigger = useRef<HTMLButtonElement>(null)
