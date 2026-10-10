@@ -1,6 +1,6 @@
 # Contributing
 
-- Work straight on `main`. Small commits, often.
+- Small commits, often.
 - Commits follow Conventional Commits: `type(scope): description`. No co-author or AI
   attribution lines.
 - Everything in the repo is in English: code, comments, docs, commits and issues.
