@@ -141,9 +141,9 @@ repo or the build. If the folder is not there, the screen falls back to invented
 same size.
 
 - Product families come from the catalogue names with the rules of `sensei/catalog.py`, ported
-  to `src/data/catalog.ts` in the same order. A change there needs the same change here.
+  to `src/model/catalog.ts` in the same order. A change there needs the same change here.
 - What the pipeline says about each area (stock and whether the product is right) is still
-  simulated, in `src/data/simulate.ts`, with the pipeline's shape. The photos are real and the
+  simulated, in `src/model/simulate.ts`, with the pipeline's shape. The photos are real and the
   states are not, so a shelf marked empty can show a full one until the real predictions are
   connected.
 - A crop is the full photo shifted and scaled with CSS to show one area. It is not rectified like

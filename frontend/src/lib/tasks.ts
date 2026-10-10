@@ -1,4 +1,4 @@
-import type { Area, ImageRecord, Observation, StoreState } from '@/data/types'
+import type { Area, ImageRecord, Observation, StoreState } from '@/model/types'
 
 export type Group = 'restock' | 'moveBack' | 'later' | 'allGood'
 

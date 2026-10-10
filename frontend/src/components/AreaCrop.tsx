@@ -1,5 +1,5 @@
-import type { Area } from '@/data/types'
-import { IMAGE_SIZE } from '@/data/types'
+import type { Area } from '@/model/types'
+import { IMAGE_SIZE } from '@/model/types'
 import { useStore } from '@/lib/store'
 
 /** A small piece of the camera photo showing one shelf area. A flat tone when there is no photo. */

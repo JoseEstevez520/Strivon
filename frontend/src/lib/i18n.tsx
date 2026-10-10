@@ -1,5 +1,5 @@
 import { createContext, useContext, useMemo, useState, type ReactNode } from 'react'
-import { FAMILIES } from '@/data/families'
+import { FAMILIES } from '@/model/families'
 
 export type Lang = 'en' | 'pt' | 'es'
 export const LANGS: Lang[] = ['en', 'pt', 'es']

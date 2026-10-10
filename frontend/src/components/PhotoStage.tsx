@@ -1,5 +1,5 @@
 import { GROUP_COLOR } from './groupStyle'
-import { IMAGE_SIZE } from '@/data/types'
+import { IMAGE_SIZE } from '@/model/types'
 import type { Task } from '@/lib/tasks'
 
 interface Props {

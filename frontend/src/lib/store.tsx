@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
-import { loadSource, type Source } from '@/data/source'
-import type { Area } from '@/data/types'
+import { loadSource, type Source } from '@/model/source'
+import type { Area } from '@/model/types'
 import { useI18n } from './i18n'
 import { gondolaFamilies, historyOf, tasksAt, type HistoryPoint, type Task } from './tasks'
 
