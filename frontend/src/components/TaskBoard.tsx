@@ -25,10 +25,12 @@ interface Props {
   initialSelected?: string | null
   /** A shorter version to show the app off: a few tasks, four gondolas, nothing that folds, scrolls or leads away. */
   compact?: boolean
+  /** The slider under the panel. A page with a timeline of its own turns it off. */
+  dayBar?: boolean
 }
 
 /** The tasks on one side. On the other, every camera, or the photo of what is open. */
-export function TaskBoard({ tasks, camera, listFine = false, initialSelected = null, compact = false }: Props) {
+export function TaskBoard({ tasks, camera, listFine = false, initialSelected = null, compact = false, dayBar = true }: Props) {
   const { t } = useI18n()
   const { state, at, tasks: all, gondola, where, historyOf, jumpTo, photoUrl } = useStore()
   const [selected, select] = useSelection(initialSelected)
@@ -125,7 +127,7 @@ export function TaskBoard({ tasks, camera, listFine = false, initialSelected = n
           </ul>
           </>
         )}
-        <DayBar className="mt-4" />
+        {dayBar && <DayBar className="mt-4" />}
       </div>
     </div>
   )
