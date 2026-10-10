@@ -9,6 +9,18 @@ right product, and how full is it? Store staff get what to restock and what to m
 
 The landing is at [strivon-landing.vercel.app](https://strivon-landing.vercel.app).
 
+### The app for staff
+
+<p align="center">
+  <img src="assets/video/demo-tasks.gif" alt="The task list fills as the day plays: empty shelf areas, half full ones and products in the wrong place. Opening a task shows the photo of its camera with the shelf area marked." width="80%">
+</p>
+
+Each shelf area that needs something becomes a task: restock what is empty, move back what is in
+the wrong place and check later what is half full. Play the day to see the list fill, and open a
+task to see its shelf with the area marked.
+
+### Ask, and get a screen
+
 <p align="center">
   <img src="assets/video/chat-to-gondola.gif" alt="Someone asks where the bananas are. The chat answers with a chart of how the shelves emptied through the day and a card. Opening the card shows the gondola's photo with its shelf areas marked." width="80%">
 </p>
@@ -16,8 +28,9 @@ The landing is at [strivon-landing.vercel.app](https://strivon-landing.vercel.ap
 The chat does not answer with a paragraph. The model writes the layout of the answer out of the
 app's own parts (charts, tables, tasks, a map of the day, photo cards) and the app draws it, so an
 answer can be opened and followed to the shelf it talks about. It needs a model key on the server
-(`LLM_API_KEY` in `frontend/.env`); without one the chat is hidden. The shelf states in the clip
-are simulated. More clips are in [`assets/video`](assets/video).
+(`LLM_API_KEY` in `frontend/.env`); without one the chat is hidden.
+
+The shelf states in both clips are simulated. Full-size clips are in [`assets/video`](assets/video).
 
 ## Run the app
 
