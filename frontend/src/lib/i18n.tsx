@@ -33,6 +33,7 @@ interface Strings {
   searchProducts: string
   shortOf: (short: number, total: number) => string
   allGondolas: string
+  gondolaN: (n: number) => string
   loading: string
   navInsights: string
   goFirst: string
@@ -91,6 +92,7 @@ const en: Strings = {
   searchProducts: 'Search products',
   shortOf: (s, n) => (s === 0 ? 'All fine' : n === 1 ? 'Short' : `${s} of ${n} areas short`),
   allGondolas: 'All gondolas',
+  gondolaN: (n) => `Gondola ${n}`,
   loading: 'Checking the shelves…',
   navInsights: 'Insights',
   goFirst: 'Go first',
@@ -165,6 +167,7 @@ const pt: Strings = {
   searchProducts: 'Procurar produtos',
   shortOf: (s, n) => (s === 0 ? 'Tudo bem' : n === 1 ? 'Em falta' : `${s} de ${n} áreas em falta`),
   allGondolas: 'Todas as gôndolas',
+  gondolaN: (n) => `Gôndola ${n}`,
   loading: 'A verificar as prateleiras…',
   navInsights: 'Análise',
   goFirst: 'Vai primeiro',
@@ -239,6 +242,7 @@ const es: Strings = {
   searchProducts: 'Buscar productos',
   shortOf: (s, n) => (s === 0 ? 'Todo bien' : n === 1 ? 'Con falta' : `${s} de ${n} zonas con falta`),
   allGondolas: 'Todas las góndolas',
+  gondolaN: (n) => `Góndola ${n}`,
   loading: 'Revisando las estanterías…',
   navInsights: 'Análisis',
   goFirst: 'Ve primero',

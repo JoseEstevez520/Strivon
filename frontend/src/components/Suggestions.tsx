@@ -39,7 +39,7 @@ function Counts({ s }: { s: Suggestion }) {
  */
 export function Suggestions() {
   const { t, family } = useI18n()
-  const { state, tasks, at, gondola, photoUrl } = useStore()
+  const { state, tasks, at, gondola, gondolaWhat, photoUrl } = useStore()
   const list = useMemo(() => suggest(tasks), [tasks])
   if (list.length === 0) return null
   const [first, ...rest] = list
@@ -59,7 +59,10 @@ export function Suggestions() {
         </div>
         <div className="px-2 pt-3 pb-2">
           <div className="flex items-center justify-between gap-3">
-            <span className="text-title">{gondola(first.camera)}</span>
+            <span>
+              <span className="block text-title">{gondola(first.camera)}</span>
+              <span className="block text-ui text-fg-muted">{gondolaWhat(first.camera)}</span>
+            </span>
             <ChevronRight className="size-5 shrink-0 text-fg-muted transition-colors group-hover:text-fg" aria-hidden />
           </div>
           <div className="mt-2">
@@ -92,6 +95,7 @@ export function Suggestions() {
                     <span className="flex items-baseline gap-2">
                       <span className="text-meta tabular-nums text-fg-muted">{i + 2}</span>
                       <span className="truncate text-label">{gondola(s.camera)}</span>
+                      <span className="truncate text-meta text-fg-muted">{gondolaWhat(s.camera)}</span>
                     </span>
                     <Counts s={s} />
                   </span>

@@ -482,6 +482,11 @@ a collapsing block by hand once, and Base UI and shadcn already had it.
   sum over the areas that need something (empty and wrong place count 1, half full 0.5), made up to
   twice as heavy by how long they have been like that and up to twice by how much of the product is
   gone across the store. Opening a task swaps the side for its photo, as before.
+- 2026-10-11. Gondolas are named by number, "Gondola 4", fixed in the order of the cameras, with
+  the two products that fill most of it as a quiet second line. The old names (the two main
+  products) repeated between gondolas, were cut short in tiles, changed with what the model saw
+  and are not what anyone in a store says. Places with room for both show "Gondola 4 · Potato ·
+  Onion"; the numbers are placeholders until the store gives us its own.
 - 2026-10-10. The bubble grows into the chat box and folds back (width, height and radius, 300 ms).
   It is the one exception to "no layout animation", allowed because it is a single small element
   with a fixed-size box inside it, so nothing inside reflows. Blur, glass and aurora stay out. The writing field is a soft tray that grows with the text, Enter sends,
