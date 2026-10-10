@@ -28,9 +28,10 @@ interface of that web was the problem, not its pages.
 - Products shows the stock of each product summed over all its areas, the ones running out first,
   with a search. A product opens into the places where it sits.
 
-- Day is for whoever runs the store. One sentence leads: what share of the time shelf areas were
-  empty. Under it, a map of the day, the products and gondolas that were empty the longest, and the
-  share of the time areas held the right product. A quiet field below it asks about the day.
+- Insights is for whoever runs the store. One sentence leads: what share of the time shelf areas
+  were empty. Under it, a map of stock over time, the products and gondolas that were empty the
+  longest, and the share of the time areas held the right product. A quiet field below it asks
+  about the store.
 
 The day bar is not in the header. It sits where the photos are, under the camera panel on the
 first page and on a gondola page, and under the headline on the pages that have no photo. The
@@ -225,9 +226,13 @@ only decides what is still tied. Inside a card, the areas that have waited longe
 Move back has no confidence to order by yet, because the simulated states carry none. The
 pipeline gives a probability of mismatch, and the lowest should go first when it is connected.
 
-## The Day page
+## The Insights page
 
-It answers how the day went, with figures that are true of the data and no more.
+It answers how the store is doing, with figures that are true of the data and no more. It is not a
+page about one day. The data we have covers one day, and the page says which period it covers, in
+one line written from the data ("Jun 27, 2025, 06:12 to 20:16"), so it never claims a period it
+does not have. Nothing in the copy says "today". With more days, the same sections take a longer
+period.
 
 - The lead is a share, not a sum. A first version said "487 hours" empty, which is the hours of
   all 152 areas added up and means nothing to a person. "Empty 24% of the time" is understood at
@@ -245,7 +250,7 @@ It answers how the day went, with figures that are true of the data and no more.
 
 ## The assistant
 
-A field asks about the day, with four suggested questions. A suggestion fills the field and does not
+A field asks about the store, with four suggested questions. A suggestion fills the field and does not
 send it, so it can be edited. The assistant is not connected yet and every question gets the same
 plain answer. What is built is the part that does not change when it is connected.
 
@@ -447,11 +452,16 @@ a collapsing block by hand once, and Base UI and shadcn already had it.
   estimate. The assistant is empty on purpose: the parts an answer is made of are built, the
   answering is not.
 
+- 2026-10-10. The Day page became Insights. Naming it after a day, and writing "today" in its
+  headline and its chat, closed it to one period when what we want is the analytics of the store.
+  The period is now a line of data. A period selector and multi-day code were left out, since they
+  could not be tested with one day of photos.
+
 ## Open questions
 
 - The English flag is the UK flag. A code such as EN would avoid the question of which country
   English belongs to.
-- The Day page and every figure on it depend on the real predictions replacing the simulated
+- The Insights page and every figure on it depend on the real predictions replacing the simulated
   states. Until then it cannot be shown as results.
 - Whether the challenge allows external APIs, which decides how the assistant can answer.
 - The real predictions need to replace the simulated states. With the simulated ones, 12 of 14

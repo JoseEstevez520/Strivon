@@ -4,25 +4,31 @@ import { DayMap } from '@/components/day/DayMap'
 import { RankedBars } from '@/components/day/RankedBars'
 import { StatLine } from '@/components/day/StatLine'
 import { useI18n } from '@/lib/i18n'
-import { dayStats } from '@/lib/stats'
+import { storeStats } from '@/lib/stats'
 import { useStore } from '@/lib/store'
+import { clock } from '@/lib/time'
 
 const Heading = ({ children }: { children: React.ReactNode }) => (
   <h2 className="flex h-9 items-center px-1 text-label text-fg-muted">{children}</h2>
 )
 
-/** How the day went, for whoever runs the store: one number, when it happened and where it hurt. */
-export function DayPage() {
-  const { t, family } = useI18n()
+/** How the store is doing, for whoever runs it: one number, when it happened and where it hurts. */
+export function InsightsPage() {
+  const { t, lang, family } = useI18n()
   const { state, gondola, simulated } = useStore()
-  const stats = useMemo(() => dayStats(state), [state])
+  const stats = useMemo(() => storeStats(state), [state])
 
-  const note = simulated ? `${t.dayEstimate} ${t.daySimulated}` : t.dayEstimate
+  // What the photos cover is written from the data, so the page never claims a period it does not have.
+  const { from, to } = stats.period
+  const date = new Intl.DateTimeFormat(lang, { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Europe/Lisbon' }).format(
+    new Date(from * 1000),
+  )
+  const note = [t.insightsPeriod(date, clock(from), clock(to)), t.insightsEstimate, simulated ? t.insightsSimulated : ''].filter(Boolean).join(' ')
 
   return (
     <>
       <div className="mb-10">
-        <StatLine note={note}>{t.dayHeadline(Math.round(stats.emptyShare * 100))}</StatLine>
+        <StatLine note={note}>{t.insightsHeadline(Math.round(stats.emptyShare * 100))}</StatLine>
       </div>
 
       <section className="mb-10">

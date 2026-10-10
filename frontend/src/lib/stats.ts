@@ -1,7 +1,7 @@
 import type { Area, ImageRecord, StoreState } from '@/model/types'
 import { groupOf, snapshot } from './tasks'
 
-/** One product through the day: how much of it was empty in each hour. */
+/** One product through the period: how much of it was empty in each hour. */
 export interface MapRow {
   product: string
   /** The share of the product's shelf time in which its areas were empty, 0 to 1. */
@@ -10,11 +10,13 @@ export interface MapRow {
   cells: (number | null)[]
 }
 
-export interface DayStats {
+export interface Stats {
   /** The share of all shelf time in which areas were empty, 0 to 1. */
   emptyShare: number
-  /** Share of the day in which areas held the product the planogram expects, 0 to 1. */
+  /** Share of the period in which areas held the product the planogram expects, 0 to 1. */
   compliance: number
+  /** The first and last photo of the period, in unix seconds. */
+  period: { from: number; to: number }
   /** The start of each hour column, in unix seconds. */
   hours: number[]
   map: MapRow[]
@@ -36,8 +38,8 @@ function weights(frames: ImageRecord[]): number[] {
 
 const HOUR = 3600
 
-/** The summary of the whole day, from the observations of every area in every photo. */
-export function dayStats(state: StoreState): DayStats {
+/** The summary of the period the photos cover, from the observations of every area in every photo. */
+export function storeStats(state: StoreState): Stats {
   const areas = Object.values(state.areas)
   const emptyByProduct: Record<string, number> = {}
   const timeByProduct: Record<string, number> = {}
@@ -87,6 +89,7 @@ export function dayStats(state: StoreState): DayStats {
 
   return {
     emptyShare: timeTotal ? emptyTotal / timeTotal : 0,
+    period: { from: first, to: last },
     compliance: weighed ? compliant / weighed : 1,
     hours,
     map: map.sort((a, b) => b.share - a.share),

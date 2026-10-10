@@ -38,9 +38,9 @@ The app has four pages and a header with the language picker.
 - Gondolas shows the 14 cameras, each with how many areas are in each state. A gondola opens into
   its photo and its own tasks.
 - Products shows the stock of each product summed over all its areas, with a search.
-- Day is for whoever runs the store: the share of the time shelf areas were empty, a map of the
-  day, the products and gondolas empty the longest, and a field to ask about the day. It is an
-  estimate from about 13 photos per camera.
+- Insights is for whoever runs the store: the share of the time shelf areas were empty, a map of
+  stock over time, the products and gondolas empty the longest, and a field to ask about the store.
+  It says which period the photos cover, and it is an estimate from about 13 photos per camera.
 
 A bar to move through the photos of the day sits with the photos. The outlines on a photo use the
 group colours: red for Restock, amber for Move back, grey for Later, green for All good.

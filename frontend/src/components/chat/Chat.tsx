@@ -11,7 +11,7 @@ interface Message {
 }
 
 /**
- * A quiet place to ask about the day. The assistant is not connected yet, so every question gets
+ * A quiet place to ask about the store. The assistant is not connected yet, so every question gets
  * the same plain answer. The thread already holds answers as parts of the app's own components, so
  * connecting one is a matter of returning those parts.
  */

@@ -16,14 +16,14 @@ interface Page {
   to: string
   end?: boolean
   icon: LucideIcon
-  label: 'navTasks' | 'navGondolas' | 'navProducts' | 'navDay'
+  label: 'navTasks' | 'navGondolas' | 'navProducts' | 'navInsights'
 }
 
 const PAGES: Page[] = [
   { to: '/', end: true, icon: ListChecks, label: 'navTasks' },
   { to: '/gondolas', icon: LayoutGrid, label: 'navGondolas' },
   { to: '/products', icon: Apple, label: 'navProducts' },
-  { to: '/day', icon: ChartNoAxesColumn, label: 'navDay' },
+  { to: '/insights', icon: ChartNoAxesColumn, label: 'navInsights' },
 ]
 
 /**
