@@ -138,13 +138,14 @@ second has the least text, which was the complaint about the first version.
 
 ## Gondola tiles
 
-A tile is a camera: its latest photo, what it is called on its own line, and under it the count
-beside a strip of its areas. Every tile has the same neutral tone. The photo already brings a lot
-of colour, and a tinted frame around it added more with little contrast, so the colour lives only
-where it means something: the strip colours the areas that need action, red and amber, and leaves
-the rest as a pale grey, and the count carries the state icon with the text in grey, as in the
-group headings. A gondola that is fine says "All good" in grey with no icon. The tiles are
-context and the task cards are the work, so the cards are the ones that carry colour.
+A tile is a camera: its latest photo, what it is called on its own line, and under it how many
+areas are in each state. The states are shown as the same icons the group headings use (alert for
+restock, arrow for move back, clock for later), each with its number, so nothing needs a legend.
+The first version had a strip of short coloured lines that did not say what it meant. What is fine
+is not counted: a gondola with nothing to do says "All good" in grey. Every tile has the same
+neutral tone. The photo already brings a lot of colour, and a tinted frame added more with little
+contrast, so the only colour is in the small icons. The tiles are context and the task cards are
+the work, so the cards are the ones that carry colour.
 
 The order is fixed, by camera, and does not follow urgency. The staff learn where each gondola
 is, and tiles that jump around as the day bar moves make that impossible.
@@ -377,6 +378,10 @@ a collapsing block by hand once, and Base UI and shadcn already had it.
 - 2026-10-10. Gondola tiles lost their tint. With a coloured photo inside, a pink or amber frame
   made too many colours with little contrast, and the tiles are context, not the work. The task
   cards keep their tint, which was liked.
+
+- 2026-10-10. The strip of coloured lines on the tiles became icons with counts. Nobody could say
+  what the short lines meant, and the group icons already mean restock, move back and later
+  elsewhere on the screen.
 
 ## Open questions
 

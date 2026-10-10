@@ -28,7 +28,6 @@ interface Strings {
   navTasks: string
   navGondolas: string
   navProducts: string
-  toDo: (n: number) => string
   gondolasHeadline: (n: number) => string
   productsHeadline: (n: number) => string
   searchProducts: string
@@ -52,7 +51,6 @@ const en: Strings = {
   navTasks: 'Tasks',
   navGondolas: 'Gondolas',
   navProducts: 'Products',
-  toDo: (n) => `${n} to do`,
   gondolasHeadline: (n) => (n === 0 ? 'Every gondola is fine' : n === 1 ? 'One gondola needs attention' : `${n} gondolas need attention`),
   productsHeadline: (n) => (n === 1 ? 'One product' : `${n} products`),
   searchProducts: 'Search products',
@@ -92,7 +90,6 @@ const pt: Strings = {
   navTasks: 'Tarefas',
   navGondolas: 'Gôndolas',
   navProducts: 'Produtos',
-  toDo: (n) => `${n} a fazer`,
   gondolasHeadline: (n) => (n === 0 ? 'Todas as gôndolas estão bem' : n === 1 ? 'Uma gôndola precisa de atenção' : `${n} gôndolas precisam de atenção`),
   productsHeadline: (n) => (n === 1 ? 'Um produto' : `${n} produtos`),
   searchProducts: 'Procurar produtos',
@@ -132,7 +129,6 @@ const es: Strings = {
   navTasks: 'Tareas',
   navGondolas: 'Góndolas',
   navProducts: 'Productos',
-  toDo: (n) => `${n} por hacer`,
   gondolasHeadline: (n) => (n === 0 ? 'Todas las góndolas están bien' : n === 1 ? 'Una góndola necesita atención' : `${n} góndolas necesitan atención`),
   productsHeadline: (n) => (n === 1 ? 'Un producto' : `${n} productos`),
   searchProducts: 'Buscar productos',
