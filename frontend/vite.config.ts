@@ -90,6 +90,8 @@ function chatRelay(): Plugin {
 }
 
 export default defineConfig({
+  // Relative, so the build also works from a sub-path such as GitHub Pages.
+  base: './',
   plugins: [react(), tailwindcss(), localData(), chatRelay()],
   resolve: {
     alias: { '@': path.resolve(import.meta.dirname, './src') },

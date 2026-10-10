@@ -7,12 +7,14 @@ import { GondolaPage } from '@/pages/GondolaPage'
 import { GondolasPage } from '@/pages/GondolasPage'
 import { ProductsPage } from '@/pages/ProductsPage'
 import { TasksPage } from '@/pages/TasksPage'
+import { WelcomePage } from '@/pages/WelcomePage'
 
 export default function App() {
   return (
     <I18nProvider>
       <StoreProvider>
         <Routes>
+          <Route path="welcome" element={<WelcomePage />} />
           <Route element={<Layout />}>
             <Route index element={<TasksPage />} />
             <Route path="gondolas" element={<GondolasPage />} />
