@@ -333,7 +333,7 @@ def bench(variants=None, log=print):
                          "per_area": t["total"] / t["areas"], "last_per_area": last["total"] / last["areas"],
                          "per_578": round(t["total"] / t["areas"] * 289), "fit_seconds": round(time.time() - t0)}
         log(f"{name}{tag}: {results[name + tag]}")
-    rp = BENCH / "preds" / "single_results.json"
+    rp = config.OUTPUTS_DIR / "single_results.json"
     allres = json.loads(rp.read_text()) if rp.exists() else {}
     allres.update(results)
     rp.write_text(json.dumps(allres, indent=1))
