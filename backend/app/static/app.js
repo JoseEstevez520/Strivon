@@ -445,9 +445,10 @@ function renderAnnotate() {
     <div class="ann-layout">
       <div class="ann-left">${stageSvg(cam, img, { sel: areas[S.annFocus]?.area_id, statusFn: (a) => { const x = S.ann[cam]?.[img]?.[a.area_id]; return x ? (x.planogram_compliant ? x.stock_level : "wrong") : "unknown"; } })}
         <p class="muted small">Sensei's rule: <b>round down</b>. <b>Empty</b> = needs restocking now (nothing, or one or two units left). <b>Full</b> = completely full; one unit missing is already <b>Half</b>. <b>Wrong</b> = the product shown is not the planogram one (an empty area counts as right).</p>
-        ${renderLive()}</div>
+</div>
       <div class="ann-grid">${cards}</div>
-    </div>`;
+    </div>
+    <div style="margin-top:16px">${renderLive()}</div>`;
 }
 async function saveAnn(cam, img, aid, level, comp) {
   if (!S.annName) { toast("Write your name first (top of the page)"); $("#ann-name")?.focus(); return; }
