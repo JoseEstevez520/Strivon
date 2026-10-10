@@ -50,7 +50,8 @@ def main(argv=None) -> int:
 
     sub.add_parser("bench", help="André's benchmark (LEADERBOARD.md) for the single-image models")
     st = sub.add_parser("train-single", help="fit the single-image model on all labels (outputs/single.pkl)")
-    st.add_argument("--no-refs", action="store_true", help="do not use training crops of the same area as references")
+    st.add_argument("--no-refs", action="store_true", help="kept for compatibility (references are off by default)")
+    st.add_argument("--kind", default="blend", choices=["blend", "lr", "gbm"], help="blend = logistic regression + gradient boosting (best)")
 
     m = sub.add_parser("vlm-label", help="(optional) label images with Claude vision; needs ANTHROPIC_API_KEY")
     m.add_argument("--images", default=str(config.IMAGES_DIR))
@@ -127,7 +128,7 @@ def main(argv=None) -> int:
     if a.cmd == "train-single":
         from .single import train as train_single
 
-        train_single(use_refs=not a.no_refs)
+        train_single(use_refs=False, kind=a.kind)
         return 0
 
     if a.cmd == "vlm-label":
