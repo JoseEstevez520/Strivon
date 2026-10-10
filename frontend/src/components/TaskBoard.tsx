@@ -44,6 +44,7 @@ export function TaskBoard({ tasks, camera, listFine = false, initialSelected = n
             tasks={tasks.filter((x) => x.group === g)}
             selected={selected}
             listFine={listFine}
+            fold={!camera}
             gondola={gondola}
             where={camera ? nowhere : where}
             historyOf={historyOf}

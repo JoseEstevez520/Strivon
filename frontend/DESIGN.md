@@ -124,6 +124,13 @@ A card says each thing once. The group heading already says the action, so the c
 - Later is not a card. It is a plain line with the product on the left and where on the right.
   All good is a single line with a count.
 
+A long group shows only its most urgent cards and folds the rest behind a line ("Show 12 more").
+Restock shows 6, Move back 4, and Later starts folded because it is what can wait. The
+heading carries the total, in products, so the size of the job is known without seeing it. An
+area picked on the photo that sits in the folded part opens the group by itself. A gondola's own
+page does not fold, since it holds few. The first screen was a wall of 31 tasks and a page 4000
+pixels tall before this, and a worker starting a shift needs what to do now and not the whole list.
+
 We compared three layouts and chose the second: name and time on one line with the reason
 under it, name alone with the time as the right edge, or elapsed time as a large figure. The
 second has the least text, which was the complaint about the first version.
@@ -325,6 +332,10 @@ a collapsing block by hand once, and Base UI and shadcn already had it.
   cards and tiles became the same 8 px. The first card of the list and the first tile of the
   panel started 35 px apart. A card that opens spans a row, and the grid flows densely so the
   cards after it fill the gap it leaves.
+
+- 2026-10-10. Long groups fold behind "Show N more", with totals in the headings. A worker
+  starting a shift needs what to do now, so the first screen shows the most urgent six, four and
+  none of the later ones. The page went from about 4000 px to 1600.
 
 ## Open questions
 

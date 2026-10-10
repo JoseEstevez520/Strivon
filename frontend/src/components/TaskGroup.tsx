@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
+import { ChevronDown } from 'lucide-react'
 import { AreaRows, TaskCard } from './TaskCard'
 import { GROUP_COLOR, GROUP_ICON } from './groupStyle'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
@@ -18,6 +19,8 @@ interface Props {
   onJump: (ts: number) => void
   /** List every area that is fine, instead of only the one opened from the photo. */
   listFine?: boolean
+  /** Fold the long groups: only the most urgent show, and the rest sit behind a line. */
+  fold?: boolean
 }
 
 /** A product that can wait: a quiet line instead of a card. It opens like one. */
@@ -49,7 +52,53 @@ function QuietRow({ card, ...rest }: Omit<Props, 'group' | 'tasks'> & { card: Ca
   )
 }
 
-export function TaskGroup({ group, tasks, selected, listFine = false, ...rest }: Props) {
+/** How many of a group show before the rest fold. Later is what can wait, so it starts folded. */
+/** True when what is open is in the part that would be folded. */
+function folded(cards: Card[], limit: number, selected: string | null): boolean {
+  return cards.slice(limit).some((c) => c.tasks.some((x) => x.area.area_id === selected))
+}
+
+const SHOWN: Record<Group, number> = { restock: 6, moveBack: 4, later: 0, allGood: 0 }
+
+/**
+ * The first `limit` items, then a line that unfolds the rest in place. It opens by itself when
+ * what is open (an area picked on the photo) sits in the folded part.
+ */
+function Folded({
+  items,
+  limit,
+  forced,
+  className,
+  children,
+}: {
+  items: Card[]
+  limit: number
+  forced: boolean
+  className: string
+  children: (card: Card) => ReactNode
+}) {
+  const { t } = useI18n()
+  const [expanded, setExpanded] = useState(false)
+  const rest = items.slice(limit)
+  if (rest.length === 0) return <div className={className}>{items.map(children)}</div>
+  const open = expanded || forced
+  return (
+    <div className={className}>
+      {items.slice(0, limit).map(children)}
+      <Collapsible open={open} onOpenChange={setExpanded} className="contents">
+        <CollapsibleTrigger className="col-span-full flex h-9 cursor-pointer items-center justify-center gap-1.5 rounded-lg text-meta text-fg-secondary transition-colors hover:bg-surface">
+          {open ? t.showFewer : limit === 0 ? t.showAll(rest.length) : t.showMore(rest.length)}
+          <ChevronDown className={`size-3.5 transition-transform duration-200 motion-reduce:transition-none ${open ? 'rotate-180' : ''}`} />
+        </CollapsibleTrigger>
+        <CollapsibleContent className="col-span-full">
+          <div className={className}>{rest.map(children)}</div>
+        </CollapsibleContent>
+      </Collapsible>
+    </div>
+  )
+}
+
+export function TaskGroup({ group, tasks, selected, listFine = false, fold = true, ...rest }: Props) {
   const { t } = useI18n()
   const open = tasks.find((x) => x.area.area_id === selected)
   // An area that is fine has no card. The last one opened stays mounted so it can fold away.
@@ -66,23 +115,29 @@ export function TaskGroup({ group, tasks, selected, listFine = false, ...rest }:
       <h2 className="sticky top-14 z-10 flex h-9 items-center gap-2 bg-bg px-1 text-label text-fg-muted">
         <Icon className="size-4" style={{ color: GROUP_COLOR[group] }} />
         {t[group]}
-        <span className="ml-auto text-meta font-normal tabular-nums">{group === 'restock' || group === 'moveBack' ? '' : tasks.length}</span>
+        <span className="ml-auto text-meta font-normal tabular-nums">{group === 'allGood' ? tasks.length : cards.length}</span>
       </h2>
 
       {(group === 'restock' || group === 'moveBack') && (
-        <div className="grid grid-flow-dense grid-cols-[minmax(0,1fr)] gap-2 sm:grid-cols-2">
-          {cards.map((card) => (
-            <TaskCard key={card.key} card={card} {...props} />
-          ))}
-        </div>
+        <Folded
+          items={cards}
+          limit={fold ? SHOWN[group] : cards.length}
+          forced={folded(cards, SHOWN[group], selected)}
+          className="grid grid-flow-dense grid-cols-[minmax(0,1fr)] gap-2 sm:grid-cols-2"
+        >
+          {(card) => <TaskCard key={card.key} card={card} {...props} />}
+        </Folded>
       )}
 
       {(group === 'later' || (group === 'allGood' && listFine)) && (
-        <div className="grid grid-flow-dense grid-cols-[minmax(0,1fr)] gap-x-4 sm:grid-cols-2">
-          {cards.map((card) => (
-            <QuietRow key={card.key} card={card} {...props} />
-          ))}
-        </div>
+        <Folded
+          items={cards}
+          limit={fold && group === 'later' ? SHOWN[group] : cards.length}
+          forced={folded(cards, SHOWN[group], selected)}
+          className="grid grid-flow-dense grid-cols-[minmax(0,1fr)] gap-x-4 sm:grid-cols-2"
+        >
+          {(card) => <QuietRow key={card.key} card={card} {...props} />}
+        </Folded>
       )}
 
       {group === 'allGood' && !listFine && shown && (

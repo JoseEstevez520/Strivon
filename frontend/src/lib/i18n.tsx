@@ -35,6 +35,9 @@ interface Strings {
   shortOf: (short: number, total: number) => string
   allGondolas: string
   loading: string
+  showMore: (n: number) => string
+  showAll: (n: number) => string
+  showFewer: string
   withProduct: (names: string) => string
   noMatches: string
   areasCount: (n: number) => string
@@ -55,6 +58,9 @@ const en: Strings = {
   shortOf: (s, n) => (s === 0 ? 'All fine' : n === 1 ? 'Short' : `${s} of ${n} areas short`),
   allGondolas: 'All gondolas',
   loading: 'Checking the shelves…',
+  showMore: (n) => `Show ${n} more`,
+  showAll: (n) => `Show ${n}`,
+  showFewer: 'Show fewer',
   withProduct: (x) => `with ${x}`,
   noMatches: 'Nothing matches',
   areasCount: (n) => `${n} areas`,
@@ -91,6 +97,9 @@ const pt: Strings = {
   shortOf: (s, n) => (s === 0 ? 'Tudo bem' : n === 1 ? 'Em falta' : `${s} de ${n} áreas em falta`),
   allGondolas: 'Todas as gôndolas',
   loading: 'A verificar as prateleiras…',
+  showMore: (n) => `Mostrar mais ${n}`,
+  showAll: (n) => `Mostrar ${n}`,
+  showFewer: 'Mostrar menos',
   withProduct: (x) => `com ${x}`,
   noMatches: 'Nada encontrado',
   areasCount: (n) => `${n} áreas`,
@@ -127,6 +136,9 @@ const es: Strings = {
   shortOf: (s, n) => (s === 0 ? 'Todo bien' : n === 1 ? 'Con falta' : `${s} de ${n} zonas con falta`),
   allGondolas: 'Todas las góndolas',
   loading: 'Revisando las estanterías…',
+  showMore: (n) => `Mostrar ${n} más`,
+  showAll: (n) => `Mostrar ${n}`,
+  showFewer: 'Mostrar menos',
   withProduct: (x) => `con ${x}`,
   noMatches: 'Sin resultados',
   areasCount: (n) => `${n} zonas`,
