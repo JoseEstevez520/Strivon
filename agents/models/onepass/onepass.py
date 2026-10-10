@@ -7,7 +7,7 @@ answers for the current photo are shared through one registry (keyed by camera, 
     py -I predict.py --images <folder of <camera>/<timestamp>.jpg> --planogram <planogram.json> \
         --stock-model models/onepass/onepass.py --compliance-model models/onepass/onepass.py --out preds.json
 
-Env: ONEPASS_SIZE (default 168), ONEPASS_DEVICE (cpu or cuda, default cpu), ONEPASS_THREADS (default 4).
+Env: ONEPASS_SIZE (default 224), ONEPASS_DEVICE (cpu or cuda, default cpu), ONEPASS_THREADS (default 4).
 """
 import hashlib
 import os
@@ -24,7 +24,7 @@ _S = sys.modules.setdefault("_onepass_shared", types.SimpleNamespace(model=None,
 
 def _model():
     if _S.model is None:
-        _S.model = OnePass(size=int(os.environ.get("ONEPASS_SIZE", "168")),
+        _S.model = OnePass(size=int(os.environ.get("ONEPASS_SIZE", "224")),
                            device=os.environ.get("ONEPASS_DEVICE", "cpu"),
                            threads=int(os.environ.get("ONEPASS_THREADS", "4")))
     return _S.model

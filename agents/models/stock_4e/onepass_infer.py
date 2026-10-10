@@ -1,7 +1,8 @@
 """Inference of the deployed one-pass image-only model (fx_deploy.py): both answers from ONE DINOv2-S pass per photo,
-looking only at the image under analysis. Needs torch + transformers (the facebook/dinov2-small config), no sklearn.
+looking only at the image under analysis. Needs torch + transformers, no sklearn and no Hugging Face download: the
+backbone is built from deploy/dinov2_small_config.json and every weight comes from the .pt file (works offline).
 
-    m = OnePass(size=168)                      # loads models/stock_4e/deploy/onepass_s168.*
+    m = OnePass(size=224)                      # loads models/stock_4e/deploy/onepass_s224.* (s168 also exists)
     m.predict(img, areas)  -> {area_id: {"compliant": bool, "p_ok": float, "p_stock": [pE, pH, pF], "stock_value": v}}
 
 usage (check): py -I models/stock_4e/onepass_infer.py [SIZE]   -> answers for the newest photo of two cameras + timing
@@ -24,15 +25,15 @@ LEVELS = (0.0, 0.5, 1.0)
 
 
 class OnePass:
-    def __init__(self, size=168, device="cpu", threads=None):
-        from transformers import AutoModel
+    def __init__(self, size=224, device="cpu", threads=None):
+        from transformers import Dinov2Config, Dinov2Model
         if threads:
             torch.set_num_threads(threads)
         stem = HERE / "deploy" / f"onepass_s{size}"
         self.meta = json.loads(pathlib.Path(str(stem) + ".json").read_text(encoding="utf-8"))
         sd = torch.load(str(stem) + ".pt", map_location="cpu")
-        self.bb = AutoModel.from_pretrained(self.meta["backbone"])
-        self.bb.load_state_dict({k[3:]: v for k, v in sd.items() if k.startswith("bb.")})
+        self.bb = Dinov2Model(Dinov2Config.from_json_file(str(HERE / "deploy" / "dinov2_small_config.json")))
+        self.bb.load_state_dict({k[3:]: v for k, v in sd.items() if k.startswith("bb.")}, strict=True)
         self.head = torch.nn.Linear(sd["head.weight"].shape[1], sd["head.weight"].shape[0])
         self.head.load_state_dict({"weight": sd["head.weight"], "bias": sd["head.bias"]})
         self.dev = device
@@ -75,7 +76,7 @@ class OnePass:
 if __name__ == "__main__":
     import time
     from common import list_images, load_image, load_planogram
-    size = int(sys.argv[1]) if len(sys.argv) > 1 else 168
+    size = int(sys.argv[1]) if len(sys.argv) > 1 else 224
     m = OnePass(size, threads=4)
     pg = load_planogram()
     newest = {}
