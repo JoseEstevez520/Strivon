@@ -71,7 +71,7 @@ def _cache_path(ref: ImageRef, use_clip: bool, scale: float = 1.0, crates: bool 
 
 
 def crate_quads() -> dict[str, np.ndarray]:
-    """area_id -> the whole crate it sits in, drawn by hand by José (lab/cache/crates.json).
+    """area_id -> the whole crate it sits in, drawn by hand by Jose (lab/cache/crates.json).
     The team labels judge the whole crate, and the planogram lines often cut part of it off."""
     import json
 
