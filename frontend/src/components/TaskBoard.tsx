@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight, LayoutGrid } from 'lucide-react'
 import { Link } from 'react-router'
 import { CameraTile } from './CameraTile'
 import { DayBar } from './DayBar'
@@ -57,7 +57,7 @@ export function TaskBoard({ tasks, camera, listFine = false, initialSelected = n
       <div className={photoCamera ? 'lg:sticky lg:top-[4.5rem]' : undefined}>
         {photoCamera && photo ? (
           <>
-            <div className="mb-2 flex items-center justify-between gap-3 px-1 text-meta tabular-nums text-fg-muted">
+            <div className="flex h-9 items-center justify-between gap-3 px-1 text-meta tabular-nums text-fg-muted">
               {!camera && (
                 <button
                   type="button"
@@ -90,6 +90,12 @@ export function TaskBoard({ tasks, camera, listFine = false, initialSelected = n
             />
           </>
         ) : (
+          <>
+            {/* The same height as a group heading, so the first tile lines up with the first card. */}
+            <h2 className="flex h-9 items-center gap-2 px-1 text-label text-fg-muted">
+              <LayoutGrid className="size-4" />
+              {t.navGondolas}
+            </h2>
           <ul className="grid grid-cols-2 gap-2">
             {cameras(state).map((c) => (
               <li key={c}>
@@ -97,6 +103,7 @@ export function TaskBoard({ tasks, camera, listFine = false, initialSelected = n
               </li>
             ))}
           </ul>
+          </>
         )}
         <DayBar className="mt-4" />
       </div>

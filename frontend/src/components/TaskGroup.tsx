@@ -63,14 +63,14 @@ export function TaskGroup({ group, tasks, selected, listFine = false, ...rest }:
 
   return (
     <section className="mt-7 first:mt-0">
-      <h2 className="sticky top-14 z-10 flex items-center gap-2 bg-bg px-1 py-2 text-label text-fg-muted">
+      <h2 className="sticky top-14 z-10 flex h-9 items-center gap-2 bg-bg px-1 text-label text-fg-muted">
         <Icon className="size-4" style={{ color: GROUP_COLOR[group] }} />
         {t[group]}
         <span className="ml-auto text-meta font-normal tabular-nums">{group === 'restock' || group === 'moveBack' ? '' : tasks.length}</span>
       </h2>
 
       {(group === 'restock' || group === 'moveBack') && (
-        <div className="grid grid-cols-[minmax(0,1fr)] gap-1 sm:grid-cols-2">
+        <div className="grid grid-flow-dense grid-cols-[minmax(0,1fr)] gap-2 sm:grid-cols-2">
           {cards.map((card) => (
             <TaskCard key={card.key} card={card} {...props} />
           ))}
@@ -78,7 +78,7 @@ export function TaskGroup({ group, tasks, selected, listFine = false, ...rest }:
       )}
 
       {(group === 'later' || (group === 'allGood' && listFine)) && (
-        <div className="grid grid-cols-[minmax(0,1fr)] gap-x-4 sm:grid-cols-2">
+        <div className="grid grid-flow-dense grid-cols-[minmax(0,1fr)] gap-x-4 sm:grid-cols-2">
           {cards.map((card) => (
             <QuietRow key={card.key} card={card} {...props} />
           ))}

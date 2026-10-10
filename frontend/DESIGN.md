@@ -321,6 +321,11 @@ a collapsing block by hand once, and Base UI and shadcn already had it.
 - 2026-10-10. The active page is marked only by the text colour. The 2 px underline copied from
   the library's tabs was removed because it was not liked.
 
+- 2026-10-10. The panel got a heading of the same height as a group heading, and the gutters of
+  cards and tiles became the same 8 px. The first card of the list and the first tile of the
+  panel started 35 px apart. A card that opens spans a row, and the grid flows densely so the
+  cards after it fill the gap it leaves.
+
 ## Open questions
 
 - The English flag is the UK flag. A code such as EN would avoid the question of which country
