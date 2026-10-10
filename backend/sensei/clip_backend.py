@@ -11,8 +11,8 @@ from functools import lru_cache
 import cv2
 import numpy as np
 
-MODEL = os.environ.get("SENSEI_CLIP_MODEL", "ViT-B-16")
-PRETRAINED = os.environ.get("SENSEI_CLIP_PRETRAINED", "laion2b_s34b_b88k")
+MODEL = os.environ.get("SENSEI_CLIP_MODEL", "ViT-B-32")  # same score as ViT-B-16 on the benchmark, ~4x cheaper
+PRETRAINED = os.environ.get("SENSEI_CLIP_PRETRAINED", "laion2b_s34b_b79k")
 
 
 def available() -> bool:
@@ -29,7 +29,7 @@ def _model():
     import open_clip
     import torch
 
-    torch.set_num_threads(max(1, (os.cpu_count() or 4) - 2))
+    torch.set_num_threads(int(os.environ.get("SENSEI_THREADS", max(1, (os.cpu_count() or 4) - 2))))
     model, _, preprocess = open_clip.create_model_and_transforms(MODEL, pretrained=PRETRAINED)
     model.eval()
     tokenizer = open_clip.get_tokenizer(MODEL)

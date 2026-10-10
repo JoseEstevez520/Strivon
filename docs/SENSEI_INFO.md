@@ -20,3 +20,11 @@ How we read it:
 - So `full` is a shelf that staff would leave alone, not necessarily one filled to the brim.
 
 The labelling tool says "full is completely full; one unit missing is already half". That sentence is the team's wording, it is not in what Sensei wrote above.
+
+## Later answers on Discord (10/10, evening)
+
+- **Only the image under analysis.** "You should only consider information from the image under analysis." We get the timestamp, but the model should learn from the image itself, not from the time of day. So the submission model may not look at the photos taken before or after.
+- **An empty area is compliant.** Yes.
+- **stock_level vs stock_value.** Redundant; either can be compared.
+- **Cost is now judged.** Score is 80% performance and 20% processing cost ("cheaper is always better, but it should work"). Give an estimate of the cost per analysed image in the pitch. UI/UX still breaks ties.
+- **The app must be shown** during the 3-minute presentation and Q&A.
