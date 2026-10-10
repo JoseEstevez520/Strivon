@@ -452,6 +452,10 @@ a collapsing block by hand once, and Base UI and shadcn already had it.
   estimate. The assistant is empty on purpose: the parts an answer is made of are built, the
   answering is not.
 
+- 2026-10-10. The Insights headline puts the number first ("~24% of shelf time was empty"), as the
+  other pages do. The "~" says it is an estimate, with the detail on hover, and the period sits in
+  a small line on the right with "simulated" while it is. Three disclaimers in a line under the
+  title were clutter, and the sentence read like a report.
 - 2026-10-10. The Day page became Insights. Naming it after a day, and writing "today" in its
   headline and its chat, closed it to one period when what we want is the analytics of the store.
   The period is now a line of data. A period selector and multi-day code were left out, since they

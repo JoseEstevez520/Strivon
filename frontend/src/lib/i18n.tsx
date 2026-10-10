@@ -37,6 +37,7 @@ interface Strings {
   navInsights: string
   insightsHeadline: (pct: number) => string
   insightsPeriod: (date: string, from: string, to: string) => string
+  insightsSimulatedShort: string
   insightsEstimate: string
   insightsSimulated: string
   mapTitle: string
@@ -75,8 +76,9 @@ const en: Strings = {
   allGondolas: 'All gondolas',
   loading: 'Checking the shelves…',
   navInsights: 'Insights',
-  insightsHeadline: (p) => `Shelf areas were empty ${p}% of the time`,
-  insightsPeriod: (d, a, b) => `${d}, ${a} to ${b}.`,
+  insightsHeadline: (p) => `~${p}% of shelf time was empty`,
+  insightsPeriod: (d, a, b) => `${d} · ${a}–${b}`,
+  insightsSimulatedShort: 'simulated',
   insightsEstimate: 'Estimated from about 13 photos per camera.',
   insightsSimulated: 'Provisional: the stock states are simulated.',
   mapTitle: 'Stock over time',
@@ -131,8 +133,9 @@ const pt: Strings = {
   allGondolas: 'Todas as gôndolas',
   loading: 'A verificar as prateleiras…',
   navInsights: 'Análise',
-  insightsHeadline: (p) => `As zonas estiveram vazias ${p}% do tempo`,
-  insightsPeriod: (d, a, b) => `${d}, das ${a} às ${b}.`,
+  insightsHeadline: (p) => `~${p}% do tempo de prateleira esteve vazio`,
+  insightsPeriod: (d, a, b) => `${d} · ${a}–${b}`,
+  insightsSimulatedShort: 'simulado',
   insightsEstimate: 'Estimado com cerca de 13 fotos por câmara.',
   insightsSimulated: 'Provisório: os estados de stock são simulados.',
   mapTitle: 'Stock ao longo do tempo',
@@ -187,8 +190,9 @@ const es: Strings = {
   allGondolas: 'Todas las góndolas',
   loading: 'Revisando las estanterías…',
   navInsights: 'Análisis',
-  insightsHeadline: (p) => `Las zonas estuvieron vacías el ${p}% del tiempo`,
-  insightsPeriod: (d, a, b) => `${d}, de ${a} a ${b}.`,
+  insightsHeadline: (p) => `~${p}% del tiempo de estantería estuvo vacío`,
+  insightsPeriod: (d, a, b) => `${d} · ${a}–${b}`,
+  insightsSimulatedShort: 'simulado',
   insightsEstimate: 'Estimado con unas 13 fotos por cámara.',
   insightsSimulated: 'Provisional: los estados de stock están simulados.',
   mapTitle: 'Stock a lo largo del tiempo',

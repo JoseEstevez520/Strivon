@@ -2,7 +2,6 @@ import { useMemo } from 'react'
 import { Chat } from '@/components/chat/Chat'
 import { DayMap } from '@/components/day/DayMap'
 import { RankedBars } from '@/components/day/RankedBars'
-import { StatLine } from '@/components/day/StatLine'
 import { useI18n } from '@/lib/i18n'
 import { storeStats } from '@/lib/stats'
 import { useStore } from '@/lib/store'
@@ -23,12 +22,16 @@ export function InsightsPage() {
   const date = new Intl.DateTimeFormat(lang, { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Europe/Lisbon' }).format(
     new Date(from * 1000),
   )
-  const note = [t.insightsPeriod(date, clock(from), clock(to)), t.insightsEstimate, simulated ? t.insightsSimulated : ''].filter(Boolean).join(' ')
+  const period = [t.insightsPeriod(date, clock(from), clock(to)), simulated ? t.insightsSimulatedShort : ''].filter(Boolean).join(' · ')
 
   return (
     <>
-      <div className="mb-10">
-        <StatLine note={note}>{t.insightsHeadline(Math.round(stats.emptyShare * 100))}</StatLine>
+      <div className="mb-10 flex flex-wrap items-end justify-between gap-x-6 gap-y-2">
+        {/* The "~" says it is an estimate, and the detail is on hover, so the page carries no standing disclaimer. */}
+        <h1 className="text-display tabular-nums" title={t.insightsEstimate}>
+          {t.insightsHeadline(Math.round(stats.emptyShare * 100))}
+        </h1>
+        <p className="text-meta tabular-nums text-fg-muted">{period}</p>
       </div>
 
       <section className="mb-10">
