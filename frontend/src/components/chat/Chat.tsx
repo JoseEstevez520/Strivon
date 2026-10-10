@@ -32,7 +32,7 @@ function Thinking() {
  */
 export function Chat() {
   const { t, family } = useI18n()
-  const { state } = useStore()
+  const { state, gondola } = useStore()
   const [messages, setMessages] = useState<Message[]>([])
   const [draft, setDraft] = useState('')
   const input = useRef<HTMLTextAreaElement>(null)
@@ -44,7 +44,20 @@ export function Chat() {
     if (messages.length) end.current?.scrollIntoView({ block: 'nearest' })
   }, [messages.length])
 
-  const products = useMemo(() => storeStats(state).map.map((r) => ({ key: r.product, label: family(r.product) })), [state, family])
+  const context = useMemo(() => {
+    const stats = storeStats(state)
+    return {
+      products: stats.map.map((r) => ({ key: r.product, label: family(r.product) })),
+      gondolas: Object.keys(state.images).sort().map((key) => ({ key, label: gondola(key) })),
+      worstProducts: stats.map.slice(0, 5).map((r) => family(r.product)),
+      worstGondolas: stats.byGondola.slice(0, 5).map((g) => gondola(g.camera)),
+      placements: Object.values(state.areas).reduce<Record<string, string[]>>((acc, a) => {
+        const list = (acc[a.product_id] ??= [])
+        if (!list.includes(a.camera)) list.push(a.camera)
+        return acc
+      }, {}),
+    }
+  }, [state, family, gondola])
 
   const submit = (e: FormEvent) => {
     e.preventDefault()
@@ -57,7 +70,7 @@ export function Chat() {
     setDraft('')
     if (input.current) input.current.style.height = 'auto'
     setStreaming(id + 1)
-    void ask(history, products, t.chatFailed, (text) => setMessages((m) => m.map((x) => (x.id === id + 1 ? { ...x, text } : x)))).then(() =>
+    void ask(history, context, t.chatFailed, (text) => setMessages((m) => m.map((x) => (x.id === id + 1 ? { ...x, text } : x)))).then(() =>
       setStreaming(0),
     )
   }
@@ -68,7 +81,7 @@ export function Chat() {
         {messages.length > 0 ? (
           <ol className="mx-auto flex max-w-3xl flex-col gap-3">
             {messages.map((m) => (
-              <li key={m.id} className={m.role === 'user' ? 'ml-auto max-w-[85%] rounded-xl bg-surface px-3 py-2 text-ui' : 'flex flex-col gap-3 px-1'}>
+              <li key={m.id} data-source={m.role === 'assistant' ? m.text : undefined} className={m.role === 'user' ? 'ml-auto max-w-[85%] rounded-xl bg-surface px-3 py-2 text-ui' : 'flex flex-col gap-3 px-1'}>
                 {m.role === 'user' ? (
                   m.text
                 ) : m.text ? (

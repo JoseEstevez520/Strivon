@@ -451,6 +451,13 @@ a collapsing block by hand once, and Base UI and shadcn already had it.
   estimate. The assistant is empty on purpose: the parts an answer is made of are built, the
   answering is not.
 
+- 2026-10-10. The chat answers with a clean set of parts, as OpenUI's own library does, and each
+  one is drawn here: `Text`, `Callout`, `Metrics`, `Ranked`, `Bars`, `Table`, `Trend` (a line by
+  hour), `Mix` (one bar of how time split), `DayMap`, `Tasks`, `Where` and `Gondola`. Charts are
+  small SVG or plain markup on the same tokens: one colour for an outcome, neutral for the rest,
+  no legend boxes or gridlines beyond a hairline. The model is told the product keys, where each
+  product sits and which are worst (names only), plus four worked examples, and may never write a
+  digit: every figure comes from a part.
 - 2026-10-10. The bubble grows into the chat box and folds back (width, height and radius, 300 ms).
   It is the one exception to "no layout animation", allowed because it is a single small element
   with a fixed-size box inside it, so nothing inside reflows. Blur, glass and aurora stay out. The writing field is a soft tray that grows with the text, Enter sends,

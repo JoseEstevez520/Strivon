@@ -46,6 +46,15 @@ interface Strings {
   mapMore: string
   worstProducts: string
   worstGondolas: string
+  metrics: Record<'empty' | 'compliance' | 'restock' | 'moveBack', string>
+  wholeStore: string
+  trendTitle: (name: string) => string
+  mixTitle: (name: string) => string
+  wrongProduct: string
+  colName: string
+  colEmpty: string
+  colHalf: string
+  colWrong: string
   complianceLine: (pct: number) => string
   askTitle: string
   askPlaceholder: string
@@ -90,6 +99,15 @@ const en: Strings = {
   mapMore: 'All empty',
   worstProducts: 'Products empty the longest',
   worstGondolas: 'Gondolas empty the longest',
+  metrics: { empty: 'Shelf time empty', compliance: 'Right product in place', restock: 'To restock', moveBack: 'To move back' },
+  wholeStore: 'The whole store',
+  trendTitle: (n) => `${n}: share of areas empty, by hour`,
+  mixTitle: (n) => `${n}: how shelf time split`,
+  wrongProduct: 'Wrong product',
+  colName: 'Name',
+  colEmpty: 'Empty',
+  colHalf: 'Half full',
+  colWrong: 'Wrong product',
   complianceLine: (p) => `${p}% of the time, areas held the product the planogram expects`,
   askTitle: 'Ask about your store',
   askPlaceholder: 'Ask about your store',
@@ -150,6 +168,15 @@ const pt: Strings = {
   mapMore: 'Todas vazias',
   worstProducts: 'Produtos vazios há mais tempo',
   worstGondolas: 'Gôndolas vazias há mais tempo',
+  metrics: { empty: 'Tempo de prateleira vazia', compliance: 'Produto certo no sítio', restock: 'Para repor', moveBack: 'Para devolver ao sítio' },
+  wholeStore: 'A loja toda',
+  trendTitle: (n) => `${n}: parte das áreas vazias, por hora`,
+  mixTitle: (n) => `${n}: como se repartiu o tempo`,
+  wrongProduct: 'Produto errado',
+  colName: 'Nome',
+  colEmpty: 'Vazio',
+  colHalf: 'A meio',
+  colWrong: 'Produto errado',
   complianceLine: (p) => `${p}% do tempo, as áreas tinham o produto que o planograma espera`,
   askTitle: 'Pergunte sobre a sua loja',
   askPlaceholder: 'Pergunte sobre a sua loja',
@@ -210,6 +237,15 @@ const es: Strings = {
   mapMore: 'Todas vacías',
   worstProducts: 'Productos vacíos más tiempo',
   worstGondolas: 'Góndolas vacías más tiempo',
+  metrics: { empty: 'Tiempo de estantería vacía', compliance: 'Producto correcto en su sitio', restock: 'Por reponer', moveBack: 'Por devolver a su sitio' },
+  wholeStore: 'Toda la tienda',
+  trendTitle: (n) => `${n}: parte de las zonas vacías, por hora`,
+  mixTitle: (n) => `${n}: cómo se repartió el tiempo`,
+  wrongProduct: 'Producto equivocado',
+  colName: 'Nombre',
+  colEmpty: 'Vacío',
+  colHalf: 'A medias',
+  colWrong: 'Producto equivocado',
   complianceLine: (p) => `${p}% del tiempo, las zonas tenían el producto que espera el planograma`,
   askTitle: 'Pregunta sobre tu tienda',
   askPlaceholder: 'Pregunta sobre tu tienda',
