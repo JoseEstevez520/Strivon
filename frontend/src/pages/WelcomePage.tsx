@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react'
 import {
   ArrowRight,
   Apple,
@@ -48,35 +49,64 @@ const Card = ({ icon: Icon, title, text }: { icon: LucideIcon; title: string; te
 )
 
 const CELL = { w: 76, h: 44, gap: 8 }
-const W = 1600
-const H = 900
+const tone = (pct: number) => `color-mix(in oklab, var(--danger) ${pct}%, var(--sunk))`
+
+/** A fixed pseudo-random value for a slot, so it keeps its state when the window is resized. */
+const hash = (r: number, c: number) => {
+  const x = Math.sin(r * 127.1 + c * 311.7) * 43758.5453
+  return x - Math.floor(x)
+}
 
 /** One red hue in three steps, by how much of a slot is gone, as on the day map. */
-const tone = (step: number) => `color-mix(in oklab, var(--danger) ${[28, 52, 84][step]}%, var(--sunk))`
+const slotFill = (v: number) => (v < 0.25 ? tone(84) : v < 0.5 ? tone(52) : v < 0.75 ? tone(28) : 'var(--sunk)')
 
 /**
- * A scatter of slots like the day map's, kept away from the centre so the name reads. It is the
- * same few cells every time: a fixed seed, so the page never shifts between visits.
+ * A scatter of slots like the day map's, made of real elements in a grid that is sized to hold
+ * whole slots, so none is cut at the edge. They keep away from the centre so the name reads.
  */
-function slots() {
-  let seed = 11
-  const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647
-  const cols = Math.ceil(W / (CELL.w + CELL.gap)) + 1
-  const rows = Math.ceil(H / (CELL.h + CELL.gap)) + 1
-  const out: { x: number; y: number; fill: string }[] = []
-  for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++) {
-      const x = c * (CELL.w + CELL.gap) - 30
-      const y = r * (CELL.h + CELL.gap) - 10
-      const far = Math.hypot(((x + CELL.w / 2 - W / 2) / W) * 1.1, ((y + CELL.h / 2 - H / 2) / H) * 2) > 0.55
-      if (!far || rnd() < 0.55) continue
-      const pick = rnd()
-      out.push({ x, y, fill: pick < 0.25 ? tone(2) : pick < 0.5 ? tone(1) : pick < 0.75 ? tone(0) : 'var(--sunk)' })
+function Slots() {
+  const ref = useRef<HTMLDivElement>(null)
+  const [size, setSize] = useState({ cols: 0, rows: 0 })
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const measure = () =>
+      setSize({
+        cols: Math.max(1, Math.floor((el.clientWidth + CELL.gap) / (CELL.w + CELL.gap))),
+        rows: Math.max(1, Math.floor((el.clientHeight + CELL.gap) / (CELL.h + CELL.gap))),
+      })
+    measure()
+    const observer = new ResizeObserver(measure)
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
+
+  const cells = []
+  for (let r = 0; r < size.rows; r++) {
+    for (let c = 0; c < size.cols; c++) {
+      const dx = (c + 0.5) / size.cols - 0.5
+      const dy = (r + 0.5) / size.rows - 0.5
+      const far = Math.hypot(dx * 1.1, dy * 2) > 0.55
+      const v = hash(r, c)
+      const shown = far && hash(c, r) > 0.55
+      cells.push(
+        <span key={`${r}-${c}`} className="rounded-[7px]" style={{ background: shown ? slotFill(v) : 'transparent', opacity: 0.8 }} />,
+      )
     }
   }
-  return out
+
+  return (
+    <div
+      ref={ref}
+      aria-hidden
+      className="absolute inset-0 grid gap-2"
+      style={{ gridTemplateColumns: `repeat(${size.cols || 1}, minmax(0, 1fr))`, gridTemplateRows: `repeat(${size.rows || 1}, minmax(0, 1fr))` }}
+    >
+      {cells}
+    </div>
+  )
 }
-const SLOTS = slots()
 
 /**
  * The first screen, the height of the window: the name and what it does in the middle, and around
@@ -86,11 +116,7 @@ const SLOTS = slots()
 function Hero() {
   return (
     <div className="relative grid min-h-dvh place-items-center overflow-hidden px-5">
-      <svg aria-hidden viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid slice" className="absolute inset-0 size-full">
-        {SLOTS.map((c) => (
-          <rect key={`${c.x}-${c.y}`} x={c.x} y={c.y} width={CELL.w} height={CELL.h} rx={7} style={{ fill: c.fill }} opacity={0.8} />
-        ))}
-      </svg>
+      <Slots />
 
       <div className="relative flex max-w-3xl flex-col items-center gap-6 text-center">
         <h1 className="text-[clamp(3.5rem,9vw,7rem)] leading-none font-semibold tracking-[-0.045em]">Strivon</h1>
