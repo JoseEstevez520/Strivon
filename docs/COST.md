@@ -18,7 +18,7 @@ Cost per image = seconds of compute per photo × price of that compute per secon
 
 | Model | Score / 3858 | ≈ / 578 | Seconds per photo | Cost per image | Per 1000 photos |
 |---|---:|---:|---|---:|---:|
-| Lab ensemble (José): pixel features + slot references + small MobileNetV3 | 3350 | 502 | about 0.2 CPU | about $0.000005 | about $0.005 |
+| Lab ensemble (Jose): pixel features + slot references + small MobileNetV3 | 3341 | 501 | about 0.2 CPU | about $0.000005 | about $0.005 |
 | One DINOv2-small pass (André), stock + product | 3349 | 502 | 0.82 CPU (4 threads) | about $0.00002 | about $0.02 |
 | CLIP ViT-B-32 on the crate (Miguel) | 3255 | 488 | 0.9-1.4 CPU | about $0.00003 | about $0.03 |
 | Fine-tuned DINOv2-base stock + DINOv2-small product (André) | 3393 | 508 | 6.7 CPU, or 0.26 GPU | about $0.00017 CPU, $0.00004 GPU | about $0.17 / $0.04 |
