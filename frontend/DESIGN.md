@@ -198,8 +198,8 @@ same size.
 
 ## Urgency
 
-The order of the cards is the order of the work, so what defines it is written on the screen in
-one line under the headline. A product's urgency is how much of it is gone across the whole
+The order of the cards is the order of the work, so what defines it is explained, but not written
+on the page: it shows as a tooltip on the headline, since a standing line was clutter. A product's urgency is how much of it is gone across the whole
 store: an empty area counts 1 and a half-empty one 0.5, divided by the areas it has. A product
 that is out everywhere cannot be bought at all, so it comes first. When two products are equally
 short, the one that has waited longer goes first, which is the time shown on the card. The camera
@@ -350,8 +350,8 @@ a collapsing block by hand once, and Base UI and shadcn already had it.
   none of the later ones. The page went from about 4000 px to 1600.
 
 - 2026-10-10. Urgency is defined and shown. It was share of the product that is gone, with the
-  camera number as a tie-break, which was arbitrary. Ties now go to what has waited longest, and
-  a line under the headline says so.
+  camera number as a tie-break, which was arbitrary. Ties now go to what has waited longest. A
+  line under the headline said so, and was removed as clutter, leaving a tooltip.
 
 ## Open questions
 
