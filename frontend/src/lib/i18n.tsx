@@ -35,6 +35,8 @@ interface Strings {
   allGondolas: string
   loading: string
   navInsights: string
+  navMap: string
+  planHeadline: (n: number) => string
   insightsHeadline: (pct: number) => string
   insightsPeriod: (date: string, from: string, to: string) => string
   insightsSimulatedShort: string
@@ -89,6 +91,8 @@ const en: Strings = {
   allGondolas: 'All gondolas',
   loading: 'Checking the shelves…',
   navInsights: 'Insights',
+  navMap: 'Map',
+  planHeadline: (n) => (n === 0 ? 'Every gondola is fine' : n === 1 ? '1 gondola needs attention' : `${n} gondolas need attention`),
   insightsHeadline: (p) => `~${p}% of shelf time was empty`,
   insightsPeriod: (d, a, b) => `${d} · ${a}–${b}`,
   insightsSimulatedShort: 'simulated',
@@ -159,6 +163,8 @@ const pt: Strings = {
   allGondolas: 'Todas as gôndolas',
   loading: 'A verificar as prateleiras…',
   navInsights: 'Análise',
+  navMap: 'Mapa',
+  planHeadline: (n) => (n === 0 ? 'Todas as gôndolas estão bem' : n === 1 ? '1 gôndola precisa de atenção' : `${n} gôndolas precisam de atenção`),
   insightsHeadline: (p) => `~${p}% do tempo de prateleira esteve vazio`,
   insightsPeriod: (d, a, b) => `${d} · ${a}–${b}`,
   insightsSimulatedShort: 'simulado',
@@ -229,6 +235,8 @@ const es: Strings = {
   allGondolas: 'Todas las góndolas',
   loading: 'Revisando las estanterías…',
   navInsights: 'Análisis',
+  navMap: 'Mapa',
+  planHeadline: (n) => (n === 0 ? 'Todas las góndolas están bien' : n === 1 ? '1 góndola necesita atención' : `${n} góndolas necesitan atención`),
   insightsHeadline: (p) => `~${p}% del tiempo de estantería estuvo vacío`,
   insightsPeriod: (d, a, b) => `${d} · ${a}–${b}`,
   insightsSimulatedShort: 'simulado',

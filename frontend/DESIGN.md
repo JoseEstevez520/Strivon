@@ -468,6 +468,12 @@ a collapsing block by hand once, and Base UI and shadcn already had it.
   was. The thread scrolls like the big chats: it follows the answer while you are at the bottom,
   lets go when you scroll up and offers a button back down. Its two ends fade out with a mask, the
   one place a gradient is used, because a hard cut through a chart reads as an error.
+- 2026-10-10. The Map page shows the store as a plan: one block per gondola, tinted by the worst
+  thing it has (red for restock, amber for wrong product, neutral when fine, in the same tints as
+  the task cards), with the warnings counted in a corner and one small square per shelf area. Pick a
+  block and its photo and tasks show beside it; the day bar changes the whole map. We do not have
+  the real plan, so the blocks sit in rows; `src/model/layout.ts` holds where each one goes and the
+  map follows once it is filled in.
 - 2026-10-10. The bubble grows into the chat box and folds back (width, height and radius, 300 ms).
   It is the one exception to "no layout animation", allowed because it is a single small element
   with a fixed-size box inside it, so nothing inside reflows. Blur, glass and aurora stay out. The writing field is a soft tray that grows with the text, Enter sends,
