@@ -11,9 +11,11 @@ it holding the product it should, and how full is it?
 
 ## Layout
 
-- `backend/` Python: the pipeline that writes the predictions.
+- `backend/` Python: the pipeline that writes the predictions, and the dashboard and labelling server.
 - `frontend/` React and shadcn/ui: the view for store staff.
 - `eval/` the scoring script and our own test labels.
+- `annotations/` labels made by the team.
+- `docs/` plan, tasks, app notes and what Sensei told us.
 - `assets/` logos and README images.
 - `data/` and `outputs/` challenge images and generated predictions. Not committed.
 
