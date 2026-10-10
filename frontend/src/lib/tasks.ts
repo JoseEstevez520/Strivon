@@ -84,3 +84,44 @@ export function historyOf(s: StoreState, area: Area): HistoryPoint[] {
     .map((record) => ({ record, obs: s.observations[area.camera][record.image]?.[area.area_id] }))
     .filter((p): p is HistoryPoint => p.obs !== undefined)
 }
+
+/**
+ * What the list shows. A product that needs the same thing in several areas is one card, so a
+ * whole store of tasks stays short. Misplaced products stay one per area, because each is a
+ * different wrong thing in a different place.
+ */
+export interface Card {
+  key: string
+  group: Group
+  /** The areas of the card, the one waiting longest first. */
+  tasks: Task[]
+}
+
+const GROUPED: Group[] = ['restock', 'later']
+
+export function cardKey(task: Task): string {
+  return GROUPED.includes(task.group) ? `${task.group}:${task.area.product_id}` : task.area.area_id
+}
+
+export function cardsOf(tasks: Task[]): Card[] {
+  const byKey = new Map<string, Card>()
+  for (const task of tasks) {
+    const key = cardKey(task)
+    const card = byKey.get(key)
+    if (card) card.tasks.push(task)
+    else byKey.set(key, { key, group: task.group, tasks: [task] })
+  }
+  const cards = [...byKey.values()]
+  for (const c of cards) c.tasks.sort((a, b) => (a.since ?? 0) - (b.since ?? 0))
+  return cards
+}
+
+/** The two products that fill most of a camera's areas: how people would call that gondola. */
+export function gondolaFamilies(s: StoreState, camera: string): string[] {
+  const counts: Record<string, number> = {}
+  for (const a of areasOf(s, camera)) counts[a.family] = (counts[a.family] ?? 0) + 1
+  return Object.entries(counts)
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .slice(0, 2)
+    .map(([family]) => family)
+}

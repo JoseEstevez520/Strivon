@@ -1,4 +1,5 @@
 import { createContext, useContext, useMemo, useState, type ReactNode } from 'react'
+import { FAMILIES } from '@/data/families'
 
 export type Lang = 'en' | 'pt' | 'es'
 export const LANGS: Lang[] = ['en', 'pt', 'es']
@@ -23,13 +24,16 @@ interface Strings {
   level: Record<'empty' | 'half' | 'full', string>
   throughDay: string
   close: string
-  families: Record<string, string>
+  allCameras: string
+  areasCount: (n: number) => string
 }
 
 const en: Strings = {
   level: { empty: 'Empty', half: 'Half full', full: 'Full' },
   throughDay: 'Through the day',
   close: 'Close',
+  allCameras: 'All cameras',
+  areasCount: (n) => `${n} areas`,
   headline: (n) => (n === 0 ? 'Nothing to do right now' : n === 1 ? 'One thing to do now' : `${n} things to do now`),
   photoFrom: (t) => `Photos up to ${t}`,
   camera: 'Camera',
@@ -46,13 +50,14 @@ const en: Strings = {
   wrongPlace: (seen) => `Looks like ${seen}`,
   since: (t) => `since ${t}`,
   areasFine: (n) => `${n} areas`,
-  families: { banana: 'Banana', apple_red: 'Red apple', pear: 'Pear', citrus_orange: 'Orange', tomato: 'Tomato', kiwi: 'Kiwi' },
 }
 
 const pt: Strings = {
   level: { empty: 'Vazio', half: 'A meio', full: 'Cheio' },
   throughDay: 'Ao longo do dia',
   close: 'Fechar',
+  allCameras: 'Todas as câmaras',
+  areasCount: (n) => `${n} áreas`,
   headline: (n) => (n === 0 ? 'Nada a fazer agora' : n === 1 ? 'Uma coisa a fazer agora' : `${n} coisas a fazer agora`),
   photoFrom: (t) => `Fotos até às ${t}`,
   camera: 'Câmara',
@@ -69,13 +74,14 @@ const pt: Strings = {
   wrongPlace: (seen) => `Parece ${seen}`,
   since: (t) => `desde as ${t}`,
   areasFine: (n) => `${n} áreas`,
-  families: { banana: 'Banana', apple_red: 'Maçã vermelha', pear: 'Pera', citrus_orange: 'Laranja', tomato: 'Tomate', kiwi: 'Kiwi' },
 }
 
 const es: Strings = {
   level: { empty: 'Vacío', half: 'A medias', full: 'Lleno' },
   throughDay: 'A lo largo del día',
   close: 'Cerrar',
+  allCameras: 'Todas las cámaras',
+  areasCount: (n) => `${n} zonas`,
   headline: (n) => (n === 0 ? 'Nada que hacer ahora' : n === 1 ? 'Una cosa que hacer ahora' : `${n} cosas que hacer ahora`),
   photoFrom: (t) => `Fotos hasta las ${t}`,
   camera: 'Cámara',
@@ -92,7 +98,6 @@ const es: Strings = {
   wrongPlace: (seen) => `Parece ${seen}`,
   since: (t) => `desde las ${t}`,
   areasFine: (n) => `${n} zonas`,
-  families: { banana: 'Plátano', apple_red: 'Manzana roja', pear: 'Pera', citrus_orange: 'Naranja', tomato: 'Tomate', kiwi: 'Kiwi' },
 }
 
 const dictionaries: Record<Lang, Strings> = { en, pt, es }
@@ -123,7 +128,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     return {
       lang,
       t,
-      family: (key) => t.families[key] ?? key,
+      family: (key) => FAMILIES[key]?.[lang] ?? key,
       setLang: (l) => {
         setLangState(l)
         try {

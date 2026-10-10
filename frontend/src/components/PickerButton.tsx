@@ -8,6 +8,8 @@ export interface PickerOption {
   hint?: string
   /** Shown before the label, in the list and on the trigger when chosen. */
   icon?: ReactNode
+  /** A second line under the label, such as a strip of states. */
+  extra?: ReactNode
 }
 
 interface Props {
@@ -33,9 +35,12 @@ export function PickerButton({ icon, label, value, onChange, options, className 
       <SelectContent align="end">
         {options.map((o) => (
           <SelectItem key={o.value} value={o.value}>
-            <span className="flex items-center gap-2">
-              {o.icon}
-              {o.label}
+            <span className="flex min-w-0 flex-1 flex-col gap-1.5">
+              <span className="flex items-center gap-2">
+                {o.icon}
+                <span className="truncate">{o.label}</span>
+              </span>
+              {o.extra}
             </span>
             {o.hint && <span className="text-meta tabular-nums text-fg-muted">{o.hint}</span>}
           </SelectItem>
