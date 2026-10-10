@@ -30,7 +30,7 @@ Tasks go in four groups:
 
 ## Layout
 
-The app has three pages and a header with the language picker.
+The app has four pages and a header with the language picker.
 
 - Tasks is the first page. The list of what to do is on the left, grouped by action and ordered by
   urgency. The long groups show their most urgent cards and fold the rest. On the right are all the
@@ -38,6 +38,9 @@ The app has three pages and a header with the language picker.
 - Gondolas shows the 14 cameras, each with how many areas are in each state. A gondola opens into
   its photo and its own tasks.
 - Products shows the stock of each product summed over all its areas, with a search.
+- Insights is for whoever runs the store: the share of the time shelf areas were empty, a map of
+  stock over time, the products and gondolas empty the longest, and a field to ask about the store.
+  It says which period the photos cover, and it is an estimate from about 13 photos per camera.
 
 A bar to move through the photos of the day sits with the photos. The outlines on a photo use the
 group colours: red for Restock, amber for Move back, grey for Later, green for All good.

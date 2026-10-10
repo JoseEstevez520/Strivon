@@ -1,4 +1,6 @@
-<h1 align="center">Strivon</h1>
+<p align="center">
+  <img src="docs/banner.png" alt="Strivon: every shelf tells you what it needs before it runs empty" width="100%">
+</p>
 
 <p align="center">
   <strong>Strivon looks at a shelf of fruit and vegetables and tells store staff which areas hold the wrong product and which ones need restocking.</strong>
