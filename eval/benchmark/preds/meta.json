@@ -152,5 +152,33 @@
   "labels": "labels_v1",
   "other_photos": "no",
   "seconds": "≈ 4 CPU (stock 0.9 + product 3.05); stock 0.12 GPU"
+ },
+ "agents_img_one_pass": {
+  "approach": "Agents, image only, ONE DINOv2-small pass: product from frozen block 8, stock from the fine-tuned blocks",
+  "owner": "André (agents)",
+  "labels": "labels_v1",
+  "other_photos": "no",
+  "seconds": "0.82 CPU (4 threads); GPU being measured"
+ },
+ "agents_img_ftB2": {
+  "approach": "Agents, image only: product head on frozen DINOv2-small + fine-tuned DINOv2-base stock (2 seeds)",
+  "owner": "André (agents)",
+  "labels": "labels_v1",
+  "other_photos": "no",
+  "seconds": "6.67 CPU; ≈ 0.26 GPU (from component timings)"
+ },
+ "agents_img_ftS": {
+  "approach": "Agents, image only: product head on frozen DINOv2-small + fine-tuned DINOv2-small stock (two passes)",
+  "owner": "André (agents)",
+  "labels": "labels_v1",
+  "other_photos": "no",
+  "seconds": "1.75 CPU; ≈ 0.15 GPU (from component timings)"
+ },
+ "agents_img_frozen_S": {
+  "approach": "Agents, image only: frozen DINOv2-small with a product head and a stock head",
+  "owner": "André (agents)",
+  "labels": "labels_v1",
+  "other_photos": "no",
+  "seconds": "0.83 CPU; ≈ 0.12 GPU (from component timings)"
  }
 }
