@@ -34,6 +34,22 @@ interface Strings {
   shortOf: (short: number, total: number) => string
   allGondolas: string
   loading: string
+  navDay: string
+  dayHeadline: (pct: number) => string
+  dayEstimate: string
+  daySimulated: string
+  mapTitle: string
+  mapCell: (product: string, hour: string, pct: number) => string
+  mapLess: string
+  mapMore: string
+  worstProducts: string
+  worstGondolas: string
+  complianceLine: (pct: number) => string
+  askTitle: string
+  askPlaceholder: string
+  send: string
+  suggestions: string[]
+  notConnected: string
   orderNote: string
   showMore: (n: number) => string
   showAll: (n: number) => string
@@ -57,6 +73,22 @@ const en: Strings = {
   shortOf: (s, n) => (s === 0 ? 'All fine' : n === 1 ? 'Short' : `${s} of ${n} areas short`),
   allGondolas: 'All gondolas',
   loading: 'Checking the shelves…',
+  navDay: 'Day',
+  dayHeadline: (p) => `Shelf areas were empty ${p}% of the time today`,
+  dayEstimate: 'Estimated from about 13 photos per camera.',
+  daySimulated: 'Provisional: the stock states are simulated.',
+  mapTitle: 'Stock through the day',
+  mapCell: (p, hour, pct) => `${p}, ${hour}: ${pct}% of its areas empty`,
+  mapLess: 'None',
+  mapMore: 'All empty',
+  worstProducts: 'Products empty the longest',
+  worstGondolas: 'Gondolas empty the longest',
+  complianceLine: (p) => `${p}% of the time, areas held the product the planogram expects`,
+  askTitle: 'Ask about today',
+  askPlaceholder: 'Ask about today',
+  send: 'Send',
+  suggestions: ['Which gondolas need attention?', 'How are the bananas doing?', 'How many hours were areas empty?', 'What should I restock first?'],
+  notConnected: 'The assistant is not connected yet.',
   orderNote: 'Most urgent first: what is out in most places, then what has waited longest.',
   showMore: (n) => `Show ${n} more`,
   showAll: (n) => `Show ${n}`,
@@ -96,6 +128,22 @@ const pt: Strings = {
   shortOf: (s, n) => (s === 0 ? 'Tudo bem' : n === 1 ? 'Em falta' : `${s} de ${n} áreas em falta`),
   allGondolas: 'Todas as gôndolas',
   loading: 'A verificar as prateleiras…',
+  navDay: 'Dia',
+  dayHeadline: (p) => `As zonas estiveram vazias ${p}% do tempo hoje`,
+  dayEstimate: 'Estimado com cerca de 13 fotos por câmara.',
+  daySimulated: 'Provisório: os estados de stock são simulados.',
+  mapTitle: 'Stock ao longo do dia',
+  mapCell: (p, hour, pct) => `${p}, ${hour}: ${pct}% das áreas vazias`,
+  mapLess: 'Nenhuma',
+  mapMore: 'Todas vazias',
+  worstProducts: 'Produtos vazios há mais tempo',
+  worstGondolas: 'Gôndolas vazias há mais tempo',
+  complianceLine: (p) => `${p}% do tempo, as áreas tinham o produto que o planograma espera`,
+  askTitle: 'Pergunte sobre hoje',
+  askPlaceholder: 'Pergunte sobre hoje',
+  send: 'Enviar',
+  suggestions: ['Que gôndolas precisam de atenção?', 'Como estão as bananas?', 'Quantas horas estiveram as áreas vazias?', 'O que devo repor primeiro?'],
+  notConnected: 'O assistente ainda não está ligado.',
   orderNote: 'O mais urgente primeiro: o que falta em mais sítios e, depois, o que espera há mais tempo.',
   showMore: (n) => `Mostrar mais ${n}`,
   showAll: (n) => `Mostrar ${n}`,
@@ -135,6 +183,22 @@ const es: Strings = {
   shortOf: (s, n) => (s === 0 ? 'Todo bien' : n === 1 ? 'Con falta' : `${s} de ${n} zonas con falta`),
   allGondolas: 'Todas las góndolas',
   loading: 'Revisando las estanterías…',
+  navDay: 'Día',
+  dayHeadline: (p) => `Las zonas estuvieron vacías el ${p}% del tiempo hoy`,
+  dayEstimate: 'Estimado con unas 13 fotos por cámara.',
+  daySimulated: 'Provisional: los estados de stock están simulados.',
+  mapTitle: 'Stock a lo largo del día',
+  mapCell: (p, hour, pct) => `${p}, ${hour}: ${pct}% de sus zonas vacías`,
+  mapLess: 'Ninguna',
+  mapMore: 'Todas vacías',
+  worstProducts: 'Productos vacíos más tiempo',
+  worstGondolas: 'Góndolas vacías más tiempo',
+  complianceLine: (p) => `${p}% del tiempo, las zonas tenían el producto que espera el planograma`,
+  askTitle: 'Pregunta sobre hoy',
+  askPlaceholder: 'Pregunta sobre hoy',
+  send: 'Enviar',
+  suggestions: ['¿Qué góndolas necesitan atención?', '¿Cómo van los plátanos?', '¿Cuántas horas hubo zonas vacías?', '¿Qué repongo primero?'],
+  notConnected: 'El asistente aún no está conectado.',
   orderNote: 'Lo más urgente primero: lo que falta en más sitios y, después, lo que lleva más tiempo esperando.',
   showMore: (n) => `Mostrar ${n} más`,
   showAll: (n) => `Mostrar ${n}`,

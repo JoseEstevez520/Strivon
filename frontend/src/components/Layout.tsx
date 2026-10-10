@@ -1,4 +1,4 @@
-import { Apple, Globe, LayoutGrid, ListChecks, type LucideIcon } from 'lucide-react'
+import { Apple, ChartNoAxesColumn, Globe, LayoutGrid, ListChecks, type LucideIcon } from 'lucide-react'
 import { ES, GB, PT } from 'country-flag-icons/react/3x2'
 import { useEffect, useRef, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router'
@@ -16,13 +16,14 @@ interface Page {
   to: string
   end?: boolean
   icon: LucideIcon
-  label: 'navTasks' | 'navGondolas' | 'navProducts'
+  label: 'navTasks' | 'navGondolas' | 'navProducts' | 'navDay'
 }
 
 const PAGES: Page[] = [
   { to: '/', end: true, icon: ListChecks, label: 'navTasks' },
   { to: '/gondolas', icon: LayoutGrid, label: 'navGondolas' },
   { to: '/products', icon: Apple, label: 'navProducts' },
+  { to: '/day', icon: ChartNoAxesColumn, label: 'navDay' },
 ]
 
 /**
@@ -87,7 +88,7 @@ export function Layout() {
       </div>
 
       <nav
-        className="grid shrink-0 grid-cols-3 border-t border-border bg-bg pb-[env(safe-area-inset-bottom)] md:hidden"
+        className="grid shrink-0 grid-cols-4 border-t border-border bg-bg pb-[env(safe-area-inset-bottom)] md:hidden"
         aria-label="Pages"
       >
         {PAGES.map(({ to, end, icon: Icon, label }) => (

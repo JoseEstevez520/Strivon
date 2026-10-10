@@ -6,6 +6,8 @@ export interface Source {
   state: StoreState
   /** The URL of a camera's photo, or null when there are no real photos. */
   photoUrl: ((camera: string, image: string) => string) | null
+  /** True while what the pipeline says about each area is invented. Pages that show figures say so. */
+  simulated: boolean
 }
 
 /**
@@ -20,10 +22,11 @@ export async function loadSource(): Promise<Source> {
       return {
         state: buildRealState(data.planogram, data.images),
         photoUrl: (camera, image) => `/local-data/images/${camera}/${image}`,
+        simulated: true,
       }
     }
   } catch {
     // no local data
   }
-  return { state: buildMockState(), photoUrl: null }
+  return { state: buildMockState(), photoUrl: null, simulated: true }
 }

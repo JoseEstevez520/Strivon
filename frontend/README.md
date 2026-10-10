@@ -3,9 +3,10 @@
 The web for store staff. It shows what to do across the whole store, every gondola with its camera
 photo, and the stock of each product. It is built with React, Vite, Tailwind v4 and shadcn/ui.
 
-There are three pages. Tasks lists the work, grouped by action and ordered by urgency, beside the
+There are four pages. Tasks lists the work, grouped by action and ordered by urgency, beside the
 cameras. Gondolas shows the 14 cameras and what each one needs. Products shows the stock of each
-product summed over all its shelf areas. `DESIGN.md` has the rules for how it looks and the reasons
+product summed over all its shelf areas. Day says how the day went, with a field to ask about it.
+`DESIGN.md` has the rules for how it looks and the reasons
 behind each decision.
 
 ## Run it

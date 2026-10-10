@@ -28,6 +28,10 @@ interface of that web was the problem, not its pages.
 - Products shows the stock of each product summed over all its areas, the ones running out first,
   with a search. A product opens into the places where it sits.
 
+- Day is for whoever runs the store. One sentence leads: what share of the time shelf areas were
+  empty. Under it, a map of the day, the products and gondolas that were empty the longest, and the
+  share of the time areas held the right product. A quiet field below it asks about the day.
+
 The day bar is not in the header. It sits where the photos are, under the camera panel on the
 first page and on a gondola page, and under the headline on the pages that have no photo. The
 moment it chooses is shared by every page.
@@ -221,6 +225,40 @@ only decides what is still tied. Inside a card, the areas that have waited longe
 Move back has no confidence to order by yet, because the simulated states carry none. The
 pipeline gives a probability of mismatch, and the lowest should go first when it is connected.
 
+## The Day page
+
+It answers how the day went, with figures that are true of the data and no more.
+
+- The lead is a share, not a sum. A first version said "487 hours" empty, which is the hours of
+  all 152 areas added up and means nothing to a person. "Empty 24% of the time" is understood at
+  once, and a share compares products and gondolas with a different number of areas.
+- The map has products as rows and hours as columns, in one red hue in four steps by thirds of the
+  areas that were empty. A cell that no camera was looking at is left blank, and nothing empty is a
+  quiet tone. The most affected products show first and the rest fold. One hue reads as intensity,
+  and a scale with two colours would suggest a middle point that has no meaning here.
+- The rankings are bars inside the row, with the label on the left and the percentage on the right,
+  in a neutral tone. The number says how much, and colour is kept for what a state means.
+- All of it is an estimate. A camera takes about 13 photos in the day, and what happened between
+  them is unknown, so each photo stands for half the gap before it and half the gap after it. The
+  page says so in one quiet line, and also says when the stock states are simulated. Without real
+  predictions this page must not be shown as results.
+
+## The assistant
+
+A field asks about the day, with four suggested questions. A suggestion fills the field and does not
+send it, so it can be edited. The assistant is not connected yet and every question gets the same
+plain answer. What is built is the part that does not change when it is connected.
+
+- An answer is a list of parts, and each part is one of the app's own components: text, a lead
+  figure, a ranking, the day map or a gondola tile. The assistant may only use those. The numbers
+  inside are worked out by code from the data, and the model, or the rule, only chooses and arranges.
+  This keeps every answer in the same look as the app and checkable against its photo.
+- To connect it: first recognise the question by intent with simple rules, which works without a
+  network or a key, and returns those parts. Later a model replaces the rule. OpenUI, whose renderer
+  only draws the components that are registered, is a fit for that, and the same components are what
+  it would register. Whether the challenge allows external APIs decides which model can be used, and
+  nothing sent to one should include photos.
+
 ## Opening a task
 
 Pressing a card opens it in place and shows how its area went through the day. There is no
@@ -405,10 +443,17 @@ a collapsing block by hand once, and Base UI and shadcn already had it.
   image, so everything extra goes outside the photo. A box with the content packed left was too
   unbalanced, and a horizontal tile like a task card was not liked.
 
+- 2026-10-10. A Day page and an assistant field. The page is descriptive and says it is an
+  estimate. The assistant is empty on purpose: the parts an answer is made of are built, the
+  answering is not.
+
 ## Open questions
 
 - The English flag is the UK flag. A code such as EN would avoid the question of which country
   English belongs to.
+- The Day page and every figure on it depend on the real predictions replacing the simulated
+  states. Until then it cannot be shown as results.
+- Whether the challenge allows external APIs, which decides how the assistant can answer.
 - The real predictions need to replace the simulated states. With the simulated ones, 12 of 14
   gondolas have something to restock, which flattens the tiles. The real figures may differ.
 - Whether uncertain "move back" items should go in their own group, since a false alarm costs
