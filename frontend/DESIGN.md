@@ -193,14 +193,14 @@ for the handle.
 
 The cameras, the shelf areas and the photos are the real ones. In development the Vite server
 reads them from a folder outside the repository, read-only, set with `STRIVON_DATA_DIR` (it
-defaults to the main checkout's `data/` folder). The challenge data is never copied into the
+defaults to the repo's own `data/` folder). The challenge data is never copied into the
 repo or the build. If the folder is not there, the screen falls back to invented shelves of the
 same size.
 
 - Everything groups by family, because the name on screen is the family name. The planogram has
   94 catalogue ids, and two ids of one family (two kinds of red apple) would show as two cards
   with the same name. The catalogue id is not used by the interface.
-- Product families come from the catalogue names with the rules of `sensei/catalog.py`, ported
+- Product families come from the catalogue names with the rules of `backend/sensei/catalog.py`, ported
   to `src/model/catalog.ts` in the same order. A change there needs the same change here.
 - What the pipeline says about each area (stock and whether the product is right) is still
   simulated, in `src/model/simulate.ts`, with the pipeline's shape. The photos are real and the

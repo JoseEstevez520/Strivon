@@ -1,5 +1,5 @@
 // The planogram names are the store's Portuguese catalogue names. These rules turn one into a
-// product family, in the same order and with the same patterns as `sensei/catalog.py`, where the
+// product family, in the same order and with the same patterns as `backend/sensei/catalog.py`, where the
 // first match wins. If one changes there, change it here.
 const RULES: [RegExp, string][] = [
   [/BANANA PAO/, 'plantain'],

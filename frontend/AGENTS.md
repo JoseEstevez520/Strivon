@@ -14,7 +14,7 @@ The staff screen of Strivon: React, Vite, Tailwind v4 and shadcn.
 - Text a person reads is in English by default, with the Portuguese and Spanish versions in
   `src/lib/i18n.tsx`.
 - The cameras, areas and photos are real and read in development from a folder outside the repo
-  (`STRIVON_DATA_DIR`). Never copy challenge data, photos or the planogram into the repo. The
+  (`STRIVON_DATA_DIR`, `data/` by default). Never copy challenge data, photos or the planogram into the repo. The
   stock states are simulated in `src/model/simulate.ts` with the same shape as the pipeline's
   `/api/state`. `src/model/mock.ts` is the fallback when the folder is missing.
 - Run `npm run dev -- --port 5180` and keep the pipeline server on port 8000 for the proxy.

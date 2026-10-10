@@ -11,7 +11,7 @@ import { defineConfig, type Plugin } from 'vite'
  * `images/<camera>/<timestamp>.jpg`.
  */
 function localData(): Plugin {
-  const dir = process.env.STRIVON_DATA_DIR ?? path.resolve(import.meta.dirname, '../../Strivon/data')
+  const dir = process.env.STRIVON_DATA_DIR ?? path.resolve(import.meta.dirname, '../data')
   return {
     name: 'strivon-local-data',
     apply: 'serve',
