@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import json
 import threading
+import time
 import traceback
 from functools import lru_cache
 from pathlib import Path
@@ -15,7 +16,7 @@ from fastapi import Body, FastAPI, HTTPException
 from fastapi.responses import FileResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 
-from sensei import config
+from sensei import config, split
 from sensei.geometry import rectify
 from sensei.planogram import load_planogram
 from sensei.scoring import score
@@ -27,6 +28,11 @@ ANN_PATH = config.LABELS_PATH
 
 app = FastAPI(title="Strivon")
 _lock = threading.Lock()
+ACTIVITY_PATH = config.ANNOTATIONS_DIR / "labels_activity.jsonl"
+# Free-text notes per area (bad photo, hand in the way, unsure...). Kept apart from labels.json,
+# which stays in the exact annotation format.
+NOTES_PATH = config.ANNOTATIONS_DIR / "labels_notes.json"
+_live = {"version": int(time.time())}  # changes on restart so open pages refresh
 _job = {"running": False, "log": [], "error": None}
 
 
@@ -110,24 +116,95 @@ def get_annotations():
     return _read_ann()
 
 
+@app.get("/api/split")
+def get_split():
+    """First TRAIN_PER_CAMERA photos of each camera are for labelling/calibration, the rest are held out."""
+    return {"train_per_camera": config.TRAIN_PER_CAMERA, "test": {c: sorted(v) for c, v in split.test_images().items()}}
+
+
+def _log(entry: dict) -> None:
+    entry["t"] = time.time()
+    with ACTIVITY_PATH.open("a", encoding="utf-8") as f:
+        f.write(json.dumps(entry, ensure_ascii=False) + "\n")
+    _live["version"] += 1
+
+
+def _activity(n: int = 40) -> list[dict]:
+    if not ACTIVITY_PATH.exists():
+        return []
+    lines = ACTIVITY_PATH.read_text(encoding="utf-8").splitlines()
+    return [json.loads(x) for x in lines[-n:]][::-1]
+
+
+def _people() -> dict[str, int]:
+    counts: dict[str, int] = {}
+    if ACTIVITY_PATH.exists():
+        for line in ACTIVITY_PATH.read_text(encoding="utf-8").splitlines():
+            e = json.loads(line)
+            if e.get("action") == "set":
+                counts[e.get("by") or "?"] = counts.get(e.get("by") or "?", 0) + 1
+    return counts
+
+
+@app.get("/api/live")
+def live(since: int = -1):
+    """Polled every few seconds by every open page so everyone sees new labels at once."""
+    v = _live["version"]
+    if since == v:
+        return {"version": v, "changed": False}
+    return {"version": v, "changed": True, "labels": _read_ann(), "notes": _read_notes(), "activity": _activity(), "people": _people()}
+
+
+def _read_notes() -> dict:
+    return json.loads(NOTES_PATH.read_text(encoding="utf-8")) if NOTES_PATH.exists() else {}
+
+
+@app.put("/api/notes/{cam}/{image}/{area_id}")
+def put_note(cam: str, image: str, area_id: str, body: dict = Body(...)):
+    text = str(body.get("text") or "").strip()[:500]
+    by = str(body.get("by") or "")[:40]
+    with _lock:
+        d = _read_notes()
+        imgs = d.setdefault(cam, {}).setdefault(image, {})
+        if text:
+            imgs[area_id] = {"text": text, "by": by, "t": time.time()}
+        else:
+            imgs.pop(area_id, None)
+            if not imgs:
+                d[cam].pop(image)
+            if not d[cam]:
+                d.pop(cam)
+        tmp = NOTES_PATH.with_suffix(".tmp")
+        tmp.write_text(json.dumps(d, indent=1, ensure_ascii=False), encoding="utf-8")
+        tmp.replace(NOTES_PATH)
+        _log({"action": "note", "by": by, "camera": cam, "image": image, "area_id": area_id, "text": text})
+    return {"ok": True, "version": _live["version"]}
+
+
 @app.put("/api/annotations/{cam}/{image}/{area_id}")
 def put_annotation(cam: str, image: str, area_id: str, body: dict = Body(...)):
     level = body.get("stock_level")
     if level not in config.STOCK_LEVELS:
         raise HTTPException(400, "stock_level must be empty|half|full")
+    if split.is_test(cam, image) and not body.get("allow_test"):
+        raise HTTPException(403, "This photo is held out for testing (last photos of the camera).")
+    by = str(body.get("by") or "")[:40]
+    comp = bool(body.get("planogram_compliant", True))
     with _lock:
         d = _read_ann()
         d.setdefault(cam, {}).setdefault(image, {})[area_id] = {
-            "planogram_compliant": bool(body.get("planogram_compliant", True)),
+            "planogram_compliant": comp,
             "stock_level": level,
             "stock_value": config.STOCK_LEVELS[level],
         }
         _write_ann(d)
-    return {"ok": True}
+        _log({"action": "set", "by": by, "camera": cam, "image": image, "area_id": area_id,
+              "stock_level": level, "planogram_compliant": comp})
+    return {"ok": True, "version": _live["version"]}
 
 
 @app.delete("/api/annotations/{cam}/{image}/{area_id}")
-def delete_annotation(cam: str, image: str, area_id: str):
+def delete_annotation(cam: str, image: str, area_id: str, by: str = ""):
     with _lock:
         d = _read_ann()
         d.get(cam, {}).get(image, {}).pop(area_id, None)
@@ -136,18 +213,23 @@ def delete_annotation(cam: str, image: str, area_id: str):
         if cam in d and not d[cam]:
             d.pop(cam)
         _write_ann(d)
-    return {"ok": True}
+        _log({"action": "delete", "by": by[:40], "camera": cam, "image": image, "area_id": area_id})
+    return {"ok": True, "version": _live["version"]}
 
 
 @app.get("/api/score")
 def get_score():
-    ann = {}
-    for p in [ANN_PATH] if ANN_PATH.exists() else []:
-        for cam, imgs in json.loads(p.read_text(encoding="utf-8")).items():
-            for img, areas in imgs.items():
-                ann.setdefault(cam, {}).setdefault(img, {}).update(areas)
+    ann = _read_ann()
     sub = json.loads(SUBMISSION.read_text(encoding="utf-8")) if SUBMISSION.exists() else {}
     rep = score(sub, ann).to_json()
+    # Same score, split into the labelled train photos and the held-out test photos.
+    parts = {}
+    for name, keep in (("train", False), ("test", True)):
+        part = {c: {i: a for i, a in imgs.items() if split.is_test(c, i) == keep} for c, imgs in ann.items()}
+        parts[name] = {k: v for k, v in score(sub, part).to_json().items() if k != "rows"}
+    rep["splits"] = parts
+    for r in rep["rows"]:
+        r["split"] = "test" if split.is_test(r["camera"], r["image"]) else "train"
     cal = config.OUTPUTS_DIR / "calibration.json"
     rep["calibration"] = json.loads(cal.read_text()) if cal.exists() else None
     return rep
@@ -165,7 +247,7 @@ def _run_job(calibrate_first: bool):
 
     try:
         if calibrate_first:
-            paths = [ANN_PATH] if ANN_PATH.exists() else []
+            paths = [ANN_PATH] if ANN_PATH.exists() else []  # calibrate.fit keeps only the train photos
             if not paths:
                 raise RuntimeError("No labels to calibrate with.")
             cal_mod.fit(paths, log=log)

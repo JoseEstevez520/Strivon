@@ -73,8 +73,11 @@ def fit(annotation_paths: list[Path], images_dir: Path = config.IMAGES_DIR, log=
     from .planogram import load_planogram
     from .scoring import score
 
+    from .split import only
+
     pg = load_planogram()
-    ann = load_annotations(annotation_paths)
+    # Only the train photos: the last photos of each camera stay held out to check the model.
+    ann = only(load_annotations(annotation_paths), test=False)
     refs = discover(images_dir, pg)
     feats = extract(refs, pg, log=log)
     obs = LabelFreeModel(pg, feats).run()
