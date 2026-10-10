@@ -46,6 +46,19 @@ are connected, a shelf marked empty can show a full one in the photo.
 The `/api` requests are proxied to the pipeline's server on port 8000, for when the real data
 replaces the simulation.
 
+## The landing
+
+The landing for the presentation is its own page, not a screen of the app. It has its own entry
+(`landing/`), its own build and its own output, and nothing on it leads into the app or back.
+It borrows the app's tokens and a few parts, so it needs no extra install.
+
+```bash
+npm run dev:landing      # serve it
+npm run build:landing    # build it into dist-landing/
+```
+
+The `Pages` workflow publishes that build.
+
 ## The chat model
 
 The Insights chat asks a model through `/api/chat`, which the Vite server relays to any

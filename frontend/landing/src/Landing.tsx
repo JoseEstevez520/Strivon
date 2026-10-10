@@ -202,12 +202,12 @@ function Demo() {
 }
 
 /**
- * The presentation page, laid out like the project landings: a centred first screen, then one
+ * The landing, laid out like the project landings: a centred first screen, then one
  * section per idea at the page's one width. It is the app itself, not pictures of it: the task
  * list can be opened and the day map is drawn from the same figures. It stands outside the app's
  * layout so it reads as one page.
  */
-export function WelcomePage() {
+export function Landing() {
   return (
     <div className="scrollbar-subtle h-dvh overflow-x-clip overflow-y-auto [scrollbar-gutter:stable]">
       <Hero />

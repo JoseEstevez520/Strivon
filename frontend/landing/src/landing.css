@@ -1,0 +1,4 @@
+@import "../../src/index.css";
+
+/* The landing is built from its own folder, so the app's parts it borrows must be scanned too. */
+@source "../../src";

@@ -22,12 +22,10 @@ interface Props {
   /** List every area that is fine, as a gondola's own page does. */
   listFine?: boolean
   initialSelected?: string | null
-  /** A short version for showing the app off: only what to do, a few cameras, and no panel that scrolls. */
-  compact?: boolean
 }
 
 /** The tasks on one side. On the other, every camera, or the photo of what is open. */
-export function TaskBoard({ tasks, camera, listFine = false, initialSelected = null, compact = false }: Props) {
+export function TaskBoard({ tasks, camera, listFine = false, initialSelected = null }: Props) {
   const { t } = useI18n()
   const { state, at, tasks: all, gondola, where, historyOf, jumpTo, photoUrl } = useStore()
   const [selected, select] = useSelection(initialSelected)
@@ -39,7 +37,7 @@ export function TaskBoard({ tasks, camera, listFine = false, initialSelected = n
   return (
     <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-8 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
       <div>
-        {(compact ? GROUPS.slice(0, 2) : GROUPS).map((g) => (
+        {GROUPS.map((g) => (
           <TaskGroup
             key={g}
             group={g}
@@ -59,7 +57,7 @@ export function TaskBoard({ tasks, camera, listFine = false, initialSelected = n
       {/* The panel stays in view beside the list and never decides how tall the page is. The grid of
           cameras is taller than a screen, so it scrolls inside the panel. If it set the page
           height, opening a task would swap it for one photo and the page would shrink under you. */}
-      <div className={compact ? undefined : 'lg:sticky lg:top-4 lg:max-h-[calc(100dvh-5rem)] lg:overflow-y-auto lg:overscroll-contain scrollbar-subtle'}>
+      <div className="lg:sticky lg:top-4 lg:max-h-[calc(100dvh-5rem)] lg:overflow-y-auto lg:overscroll-contain scrollbar-subtle">
         {photoCamera && photo ? (
           <>
             <div className="flex h-9 items-center justify-between gap-3 px-1 text-meta tabular-nums text-fg-muted">
@@ -102,7 +100,7 @@ export function TaskBoard({ tasks, camera, listFine = false, initialSelected = n
               {t.navGondolas}
             </h2>
           <ul className="grid grid-cols-2 gap-3">
-            {(compact ? cameras(state).slice(0, 4) : cameras(state)).map((c) => (
+            {cameras(state).map((c) => (
               <li key={c}>
                 <CameraTile camera={c} />
               </li>
