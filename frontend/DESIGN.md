@@ -39,18 +39,17 @@ moment it chooses is shared by every page.
 
 ## Where the rules come from
 
-The visual rules come from elastic-ui, José's own design system. We keep its static rules and
-leave its motion out.
+The visual rules are static: tones, type, radii and colour. Motion is kept to a minimum.
 
 Kept: depth from tones instead of borders and shadows, fields drawn as trays, five type sizes
 and three weights, small radii, colour only for outcomes, icons only where they help, and
 Lucide for icons.
 
-Left out: morphs, glass, the aurora, layout animation and blur. They are the reason elastic-ui
-lags, and this screen recalculates the whole list every time the day bar moves.
+Left out: morphs, glass, the aurora, layout animation and blur. They make a screen lag,
+and this one recalculates the whole list every time the day bar moves.
 
-Where we differ on purpose: the neutrals are warm, taken from Sensei's site, where elastic-ui
-uses cool greys. There is no accent colour. Only the light theme exists for now.
+Where we differ on purpose: the neutrals are warm, taken from Sensei's site, where cool greys
+are the usual choice. There is no accent colour. Only the light theme exists for now.
 
 ## Header and navigation
 
@@ -105,7 +104,7 @@ The screen is grey and warm. Colour means a state and nothing else.
 
 - Restock is red, move back is amber, later is grey and all good is green.
 - A card that asks for action takes a soft tint of its colour, 13% at rest and 19% on hover and
-  while open. There is no border. The tint is how elastic-ui's warning callout works.
+  while open. There is no border. The tint takes the place of a border.
 - The icon next to each group heading carries the colour. The heading text stays grey.
 - Small text on a tint uses `fg-secondary`. `fg-muted` has a contrast of 4.96 on the page and
   4.57 on `surface`, but it drops to between 3.4 and 4.3 on the tints, which is under the 4.5
@@ -291,7 +290,7 @@ separate panel. Pressing it again, or Escape, closes it.
 
 ## Scrollbars
 
-Scrollbars are the quiet ones of elastic-ui, ported as `scrollbar-subtle` in `src/index.css`: a
+Scrollbars are quiet ones, set as `scrollbar-subtle` in `src/index.css`: a
 line of 6 px with no track and no arrows. It is invisible at rest and drawn faintly only while the
 pointer is over what scrolls, a step darker on the line itself. It was made always visible once and
 asked back to this: it should show only when you go there. They apply to the content area, which scrolls under the header, and to the camera panel. The browser's own bars are
@@ -303,7 +302,7 @@ nothing shifts when it appears.
 Colour changes take 150 ms and the open picker fades. A task opens and closes with a height
 animation (200 ms in, 150 ms out) and its chevron turns. That is the only layout animation, and
 it is kept to one row at a time. No blur, no scaling and no glass. Closing is always a little
-faster than opening, as in elastic-ui. With reduced motion, everything is instant.
+faster than opening. With reduced motion, everything is instant.
 
 ## Performance
 
@@ -454,8 +453,7 @@ a collapsing block by hand once, and Base UI and shadcn already had it.
 
 - 2026-10-10. The bubble grows into the chat box and folds back (width, height and radius, 300 ms).
   It is the one exception to "no layout animation", allowed because it is a single small element
-  with a fixed-size box inside it, so nothing inside reflows. The blur, glass and aurora of
-  elastic-ui stay out. The writing field is a soft tray that grows with the text, Enter sends,
+  with a fixed-size box inside it, so nothing inside reflows. Blur, glass and aurora stay out. The writing field is a soft tray that grows with the text, Enter sends,
   and the send button is a dark circle that dims while there is nothing to send.
 - 2026-10-10. The chat draws its answers with OpenUI (`@openuidev/react-lang`, MIT), using the
   app's own components as its library (`components/chat/library.tsx`). The parts take references,
@@ -464,9 +462,8 @@ a collapsing block by hand once, and Base UI and shadcn already had it.
   server has a key (`/api/chat/status`): without one the bubble is not drawn, rather than showing a
   chat that cannot answer. While the answer has not started, three dots fade in turn; once it
   streams, the parts appear as they arrive.
-- 2026-10-10. The chat can grow: a button in its corner switches it between a small box and a wide one for charts (no size animation, the swap is instant). The chat is a round button in the corner of Insights only, not of every page. It
-  opens a box that fades and scales in from the corner (elastic-ui's chat, without the aurora,
-  blur and size morph), and closing keeps the conversation. It lives where the answers are, and
+- 2026-10-10. The chat can grow: a button in its corner switches it between a small box and a wide one for charts (the swap is instant). The chat is a round button in the corner of Insights only, not of every page. It
+  opens a box that grows from the corner without glass or blur, and closing keeps the conversation. It lives where the answers are, and
   the other pages have no use for it.
 - 2026-10-10. The Insights headline puts the number first ("~24% of shelf time was empty"), as the
   other pages do. The "~" says it is an estimate, with the detail on hover, and the period sits in

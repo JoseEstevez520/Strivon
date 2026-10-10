@@ -4,7 +4,7 @@
 @import "@fontsource-variable/inter";
 
 /*
- * Strivon tokens. The rules come from elastic-ui: depth from tones (no shadows), five type
+ * Strivon tokens. The rules: depth from tones (no shadows), five type
  * sizes, three weights, small radii, and colour only for outcomes. Light theme only for now.
  */
 @theme inline {
@@ -150,8 +150,7 @@
 
 /*
  * A scrollbar that stays out of the way: a line of 6px with no track and no arrows, unseen at rest
- * and drawn faintly while the pointer is over what scrolls, a step darker on the line itself. Ported from elastic-ui's
- * `scrollbar-subtle`. Chromium and Safari draw it from the `::-webkit-scrollbar` parts and ignore
+ * and drawn faintly while the pointer is over what scrolls, a step darker on the line itself. Chromium and Safari draw it from the `::-webkit-scrollbar` parts and ignore
  * them as soon as a standard property is set, so `scrollbar-width` and `scrollbar-color` go to
  * Firefox only.
  */
