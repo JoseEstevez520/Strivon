@@ -35,6 +35,10 @@ interface Strings {
   allGondolas: string
   loading: string
   navInsights: string
+  goFirst: string
+  thenGo: string
+  bring: string
+  emptySince: (time: string) => string
   insightsHeadline: (pct: number) => string
   insightsPeriod: (date: string, from: string, to: string) => string
   insightsSimulatedShort: string
@@ -89,6 +93,10 @@ const en: Strings = {
   allGondolas: 'All gondolas',
   loading: 'Checking the shelves…',
   navInsights: 'Insights',
+  goFirst: 'Go first',
+  thenGo: 'Then',
+  bring: 'Bring',
+  emptySince: (time) => `Empty since ${time}`,
   insightsHeadline: (p) => `~${p}% of shelf time was empty`,
   insightsPeriod: (d, a, b) => `${d} · ${a}–${b}`,
   insightsSimulatedShort: 'simulated',
@@ -159,6 +167,10 @@ const pt: Strings = {
   allGondolas: 'Todas as gôndolas',
   loading: 'A verificar as prateleiras…',
   navInsights: 'Análise',
+  goFirst: 'Vai primeiro',
+  thenGo: 'Depois',
+  bring: 'Levar',
+  emptySince: (time) => `Vazio desde as ${time}`,
   insightsHeadline: (p) => `~${p}% do tempo de prateleira esteve vazio`,
   insightsPeriod: (d, a, b) => `${d} · ${a}–${b}`,
   insightsSimulatedShort: 'simulado',
@@ -229,6 +241,10 @@ const es: Strings = {
   allGondolas: 'Todas las góndolas',
   loading: 'Revisando las estanterías…',
   navInsights: 'Análisis',
+  goFirst: 'Ve primero',
+  thenGo: 'Después',
+  bring: 'Llevar',
+  emptySince: (time) => `Vacío desde las ${time}`,
   insightsHeadline: (p) => `~${p}% del tiempo de estantería estuvo vacío`,
   insightsPeriod: (d, a, b) => `${d} · ${a}–${b}`,
   insightsSimulatedShort: 'simulado',

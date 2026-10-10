@@ -1,5 +1,5 @@
 import { ChevronLeft, ChevronRight, LayoutGrid } from 'lucide-react'
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { Link } from 'react-router'
 import { CameraTile } from './CameraTile'
 import { DayBar } from './DayBar'
@@ -27,10 +27,14 @@ interface Props {
   compact?: boolean
   /** The slider under the panel. A page with a timeline of its own turns it off. */
   dayBar?: boolean
+  /** Empty and half full side by side, with what is wrong below, instead of one group after another. */
+  split?: boolean
+  /** What shows in the side panel when nothing is open, in place of the grid of gondolas. */
+  aside?: ReactNode
 }
 
 /** The tasks on one side. On the other, every camera, or the photo of what is open. */
-export function TaskBoard({ tasks, camera, listFine = false, initialSelected = null, compact = false, dayBar = true }: Props) {
+export function TaskBoard({ tasks, camera, listFine = false, initialSelected = null, compact = false, dayBar = true, split = false, aside }: Props) {
   const { t } = useI18n()
   const { state, at, tasks: all, gondola, where, historyOf, jumpTo, photoUrl } = useStore()
   const [selected, select] = useSelection(initialSelected)
@@ -49,21 +53,36 @@ export function TaskBoard({ tasks, camera, listFine = false, initialSelected = n
   return (
     <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-8 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
       <div>
-        {(compact ? GROUPS.slice(0, 2) : GROUPS).map((g) => (
-          <TaskGroup
-            key={g}
-            group={g}
-            tasks={shown(g)}
-            selected={selected}
-            listFine={listFine}
-            fold={!camera && !compact}
-            gondola={gondola}
-            where={camera ? nowhere : where}
-            historyOf={historyOf}
-            onSelect={select}
-            onJump={jumpTo}
-          />
-        ))}
+        {(() => {
+          const group = (g: Group, extra: { label?: string; column?: boolean } = {}) => (
+            <TaskGroup
+              key={g}
+              group={g}
+              tasks={shown(g)}
+              selected={selected}
+              listFine={listFine}
+              fold={!camera && !compact}
+              gondola={gondola}
+              where={camera ? nowhere : where}
+              historyOf={historyOf}
+              onSelect={select}
+              onJump={jumpTo}
+              {...extra}
+            />
+          )
+          if (!split) return (compact ? GROUPS.slice(0, 2) : GROUPS).map((g) => group(g))
+          // Empty and half full side by side, since they ask for different things; the rest below.
+          return (
+            <>
+              <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-x-4 sm:grid-cols-2 [&>section]:mt-0">
+                {group('restock', { label: t.level.empty, column: true })}
+                {group('later', { label: t.level.half, column: true })}
+              </div>
+              {group('moveBack')}
+              {group('allGood')}
+            </>
+          )
+        })()}
       </div>
 
       {/* The panel stays in view beside the list and never decides how tall the page is. The grid of
@@ -111,6 +130,8 @@ export function TaskBoard({ tasks, camera, listFine = false, initialSelected = n
               onSelect={(id) => select(selected === id ? null : id, 'photo')}
             />
           </>
+        ) : aside ? (
+          aside
         ) : (
           <>
             {/* The same height as a group heading, so the first tile lines up with the first card. */}

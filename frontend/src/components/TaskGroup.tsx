@@ -21,6 +21,10 @@ interface Props {
   listFine?: boolean
   /** Fold the long groups: only the most urgent show, and the rest sit behind a line. */
   fold?: boolean
+  /** Replaces the group's name in its heading. */
+  label?: string
+  /** A single column of cards, and cards for what is half full too: for putting groups side by side. */
+  column?: boolean
 }
 
 /** A product that can wait: a quiet line instead of a card. It opens like one. */
@@ -98,7 +102,7 @@ function Folded({
   )
 }
 
-export function TaskGroup({ group, tasks, selected, listFine = false, fold = true, ...rest }: Props) {
+export function TaskGroup({ group, tasks, selected, listFine = false, fold = true, label, column = false, ...rest }: Props) {
   const { t } = useI18n()
   const open = tasks.find((x) => x.area.area_id === selected)
   // An area that is fine has no card. The last one opened stays mounted so it can fold away.
@@ -114,22 +118,22 @@ export function TaskGroup({ group, tasks, selected, listFine = false, fold = tru
     <section className="mt-7 first:mt-0">
       <h2 className="sticky top-0 z-10 flex h-9 items-center gap-2 bg-bg px-1 text-label text-fg-muted">
         <Icon className="size-4" style={{ color: GROUP_COLOR[group] }} />
-        {t[group]}
+        {label ?? t[group]}
         <span className="ml-auto text-meta font-normal tabular-nums">{group === 'allGood' ? tasks.length : cards.length}</span>
       </h2>
 
-      {(group === 'restock' || group === 'moveBack') && (
+      {(group === 'restock' || group === 'moveBack' || (group === 'later' && column)) && (
         <Folded
           items={cards}
-          limit={fold ? SHOWN[group] : cards.length}
-          forced={folded(cards, SHOWN[group], selected)}
-          className="grid grid-cols-[minmax(0,1fr)] items-start gap-2 sm:grid-cols-2"
+          limit={fold ? (column ? 6 : SHOWN[group]) : cards.length}
+          forced={folded(cards, column ? 6 : SHOWN[group], selected)}
+          className={`grid grid-cols-[minmax(0,1fr)] items-start gap-2 ${column ? '' : 'sm:grid-cols-2'}`}
         >
           {(card) => <TaskCard key={card.key} card={card} {...props} />}
         </Folded>
       )}
 
-      {(group === 'later' || (group === 'allGood' && listFine)) && (
+      {((group === 'later' && !column) || (group === 'allGood' && listFine)) && (
         <Folded
           items={cards}
           limit={fold && group === 'later' ? SHOWN[group] : cards.length}
