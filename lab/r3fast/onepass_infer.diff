@@ -1,0 +1,36 @@
+--- a/agents/models/stock_4e/onepass_infer.py
++++ b/agents/models/stock_4e/onepass_infer.py
+@@ -27,14 +27,14 @@
+ 
+ class OnePass:
+     def __init__(self, size=224, device="cpu", threads=None, tag="", b8_stock=None):
+-        from transformers import Dinov2Config, Dinov2Model
++        from dinov2_lite import Dinov2Lite   # same modules and ops as transformers' Dinov2Model, no transformers import
+         if threads:
+             torch.set_num_threads(threads)
+         stem = HERE / "deploy" / (f"onepass_s{size}" + (f"_{tag}" if tag else ""))
+         self.meta = json.loads(pathlib.Path(str(stem) + ".json").read_text(encoding="utf-8"))
+         sd = torch.load(str(stem) + ".pt", map_location="cpu")
+-        self.bb = Dinov2Model(Dinov2Config.from_json_file(str(HERE / "deploy" / "dinov2_small_config.json")))
+-        self.bb.load_state_dict({k[3:]: v for k, v in sd.items() if k.startswith("bb.")}, strict=True)
++        self.bb = Dinov2Lite.from_state_dict(str(HERE / "deploy" / "dinov2_small_config.json"),
++                                             {k[3:]: v for k, v in sd.items() if k.startswith("bb.")})
+         self.head = torch.nn.Linear(sd["head.weight"].shape[1], sd["head.weight"].shape[0])
+         self.head.load_state_dict({"weight": sd["head.weight"], "bias": sd["head.bias"]})
+         self.dev = device
+@@ -58,12 +58,12 @@
+             out.append(c if self.size == 224 else cv2.resize(c, (self.size, self.size), interpolation=cv2.INTER_AREA))
+         return np.stack(out)
+ 
+-    @torch.no_grad()
++    @torch.inference_mode()
+     def predict(self, img, areas):
+         x = torch.from_numpy(self.crops(img, areas)).permute(0, 3, 1, 2).float() / 255.0
+         x = ((x - self.mean) / self.std).to(self.dev)
+-        out = self.bb(pixel_values=x, output_hidden_states=True)
+-        h, h8 = out.last_hidden_state, out.hidden_states[8]
++        h, kept = self.bb(x, keep=(8,))
++        h8 = kept[8]
+         ps = torch.softmax(self.head(torch.cat([h[:, 0], h[:, 1:].mean(1)], 1)), 1).cpu().numpy()
+         f8 = torch.cat([h8[:, 0], h8[:, 1:].mean(1)], 1).cpu().numpy()
+         if self.b8 is not None:   # R3: average the fine-tuned stock head 1:1 with the block-8 stock head
