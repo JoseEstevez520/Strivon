@@ -8,7 +8,8 @@ Each photo is judged on its own pixels only. One DINOv2-S pass per planogram are
   (`models/onepass/deploy/stockb8.npz`), then the best-expected-points level.
 
 The weights were trained on every photo of `eval/labels.json` at commit d6eeba4 (curtain photos left out). They are
-224 px and stored in fp16; on all 181 photos that gives the same answers as fp32.
+224 px and stored in fp16; on all 181 photos that gives the same answers as fp32. By default the stock heads are the
+label-mix version, `ld6ee_mix` (`--stock-model mix`, below); `--stock-model ld6ee` runs the earlier ones.
 
 From the repo root, with `SENSEI_DATASET` set to our dataset folder:
 
@@ -17,8 +18,8 @@ python -I agents/predict.py --images <photo folder> --planogram <planogram.json>
 python -I agents/submission/validate.py predictions.json --images <photo folder> --planogram <planogram.json>
 ```
 
-The last line of predict.py must say `OK: <n> areas ... single image (submission mode)`. Anything else means stop
-and read the WARN lines:
+The last line of predict.py must say `OK (stock model mix): <n> areas ... single image (submission mode)`. Anything
+else means stop and read the WARN lines:
 
 - `INVALID` (exit 1): the output breaks the format.
 - `FALLBACKS` (exit 2): some answers did not come from the model (a model failed or a photo could not be read).
@@ -29,19 +30,20 @@ and read the WARN lines:
 On the day, check by eye that every photo was assigned to the right camera: read the "camera ... taken from" and
 "recognised as" WARN lines.
 
-`--stock-tilt K` (opt-in, off by default) is a "lower when unsure" hedge: p(full) is multiplied by K (0 < K <= 1)
-before the best-expected-points level, so "full" needs more confidence. Only full answers can change: to half, or to
-empty when 4 p_empty > 3 p_half. Without it (or with K = 1) the answers are exactly the default ones. With it, the
-last line starts with `OK (stock tilt k=<K>)`. For checks, `--p-stock-out <file>` also writes the answers plus each
-area's p_stock (before the tilt) to another file; never send that one.
+`--stock-model ld6ee --stock-tilt K` (opt-in, off by default) is a "lower when unsure" hedge on the earlier model:
+p(full) is multiplied by K (0 < K <= 1) before the best-expected-points level, so "full" needs more confidence. Only
+full answers can change: to half, or to empty when 4 p_empty > 3 p_half. With K = 1 the answers are exactly
+`--stock-model ld6ee`'s. With it, the last line starts with `OK (stock tilt k=<K>)`. For checks, `--p-stock-out
+<file>` also writes the answers plus each area's p_stock (before the tilt) to another file; never send that one.
 
-`--stock-model mix` (opt-in, off by default = `ld6ee`) runs the R3 recipe retrained with -38's label mix
+`--stock-model mix` is the default (André's choice, 11 Oct): the R3 recipe retrained with -38's label mix
 (`agents/train`, `--mix-silver`): both stock heads learn 0.75 x our label + 0.125 x each of the two Sensei-wording
 passes in `lab/silver2`; the product head stays on our labels. Its weights
 (`models/stock_4e/deploy/onepass_s224_ld6ee_mix.*`) and its own block-8 head
 (`models/onepass/deploy/stockb8_ld6ee_mix.npz`) are used together (env: `ONEPASS_TAG=ld6ee_mix` and
-`ONEPASS_B8_HEAD=<that .npz>`; with the tag alone, onepass.py also picks the tag's own head). It can't be combined
-with `--stock-tilt` (never validated together), and the last line then starts with `OK (stock model mix)`.
+`ONEPASS_B8_HEAD=<that .npz>`; with the tag alone, onepass.py also picks the tag's own head; if either env var is set
+by hand, predict.py leaves them alone). It can't be combined with `--stock-tilt` (never validated together), and the
+last line starts with `OK (stock model mix)`. `--stock-model ld6ee` gives the model before it.
 
 How the camera is found, in order:
 

@@ -36,10 +36,11 @@ unchanged. Off (no flag, or K = 1) gives exactly the default answers. The last l
 "OK (stock tilt k=0.7): ...".
 --p-stock-out PATH (checks only, off by default): also writes the answers plus each area's averaged p_stock (before
 the tilt) to PATH, e.g. to check the tilt or feed `sensei combine`. --out is unchanged; never send PATH.
---stock-model mix (opt-in, off by default = ld6ee; supervised model only): R3 retrained with -38's label mix (stock
-heads on 0.75 x our label + 0.125 x each Sensei-wording AI pass, lab/silver2; product head on our labels). Its weights
-tag and its own block-8 stock head are set together (ONEPASS_TAG, ONEPASS_B8_HEAD). Not with --stock-tilt (that
-combination was never validated). The last line then names it: "OK (stock model mix): ...".
+--stock-model mix is the DEFAULT (André's choice, 11 Oct; supervised model only): R3 retrained with -38's label mix
+(stock heads on 0.75 x our label + 0.125 x each Sensei-wording AI pass, lab/silver2; product head on our labels). Its
+weights tag and its own block-8 stock head are set together (ONEPASS_TAG, ONEPASS_B8_HEAD), unless those env vars are
+set by hand. --stock-model ld6ee runs the model before it. Not with --stock-tilt (that combination was never
+validated): the tilt needs --stock-model ld6ee. The last line names the model: "OK (stock model mix): ...".
 """
 import argparse
 import hashlib
@@ -79,6 +80,9 @@ CONTEXT_ON = "on-NOT-FOR-SUBMISSION"
 # one-pass adapter, which gives both answers in one pass. ld6ee = the default (what the adapter loads without env).
 STOCK_PRESETS = {"ld6ee": ("ld6ee", "models/onepass/deploy/stockb8.npz"),
                  "mix": ("ld6ee_mix", "models/onepass/deploy/stockb8_ld6ee_mix.npz")}
+# The preset the plain command runs (no --stock-model preset, no --label-free, ONEPASS_TAG / ONEPASS_B8_HEAD unset):
+# André's choice of 11 Oct. --stock-model ld6ee gives the model before it.
+DEFAULT_STOCK_MODEL = "mix"
 
 
 def load_module(path):
@@ -288,8 +292,9 @@ def main():
     ap.add_argument("--out", default=str(ROOT / "submission" / "output.json"))
     ap.add_argument("--stock-model", action="append",
                     help="stock model file; repeat it to average several models' probabilities "
-                         "(default: models/onepass/onepass.py), or a preset of the one-pass model: "
-                         "'mix' = R3 retrained with -38's label mix, 0.75 ours + 0.25 AI passes (opt-in; default ld6ee)")
+                         "(default: models/onepass/onepass.py), or a preset of the one-pass model: 'mix' (the "
+                         "default) = R3 retrained with -38's label mix, 0.75 ours + 0.25 AI passes; 'ld6ee' = the model "
+                         "before it")
     ap.add_argument("--compliance-model", help="compliance model file (default: models/onepass/onepass.py, or the "
                                                "label-free adapter with --label-free)")
     ap.add_argument("--label-free", action="store_true",
@@ -328,6 +333,9 @@ def main():
         if args.label_free:
             ap.error("--stock-model presets are for the supervised model only, not for --label-free")
         preset, args.stock_model = args.stock_model[0], None
+    elif not args.label_free and not (os.environ.get("ONEPASS_TAG") or os.environ.get("ONEPASS_B8_HEAD")):
+        preset = DEFAULT_STOCK_MODEL  # the plain command runs the chosen model
+    if preset is not None:
         tag, head = STOCK_PRESETS[preset]
         stem = ROOT / "models" / "stock_4e" / "deploy" / f"onepass_s{os.environ.get('ONEPASS_SIZE', '224')}_{tag}"
         missing = [str(f) for f in (Path(f"{stem}.pt"), Path(f"{stem}.json"), Path(f"{stem}_product.npz"), ROOT / head)
@@ -339,7 +347,8 @@ def main():
                 print(f"WARN  --stock-model {preset} replaces {k}={os.environ[k]} with {v}")
             os.environ[k] = v  # read by models/onepass/onepass.py when the model is built
     if preset not in (None, "ld6ee") and tilt is not None:
-        ap.error(f"--stock-model {preset} with --stock-tilt was never validated: use one or the other")
+        ap.error(f"--stock-model {preset} with --stock-tilt was never validated: use one or the other (the tilt runs "
+                 "with --stock-model ld6ee --stock-tilt K)")
     empty_override = EMPTY_RULES[args.empty_rule]
     context = args.same_day_context == CONTEXT_ON
     os.environ["SENSEI_SAME_DAY_CONTEXT"] = "1" if context else "0"  # before the models are imported
@@ -356,8 +365,8 @@ def main():
         mode = "LABEL-FREE mode (zero labels; pitch / new-store path, NOT the submission model)"
     if preset not in (None, "ld6ee"):
         mode += f" | stock model {preset}"
-        print(f"stock model {preset} (opt-in): one-pass weights {STOCK_PRESETS[preset][0]} + block-8 head "
-              f"{STOCK_PRESETS[preset][1]}; both answers come from this model")
+        print(f"stock model {preset}{' (the default)' if preset == DEFAULT_STOCK_MODEL else ''}: one-pass weights "
+              f"{STOCK_PRESETS[preset][0]} + block-8 head {STOCK_PRESETS[preset][1]}; both answers come from this model")
     if tilt is not None:
         mode += f" | stock tilt k={tilt:g}"
         print(f"stock tilt k={tilt:g} (opt-in): p(full) x {tilt:g} before the best-expected-points level, so 'full' "
