@@ -188,7 +188,7 @@ const HEAP_COLOR: Record<Look, string> = {
 }
 
 /** How each family looks as a solid: a shape, its colour, and an optional second colour (stem, crown). */
-type Shape = 'ball' | 'ovoid' | 'long' | 'pear' | 'banana' | 'pineapple' | 'bunch' | 'floret' | 'leaf' | 'pepper' | 'flat'
+type Shape = 'ball' | 'ovoid' | 'long' | 'pear' | 'banana' | 'pineapple' | 'bunch' | 'floret' | 'leaf' | 'pepper' | 'flat' | 'bulb'
 const PRODUCE: Record<string, [Shape, string, string?]> = {
   banana: ['banana', '#e9c53a'], plantain: ['banana', '#c9c24a'],
   citrus_orange: ['ball', '#ef8f2a'], lemon: ['ovoid', '#f0d83c'], lime: ['ball', '#7fb83a'],
@@ -203,6 +203,7 @@ const PRODUCE: Record<string, [Shape, string, string?]> = {
   grape_red: ['bunch', '#7a2f5a'], grape_white: ['bunch', '#b8cf6a'], cherry: ['bunch', '#b3202f'],
   pineapple: ['pineapple', '#e0a830', '#4f8f3a'], pitaya: ['ovoid', '#d93a8a', '#4fa04a'], guava: ['ball', '#b9cf6a'],
   passion_fruit: ['ball', '#7a3a6a'], papaya: ['ovoid', '#f0a040'], stone_fruit: ['ball', '#f0a070'],
+  onion: ['bulb', '#d9a55a', '#b98a3a'], onion_red: ['bulb', '#8a3f6a', '#6a2f50'], garlic: ['bulb', '#ece4d0', '#cfc4a8'],
   sweet_potato: ['long', '#b0603a'], potato: ['ovoid', '#c9a46a'], ginger: ['long', '#d0b27a'], pumpkin: ['flat', '#ef8f2a', '#4f8f3a'],
 }
 const FALLBACK: [Shape, string] = ['ball', '#c9b98a']
@@ -305,6 +306,19 @@ function Piece({ shape, color, accent, grey }: { shape: Shape; color: string; ac
           </mesh>
         </group>
       )
+    case 'bulb':
+      return (
+        <group>
+          <mesh position={[0, 0.075, 0]} scale={[1, 0.85, 1]}>
+            <sphereGeometry args={[0.09, 14, 10]} />
+            {m(color)}
+          </mesh>
+          <mesh position={[0, 0.17, 0]}>
+            <coneGeometry args={[0.03, 0.07, 8]} />
+            {m(a)}
+          </mesh>
+        </group>
+      )
     case 'flat':
       return (
         <mesh position={[0, 0.07, 0]} scale={[1.15, 0.75, 1.15]}>
@@ -354,7 +368,7 @@ function Crate({ x, y, z, w, d, look, family, odd }: { x: number; y: number; z: 
   const map = useMemo(() => iconTexture(family, look, invalidate), [family, look, invalidate])
   const pin = useMemo(() => (loud(look) ? pinTexture(family, invalidate) : null), [family, look, invalidate])
   const radius = Math.min(0.26, w * 0.5)
-  const stem = odd ? 0.72 : 0.46
+  const stem = odd ? 0.6 : 0.4
   const color = look === 'wrong' ? C.warning : C.danger
   const h = 0.14
   const heap = HEAP[look]
@@ -418,7 +432,7 @@ function Gondola({ position, tasks, rank, name, hovered, onHover, onOpen }: Gond
   const slot = (W - 0.5) / cols
   const crateW = Math.min(slot * 0.88, 0.78)
   const crateD = Math.min(step * 0.82, 0.78)
-  const board = topY(0) + 2.2
+  const board = topY(0) + 1.7
 
   useFrame((_, dt) => {
     const g = group.current
@@ -454,7 +468,7 @@ function Gondola({ position, tasks, rank, name, hovered, onHover, onOpen }: Gond
         <RoundedBox args={[W, board, 0.14]} radius={0.05} smoothness={3} position={[0, board / 2, -D / 2 - 0.07]}>
           <meshStandardMaterial color={frame} roughness={1} />
         </RoundedBox>
-        <mesh position={[0, board - 0.45, -D / 2 + 0.004]}>
+        <mesh position={[0, board - 0.36, -D / 2 + 0.004]}>
           <planeGeometry args={[W - 0.3, (W - 0.3) / 4.2]} />
           <meshBasicMaterial map={label} transparent toneMapped={false} depthWrite={false} />
         </mesh>
@@ -532,7 +546,7 @@ export type View = keyof typeof VIEWS
 /** Fits the floor in the frame whatever the width, and starts from the chosen side. */
 function Rig({ view }: { view: View }) {
   const size = useThree((s) => s.size)
-  const zoom = Math.min(size.width / 20.5, size.height / 18.2)
+  const zoom = Math.min(size.width / 21, size.height / 19.4)
   return <OrthographicCamera makeDefault position={[...VIEWS[view]]} zoom={zoom} near={0.1} far={200} />
 }
 
@@ -543,7 +557,7 @@ function Focus({ target }: { target: [number, number] | null }) {
   const size = useThree((s) => s.size)
   const invalidate = useThree((s) => s.invalidate)
   const until = useRef(0)
-  const base = Math.min(size.width / 20.5, size.height / 18.2)
+  const base = Math.min(size.width / 21, size.height / 19.4)
   useEffect(() => {
     until.current = performance.now() + 1100
     invalidate()
@@ -552,8 +566,10 @@ function Focus({ target }: { target: [number, number] | null }) {
     if (!controls || performance.now() > until.current) return
     const goal = target ? new THREE.Vector3(target[0], 0.9, target[1]) : new THREE.Vector3(0, 0.5, 1)
     const k = Math.min(1, dt * 5)
+    const before = controls.target.clone()
     controls.target.lerp(goal, k)
-    camera.zoom += ((target ? base * 2.7 : base) - camera.zoom) * k
+    camera.position.add(controls.target.clone().sub(before))
+    camera.zoom += ((target ? base * (size.width < 640 ? 3.4 : 2.7) : base) - camera.zoom) * k
     camera.updateProjectionMatrix()
     controls.update()
     invalidate()
@@ -666,7 +682,7 @@ export function Map3DPage() {
 
   return (
     <>
-      <div className="mb-3 flex items-center justify-between gap-4">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
         <h1 className="text-title">{t.plan.title} · 3D</h1>
         <span className="flex items-center gap-1">
           {(['front', 'corner'] as View[]).map((v) => (
@@ -695,7 +711,8 @@ export function Map3DPage() {
           </button>
         </span>
       </div>
-      <div className="relative h-[min(84dvh,54rem)] min-h-[26rem] overflow-hidden rounded-2xl" style={{ background: C.bg }}>
+      <div className="relative overflow-hidden rounded-2xl" style={{ background: C.bg }}>
+        <div className="h-[58dvh] min-h-[22rem] sm:h-[min(84dvh,54rem)] sm:min-h-[26rem]">
         {webgl ? (
           <Canvas key={key} flat dpr={[1, 2]} frameloop="demand" gl={{ antialias: true }} onPointerMissed={() => setSelected(null)}>
             <Scene
@@ -708,8 +725,9 @@ export function Map3DPage() {
         ) : (
           <p className="grid size-full place-items-center text-ui text-fg-secondary">This browser cannot draw 3D.</p>
         )}
+        </div>
         {shown && (
-          <div className="absolute top-3 left-3 w-64 rounded-xl bg-raised p-3" style={{ pointerEvents: selected ? 'auto' : 'none' }}>
+          <div className="m-3 rounded-xl bg-raised p-3 sm:absolute sm:top-3 sm:left-3 sm:m-0 sm:w-64" style={{ pointerEvents: selected ? 'auto' : 'none' }}>
             <p className="mb-2 text-label">{gondola(shown)}</p>
             <ul className="flex flex-col gap-1.5">
               {rows.map((r) => (
