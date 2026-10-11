@@ -22,12 +22,12 @@ Arrow keys, space or a click move between slides. `F` goes full screen, and `#4`
 8. One small model, two questions.
 9. 92% of the maximum points on photos it never saw.
 10. One CPU core: about 2 s a photo, 0.005 cents an image, about 60 cents a day for a store.
-11. Thank you, then the wordmark and the line.
+11. Thank you over the grid of slots breathing, then the mark builds itself cell by cell, the wordmark and the line appear, with the address and a QR.
 
 ## What it shows how to do
 
 - **Two kinds of change between slides.** The restock wave from the identity pack is kept for three turning points, marked with `data-wipe` on the slide. Everywhere else is a short fade.
-- **Slides that move instead of showing a still.** The 3D store is paused (`data-pause`) just before its camera zoom. The score counts up. The last slide breathes like the grid in the identity pack, then gives way to the cover.
+- **Slides that move instead of showing a still.** The 3D store is paused (`data-pause`) just before its camera zoom. The score counts up. The last slide is drawn with the page's own parts: a grid of cells that breathe, the logo built from its nine cells, the QR as SVG. No video or image is needed.
 - **Clips cropped to what matters.** The chat, the 3D store and the phone round are cut with `clip-path` and scaled in place, so the page needs no edited copies.
 
 The 3D store clip uses the model's predictions. The chat and the phone round are recreations with sample data, and the chat slide says so. The figures on slides 9 and 10 come from the team's forward split and from `docs/COST.md`.
