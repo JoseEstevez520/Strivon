@@ -24,6 +24,7 @@ export function InsightsPage() {
 
   // What the photos cover is written from the data, so the page never claims a period it does not have.
   const { from, to } = stats.period
+  if (!Number.isFinite(from) || !Number.isFinite(to)) return <p className="text-copy text-fg-secondary">{t.noData}</p>
   const date = new Intl.DateTimeFormat(lang, { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Europe/Lisbon' }).format(
     new Date(from * 1000),
   )

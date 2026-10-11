@@ -44,7 +44,9 @@ function since(s: StoreState, area: Area, image: string, group: Group): number |
   const list = s.images[area.camera]
   let i = list.findIndex((r) => r.image === image)
   let start: ImageRecord | undefined = list[i]
-  while (i >= 0 && groupOf(s.observations[area.camera][list[i].image][area.area_id]) === group) {
+  while (i >= 0) {
+    const o = s.observations[area.camera]?.[list[i].image]?.[area.area_id]
+    if (!o || groupOf(o) !== group) break
     start = list[i]
     i--
   }

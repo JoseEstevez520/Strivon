@@ -194,6 +194,9 @@ interface Strings {
   emptySince: (time: string) => string
   insightsHeadline: (pct: number) => string
   insightsPeriod: (date: string, from: string, to: string) => string
+  noData: string
+  somethingWrong: string
+  reload: string
   insightsSimulatedShort: string
   insightsEstimate: string
   insightsAbout: string
@@ -441,6 +444,9 @@ const en: Strings = {
   emptySince: (time) => `Empty since ${time}`,
   insightsHeadline: (p) => `~${p}% of shelf time was empty`,
   insightsPeriod: (d, a, b) => `${d} · ${a}–${b}`,
+  noData: 'There are no photos with answers to show yet.',
+  somethingWrong: 'Something went wrong on this page.',
+  reload: 'Reload',
   insightsSimulatedShort: 'simulated',
   insightsEstimate: 'Estimated from about 13 photos per camera.',
   insightsPeak: (h, p) => `Most empty at ${h}, with ${p}% of the areas`,
@@ -704,6 +710,9 @@ const pt: Strings = {
   emptySince: (time) => `Vazio desde as ${time}`,
   insightsHeadline: (p) => `~${p}% do tempo de prateleira esteve vazio`,
   insightsPeriod: (d, a, b) => `${d} · ${a}–${b}`,
+  noData: 'Ainda não há fotos com respostas para mostrar.',
+  somethingWrong: 'Algo correu mal nesta página.',
+  reload: 'Recarregar',
   insightsSimulatedShort: 'simulado',
   insightsEstimate: 'Estimado com cerca de 13 fotos por câmara.',
   insightsPeak: (h, p) => `Mais vazio às ${h}, com ${p}% das áreas`,
@@ -967,6 +976,9 @@ const es: Strings = {
   emptySince: (time) => `Vacío desde las ${time}`,
   insightsHeadline: (p) => `~${p}% del tiempo de estantería estuvo vacío`,
   insightsPeriod: (d, a, b) => `${d} · ${a}–${b}`,
+  noData: 'Todavía no hay fotos con respuestas que mostrar.',
+  somethingWrong: 'Algo ha salido mal en esta página.',
+  reload: 'Recargar',
   insightsSimulatedShort: 'simulado',
   insightsEstimate: 'Estimado con unas 13 fotos por cámara.',
   insightsPeak: (h, p) => `Más vacío a las ${h}, con el ${p}% de las áreas`,
