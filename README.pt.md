@@ -66,29 +66,23 @@ A aplicação agrupa as tarefas por gôndola para se poder planear uma ronda: o 
 
 A landing page está em [strivon-landing.vercel.app](https://strivon-landing.vercel.app).
 
-<br>
-
 ### A aplicação para os funcionários
-
-<img align="right" width="55%" src="assets/presentation/views/gondola-6215.png" alt="A página de uma gôndola: a fotografia da sua câmara com as zonas da prateleira assinaladas a vermelho, âmbar e verde, e os problemas por palavras">
 
 Um plano da loja mostra que gôndolas precisam de algo, e a lista ao lado dá a ordem da ronda e o que levar a cada paragem.
 
 Reproduza o dia para ver os dois mudarem e abra uma gôndola para ver a sua prateleira com o que está mal assinalado.
 
-<br clear="right">
-
 ### Pergunte e receba um ecrã
-
-<img align="right" width="55%" src="assets/video/chat-to-gondola.gif" alt="Alguém pergunta onde estão as bananas. O chat responde com um gráfico de como as prateleiras se esvaziaram ao longo do dia e um cartão. Ao abrir o cartão vê-se a fotografia da gôndola com as zonas assinaladas.">
 
 O chat responde com um ecrã. O modelo escreve o desenho da resposta com as peças da própria aplicação (gráficos, tabelas, tarefas, um mapa do dia, cartões com fotografia) e a aplicação desenha-o, por isso a resposta pode ser aberta e seguida até à prateleira de que fala.
 
 Precisa de uma chave de um modelo no servidor (`LLM_API_KEY` em `frontend/.env`); sem ela o chat fica escondido.
 
-Os estados das prateleiras no clipe são dados de exemplo. O [clipe completo](assets/video/chat-to-gondola.mp4) e mais estão em [`assets/video`](assets/video).
+<p align="center">
+  <img src="assets/video/chat-to-gondola.gif" alt="Alguém pergunta onde estão as bananas. O chat responde com um gráfico de como as prateleiras se esvaziaram ao longo do dia e um cartão. Ao abrir o cartão vê-se a fotografia da gôndola com as zonas assinaladas." width="80%">
+</p>
 
-<br clear="right">
+Os estados das prateleiras no clipe são dados de exemplo. O [clipe completo](assets/video/chat-to-gondola.mp4) e mais estão em [`assets/video`](assets/video).
 
 ## Executar localmente
 
