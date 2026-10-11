@@ -66,20 +66,29 @@ FSTART, FEND = "<!-- FORWARD:START -->", "<!-- FORWARD:END -->"
 PF = HERE / "benchmark" / "preds_forward"
 if B.FORWARD is not None and PF.exists():
     _, ftest = B.forward_train_test()
+    keys = B.forward_keys()
     frows = []
     for f in sorted(PF.glob("*.json")):
         m = META.get(f.stem, {"approach": f.stem})
-        t = B.tally(json.loads(f.read_text(encoding="utf-8")), set(ftest))
-        frows.append((t["total"], m, t, f.stem))
+        preds = json.loads(f.read_text(encoding="utf-8"))
+        t = {name: B.tally(preds, set(ftest), key) for name, key in keys.items()}
+        frows.append((t["unchanged"]["total"], m, t, f.stem))
     frows.sort(key=lambda r: -r[0])
-    fl = ["Forward split: trained without each camera's last 2 photos, tested on them "
-          f"({frows[0][2]['areas'] if frows else 0} areas). Files in `eval/benchmark/preds_forward/`, scored with "
-          "`python eval/benchmark.py forward <file>`.", "",
-          "| # | Approach | Identification | Stock | Below | Above | Total / max | Per area | ≈ / 578 | Seconds per photo |",
-          "|---:|---|---:|---:|---:|---:|---:|---:|---:|---|"]
+    n = {name: B.tally({}, set(ftest), key)["areas"] for name, key in keys.items()}
+    fl = [f"Forward split: trained without each camera's last 2 photos, tested on them ({n['labels_v1']} areas). Since `labels_v1` "
+          f"was frozen, {n['labels_v1'] - n['unchanged']} of these areas changed in `eval/labels.json`, most of them in André's "
+          "review of the evening photos where his model disagreed with the labels (PR #61, #75). So `labels_v1` is stale there "
+          f"and the current labels lean towards his models. The table is sorted by the {n['unchanged']} areas where both keys "
+          "agree, which no review touched. Files in `eval/benchmark/preds_forward/`, scored with "
+          "`python eval/benchmark.py forward <file>` (all three keys).", "",
+          f"| # | Approach | Unchanged areas: total / max | Per area | ≈ / 578 | Identification | Stock | Below | Above | "
+          f"`labels_v1`: total / {2 * n['labels_v1']} | Current labels: total / {2 * n['current']} | Seconds per photo |",
+          "|---:|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|"]
     for rank, (_, m, t, name) in enumerate(frows, 1):
-        fl.append(f"| {rank} | {m['approach']} (`{name}`) | {t['ident']:+d} | {t['stock']:+d} | {t['below']} | {t['above']} | "
-                  f"{t['total']:+d} / {t['max']} | {t['total'] / t['areas']:+.3f} | {round(t['total'] / t['areas'] * 289):+d} | {m.get('seconds', '')} |")
+        u = t["unchanged"]
+        fl.append(f"| {rank} | {m['approach']} (`{name}`) | {u['total']:+d} / {u['max']} | {u['total'] / u['areas']:+.3f} | "
+                  f"{round(u['total'] / u['areas'] * 289):+d} | {u['ident']:+d} | {u['stock']:+d} | {u['below']} | {u['above']} | "
+                  f"{t['labels_v1']['total']:+d} | {t['current']['total']:+d} | {m.get('seconds', '')} |")
     ftable = "\n".join(fl)
     for doc in (ROOT / "LEADERBOARD.md", ROOT / "README.md"):
         s2 = doc.read_text(encoding="utf-8")
