@@ -9,6 +9,12 @@ export interface ProductCal {
   mode: CalMode
   threshold: number
   level: Level
+  /**
+   * Both lines set by hand (empty up to `emptyMax`, full from `fullMin`, half in between), in the family's unit.
+   * When both are present they win over the lines a single marker would give.
+   */
+  emptyMax?: number
+  fullMin?: number
 }
 
 /** Key = product family (Area.family). A family without a marker shows the model's own level. */
@@ -79,6 +85,10 @@ export function defaultLines(family: string): Lines {
  */
 export function linesFor(family: string, c: ProductCal): Lines {
   const top = maxOf(family)
+  if (Number.isFinite(c.emptyMax) && Number.isFinite(c.fullMin)) {
+    const emptyMax = Math.min(top - 1, Math.max(0, c.emptyMax as number))
+    return { emptyMax, fullMin: Math.min(top, Math.max(emptyMax + 1, c.fullMin as number)) }
+  }
   const v = Math.min(top, Math.max(0, Number.isFinite(c.threshold) ? c.threshold : 0))
   if (c.level === 'full') return { emptyMax: Math.min(roundHalfUp((v * 30) / 74), v - 1), fullMin: v }
   if (c.level === 'empty') return { emptyMax: v, fullMin: Math.max(v + 1, Math.min(top, roundHalfUp((v * 74) / 30))) }

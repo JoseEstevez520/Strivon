@@ -147,6 +147,11 @@ interface Strings {
   navLabel: string
   docTitle: Record<'tasks' | 'gondola' | 'products' | 'calibration' | 'insights' | 'validate', string>
   calClear: string
+  calEmptyLabel: (product: string) => string
+  calFullLabel: (product: string) => string
+  segEmpty: string
+  segHalf: string
+  segFull: string
   calExport: string
   gondolasHeadline: (n: number) => string
   productsHeadline: (n: number) => string
@@ -373,7 +378,7 @@ const en: Strings = {
   viewBack: 'Back to the train/test photos',
   viewOpen: 'Open in the app',
   calTitle: 'Calibration',
-  calIntro: 'Move the slider to an amount, then pick what that amount counts as. Orange at 25% and Full means a quarter of the crate already counts as full.',
+  calIntro: 'Set where Empty ends and where Full starts for each product. Between the two lines it is Half. Orange with Full from 25% means a quarter of the crate already counts as full.',
   calReset: 'Reset to defaults',
   calSlider: (p) => `Amount of ${p}`,
   calLevels: (p) => `Level for ${p}`,
@@ -389,6 +394,11 @@ const en: Strings = {
   docTitle: { tasks: 'Tasks', gondola: 'Gondola', products: 'Products', calibration: 'Calibration', insights: 'Insights', validate: 'Validation' },
   insightsAbout: 'Based on about 13 photos per camera.',
   calClear: 'Back to the model',
+  calEmptyLabel: (p) => `${p}: empty up to`,
+  calFullLabel: (p) => `${p}: full from`,
+  segEmpty: 'Empty',
+  segHalf: 'Half',
+  segFull: 'Full',
   calExport: 'Export calib.json',
   gondolasHeadline: (n) => (n === 0 ? 'Every gondola is fine' : n === 1 ? 'One gondola needs attention' : `${n} gondolas need attention`),
   productsHeadline: (n) => (n === 1 ? 'One product' : `${n} products`),
@@ -631,7 +641,7 @@ const pt: Strings = {
   viewBack: 'Voltar às fotos de treino/teste',
   viewOpen: 'Abrir na aplicação',
   calTitle: 'Calibração',
-  calIntro: 'Move o seletor até uma quantidade e escolhe o que ela conta como. Laranja a 25% com Cheio quer dizer que um quarto da caixa já conta como cheio.',
+  calIntro: 'Marca onde acaba o Vazio e onde começa o Cheio em cada produto. Entre as duas linhas é A meio. Laranja com Cheio a partir de 25% quer dizer que um quarto da caixa já conta como cheio.',
   calReset: 'Repor valores por defeito',
   calSlider: (p) => `Quantidade de ${p}`,
   calLevels: (p) => `Nível de ${p}`,
@@ -647,6 +657,11 @@ const pt: Strings = {
   docTitle: { tasks: 'Tarefas', gondola: 'Gôndola', products: 'Produtos', calibration: 'Calibração', insights: 'Análise', validate: 'Validação' },
   insightsAbout: 'Com base em cerca de 13 fotos por câmara.',
   calClear: 'Voltar ao modelo',
+  calEmptyLabel: (p) => `${p}: vazio até`,
+  calFullLabel: (p) => `${p}: cheio a partir de`,
+  segEmpty: 'Vazio',
+  segHalf: 'A meio',
+  segFull: 'Cheio',
   calExport: 'Exportar calib.json',
   gondolasHeadline: (n) => (n === 0 ? 'Todas as gôndolas estão bem' : n === 1 ? 'Uma gôndola precisa de atenção' : `${n} gôndolas precisam de atenção`),
   productsHeadline: (n) => (n === 1 ? 'Um produto' : `${n} produtos`),
@@ -889,7 +904,7 @@ const es: Strings = {
   viewBack: 'Volver a las fotos de entrenamiento/prueba',
   viewOpen: 'Abrir en la app',
   calTitle: 'Calibración',
-  calIntro: 'Mueve el control hasta una cantidad y elige qué cuenta como. Naranja al 25% con Lleno significa que un cuarto de la caja ya cuenta como lleno.',
+  calIntro: 'Marca dónde acaba Vacío y dónde empieza Lleno en cada producto. Entre las dos líneas es A medias. Naranja con Lleno desde el 25% significa que un cuarto de la caja ya cuenta como lleno.',
   calReset: 'Restablecer valores',
   calSlider: (p) => `Cantidad de ${p}`,
   calLevels: (p) => `Nivel de ${p}`,
@@ -905,6 +920,11 @@ const es: Strings = {
   docTitle: { tasks: 'Tareas', gondola: 'Góndola', products: 'Productos', calibration: 'Calibración', insights: 'Análisis', validate: 'Validación' },
   insightsAbout: 'Con base en unas 13 fotos por cámara.',
   calClear: 'Volver al modelo',
+  calEmptyLabel: (p) => `${p}: vacío hasta`,
+  calFullLabel: (p) => `${p}: lleno desde`,
+  segEmpty: 'Vacío',
+  segHalf: 'A medias',
+  segFull: 'Lleno',
   calExport: 'Exportar calib.json',
   gondolasHeadline: (n) => (n === 0 ? 'Todas las góndolas están bien' : n === 1 ? 'Una góndola necesita atención' : `${n} góndolas necesitan atención`),
   productsHeadline: (n) => (n === 1 ? 'Un producto' : `${n} productos`),
