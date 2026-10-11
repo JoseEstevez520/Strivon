@@ -206,6 +206,7 @@ Forward split: trained without each camera's last 2 photos, tested on them (302 
 | 8 | Combined: stock = the lower of Miguel's CLIP crate model and José's lab ensemble, product check from the CLIP crate model (`combo_min_crate_lab`) | +458 / 538 | +1.703 | +492 | +269 | +189 | 16 | 8 | +452 | +472 | about 1.1-1.5 CPU (0.9-1.4 + 0.14) |
 | 9 | Single image, no CLIP: weighted average of three lab stock models (pixel features, slot references, a small fine-tuned MobileNetV3) + product check against a bank of training crops, colours balanced per crop (the shipped model, `python lab/predict.py`) (`lab_image_only_ensemble`) | +453 / 538 | +1.684 | +487 | +266 | +187 | 6 | 16 | +423 | +481 | 0.11 CPU per photo (1 thread, warm); 0.12 per photo over a batch of 28 including a 0.3 startup (`python lab/predict_fast.py`); i7 laptop, no GPU |
 | 10 | Single image: CLIP ViT-B-32 on the hand-drawn crate + colour + area id, logistic regression (`single_crate`) | +447 / 538 | +1.662 | +480 | +269 | +178 | 13 | 13 | +437 | +457 | 0.9-1.4 s, 2-8 CPU threads (laptop), no GPU |
+| 11 | Agents' LABEL-FREE line, zero labels (`agents/predict.py --label-free`, U6): SigLIP2 zero-shot product check + stock from the share of 3×3 crate tiles that look like empty floor, against a per-area baseline built from unlabelled photos (here: the forward split's training photos only) (`agents_labelfree_U6`) | +225 / 538 | +0.836 | +242 | +260 | -35 | 16 | 64 | +184 | +224 | ~22 CPU s per photo (4 threads), 0.4-1.3 GPU (RTX 3060 laptop) |
 <!-- FORWARD:END -->
 
 </details>
