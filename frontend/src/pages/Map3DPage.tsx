@@ -31,18 +31,20 @@ const C = {
 }
 const tint = (c: string, pct: number, base = C.raised) => new THREE.Color(base).lerp(new THREE.Color(c), pct / 100).getStyle()
 
-// World units. A gondola is a shelf unit W wide, D deep and H tall, facing the front.
-const W = 3.8
-const D = 1.3
-const H = 2.1
-const BOARD = 0.1
-const GAP_X = 0.8
-const GAP_Z = 2.6
+// World units. A gondola is a squarish block W by D and H tall, with a grid of crates on its top.
+const W = 3.4
+const D = 2.9
+const H = 0.9
+const CRATE = 0.52
+const PITCH = 0.6
+const PER_ROW = 5
+const GAP_X = 0.9
+const GAP_Z = 1.3
 const MARGIN = 1.1
 const COLS = 5
 const ROWS = 3
 const FLOOR_W = COLS * W + (COLS - 1) * GAP_X + MARGIN * 2
-const FLOOR_D = ROWS * D + (ROWS - 1) * GAP_Z + MARGIN * 2 + 1.8
+const FLOOR_D = ROWS * D + (ROWS - 1) * GAP_Z + MARGIN * 2 + 1.6
 
 type Look = 'critical' | 'empty' | 'wrong' | 'half' | 'fine'
 const lookOf = (x: Task): Look =>
@@ -143,52 +145,37 @@ interface GondolaProps {
   onOpen: () => void
 }
 
-/** The areas of a gondola grouped in shelves, from the top one down, each from left to right. */
-function shelves(tasks: Task[]): Task[][] {
+const shelfOrder = (tasks: Task[]): Task[] => {
   const cy = (x: Task) => x.area.quad.reduce((sum, p) => sum + p[1], 0) / 4
   const cx = (x: Task) => x.area.quad.reduce((sum, p) => sum + p[0], 0) / 4
-  const rows = new Map<number, Task[]>()
-  for (const x of tasks) {
-    const k = Math.round(cy(x) / 150)
-    rows.set(k, [...(rows.get(k) ?? []), x])
-  }
-  const out = [...rows.entries()].sort((a, b) => a[0] - b[0]).map(([, v]) => v.sort((a, b) => cx(a) - cx(b)))
-  // Never more than three shelves: fold the extra ones into the last.
-  while (out.length > 3) out[out.length - 2] = [...out[out.length - 2], ...out.pop()!]
-  return out
+  return [...tasks].sort((a, b) => Math.round(cy(a) / 90) - Math.round(cy(b) / 90) || cx(a) - cx(b))
 }
 
-/** One crate on a shelf: a tinted box with the product's icon on its front, and a badge if something is wrong. */
-function Crate({ x, y, w, look, family }: { x: number; y: number; w: number; look: Look; family: string }) {
+/** One crate on the top of a gondola: a low tinted box with the product's icon on its lid. What needs doing stands taller. */
+function Crate({ x, z, look, family }: { x: number; z: number; look: Look; family: string }) {
   const invalidate = useThree((s) => s.invalidate)
   const map = useMemo(() => iconTexture(family, look, invalidate), [family, look, invalidate])
-  const h = 0.5
-  const d = D - 0.34
+  const h = loud(look) ? 0.26 : 0.1
   return (
-    <group position={[x, y, 0.04]}>
-      <mesh position={[0, h / 2, 0]}>
-        <boxGeometry args={[w, h, d]} />
+    <group position={[x, H, z]}>
+      <RoundedBox args={[CRATE, h, CRATE]} radius={0.05} smoothness={3} position={[0, h / 2, 0]}>
         <meshStandardMaterial color={BODY[look]} roughness={1} />
-      </mesh>
-      <mesh position={[0, h / 2, d / 2 + 0.004]} renderOrder={5}>
-        <planeGeometry args={[Math.min(w * 0.92, 0.7), Math.min(w * 0.92, 0.7)]} />
+      </RoundedBox>
+      <mesh rotation-x={-Math.PI / 2} position={[0, h + 0.004, 0]} renderOrder={5}>
+        <planeGeometry args={[CRATE * 0.96, CRATE * 0.96]} />
         <meshBasicMaterial map={map} transparent toneMapped={false} />
       </mesh>
     </group>
   )
 }
 
-/** One gondola: a shelf unit with a header board, shelves and a crate for each area. It lifts when pointed at. */
+/** One gondola: a squarish block with its name on the front and a crate for each area on top. It lifts when pointed at. */
 function Gondola({ position, tasks, rank, name, hovered, onHover, onOpen }: GondolaProps) {
   const group = useRef<THREE.Group>(null)
   const invalidate = useThree((s) => s.invalidate)
-  const rows = useMemo(() => shelves(tasks), [tasks])
-  const problems = useMemo(() => tasks.filter((x) => loud(lookOf(x))), [tasks])
-  const fine = problems.length === 0
+  const ordered = useMemo(() => shelfOrder(tasks), [tasks])
+  const fine = !ordered.some((x) => loud(lookOf(x)))
   const label = useLabel(name, rank, fine)
-  const cols = Math.max(1, ...rows.map((r) => r.length))
-  const slot = (W - 0.5) / cols
-  const shelfY = (k: number) => 0.3 + (rows.length - 1 - k) * 0.62
 
   useFrame((_, dt) => {
     const g = group.current
@@ -199,7 +186,8 @@ function Gondola({ position, tasks, rank, name, hovered, onHover, onOpen }: Gond
     if (g.position.y !== target) invalidate()
   })
 
-  const frame = fine ? tint(C.success, 20, C.box) : hovered ? C.raised : '#fdfcfa'
+  const frame = fine ? tint(C.success, 22, C.box) : hovered ? C.raised : '#fdfcfa'
+  const rows = Math.ceil(ordered.length / PER_ROW)
   return (
     <group
       position={[position[0], 0, position[1]]}
@@ -214,40 +202,21 @@ function Gondola({ position, tasks, rank, name, hovered, onHover, onOpen }: Gond
       }}
     >
       <group ref={group}>
-        {/* the frame: a plinth, a back panel, two ends and a top */}
-        <RoundedBox args={[W, 0.2, D]} radius={0.06} smoothness={3} position={[0, 0.1, 0]}>
+        <RoundedBox args={[W, H, D]} radius={0.14} smoothness={4} position={[0, H / 2, 0]}>
           <meshStandardMaterial color={frame} roughness={1} />
         </RoundedBox>
-        <mesh position={[0, H / 2, -D / 2 + 0.05]}>
-          <boxGeometry args={[W, H, 0.1]} />
-          <meshStandardMaterial color={tint(C.fg, 5, frame)} roughness={1} />
-        </mesh>
-        {[-1, 1].map((side) => (
-          <mesh key={side} position={[side * (W / 2 - 0.06), H / 2, 0]}>
-            <boxGeometry args={[0.12, H, D]} />
-            <meshStandardMaterial color={frame} roughness={1} />
-          </mesh>
-        ))}
-        {rows.map((_, k) => (
-          <mesh key={k} position={[0, shelfY(k) - BOARD / 2, 0]}>
-            <boxGeometry args={[W - 0.2, BOARD, D]} />
-            <meshStandardMaterial color={frame} roughness={1} />
-          </mesh>
-        ))}
-        {/* the header board, with the name painted on its front */}
-        <mesh position={[0, H - 0.0, 0]}>
-          <boxGeometry args={[W, 0.62, D + 0.04]} />
-          <meshStandardMaterial color={frame} roughness={1} />
-        </mesh>
-        <mesh position={[0, H, D / 2 + 0.03]}>
-          <planeGeometry args={[W - 0.2, (W - 0.2) / 4.2]} />
+        <mesh position={[0, H * 0.52, D / 2 + 0.004]}>
+          <planeGeometry args={[W - 0.4, (W - 0.4) / 4.2]} />
           <meshBasicMaterial map={label} transparent toneMapped={false} depthWrite={false} />
         </mesh>
-        {rows.map((row, k) =>
-          row.map((x, i) => (
-            <Crate key={x.area.area_id} x={-((row.length - 1) * slot) / 2 + i * slot} y={shelfY(k)} w={slot * 0.88} look={lookOf(x)} family={x.area.family} />
-          )),
-        )}
+        {ordered.map((x, i) => {
+          const col = i % PER_ROW
+          const row = Math.floor(i / PER_ROW)
+          const inRow = Math.min(PER_ROW, ordered.length - row * PER_ROW)
+          const px = -((inRow - 1) * PITCH) / 2 + col * PITCH
+          const pz = -((rows - 1) * PITCH) / 2 + row * PITCH - 0.05
+          return <Crate key={x.area.area_id} x={px} z={pz} look={lookOf(x)} family={x.area.family} />
+        })}
       </group>
     </group>
   )
@@ -255,7 +224,7 @@ function Gondola({ position, tasks, rank, name, hovered, onHover, onOpen }: Gond
 
 /** The floor with low walls on three sides and an opening in the front wall. */
 function Room() {
-  const wallH = 0.8
+  const wallH = 0.7
   const t = 0.45
   const doorW = 3.6
   const doorX = -FLOOR_W / 2 + 7
@@ -301,8 +270,8 @@ function Room() {
 /** Fits the floor in the frame whatever the width, and starts looking from a corner. */
 function Rig() {
   const size = useThree((s) => s.size)
-  const zoom = Math.min(size.width / 27, size.height / 21)
-  return <OrthographicCamera makeDefault position={[17, 17, 17]} zoom={zoom} near={0.1} far={200} />
+  const zoom = Math.min(size.width / 24.5, size.height / 17.5)
+  return <OrthographicCamera makeDefault position={[17, 15, 17]} zoom={zoom} near={0.1} far={200} />
 }
 
 function Scene({ onOpen, onHoverChange }: { onOpen: (camera: string) => void; onHoverChange: (camera: string | null) => void }) {
@@ -402,7 +371,7 @@ export function Map3DPage() {
           Reset view
         </button>
       </div>
-      <div className="relative h-[min(82dvh,52rem)] min-h-[26rem] overflow-hidden rounded-2xl" style={{ background: C.bg }}>
+      <div className="relative h-[min(84dvh,54rem)] min-h-[26rem] overflow-hidden rounded-2xl" style={{ background: C.bg }}>
         {webgl ? (
           <Canvas key={key} flat dpr={[1, 2]} frameloop="demand" gl={{ antialias: true }}>
             <Scene onOpen={(c) => navigate(`/gondolas/${c}`)} onHoverChange={setHover} />
