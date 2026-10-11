@@ -52,8 +52,9 @@ products of a calibration, round(fill% / 100 x capacity). The submission file ne
 --calibration FILE (opt-in; the app's calib.json, version 1): per planogram product_id, the store's own thresholds on
 that fill estimate: empty if fill <= empty_max, full if fill >= full_min, else half (count products compare units).
 empty_max / full_min come from the file, else from its points (highest labelled empty / lowest labelled full), else
-30 % / 74 % (-38's global fit; count: round(0.30 x capacity) / round(0.74 x capacity)), a default yielding to the
-user's other threshold (e.g. "25 % = full" alone gives empty <= 10.1 %); units round halves up.
+30 % / 74 % (-38's global fit; count: round(0.30 x capacity) / round(0.74 x capacity)); with only full points
+empty_max = round(full_min x 30 / 74), with only empty points full_min = min(cap, round(empty_max x 74 / 30)) (e.g.
+"25 % = full" alone gives empty <= 10 %); rounding and units are floor(x + 0.5).
 Other products keep the best-expected-points level. A conflicting product (empty_max >= full_min) is refused. Not with
 --stock-mode, --stock-tilt or --label-free. The last line names it: "OK (stock model mix, calibration calib.json)".
 """
@@ -196,7 +197,9 @@ def load_calibration(path):
     """{product_id: {"unit", "capacity", "empty_max", "full_min"}} from the app's calib.json (contract version 1).
     Thresholds: the file's empty_max / full_min, else the highest point labelled empty / the lowest labelled full, else
     30 % / 74 % (-38's global fit, which reproduces the default answers almost exactly; count products: round(0.30 x
-    capacity) / round(0.74 x capacity), halves up). Raises ValueError on a malformed or conflicting file."""
+    capacity) / round(0.74 x capacity)); with only full points empty_max = round(full_min x 30 / 74), with only empty
+    points full_min = min(cap, round(empty_max x 74 / 30)); round = floor(x + 0.5). Only two given thresholds can
+    conflict (refused). Raises ValueError on a malformed or conflicting file."""
     raw = json.loads(Path(path).read_text(encoding="utf-8"))
     if not isinstance(raw, dict) or raw.get("version") != 1 or not isinstance(raw.get("products"), dict):
         raise ValueError('expected {"version": 1, "products": {...}}')
@@ -226,17 +229,18 @@ def load_calibration(path):
         if None not in given.values() and given["empty_max"] >= given["full_min"]:
             raise ValueError(f"product {pid}: empty_max {given['empty_max']:g} >= full_min {given['full_min']:g} "
                              "(conflicting)")
-        if unit == "percent":   # defaults 30 / 74; a default yields to the user's other threshold (same 30:74 ratio)
-            th["empty_max"] = given["empty_max"] if given["empty_max"] is not None else (
-                30.0 if given["full_min"] is None or given["full_min"] > 30.0 else given["full_min"] * 30.0 / 74.0)
-            th["full_min"] = given["full_min"] if given["full_min"] is not None else (
-                74.0 if th["empty_max"] < 74.0 else min(top, th["empty_max"] * 74.0 / 30.0))
-        else:   # defaults round(0.30 cap) / round(0.74 cap); a default yields by one unit to the user's other threshold
-            th["empty_max"] = given["empty_max"] if given["empty_max"] is not None else (
-                min(math.floor(0.30 * top + 0.5), given["full_min"] - 1) if given["full_min"] is not None
-                else math.floor(0.30 * top + 0.5))
-            th["full_min"] = given["full_min"] if given["full_min"] is not None else (
-                max(math.floor(0.74 * top + 0.5), th["empty_max"] + 1))
+        def half_up(x):   # like the page's Math.round
+            return float(math.floor(x + 0.5))
+        e, f = given["empty_max"], given["full_min"]   # the contract's rule (-3d / -33, 11 Oct)
+        if e is None and f is None:   # -38's global fit: 30 / 74 (count: round(0.30 cap) / round(0.74 cap))
+            e, f = (30.0, 74.0) if unit == "percent" else (half_up(0.30 * top), half_up(0.74 * top))
+            if f <= e:   # capacity 2: 1 / 1 would leave no half band, so full needs one more unit
+                f = min(top, e + 1)
+        elif e is None:   # only full points: empty_max = round(full_min x 30 / 74)
+            e = half_up(f * 30.0 / 74.0)
+        elif f is None:   # only empty points: full_min = min(cap, round(empty_max x 74 / 30))
+            f = min(top, half_up(e * 74.0 / 30.0))
+        th["empty_max"], th["full_min"] = e, f
         if not th["empty_max"] < th["full_min"] or th["empty_max"] < 0 or th["full_min"] > top:
             raise ValueError(f"product {pid}: no valid thresholds (empty_max {th['empty_max']:g}, full_min "
                              f"{th['full_min']:g} on 0..{top:g})")

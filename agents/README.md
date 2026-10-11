@@ -99,8 +99,9 @@ melons) and press full / half / empty. It writes `calib.json`; `--calibration ca
 - Per area, the slot's planogram product decides: empty if fill <= empty_max, full if fill >= full_min, else half
   (count products compare whole units). empty_max / full_min come from the file, else from its points (the highest
   point labelled empty, the lowest labelled full), else 30 % / 74 % (-38's global fit, which reproduces the default
-  answers almost exactly; count: round(0.30 x capacity) / round(0.74 x capacity)); a default yields to the user's
-  other threshold, e.g. "25 % = full" alone gives empty <= 10.1 % (30:74 ratio; count: one unit apart). Units are floor(fill % / 100 x
+  answers almost exactly; count: round(0.30 x capacity) / round(0.74 x capacity)); with only full points empty_max =
+  round(full_min x 30 / 74), with only empty points full_min = min(cap, round(empty_max x 74 / 30)), cap = 100 or the
+  capacity, so "25 % = full" alone gives empty <= 10 %. Rounding is floor(x + 0.5). Units are floor(fill % / 100 x
   capacity + 0.5). A product whose empty_max >= full_min is refused; a half point outside (empty_max, full_min) gets a
   WARN; a product id not in the planogram gets a WARN and is ignored. Products not in the file keep the default
   answers. Night-curtain and fallback areas are never calibrated (fill_pct is null there), and compliance never
