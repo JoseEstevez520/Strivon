@@ -47,6 +47,9 @@ interface Strings {
   viewAs: string
   planHeadline: (n: number) => string
   goFirst: string
+  toBring: string
+  bringFromBack: string
+  putBackHeading: string
   thenGo: string
   bring: string
   emptySince: (time: string) => string
@@ -143,6 +146,9 @@ const en: Strings = {
   viewAs: 'View',
   planHeadline: (n) => (n === 0 ? 'Every gondola is fine' : n === 1 ? '1 gondola needs attention' : `${n} gondolas need attention`),
   goFirst: 'Go first',
+  toBring: 'To bring',
+  bringFromBack: 'Bring from the back',
+  putBackHeading: 'Put back in its place',
   thenGo: 'Then',
   bring: 'Bring',
   emptySince: (time) => `Empty since ${time}`,
@@ -255,6 +261,9 @@ const pt: Strings = {
   viewAs: 'Vista',
   planHeadline: (n) => (n === 0 ? 'Todas as gôndolas estão bem' : n === 1 ? '1 gôndola precisa de atenção' : `${n} gôndolas precisam de atenção`),
   goFirst: 'Vai primeiro',
+  toBring: 'Para trazer',
+  bringFromBack: 'Trazer do armazém',
+  putBackHeading: 'Devolver ao seu lugar',
   thenGo: 'Depois',
   bring: 'Levar',
   emptySince: (time) => `Vazio desde as ${time}`,
@@ -367,6 +376,9 @@ const es: Strings = {
   viewAs: 'Vista',
   planHeadline: (n) => (n === 0 ? 'Todas las góndolas están bien' : n === 1 ? '1 góndola necesita atención' : `${n} góndolas necesitan atención`),
   goFirst: 'Ve primero',
+  toBring: 'Para traer',
+  bringFromBack: 'Traer del almacén',
+  putBackHeading: 'Devolver a su sitio',
   thenGo: 'Después',
   bring: 'Llevar',
   emptySince: (time) => `Vacío desde las ${time}`,

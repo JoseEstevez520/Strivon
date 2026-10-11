@@ -121,7 +121,7 @@ export function TasksPage() {
           )}
         </div>
         <div className="order-1 xl:order-2">
-          <StopList stops={stops} byCamera={byCamera} />
+          <StopList stops={stops} byCamera={byCamera} tasks={tasks} />
         </div>
       </div>
     </>
