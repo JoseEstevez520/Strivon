@@ -83,30 +83,24 @@ tuned for those points as well as for the tasks. The scoring is in [`docs/PLAN.m
 
 The landing is at [strivon-landing.vercel.app](https://strivon-landing.vercel.app).
 
-<br>
-
 ### The app for staff
-
-<img align="right" width="55%" src="assets/presentation/views/gondola-6215.png" alt="The page of one gondola: its camera photo with the shelf areas marked in red, amber and green, and the problems in plain words">
 
 Open the first page and the plan of the store shows which gondolas need something. The list beside
 it gives the order of the round and what to bring to each stop. Press a gondola to see its shelf
 with what is wrong marked, or play the day to watch both change.
 
-<br clear="right">
-
 ### Ask, and get a screen
-
-<img align="right" width="55%" src="assets/video/chat-to-gondola.gif" alt="Someone asks where the bananas are. The chat answers with a chart of how the shelves emptied through the day and a card. Opening the card shows the gondola's photo with its shelf areas marked.">
 
 The chat answers with a screen. The model writes the layout of the answer out of the app's own
 parts (charts, tables, tasks, a map of the day, photo cards) and the app draws it, so you can open
 the answer and follow it to the shelf it talks about. It needs a model key on the server
 (`LLM_API_KEY` in `frontend/.env`); without one the chat is hidden.
 
-The shelf states in the clip are sample data. The [full clip](assets/video/chat-to-gondola.mp4) and more are in [`assets/video`](assets/video).
+<p align="center">
+  <img src="assets/video/chat-to-gondola.gif" alt="Someone asks where the bananas are. The chat answers with a chart of how the shelves emptied through the day and a card. Opening the card shows the gondola's photo with its shelf areas marked." width="80%">
+</p>
 
-<br clear="right">
+The shelf states in the clip are sample data. The [full clip](assets/video/chat-to-gondola.mp4) and more are in [`assets/video`](assets/video).
 
 ## Run it locally
 

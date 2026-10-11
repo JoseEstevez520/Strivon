@@ -66,29 +66,23 @@ La app agrupa las tareas por góndola para poder planificar una ronda: el plano 
 
 La landing está en [strivon-landing.vercel.app](https://strivon-landing.vercel.app).
 
-<br>
-
 ### La app para el personal
-
-<img align="right" width="55%" src="assets/presentation/views/gondola-6215.png" alt="La página de una góndola: la foto de su cámara con las zonas de estantería marcadas en rojo, ámbar y verde, y los problemas en palabras">
 
 Un plano de la tienda muestra qué góndolas necesitan algo, y la lista de al lado da el orden de la ronda y qué llevar a cada parada.
 
 Reproduce el día para ver cómo cambian los dos, y abre una góndola para ver su estantería con lo que está mal marcado.
 
-<br clear="right">
-
 ### Pregunta y recibe una pantalla
-
-<img align="right" width="55%" src="assets/video/chat-to-gondola.gif" alt="Alguien pregunta dónde están los plátanos. El chat responde con una gráfica de cómo se vaciaron las estanterías durante el día y una tarjeta. Al abrir la tarjeta se ve la foto de la góndola con sus zonas marcadas.">
 
 El chat responde con una pantalla. El modelo escribe el diseño de la respuesta con las piezas de la propia app (gráficas, tablas, tareas, un mapa del día, tarjetas con foto) y la app lo dibuja, así que la respuesta se puede abrir y seguir hasta la estantería de la que habla.
 
 Necesita una clave de un modelo en el servidor (`LLM_API_KEY` en `frontend/.env`); sin ella el chat se oculta.
 
-Los estados de las estanterías en el clip son datos de ejemplo. El [clip completo](assets/video/chat-to-gondola.mp4) y más están en [`assets/video`](assets/video).
+<p align="center">
+  <img src="assets/video/chat-to-gondola.gif" alt="Alguien pregunta dónde están los plátanos. El chat responde con una gráfica de cómo se vaciaron las estanterías durante el día y una tarjeta. Al abrir la tarjeta se ve la foto de la góndola con sus zonas marcadas." width="80%">
+</p>
 
-<br clear="right">
+Los estados de las estanterías en el clip son datos de ejemplo. El [clip completo](assets/video/chat-to-gondola.mp4) y más están en [`assets/video`](assets/video).
 
 ## Ejecutarlo en local
 
