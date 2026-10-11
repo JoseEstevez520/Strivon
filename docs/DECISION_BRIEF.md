@@ -2,7 +2,7 @@
 
 Options with their numbers, the decision grid and the label difference with examples: `docs/OPTIONS.md`.
 
-Written at 04:30 on 11 Oct from the numbers in `LEADERBOARD.md`, `docs/COST.md`, `docs/BOARD.md` and the lab log. The freeze is at 10:30.
+Written at 04:30 on 11 Oct from the numbers in `LEADERBOARD.md`, `docs/COST.md`, `docs/BOARD.md` and the lab log. The freeze at 10:30 is our own target. The official close of submissions is 13:00 on the hacker dashboard, whose time zone is not shown there.
 
 ## The options
 

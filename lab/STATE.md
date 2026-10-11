@@ -24,7 +24,7 @@ What tonight showed:
 - A validation set that follows our last photos should score about 60 points below the five-fold figure per 289 areas, because the models over-call at the end of the restock cycle.
 - Where the numbers are: `docs/BOARD.md` (06:50, 07:15, 07:55, 08:25) and `docs/DECISION_BRIEF.md`.
 
-Open before the freeze (10:30 Lisbon): André's choice at 09:00 between R3 as it is and `--stock-model mix`; Sensei's answer on how it separates the levels and how the cost is scored; whether anyone wants the cascade or the lab with `--full-weight`. Nothing in the lab changes the submission by itself.
+Open before the freeze (10:30 Lisbon, our own target; submissions close at 13:00 on the hacker dashboard, zone to confirm): André's choice at 09:00 between R3 as it is and `--stock-model mix`; Sensei's answer on how it separates the levels and how the cost is scored; whether anyone wants the cascade or the lab with `--full-weight`. Nothing in the lab changes the submission by itself.
 
 ## Earlier state
 
