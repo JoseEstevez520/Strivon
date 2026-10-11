@@ -3,9 +3,7 @@
 Full screens of the app as it runs today, at 1920 by 1080 pixels unless the name says `full`. They
 come from the real interface, drawn by a headless Brave 154, and are meant for slides.
 
-The shelf states in them are simulated: the app still draws invented empty, half full and
-wrong-product areas over the real camera photos. The photos belong to the Sensei challenge and are
-reduced. The state of the day is the end of it (20:16), except where the name says morning.
+The shelf states are the model's answers (`outputs/predictions.json`, written by `agents/predict.py`) for the last photo of each camera. The photos belong to the Sensei challenge and are reduced. The state of the day is the end of it (20:16), except where the name says morning.
 
 | File | What it shows |
 |---|---|

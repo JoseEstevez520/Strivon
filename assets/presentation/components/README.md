@@ -7,8 +7,7 @@ transparent ones on a light background. The photo pieces, the Real grid, the sto
 only as transparent files, because their neighbours show in a margin.
 
 They were drawn with Brave 154, where the icon grids of each gondola lay out as in the real app.
-The shelf states in them are simulated: the app draws invented empty, half full and wrong-product
-areas over the real camera photos. The photos belong to the Sensei challenge and are reduced.
+The shelf states are the model's answers (`outputs/predictions.json`, written by `agents/predict.py`) for the last photo of each camera. The photos belong to the Sensei challenge and are reduced.
 The plan shows only the areas that have a problem, so there are tiles for empty and wrong product
 and none for the others.
 
@@ -27,9 +26,8 @@ and none for the others.
 | File | What it shows |
 |---|---|
 | `plan-2d`, `plan-2d-frame` | The plan of the store with its gondolas, with and without the margin around the frame |
-| `gondola-block-4-stop-1`, `gondola-block-13-stop-2`, `gondola-block-10-stop-3` | A gondola box that is the first, second and third stop of the round |
-| `gondola-block-1`, `gondola-block-2`, `gondola-block-3` | A gondola box that is not a stop |
-| `gondola-block-6-all-fine` | A gondola box with nothing to do, in green with a check |
+| `gondola-block-6-stop-1`, `gondola-block-1-stop-2`, `gondola-block-9-stop-3` | A gondola box that is the first, second and third stop of the round |
+| `gondola-block-2`, `gondola-block-3`, `gondola-block-4` | A gondola box that is not a stop |
 | `area-tile-empty`, `area-tile-wrong` | One shelf area, empty (with the red badge) and in the wrong place (with the return arrow) |
 | `stop-list-go-first`, `stop-list-to-bring` | The round list on each of its two tabs |
 | `stop-card-1`, `stop-card-2`, `stop-card-3` | One stop of the list, with its products as chips |
@@ -51,7 +49,7 @@ and none for the others.
 |---|---|
 | `products-title-search` | The headline and the search box |
 | `products-filters` | The filters by state and by gondola |
-| `product-card-<name>` | The card of one product (strawberry, green pepper, red grapes, red pepper, pumpkin, melon, banana, tomato, potato, kiwi, onion, mango), with its ring chart, counts, where to bring it or put it back, and since when |
+| `product-card-<name>` | The card of one product (banana, chayote, cucumber, kiwi, mango, melon, onion, papaya, potato, strawberry, tomato), with its ring chart, counts, where to bring it or put it back, and since when |
 
 ## Insights page
 
