@@ -10,6 +10,15 @@ fallbacks, format checked. Two traps found and fixed:
    send a file when that line appears.
 2. The predictor looks for the dataset under `agents/OfficialDataset/...`. If the data is elsewhere,
    point `SENSEI_DATASET` at a folder holding `Frutas e Legumes (train & test)/` and `planogram.json`.
+3. **Always set `SENSEI_DATASET`, even if the data is in the default place.** If the validation photos
+   don't come as `<camera id>/<timestamp>.jpg` (a flat folder, or folders named like `camera_6215/`), the
+   predictor can only work out each photo's camera by comparing it with our photos. That needs `SENSEI_DATASET`.
+   Without it, such a layout stops with an ERROR, which is loud, not silent.
+4. The last line tells you what to do:
+   - `OK` (exit 0): send the file.
+   - `FALLBACKS` (exit 2): some answers did not come from the model, for example a corrupt photo. Don't send it.
+   - `INCOMPLETE` (exit 3): the photo or area count doesn't match `--expect-*`, or files were skipped. Check before sending.
+   - `INVALID` (exit 1): the file failed the format check.
 
 ```bash
 python -m pip install -r agents/requirements.txt
