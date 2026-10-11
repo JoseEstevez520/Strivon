@@ -31,20 +31,16 @@ const C = {
 }
 const tint = (c: string, pct: number, base = C.raised) => new THREE.Color(base).lerp(new THREE.Color(c), pct / 100).getStyle()
 
-// World units. A gondola is a squarish block W by D and H tall, with a grid of crates on its top.
-const W = 3.4
-const D = 2.9
-const H = 0.9
-const CRATE = 0.52
-const PITCH = 0.6
-const PER_ROW = 5
-const GAP_X = 0.9
-const GAP_Z = 1.3
+// World units. A gondola is a shelf unit W wide, D deep and H tall, facing the front.
+const W = 3.8
+const D = 2.0
+const GAP_X = 0.8
+const GAP_Z = 2.5
 const MARGIN = 1.1
-const COLS = 5
-const ROWS = 3
+const COLS = 4
+const ROWS = 4
 const FLOOR_W = COLS * W + (COLS - 1) * GAP_X + MARGIN * 2
-const FLOOR_D = ROWS * D + (ROWS - 1) * GAP_Z + MARGIN * 2 + 1.6
+const FLOOR_D = ROWS * D + (ROWS - 1) * GAP_Z + MARGIN * 2 + 1.8
 
 type Look = 'critical' | 'empty' | 'wrong' | 'half' | 'fine'
 const lookOf = (x: Task): Look =>
@@ -145,37 +141,81 @@ interface GondolaProps {
   onOpen: () => void
 }
 
-const shelfOrder = (tasks: Task[]): Task[] => {
+/** The areas of a gondola grouped in shelves, from the top one down, each from left to right. */
+function shelves(tasks: Task[]): Task[][] {
   const cy = (x: Task) => x.area.quad.reduce((sum, p) => sum + p[1], 0) / 4
   const cx = (x: Task) => x.area.quad.reduce((sum, p) => sum + p[0], 0) / 4
-  return [...tasks].sort((a, b) => Math.round(cy(a) / 90) - Math.round(cy(b) / 90) || cx(a) - cx(b))
+  const rows = new Map<number, Task[]>()
+  for (const x of tasks) {
+    const k = Math.round(cy(x) / 150)
+    rows.set(k, [...(rows.get(k) ?? []), x])
+  }
+  const out = [...rows.entries()].sort((a, b) => a[0] - b[0]).map(([, v]) => v.sort((a, b) => cx(a) - cx(b)))
+  // Never more than three shelves: fold the extra ones into the last.
+  while (out.length > 3) out[out.length - 2] = [...out[out.length - 2], ...out.pop()!]
+  return out
 }
 
-/** One crate on the top of a gondola: a low tinted box with the product's icon on its lid. What needs doing stands taller. */
-function Crate({ x, z, look, family }: { x: number; z: number; look: Look; family: string }) {
+/** What a crate holds, drawn so it reads without a legend: a full one is a heap, a half one a low heap, an empty one is a hollow tray. */
+const HEAP: Record<Look, number> = { critical: 0, empty: 0, wrong: 0.2, half: 0.09, fine: 0.2 }
+const HEAP_COLOR: Record<Look, string> = {
+  critical: '#cfc8bb',
+  empty: '#cfc8bb',
+  wrong: tint(C.warning, 45, '#e4dcc8'),
+  half: '#dcd7c9',
+  fine: '#dcd7c9',
+}
+
+/** One crate on a step: a tray with a heap of produce in it, or hollow when empty, with the product's icon above. */
+function Crate({ x, y, z, w, d, look, family }: { x: number; y: number; z: number; w: number; d: number; look: Look; family: string }) {
   const invalidate = useThree((s) => s.invalidate)
   const map = useMemo(() => iconTexture(family, look, invalidate), [family, look, invalidate])
-  const h = loud(look) ? 0.26 : 0.1
+  const h = 0.14
+  const heap = HEAP[look]
+  const icon = Math.min(w, d) * 0.8
   return (
-    <group position={[x, H, z]}>
-      <RoundedBox args={[CRATE, h, CRATE]} radius={0.05} smoothness={3} position={[0, h / 2, 0]}>
+    <group position={[x, y, z]}>
+      <RoundedBox args={[w, h, d]} radius={0.05} smoothness={3} position={[0, h / 2, 0]}>
         <meshStandardMaterial color={BODY[look]} roughness={1} />
       </RoundedBox>
-      <mesh rotation-x={-Math.PI / 2} position={[0, h + 0.004, 0]} renderOrder={5}>
-        <planeGeometry args={[CRATE * 0.96, CRATE * 0.96]} />
+      {heap > 0 ? (
+        <mesh position={[0, h, 0]} scale={[w * 0.4, heap, d * 0.4]}>
+          <sphereGeometry args={[1, 20, 12, 0, Math.PI * 2, 0, Math.PI / 2]} />
+          <meshStandardMaterial color={HEAP_COLOR[look]} roughness={1} />
+        </mesh>
+      ) : (
+        <mesh rotation-x={-Math.PI / 2} position={[0, h + 0.003, 0]}>
+          <planeGeometry args={[w * 0.74, d * 0.74]} />
+          <meshBasicMaterial color={tint(C.danger, look === 'critical' ? 30 : 16, '#bdb6a8')} />
+        </mesh>
+      )}
+      <mesh rotation-x={-Math.PI / 2} position={[0, h + heap + 0.01, 0]} renderOrder={5}>
+        <planeGeometry args={[icon, icon]} />
         <meshBasicMaterial map={map} transparent toneMapped={false} />
       </mesh>
     </group>
   )
 }
 
-/** One gondola: a squarish block with its name on the front and a crate for each area on top. It lifts when pointed at. */
+/**
+ * One gondola, as a stepped shelf: the shelves rise toward the back like stairs, so every crate on
+ * every shelf can be seen from above, and the name stands on a board at the back. It lifts when
+ * pointed at.
+ */
 function Gondola({ position, tasks, rank, name, hovered, onHover, onOpen }: GondolaProps) {
   const group = useRef<THREE.Group>(null)
   const invalidate = useThree((s) => s.invalidate)
-  const ordered = useMemo(() => shelfOrder(tasks), [tasks])
-  const fine = !ordered.some((x) => loud(lookOf(x)))
+  const rows = useMemo(() => shelves(tasks), [tasks])
+  const fine = !tasks.some((x) => loud(lookOf(x)))
   const label = useLabel(name, rank, fine)
+  const n = Math.max(1, rows.length)
+  const step = D / n
+  const topY = (k: number) => 0.42 + (n - 1 - k) * 0.5
+  const cols = Math.max(1, ...rows.map((r) => r.length))
+  const slot = (W - 0.5) / cols
+  const crateW = Math.min(slot * 0.88, 0.78)
+  const crateD = Math.min(step * 0.82, 0.78)
+  const board = topY(0) + 0.95
 
   useFrame((_, dt) => {
     const g = group.current
@@ -187,7 +227,6 @@ function Gondola({ position, tasks, rank, name, hovered, onHover, onOpen }: Gond
   })
 
   const frame = fine ? tint(C.success, 22, C.box) : hovered ? C.raised : '#fdfcfa'
-  const rows = Math.ceil(ordered.length / PER_ROW)
   return (
     <group
       position={[position[0], 0, position[1]]}
@@ -202,21 +241,34 @@ function Gondola({ position, tasks, rank, name, hovered, onHover, onOpen }: Gond
       }}
     >
       <group ref={group}>
-        <RoundedBox args={[W, H, D]} radius={0.14} smoothness={4} position={[0, H / 2, 0]}>
+        {/* the steps */}
+        {rows.map((_, k) => (
+          <RoundedBox key={k} args={[W, topY(k), step]} radius={0.06} smoothness={3} position={[0, topY(k) / 2, -D / 2 + (k + 0.5) * step]}>
+            <meshStandardMaterial color={frame} roughness={1} />
+          </RoundedBox>
+        ))}
+        {/* the board at the back, with the name on its front */}
+        <RoundedBox args={[W, board, 0.14]} radius={0.05} smoothness={3} position={[0, board / 2, -D / 2 - 0.07]}>
           <meshStandardMaterial color={frame} roughness={1} />
         </RoundedBox>
-        <mesh position={[0, H * 0.52, D / 2 + 0.004]}>
-          <planeGeometry args={[W - 0.4, (W - 0.4) / 4.2]} />
+        <mesh position={[0, board - 0.42, -D / 2 + 0.004]}>
+          <planeGeometry args={[W - 0.3, (W - 0.3) / 4.2]} />
           <meshBasicMaterial map={label} transparent toneMapped={false} depthWrite={false} />
         </mesh>
-        {ordered.map((x, i) => {
-          const col = i % PER_ROW
-          const row = Math.floor(i / PER_ROW)
-          const inRow = Math.min(PER_ROW, ordered.length - row * PER_ROW)
-          const px = -((inRow - 1) * PITCH) / 2 + col * PITCH
-          const pz = -((rows - 1) * PITCH) / 2 + row * PITCH - 0.05
-          return <Crate key={x.area.area_id} x={px} z={pz} look={lookOf(x)} family={x.area.family} />
-        })}
+        {rows.map((row, k) =>
+          row.map((x, i) => (
+            <Crate
+              key={x.area.area_id}
+              x={-((row.length - 1) * slot) / 2 + i * slot}
+              y={topY(k)}
+              z={-D / 2 + (k + 0.5) * step}
+              w={crateW}
+              d={crateD}
+              look={lookOf(x)}
+              family={x.area.family}
+            />
+          )),
+        )}
       </group>
     </group>
   )
@@ -224,10 +276,10 @@ function Gondola({ position, tasks, rank, name, hovered, onHover, onOpen }: Gond
 
 /** The floor with low walls on three sides and an opening in the front wall. */
 function Room() {
-  const wallH = 0.7
+  const wallH = 0.8
   const t = 0.45
   const doorW = 3.6
-  const doorX = -FLOOR_W / 2 + 7
+  const doorX = 0
   return (
     <group>
       <RoundedBox args={[FLOOR_W, 0.5, FLOOR_D]} radius={0.12} smoothness={3} position={[0, -0.25, 0]}>
@@ -267,14 +319,20 @@ function Room() {
   )
 }
 
-/** Fits the floor in the frame whatever the width, and starts looking from a corner. */
-function Rig() {
+const VIEWS = {
+  front: [5, 21, 21],
+  corner: [17, 19, 17],
+} as const
+type View = keyof typeof VIEWS
+
+/** Fits the floor in the frame whatever the width, and starts from the chosen side. */
+function Rig({ view }: { view: View }) {
   const size = useThree((s) => s.size)
-  const zoom = Math.min(size.width / 24.5, size.height / 17.5)
-  return <OrthographicCamera makeDefault position={[17, 15, 17]} zoom={zoom} near={0.1} far={200} />
+  const zoom = Math.min(size.width / 22, size.height / 19.5)
+  return <OrthographicCamera makeDefault position={[...VIEWS[view]]} zoom={zoom} near={0.1} far={200} />
 }
 
-function Scene({ onOpen, onHoverChange }: { onOpen: (camera: string) => void; onHoverChange: (camera: string | null) => void }) {
+function Scene({ view, onOpen, onHoverChange }: { view: View; onOpen: (camera: string) => void; onHoverChange: (camera: string | null) => void }) {
   const { state, tasks, gondola } = useStore()
   const list = cameras(state)
   const ranking = useMemo(() => suggest(tasks).filter((s) => s.empty + s.wrong > 0), [tasks])
@@ -296,7 +354,7 @@ function Scene({ onOpen, onHoverChange }: { onOpen: (camera: string) => void; on
 
   return (
     <>
-      <Rig />
+      <Rig view={view} />
       <ambientLight intensity={2.2} />
       <directionalLight position={[8, 16, 10]} intensity={1.5} />
       <Room />
@@ -325,11 +383,11 @@ function Scene({ onOpen, onHoverChange }: { onOpen: (camera: string) => void; on
         dampingFactor={0.12}
         minPolarAngle={0.55}
         maxPolarAngle={1.25}
-        minAzimuthAngle={-0.5}
+        minAzimuthAngle={-0.7}
         maxAzimuthAngle={1.55}
         minZoom={12}
         maxZoom={80}
-        target={[0, 0, 0.6]}
+        target={[0, 0.5, 1]}
       />
     </>
   )
@@ -340,6 +398,7 @@ export function Map3DPage() {
   const { t } = useI18n()
   const navigate = useNavigate()
   const [key, setKey] = useState(0)
+  const [view, setView] = useState<View>('front')
   const [hover, setHover] = useState<string | null>(null)
   const { tasks, gondola } = useStore()
   const { family } = useI18n()
@@ -367,14 +426,30 @@ export function Map3DPage() {
     <>
       <div className="mb-3 flex items-center justify-between gap-4">
         <h1 className="text-title">{t.plan.title} · 3D</h1>
+        <span className="flex items-center gap-1">
+          {(['front', 'corner'] as View[]).map((v) => (
+            <button
+              key={v}
+              type="button"
+              data-on={view === v}
+              onClick={() => {
+                setView(v)
+                setKey(key + 1)
+              }}
+              className="h-9 cursor-pointer rounded-lg px-3 text-ui text-fg-secondary transition-colors hover:bg-surface data-[on=true]:bg-surface data-[on=true]:text-fg"
+            >
+              {v === 'front' ? 'Front' : 'Corner'}
+            </button>
+          ))}
         <button type="button" onClick={() => setKey(key + 1)} className="h-9 cursor-pointer rounded-lg px-3 text-ui text-fg-secondary transition-colors hover:bg-surface">
           Reset view
         </button>
+        </span>
       </div>
-      <div className="relative h-[min(84dvh,54rem)] min-h-[26rem] overflow-hidden rounded-2xl" style={{ background: C.bg }}>
+      <div className="relative h-[min(82dvh,52rem)] min-h-[26rem] overflow-hidden rounded-2xl" style={{ background: C.bg }}>
         {webgl ? (
           <Canvas key={key} flat dpr={[1, 2]} frameloop="demand" gl={{ antialias: true }}>
-            <Scene onOpen={(c) => navigate(`/gondolas/${c}`)} onHoverChange={setHover} />
+            <Scene view={view} onOpen={(c) => navigate(`/gondolas/${c}`)} onHoverChange={setHover} />
           </Canvas>
         ) : (
           <p className="grid size-full place-items-center text-ui text-fg-secondary">This browser cannot draw 3D.</p>
@@ -401,7 +476,25 @@ export function Map3DPage() {
           </div>
         )}
       </div>
-      <p className="mt-2 px-1 text-meta text-fg-muted">Drag to turn it a little, scroll to zoom. Press a gondola to open it.</p>
+      <ul className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-1.5 px-1 text-meta text-fg-secondary">
+        <li className="flex items-center gap-1.5">
+          <span className="size-3.5 rounded-t-full" style={{ background: HEAP_COLOR.fine }} />
+          {t.level.full}
+        </li>
+        <li className="flex items-center gap-1.5">
+          <span className="h-2 w-3.5 rounded-t-full" style={{ background: HEAP_COLOR.half }} />
+          {t.level.half}
+        </li>
+        <li className="flex items-center gap-1.5">
+          <span className="size-3.5 rounded-[4px]" style={{ background: BODY.empty, boxShadow: 'inset 0 0 0 3px ' + BODY.empty, outline: '3px solid ' + tint(C.danger, 16, '#bdb6a8'), outlineOffset: -3 }} />
+          {t.level.empty}
+        </li>
+        <li className="flex items-center gap-1.5">
+          <span className="size-3.5 rounded-t-full" style={{ background: HEAP_COLOR.wrong }} />
+          {t.wrongProduct}
+        </li>
+        <li className="ml-auto text-fg-muted">Drag to turn it, scroll to zoom, press a gondola to open it</li>
+      </ul>
     </>
   )
 }
