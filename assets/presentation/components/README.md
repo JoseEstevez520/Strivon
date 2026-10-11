@@ -3,9 +3,10 @@
 One picture for each piece of the interface, cut out of the real app by a headless browser at twice
 the pixel density. Each has two files: `name.png`, with the app's background and a small margin,
 and `name.transparent.png`, with no background, to place over a slide. The text is dark, so use the
-transparent ones on a light background. The photo pieces, the Real grid, the stop cards and the area tiles come
+transparent ones on a light background. The photo pieces, the Real grid, the stop cards, the area tiles and the start button come
 only as transparent files, because their neighbours show in a margin.
 
+They were drawn with Brave 154, where the icon grids of each gondola lay out as in the real app.
 The shelf states in them are simulated: the app draws invented empty, half full and wrong-product
 areas over the real camera photos. The photos belong to the Sensei challenge and are reduced.
 The plan shows only the areas that have a problem, so there are tiles for empty and wrong product
