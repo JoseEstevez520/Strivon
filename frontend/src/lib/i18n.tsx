@@ -531,14 +531,26 @@ interface I18n {
 
 const Context = createContext<I18n | null>(null)
 
+/** The language of the browser: the first of its languages that is Portuguese or Spanish, else English. */
+function browserLang(): Lang {
+  const asked = typeof navigator === 'undefined' ? [] : (navigator.languages?.length ? navigator.languages : [navigator.language])
+  for (const l of asked) {
+    const code = (l ?? '').toLowerCase()
+    if (code.startsWith('pt')) return 'pt'
+    if (code.startsWith('es')) return 'es'
+    if (code.startsWith('en')) return 'en'
+  }
+  return 'en'
+}
+
 const read = (): Lang => {
   try {
     const v = localStorage.getItem('strivon.lang')
     if (v === 'en' || v === 'pt' || v === 'es') return v
   } catch {
-    // private mode: fall back to English
+    // private mode: follow the browser
   }
-  return 'en'
+  return browserLang()
 }
 
 export function I18nProvider({ children }: { children: ReactNode }) {
