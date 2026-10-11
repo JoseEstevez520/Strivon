@@ -72,7 +72,7 @@ LLM_MODEL=deepseek-flash
 LLM_API_KEY=...
 ```
 
-Without a key the chat does not appear. If the model cannot be reached, the answer says so.
+Without a key the chat does not appear. If the model cannot be reached, the answer says so. How the answers are built, the parts the model can use and the limits are in [`docs/CHAT.md`](../docs/CHAT.md).
 
 Dictating a question and reading answers aloud go through `/api/voice/transcribe` and
 `/api/voice/speak`, relayed to OpenAI the same way. Add `OPENAI_API_KEY` to `frontend/.env` to

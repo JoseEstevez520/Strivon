@@ -131,6 +131,7 @@ The steps for the day of the submission are in [`docs/VALIDATION_DAY.md`](docs/V
 ## Documentation
 
 - [`docs/APP.md`](docs/APP.md): what the app shows and the data it reads.
+- [`docs/CHAT.md`](docs/CHAT.md): how the chat builds its answers, the parts it uses and its limits.
 - [`frontend/DESIGN.md`](frontend/DESIGN.md): how the interface looks and the reason for each choice.
 - [`docs/PLAN.md`](docs/PLAN.md): how the challenge is scored and the plan to score well.
 - [`docs/SENSEI_INFO.md`](docs/SENSEI_INFO.md): what Sensei told us, including what empty, half and full mean.
