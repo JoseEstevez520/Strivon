@@ -40,6 +40,19 @@
   .stop .chips { grid-area: c; display: flex; gap: 8px; flex-wrap: wrap; }
   .chip { display: inline-flex; align-items: center; gap: 4px; border-radius: 10px; padding: 5px 12px; font-size: 20px; }
   .chip b { font-weight: 600; font-variant-numeric: tabular-nums; }
+  .phone { position: absolute; width: 400px; height: 790px; border-radius: 58px; border: 12px solid #1d1d1d; background: var(--bg); box-shadow: 0 30px 60px rgba(29,29,29,.22); overflow: hidden; }
+  .phone .notch { position: absolute; left: 50%; top: 10px; width: 108px; height: 30px; margin-left: -54px; border-radius: 16px; background: #1d1d1d; z-index: 2; }
+  .phone .screen { position: absolute; inset: 0; padding: 62px 20px 20px; display: flex; flex-direction: column; }
+  .ph-brand { display: flex; align-items: center; gap: 8px; font-size: 15px; color: var(--mut); }
+  .ph-title { font-size: 34px; font-weight: 600; letter-spacing: -0.03em; margin-top: 16px; }
+  .ph-sub { font-size: 16px; color: var(--fg2); margin-top: 6px; }
+  .ph-list { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+  .ph-btn { margin-top: auto; height: 52px; border-radius: 16px; background: var(--fg); color: #fff; display: grid; place-items: center; font-size: 18px; font-weight: 500; }
+  .phone .stop { padding: 10px 14px; border-radius: 16px; grid-template-columns: 30px 1fr auto; row-gap: 6px; }
+  .phone .stop .badge { width: 28px; height: 28px; font-size: 14px; }
+  .phone .stop .sname { font-size: 18px; }
+  .phone .stop .since { font-size: 15px; }
+  .phone .chip { font-size: 15px; padding: 3px 9px; border-radius: 8px; }
   /* transition canvas and chrome */
   #wipe { position: absolute; inset: 0; pointer-events: none; z-index: 5; }
   #dots { position: fixed; left: 0; right: 0; bottom: 14px; display: flex; gap: 8px; justify-content: center; z-index: 9; pointer-events: none; }
@@ -74,34 +87,33 @@
     <h1 class="big in" style="--i:2;top:590px;font-size:108px;color:var(--red)">We changed that.</h1>
   </section>
 
-  <!-- 3. photo to list of work, built from parts -->
+  <!-- 3. from the camera, to a 3D model, to a task list on the phone -->
   <section class="slide">
-    <h2 class="title in" style="--i:0">From a camera photo to a list of work</h2>
-    <div class="colhead in" style="--i:1;left:110px;top:230px">Photos from the ceiling cameras</div>
-    <div class="colhead in" style="--i:3;left:640px;top:230px">The store, with the problems marked</div>
-    <div class="colhead in" style="--i:5;left:1380px;top:230px">What the staff see</div>
-    <div class="in" style="--i:1;position:absolute;left:110px;top:310px;width:380px"><img style="width:380px;border-radius:12px;box-shadow:0 18px 40px rgba(29,29,29,.18);transform:rotate(-4deg);display:block" src="img/cam6215.jpg" alt=""></div>
-    <div class="in" style="--i:2;position:absolute;left:170px;top:420px;width:380px"><img style="width:380px;border-radius:12px;box-shadow:0 18px 40px rgba(29,29,29,.18);transform:rotate(2deg);display:block" src="img/cam6371.jpg" alt=""></div>
-    <div class="in" style="--i:2;position:absolute;left:125px;top:530px;width:380px"><img style="width:380px;border-radius:12px;box-shadow:0 18px 40px rgba(29,29,29,.18);transform:rotate(-1.5deg);display:block" src="img/cam6443.jpg" alt=""></div>
-    <div class="in" style="--i:3;position:absolute;left:556px;top:490px;font-size:80px;color:var(--mut);line-height:1">→</div>
-    <img class="in" style="--i:4;position:absolute;left:452px;top:245px;width:1920px;height:1080px;transform:scale(.508);transform-origin:0 0;clip-path:inset(120px 370px 120px 370px);pointer-events:none" src="img/store-4.png" alt="The store with four gondolas and the problems marked">
-    <div class="in" style="--i:5;position:absolute;left:1268px;top:490px;font-size:80px;color:var(--mut);line-height:1">→</div>
-    <div class="stops" style="left:1380px;top:300px">
-      <div class="stop in" style="--i:6"><span class="badge">1</span><span class="sname">Gondola 1</span><span class="chips"><span class="chip" style="background:#f3d7d0;color:#c4452f">Banana <b>×3</b></span><span class="chip" style="background:#f0e4cf;color:#b7791f"><span style="font-size:22px;margin-right:4px">↩</span>Orange <b>×2</b></span></span><span class="since">17:24</span></div>
-      <div class="stop in" style="--i:7"><span class="badge">2</span><span class="sname">Gondola 2</span><span class="chips"><span class="chip" style="background:#f3d7d0;color:#c4452f">Melon <b>×3</b></span></span><span class="since">17:12</span></div>
-      <div class="stop in" style="--i:8"><span class="badge">3</span><span class="sname">Gondola 3</span><span class="chips"><span class="chip" style="background:#f3d7d0;color:#c4452f">Red apple <b>×1</b></span></span><span class="since">19:21</span></div>
-      <div class="stop in" style="--i:9"><span class="badge">4</span><span class="sname">Gondola 4</span><span class="chips"><span class="chip" style="background:#f3d7d0;color:#c4452f">Kiwi <b>×1</b></span><span class="chip" style="background:#f3d7d0;color:#c4452f">Orange <b>×1</b></span></span><span class="since">19:30</span></div>
+    <h2 class="title in" style="--i:0">From the camera to a task list for the worker</h2>
+    <div class="colhead in" style="--i:1;left:110px;top:200px">Photos from the ceiling cameras</div>
+    <div class="colhead in" style="--i:3;left:640px;top:200px">The store in 3D, with the problems marked</div>
+    <div class="colhead in" style="--i:5;left:1290px;top:200px">What the worker sees on the phone</div>
+    <div class="in" style="--i:1;position:absolute;left:110px;top:290px;width:340px"><img style="width:340px;border-radius:12px;box-shadow:0 18px 40px rgba(29,29,29,.18);transform:rotate(-4deg);display:block" src="img/cam6215.jpg" alt=""></div>
+    <div class="in" style="--i:2;position:absolute;left:155px;top:395px;width:340px"><img style="width:340px;border-radius:12px;box-shadow:0 18px 40px rgba(29,29,29,.18);transform:rotate(2deg);display:block" src="img/cam6371.jpg" alt=""></div>
+    <div class="in" style="--i:2;position:absolute;left:118px;top:500px;width:340px"><img style="width:340px;border-radius:12px;box-shadow:0 18px 40px rgba(29,29,29,.18);transform:rotate(-1.5deg);display:block" src="img/cam6443.jpg" alt=""></div>
+    <div class="in" style="--i:3;position:absolute;left:520px;top:470px;font-size:80px;color:var(--mut);line-height:1">→</div>
+    <img class="in" style="--i:4;position:absolute;left:485px;top:293px;width:1920px;height:1080px;transform:scale(.42);transform-origin:0 0;clip-path:inset(120px 370px 120px 370px);pointer-events:none" src="img/store-4.png" alt="The store with four gondolas and the problems marked">
+    <div class="in" style="--i:5;position:absolute;left:1160px;top:470px;font-size:80px;color:var(--mut);line-height:1">→</div>
+    <div class="phone in" style="--i:6;left:1290px;top:250px">
+      <div class="notch"></div>
+      <div class="screen">
+        <div class="ph-brand"><img src="img/logo.svg" alt="" width="18" height="18"> strivon · the round</div>
+        <div class="ph-title">Gondola 1 first.</div>
+        <div class="ph-sub">What to restock and what to put back.</div>
+        <div class="ph-list">
+          <div class="stop in" style="--i:7"><span class="badge">1</span><span class="sname">Gondola 1</span><span class="chips"><span class="chip" style="background:#f3d7d0;color:#c4452f">Banana <b>×3</b></span><span class="chip" style="background:#f0e4cf;color:#b7791f"><span style="margin-right:3px">↩</span>Orange <b>×2</b></span></span><span class="since">17:24</span></div>
+          <div class="stop in" style="--i:8"><span class="badge">2</span><span class="sname">Gondola 2</span><span class="chips"><span class="chip" style="background:#f3d7d0;color:#c4452f">Melon <b>×3</b></span></span><span class="since">17:12</span></div>
+          <div class="stop in" style="--i:9"><span class="badge">3</span><span class="sname">Gondola 3</span><span class="chips"><span class="chip" style="background:#f3d7d0;color:#c4452f">Red apple <b>×1</b></span></span><span class="since">19:21</span></div>
+          <div class="stop in" style="--i:10"><span class="badge">4</span><span class="sname">Gondola 4</span><span class="chips"><span class="chip" style="background:#f3d7d0;color:#c4452f">Kiwi <b>×1</b></span><span class="chip" style="background:#f3d7d0;color:#c4452f">Orange <b>×1</b></span></span><span class="since">19:30</span></div>
+        </div>
+        <div class="ph-btn">Start the round</div>
+      </div>
     </div>
-  </section>
-
-  <!-- 4. photos to tasks, moving -->
-  <section class="slide">
-    <h2 class="title in" style="--i:0">From the photos to a plan of the store</h2>
-    <div class="in" style="--i:1;position:absolute;left:170px;top:300px;width:470px"><img style="width:470px;border-radius:12px;box-shadow:0 18px 40px rgba(29,29,29,.18);transform:rotate(-4deg);display:block" src="img/cam6215.jpg" alt=""></div>
-    <div class="in" style="--i:2;position:absolute;left:250px;top:430px;width:470px"><img style="width:470px;border-radius:12px;box-shadow:0 18px 40px rgba(29,29,29,.18);transform:rotate(2deg);display:block" src="img/cam6371.jpg" alt=""></div>
-    <div class="in" style="--i:3;position:absolute;left:190px;top:560px;width:470px"><img style="width:470px;border-radius:12px;box-shadow:0 18px 40px rgba(29,29,29,.18);transform:rotate(-1.5deg);display:block" src="img/cam6443.jpg" alt=""></div>
-    <div class="in" style="--i:5;position:absolute;left:790px;top:520px;font-size:96px;color:var(--mut);line-height:1">→</div>
-    <div class="in" style="--i:6;position:absolute;left:0;top:0;width:1920px;height:1080px;pointer-events:none"><video muted playsinline preload="auto" data-pause="7.9" src="vid/store-3d.mp4" style="position:absolute;left:769px;top:196px;width:1920px;height:1080px;transform:scale(.62);transform-origin:0 0;clip-path:inset(30px 250px 35px 260px)"></video></div>
   </section>
 
   <!-- 5. generative ui -->
