@@ -1,6 +1,7 @@
 import { Check, ChevronRight, Undo2 } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router'
+import { BringList } from '@/components/BringList'
 import { ProductIcon } from '@/components/ProductIcon'
 import { useI18n } from '@/lib/i18n'
 import { useStore } from '@/lib/store'
@@ -38,14 +39,37 @@ export function Chips({ tasks }: { tasks: Task[] }) {
 }
 
 /** The round as a list: one stop per gondola in the order to walk, with what to carry to each. Five show, the rest on demand. */
-export function StopList({ stops, byCamera }: { stops: Suggestion[]; byCamera: Record<string, Task[]> }) {
+export function StopList({ stops, byCamera, tasks }: { stops: Suggestion[]; byCamera: Record<string, Task[]>; tasks: Task[] }) {
   const { t } = useI18n()
   const { gondola } = useStore()
   const [all, setAll] = useState(false)
+  const [view, setView] = useState<'stops' | 'bring'>('stops')
   const shown = all ? stops : stops.slice(0, 5)
   return (
     <aside>
-      <h2 className="flex h-9 items-center px-1 text-label text-fg-muted">{t.goFirst}</h2>
+      <div className="mb-1 flex gap-1" role="group">
+        {(
+          [
+            ['stops', t.goFirst],
+            ['bring', t.toBring],
+          ] as const
+        ).map(([v, label]) => (
+          <button
+            key={v}
+            type="button"
+            data-on={view === v}
+            aria-pressed={view === v}
+            onClick={() => setView(v)}
+            className="h-9 cursor-pointer rounded-lg px-3 text-ui text-fg-secondary transition-colors hover:bg-surface data-[on=true]:bg-surface data-[on=true]:text-fg"
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+      {view === 'bring' ? (
+        <BringList tasks={tasks} />
+      ) : (
+        <>
       {stops.length === 0 && (
         <p className="flex items-center gap-2 rounded-xl p-3 text-copy" style={{ background: mix('var(--success)', 14) }}>
           <Check className="size-5" style={{ color: 'var(--success)' }} strokeWidth={3} />
@@ -73,6 +97,8 @@ export function StopList({ stops, byCamera }: { stops: Suggestion[]; byCamera: R
         <button type="button" onClick={() => setAll(!all)} className="mt-2 h-10 w-full cursor-pointer rounded-xl text-ui text-fg-secondary transition-colors hover:bg-surface">
           {all ? t.showFewer : t.showMore(stops.length - 5)}
         </button>
+      )}
+        </>
       )}
     </aside>
   )
