@@ -628,7 +628,7 @@ export function Store3D() {
   const { t, family } = useI18n()
   const navigate = useNavigate()
   const [key, setKey] = useState(0)
-  const [view, setView] = useState<View>('front')
+  const [view, setView] = useState<View>('corner')
   const [hover, setHover] = useState<string | null>(null)
   const [selected, setSelected] = useState<string | null>(() => new URLSearchParams(window.location.hash.split('?')[1] ?? '').get('g'))
   const { tasks, gondola } = useStore()
