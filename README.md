@@ -1,9 +1,75 @@
 <p align="center">
-  <img src="docs/banner.png" alt="Strivon: every shelf tells you what it needs before it runs empty" width="100%">
+  <img src="assets/logo.svg" alt="Strivon" width="104">
 </p>
 
-Strivon checks each shelf area from a ceiling camera and the store planogram: is it holding the
-right product, and how full is it? Store staff get what to restock and what to move back.
+<h1 align="center">Strivon</h1>
+
+<p align="center">
+  <strong>Strivon turns ceiling-camera photos of the fruit and vegetable shelves into a list of work for store staff: what to restock and what to put back.</strong>
+</p>
+
+<p align="center">
+  For a store with ceiling cameras and a shelf planogram.
+</p>
+
+<p align="center">
+  <a href="https://strivon-landing.vercel.app"><img src="https://img.shields.io/badge/Website-strivon--landing.vercel.app-c4452f?style=flat-square&logo=googlechrome&logoColor=white" alt="Strivon website"></a>
+  <a href="docs/APP.md"><img src="https://img.shields.io/badge/Docs-Read-1d1d1d?style=flat-square&logo=readthedocs&logoColor=white" alt="Strivon documentation"></a>
+</p>
+
+<p align="center">
+  <a href="#run-it-locally">Run locally</a> ·
+  <a href="README.es.md">Español</a> ·
+  <a href="README.pt.md">Português</a>
+</p>
+
+<p align="center">
+  <img src="assets/readme/photo-to-tasks.png" alt="A ceiling-camera photo of a banana gondola with its shelf areas outlined, and next to it the list of tasks the staff get: three areas to restock and two to check later" width="100%">
+</p>
+
+<p align="center"><sub>One photo in, a list of work out. The shelf states in this image are simulated.</sub></p>
+
+## What is Strivon?
+
+In a store, nobody can look at every shelf all day. A shelf runs empty, a product ends up in the
+place of another one, and the staff find out when a customer asks. The ceiling cameras already see
+all of it. What is missing is someone to look at the photos.
+
+Strivon does the looking. From a camera photo and the store's planogram, it checks each shelf area:
+is it holding the product it should, and how full is it? What comes out is a list of work for the
+staff, not a report.
+
+It was built at JunctionX Lisbon 2026 for the Sensei challenge, with photos from 14 cameras.
+
+## How it works
+
+For every shelf area in a photo, the pipeline answers two questions, and the app turns the answers
+into tasks.
+
+| Question | Answer | Task for the staff |
+|---|---|---|
+| Is the right product there? | yes or no | **Move back** when it is the wrong one |
+| How full is the area? | empty, half full or full | **Restock** when empty, **Later** when half full, nothing when full |
+
+A task shows the crop of the area and the time of its photo, so the person can check it at a
+glance. The challenge scores each area, so the pipeline is tuned for the points as well as for the
+tasks: see [`docs/PLAN.md`](docs/PLAN.md).
+
+## What you can do today
+
+- **See what to do now**, grouped into Restock, Move back and Later, ordered by urgency.
+- **Open a task** to see its camera photo with the shelf area marked, and **play the day** with the
+  day bar to watch the list change.
+- **Browse the store** with a map of the gondolas, a page per gondola, a products view and an
+  insights page with the share of the time that shelves were empty.
+- **Ask the store a question** and get the answer as a screen, with charts, tasks and photo
+  cards. It needs a model key on the server.
+- **Predict a folder of photos** from the command line: one JSON with `planogram_compliant` and
+  `stock_level` for every area.
+- **Score the predictions** against our own labels with the challenge's points.
+
+> **Status.** The app still shows simulated shelf states. Connecting it to the pipeline's real
+> predictions is the next step.
 
 ## See it
 
@@ -39,29 +105,49 @@ hidden.
 
 The shelf states in both clips are simulated. Full-size clips are in [`assets/video`](assets/video).
 
-## Run the app
+## Run it locally
 
-```
+The app, with Node 20 or higher:
+
+```bash
 cd frontend
 npm install
 npm run dev
 ```
 
-With the challenge data in `data/`, the app shows the real photos and shelf areas. Without it, it
-draws made-up shelves.
+With the challenge data in `data/`, it shows the real photos and shelf areas. Without it, it draws
+made-up shelves.
 
-## Layout
+The pipeline, from `backend/`. Add `--no-clip` to skip PyTorch and use the classical features only:
 
-- `backend/` the pipeline that writes the predictions, and the server.
-- `frontend/` the web for store staff.
-- `eval/` and `annotations/` scoring and our own labels.
-- `docs/` plan, tasks and notes.
-- `data/` and `outputs/` challenge images and predictions. Not committed.
+```bash
+python -m pip install -r requirements.txt
+python -m sensei predict
+python -m sensei score
+```
 
-## Leaderboard
+By default `predict` reads `data/images` and writes `outputs/predictions.json`, and `score` checks
+that file against `eval/labels.json`.
 
-Every approach scored the same way on the team benchmark. Rules: [LEADERBOARD.md](LEADERBOARD.md).
-Refresh with `python eval/leaderboard.py`.
+The steps for the day of the submission are in [`docs/VALIDATION_DAY.md`](docs/VALIDATION_DAY.md).
+
+## Documentation
+
+- [`docs/APP.md`](docs/APP.md): what the app shows and the data it reads.
+- [`frontend/DESIGN.md`](frontend/DESIGN.md): how the interface looks and the reason for each choice.
+- [`docs/PLAN.md`](docs/PLAN.md): how the challenge is scored and the plan to score well.
+- [`docs/SENSEI_INFO.md`](docs/SENSEI_INFO.md): what Sensei told us, including what empty, half and full mean.
+- [`docs/VALIDATION_DAY.md`](docs/VALIDATION_DAY.md): how to produce the submission.
+- [`LEADERBOARD.md`](LEADERBOARD.md): how every approach is scored, and the results.
+- [`CONTRIBUTING.md`](CONTRIBUTING.md): branches, commits and language.
+
+## Results
+
+Every approach scored the same way on the team benchmark. The rules are in
+[LEADERBOARD.md](LEADERBOARD.md). Refresh the tables with `python eval/leaderboard.py`.
+
+<details>
+<summary>Leaderboard</summary>
 
 <!-- LEADERBOARD:START -->
 Answer key `labels_v1`: 1929 areas, maximum 3858 points. "≈ /578" scales the total to the 289 hidden validation areas.
@@ -98,7 +184,10 @@ Answer key `labels_v1`: 1929 areas, maximum 3858 points. "≈ /578" scales the t
 | 28 | Always "right product, full" (`baseline`) |  | none | no | +1653 | -99 | +1554 / 3858 | +233 | +0.806 | +0.344 | 0 |
 <!-- LEADERBOARD:END -->
 
-### Forward split (closest to the hidden set)
+</details>
+
+<details>
+<summary>Forward split, closest to the hidden set</summary>
 
 <!-- FORWARD:START -->
 Forward split: trained without each camera's last 2 photos, tested on them (302 areas). Files in `eval/benchmark/preds_forward/`, scored with `python eval/benchmark.py forward <file>`.
@@ -113,6 +202,8 @@ Forward split: trained without each camera's last 2 photos, tested on them (302 
 | 6 | Agents' one-pass DINOv2-S, round-1 pick, seed 0 (`agents_R0_shipped_s0`) | +299 | +136 | 26 | 22 | +435 / 604 | +1.440 | +416 | 0.82 CPU, 0.06 GPU |
 | 7 | Single image, no CLIP: weighted average of three lab stock models (pixel features, slot references, a small fine-tuned MobileNetV3) + product check against a bank of training crops, colours balanced per crop (the shipped model, `python lab/predict.py`) (`lab_image_only_ensemble`) | +299 | +124 | 14 | 34 | +423 / 604 | +1.401 | +405 | 0.14 CPU per photo (1 thread, warm); 0.31 per photo over a batch of 28 including a 4.8 startup (torch import 3.8); i7 laptop, no GPU |
 <!-- FORWARD:END -->
+
+</details>
 
 ## Prior code
 
