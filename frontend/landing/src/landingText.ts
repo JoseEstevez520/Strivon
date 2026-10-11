@@ -20,12 +20,30 @@ export interface LandingStrings {
   askText: string
   clipLabel: string
   enlarge: string
+  clipHint: string
   close: string
   codeTitle: string
   repoDescription: string
   openRepo: string
   teamTitle: string
   footer: string
+  tryApp: string
+  seeDeck: string
+  filmLabel: string
+  filmTitle: string
+  quickTitle: string
+  quick: [Quick, Quick, Quick, Quick]
+  stats: [Stat, Stat, Stat]
+}
+
+interface Quick {
+  title: string
+  text: string
+}
+
+interface Stat {
+  value: string
+  label: string
 }
 
 interface Item {
@@ -67,12 +85,29 @@ const en: LandingStrings = {
   clipLabel:
     "Someone asks where the bananas are. The chat answers with a chart of how the shelves emptied through the day and a card. Opening the card shows the gondola's photo with its shelf areas marked.",
   enlarge: 'Open the video large',
+  clipHint: 'Tap to watch it full screen, with the phone on its side.',
   close: 'Close',
   codeTitle: 'Code',
   repoDescription: 'Shelf monitoring for the Sensei challenge at JunctionX Lisbon 2026.',
   openRepo: 'Open the repository',
   teamTitle: 'Team',
   footer: 'Built at JunctionX Lisbon 2026, for the Sensei challenge. The logos belong to their owners.',
+  tryApp: 'Try the app',
+  seeDeck: 'See the presentation',
+  filmLabel: 'The Strivon film, 18 seconds, with sound.',
+  filmTitle: 'The film',
+  quickTitle: 'See it in a minute',
+  quick: [
+    { title: 'One photo, every shelf area', text: 'Empty, wrong product or fine, drawn on the photo from the ceiling camera.' },
+    { title: 'A route for the staff', text: 'The gondolas to go to first, in order, and what to carry.' },
+    { title: 'The store in 3D', text: 'Every gondola with what it needs, from any side.' },
+    { title: 'The round on the phone', text: 'Load up, then stop by stop. Tick it, next one.' },
+  ],
+  stats: [
+    { value: '14', label: 'ceiling cameras' },
+    { value: '2 s', label: 'a photo, on one CPU thread' },
+    { value: '0.005 ¢', label: 'a photo at most, an estimate' },
+  ],
 }
 
 const pt: LandingStrings = {
@@ -109,12 +144,29 @@ const pt: LandingStrings = {
   clipLabel:
     'Alguém pergunta onde estão as bananas. O chat responde com um gráfico de como as prateleiras se esvaziaram ao longo do dia e um cartão. Ao abrir o cartão vê-se a fotografia da gôndola com as zonas assinaladas. O vídeo está em inglês.',
   enlarge: 'Ver o vídeo em grande',
+  clipHint: 'Toque para ver em ecrã inteiro, com o telemóvel na horizontal.',
   close: 'Fechar',
   codeTitle: 'Código',
   repoDescription: 'Monitorização de prateleiras para o desafio da Sensei no JunctionX Lisbon 2026.',
   openRepo: 'Abrir o repositório',
   teamTitle: 'Equipa',
   footer: 'Feito no JunctionX Lisbon 2026, para o desafio da Sensei. Os logótipos pertencem aos seus donos.',
+  tryApp: 'Experimentar a app',
+  seeDeck: 'Ver a apresentação',
+  filmLabel: 'O filme da Strivon, 18 segundos, com som.',
+  filmTitle: 'O filme',
+  quickTitle: 'Veja num minuto',
+  quick: [
+    { title: 'Uma foto, cada zona da prateleira', text: 'Vazia, produto errado ou certa, desenhado na foto da câmara do teto.' },
+    { title: 'Um percurso para a equipa', text: 'As gôndolas a que ir primeiro, por ordem, e o que levar.' },
+    { title: 'A loja em 3D', text: 'Cada gôndola com o que precisa, de qualquer lado.' },
+    { title: 'A ronda no telemóvel', text: 'Carregar e depois paragem a paragem. Marcar, a seguinte.' },
+  ],
+  stats: [
+    { value: '14', label: 'câmaras no teto' },
+    { value: '2 s', label: 'por foto, num só fio de CPU' },
+    { value: '0,005 ¢', label: 'por foto, no máximo, uma estimativa' },
+  ],
 }
 
 const es: LandingStrings = {
@@ -151,12 +203,29 @@ const es: LandingStrings = {
   clipLabel:
     'Alguien pregunta dónde están los plátanos. El chat responde con una gráfica de cómo se vaciaron las estanterías durante el día y una tarjeta. Al abrir la tarjeta se ve la foto de la góndola con sus zonas marcadas. El vídeo está en inglés.',
   enlarge: 'Ver el vídeo en grande',
+  clipHint: 'Toca para verlo a pantalla completa, con el móvil en horizontal.',
   close: 'Cerrar',
   codeTitle: 'Código',
   repoDescription: 'Monitorización de estanterías para el reto de Sensei en JunctionX Lisbon 2026.',
   openRepo: 'Abrir el repositorio',
   teamTitle: 'Equipo',
   footer: 'Hecho en JunctionX Lisbon 2026, para el reto de Sensei. Los logotipos pertenecen a sus dueños.',
+  tryApp: 'Probar la app',
+  seeDeck: 'Ver la presentación',
+  filmLabel: 'La película de Strivon, 18 segundos, con sonido.',
+  filmTitle: 'La película',
+  quickTitle: 'Míralo en un minuto',
+  quick: [
+    { title: 'Una foto, cada zona del estante', text: 'Vacía, producto equivocado o bien, dibujado sobre la foto de la cámara del techo.' },
+    { title: 'Una ruta para el personal', text: 'Las góndolas a las que ir primero, en orden, y qué llevar.' },
+    { title: 'La tienda en 3D', text: 'Cada góndola con lo que necesita, desde cualquier lado.' },
+    { title: 'La ronda en el móvil', text: 'Cargar y luego parada a parada. Marcar, la siguiente.' },
+  ],
+  stats: [
+    { value: '14', label: 'cámaras de techo' },
+    { value: '2 s', label: 'por foto, en un solo hilo de CPU' },
+    { value: '0,005 ¢', label: 'por foto como máximo, una estimación' },
+  ],
 }
 
 export const landingText: Record<Lang, LandingStrings> = { en, pt, es }

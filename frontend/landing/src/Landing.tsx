@@ -25,6 +25,8 @@ const TODAY_ICONS: LucideIcon[] = [ListChecks, LayoutGrid, Apple, Play, ChartNoA
 const useText = (): LandingStrings => landingText[useI18n().lang]
 
 const REPO = 'https://github.com/JoseEstevez520/Strivon'
+/** The full app, with the chat, for whoever wants to try it. */
+const APP_URL = 'https://strivon-app.vercel.app'
 
 /** The GitHub mark, from Simple Icons (CC0). */
 const GithubMark = ({ className }: { className?: string }) => (
@@ -33,29 +35,83 @@ const GithubMark = ({ className }: { className?: string }) => (
   </svg>
 )
 
-/** The chat clip, small beside its text, with a button that opens it large in a dialog. */
+/** True on a phone-sized screen. */
+function useNarrow() {
+  const query = '(max-width: 767px)'
+  const [narrow, setNarrow] = useState(() => typeof matchMedia !== 'undefined' && matchMedia(query).matches)
+  useEffect(() => {
+    const m = matchMedia(query)
+    const update = () => setNarrow(m.matches)
+    update()
+    m.addEventListener('change', update)
+    return () => m.removeEventListener('change', update)
+  }, [])
+  return narrow
+}
+
+type FullscreenVideo = HTMLVideoElement & { webkitEnterFullscreen?: () => void }
+
+/**
+ * The chat clip, small beside its text, with a button that opens it large. On a phone the clip is too small to
+ * read where it sits, so a tap takes it full screen, and sideways where the browser allows it, which gives it
+ * the whole width of the phone. Elsewhere it opens in a dialog.
+ */
 function ChatClip() {
   const text = useText()
   const dialog = useRef<HTMLDialogElement>(null)
+  const video = useRef<HTMLVideoElement>(null)
+  const narrow = useNarrow()
   // The large video exists only while the dialog is open, so a closed dialog does not download it.
   const [open, setOpen] = useState(false)
+  const enlarge = () => {
+    const v = video.current as FullscreenVideo | null
+    if (narrow && v) {
+      // Back out of full screen the clip stops and goes back to its picture, so the page is not left with a video playing.
+      const stop = () => {
+        if (document.fullscreenElement) return
+        v.pause()
+        v.currentTime = 0
+        document.removeEventListener('fullscreenchange', stop)
+        v.removeEventListener('webkitendfullscreen', stop)
+      }
+      document.addEventListener('fullscreenchange', stop)
+      v.addEventListener('webkitendfullscreen', stop)
+      v.play().catch(() => {})
+      const done = v.requestFullscreen ? v.requestFullscreen() : v.webkitEnterFullscreen?.()
+      Promise.resolve(done)
+        .then(() => (screen.orientation as ScreenOrientation & { lock?: (o: string) => Promise<void> }).lock?.('landscape'))
+        .catch(() => {})
+      return
+    }
+    setOpen(true)
+    dialog.current?.showModal()
+  }
   return (
     <>
       <div className="relative">
         <WhenNear height="16rem">
-          <video className="w-full rounded-2xl bg-bg" src="./video/chat-to-gondola.mp4" autoPlay loop muted playsInline preload="metadata" aria-label={text.clipLabel} />
+          <video
+                onClick={narrow ? enlarge : undefined}
+            className={`w-full rounded-2xl bg-bg ${narrow ? 'cursor-pointer' : ''}`}
+            src="./video/chat-to-gondola.mp4"
+            poster="./video/chat-poster.jpg"
+            autoPlay={!narrow}
+            loop
+            muted
+            playsInline
+            preload={narrow ? 'none' : 'metadata'}
+            aria-label={text.clipLabel}
+          />
         </WhenNear>
         <button
           type="button"
-          onClick={() => {
-            setOpen(true)
-            dialog.current?.showModal()
-          }}
+          onClick={enlarge}
           aria-label={text.enlarge}
-          className="absolute top-3 right-3 grid size-9 cursor-pointer place-items-center rounded-full bg-surface/90 text-fg-secondary transition-colors hover:bg-sunk hover:text-fg"
+          className="absolute top-2 right-2 grid size-11 cursor-pointer place-items-center rounded-full bg-surface/90 text-fg-secondary transition-colors hover:bg-sunk hover:text-fg md:top-3 md:right-3 md:size-9"
         >
           <Maximize2 className="size-4" strokeWidth={1.5} aria-hidden />
         </button>
+        <p className="mt-2 text-center text-meta text-fg-muted md:hidden">{text.clipHint}</p>
       </div>
       <dialog
         ref={dialog}
@@ -69,7 +125,7 @@ function ChatClip() {
             type="button"
             onClick={() => dialog.current?.close()}
             aria-label={text.close}
-            className="absolute top-3 right-3 grid size-9 cursor-pointer place-items-center rounded-full bg-surface/90 text-fg-secondary transition-colors hover:bg-sunk hover:text-fg"
+            className="absolute top-2 right-2 grid size-11 cursor-pointer place-items-center rounded-full bg-surface/90 text-fg-secondary transition-colors hover:bg-sunk hover:text-fg md:top-3 md:right-3 md:size-9"
           >
             <X className="size-4" strokeWidth={1.5} aria-hidden />
           </button>
@@ -81,11 +137,11 @@ function ChatClip() {
 
 const TEAM = ['Jose', 'Miguel', 'André', 'Leonor']
 
-const Section = ({ title, lead, children }: { title: string; lead?: string; children: React.ReactNode }) => (
-  <section className="py-12 sm:py-16">
+const Section = ({ title, lead, className = '', children }: { title: string; lead?: string; className?: string; children: React.ReactNode }) => (
+  <section className={`py-10 sm:py-16 ${className}`}>
     <h2 className="text-display">{title}</h2>
     {lead && <p className="mt-3 text-copy text-fg-secondary">{lead}</p>}
-    <div className="mt-8">{children}</div>
+    <div className="mt-6 sm:mt-8">{children}</div>
   </section>
 )
 
@@ -229,7 +285,7 @@ function LanguagePicker() {
   const text = useText()
   const names: Record<Lang, string> = { en: 'English', pt: 'Português', es: 'Español' }
   return (
-    <div role="group" aria-label={text.language} className="absolute top-5 right-5 z-10 flex gap-1">
+    <div role="group" aria-label={text.language} className="absolute top-[max(1rem,env(safe-area-inset-top))] right-4 z-10 flex gap-0.5 rounded-full bg-bg/85 p-1 backdrop-blur-sm md:top-5 md:right-5 md:gap-1 md:rounded-none md:bg-transparent md:p-0 md:backdrop-blur-none">
       {LANGS.map((l) => (
         <button
           key={l}
@@ -239,7 +295,7 @@ function LanguagePicker() {
           aria-label={names[l]}
           aria-pressed={lang === l}
           onClick={() => setLang(l)}
-          className="h-9 min-w-10 cursor-pointer rounded-lg px-2.5 text-label text-fg-secondary uppercase transition-colors hover:bg-surface aria-pressed:bg-surface aria-pressed:text-fg"
+          className="h-11 min-w-11 cursor-pointer rounded-full px-3 text-label md:h-9 md:min-w-10 md:rounded-lg md:px-2.5 text-fg-secondary uppercase transition-colors hover:bg-surface aria-pressed:bg-surface aria-pressed:text-fg"
         >
           {l}
         </button>
@@ -251,15 +307,91 @@ function LanguagePicker() {
 function Hero() {
   const text = useText()
   return (
-    <div className="relative mb-52 grid min-h-dvh place-items-center px-5">
+    <div className="relative mb-24 grid min-h-dvh place-items-center px-5 py-24 sm:mb-52 md:py-0">
       <Slots />
       <LanguagePicker />
 
       <div className="relative flex max-w-3xl flex-col items-center gap-6 text-center">
         <h1 className="text-[clamp(3.5rem,9vw,7rem)] leading-none font-semibold tracking-[-0.045em]">Strivon</h1>
         <p className="text-[clamp(1.125rem,1.8vw,1.5rem)] leading-relaxed text-fg-secondary">{text.hero}</p>
+        <div className="mt-2 flex w-full max-w-md flex-col gap-4 md:hidden">
+          <MobileActions />
+        </div>
       </div>
     </div>
+  )
+}
+
+/** The ad, 18 seconds with sound, as a section of its own on a phone. It loads only when played. */
+function MobileFilm() {
+  const text = useText()
+  return (
+    <div className="relative overflow-hidden rounded-2xl bg-surface shadow-[0_10px_30px_-14px_rgba(0,0,0,0.3)]">
+      <video
+        className="aspect-video w-full object-cover"
+        src="./video/ad.mp4"
+        poster="./video/ad-poster.jpg"
+        controls
+        playsInline
+        preload="none"
+        aria-label={text.filmLabel}
+      />
+    </div>
+  )
+}
+
+/** The two things to do after reading the first lines: try the app, or open the presentation. */
+function MobileActions() {
+  const text = useText()
+  return (
+    <div className="flex w-full flex-col gap-3">
+      <a href={APP_URL} target="_blank" rel="noreferrer" className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-fg px-5 text-label text-bg transition-opacity active:opacity-85">
+        {text.tryApp}
+        <ArrowUpRight className="size-4" aria-hidden />
+      </a>
+      <a href="./deck/" className="inline-flex h-12 items-center justify-center rounded-xl bg-surface px-5 text-label text-fg transition-colors active:bg-sunk">
+        {text.seeDeck}
+      </a>
+    </div>
+  )
+}
+
+const QUICK_IMAGES = ['./img/what-the-model-sees.webp', './img/round-route.webp', './img/store-3d.webp']
+
+/** For a phone: the numbers, then four pictures to swipe through, made from what the project already has. */
+function MobileShowcase() {
+  const text = useText()
+  return (
+    <section className="order-1 py-8 md:hidden">
+      <h2 className="text-display">{text.filmTitle}</h2>
+      <div className="mt-5"><MobileFilm /></div>
+      <h2 className="mt-10 text-display">{text.quickTitle}</h2>
+      <ul className="mt-5 grid grid-cols-3 gap-2 text-center">
+        {text.stats.map((stat) => (
+          <li key={stat.label} className="rounded-xl bg-surface px-2 py-3">
+            <p className="text-title leading-none">{stat.value}</p>
+            <p className="mt-2 text-meta text-fg-muted">{stat.label}</p>
+          </li>
+        ))}
+      </ul>
+      <div className="-mx-5 mt-6 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        {text.quick.map((item, i) => (
+          <article key={item.title} className="w-[82%] shrink-0 snap-center rounded-2xl bg-surface p-3">
+            <div className="aspect-[16/10] overflow-hidden rounded-xl bg-bg">
+              {i < QUICK_IMAGES.length ? (
+                <img src={QUICK_IMAGES[i]} alt="" loading="lazy" className="size-full object-contain" />
+              ) : (
+                <WhenNear height="10rem">
+                  <video className="size-full object-cover" src="./video/phone-round.mp4" autoPlay loop muted playsInline preload="metadata" />
+                </WhenNear>
+              )}
+            </div>
+            <h3 className="mt-3 text-label text-fg">{item.title}</h3>
+            <p className="mt-1 text-ui text-fg-secondary">{item.text}</p>
+          </article>
+        ))}
+      </div>
+    </section>
   )
 }
 
@@ -304,15 +436,16 @@ export function Landing() {
       <Hero />
       <div className="relative">
         <SlotsBand />
-        <main className="relative mx-auto max-w-6xl px-5 pb-16">
-          <Section title={text.whatTitle}>
+        <main className="relative mx-auto flex max-w-6xl flex-col px-5 pb-[max(4rem,env(safe-area-inset-bottom))]">
+          <MobileShowcase />
+          <Section title={text.whatTitle} className="order-4 md:order-none">
             <div className="flex flex-col gap-4 text-copy text-fg-secondary">
               <p>{text.whatFirst}</p>
               <p>{text.whatSecond}</p>
             </div>
           </Section>
 
-          <Section title={text.howTitle}>
+          <Section title={text.howTitle} className="order-5 md:order-none">
             <ol className="grid items-stretch gap-4 md:grid-cols-[1fr_auto_1fr_auto_1fr]">
               {text.steps.flatMap((step, i) => {
                 const Icon = STEP_ICONS[i]
@@ -332,7 +465,7 @@ export function Landing() {
             </ol>
           </Section>
 
-          <Section title={text.todayTitle}>
+          <Section title={text.todayTitle} className="hidden md:block">
             <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {text.today.map((item, i) => (
                 <Card key={item.title} icon={TODAY_ICONS[i]} title={item.title} text={item.text} />
@@ -340,7 +473,7 @@ export function Landing() {
             </ul>
           </Section>
 
-          <Section title={text.seeTitle} lead={text.seeLead}>
+          <Section title={text.seeTitle} lead={text.seeLead} className="order-2 md:order-none">
             <WhenNear height="40rem">
               <Suspense fallback={<div className="h-[40rem] rounded-2xl bg-surface" />}>
                 <Demo label={text.demo} />
@@ -348,7 +481,7 @@ export function Landing() {
             </WhenNear>
           </Section>
 
-          <section className="grid items-center gap-8 py-12 sm:py-16 md:grid-cols-[2fr_3fr]">
+          <section className="order-3 grid items-center gap-6 py-10 sm:gap-8 sm:py-16 md:order-none md:grid-cols-[2fr_3fr]">
             <div>
               <h2 className="text-title">{text.askTitle}</h2>
               <p className="mt-3 text-copy text-fg-secondary">{text.askText}</p>
@@ -356,7 +489,7 @@ export function Landing() {
             <ChatClip />
           </section>
 
-          <Section title={text.codeTitle}>
+          <Section title={text.codeTitle} className="order-6 md:order-none">
             <a
               href={REPO}
               target="_blank"
@@ -378,20 +511,20 @@ export function Landing() {
             </a>
           </Section>
 
-          <Section title={text.teamTitle}>
-            <ul className="flex flex-wrap gap-x-10 gap-y-2 text-copy">
+          <Section title={text.teamTitle} className="order-7 md:order-none">
+            <ul className="flex flex-wrap gap-x-8 gap-y-3 text-copy sm:gap-x-10 sm:gap-y-2">
               {TEAM.map((name) => (
                 <li key={name}>{name}</li>
               ))}
             </ul>
           </Section>
 
-          <footer className="pt-12">
-            <div className="mb-6 flex items-center justify-center gap-8">
-              <img src="partners/junctionx.png" alt="JunctionX Lisbon" className="h-14 w-auto" />
-              <img src="partners/sensei.png" alt="Sensei" className="h-14 w-auto" />
+          <footer className="order-8 pt-12 md:order-none">
+            <div className="mb-6 flex items-center justify-center gap-6 sm:gap-8">
+              <img src="partners/junctionx.png" alt="JunctionX Lisbon" className="h-10 w-auto sm:h-14" />
+              <img src="partners/sensei.png" alt="Sensei" className="h-10 w-auto sm:h-14" />
             </div>
-            <p className="text-center text-meta text-fg-muted">{text.footer}</p>
+            <p className="relative mx-auto max-w-xs rounded-lg bg-bg/75 px-3 py-1.5 text-center text-meta text-fg-muted backdrop-blur-sm sm:max-w-none sm:bg-transparent sm:p-0 sm:backdrop-blur-none">{text.footer}</p>
           </footer>
         </main>
       </div>
