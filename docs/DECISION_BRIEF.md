@@ -1,5 +1,7 @@
 # Which model do we submit? A one-page brief for the 07:45 decision
 
+Options with their numbers, the decision grid and the label difference with examples: `docs/OPTIONS.md`.
+
 Written at 04:30 on 11 Oct from the numbers in `LEADERBOARD.md`, `docs/COST.md`, `docs/BOARD.md` and the lab log. The freeze is at 10:30.
 
 ## The options
