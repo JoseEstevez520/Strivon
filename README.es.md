@@ -23,7 +23,7 @@
 </p>
 
 <p align="center">
-  <img src="assets/readme/photo-to-tasks.png" alt="Foto de una cámara de techo de una góndola de plátanos con sus zonas de estantería marcadas, y a su lado la lista de tareas que recibe el personal: tres zonas para reponer y dos para revisar más tarde" width="100%">
+  <img src="assets/readme/photo-to-tasks.png" alt="Foto de una cámara de techo de una góndola de plátanos con sus zonas de estantería marcadas y, a su lado, la ronda de la app: las góndolas a las que ir primero y qué está mal en cada una" width="100%">
 </p>
 
 <p align="center"><sub>Una foto entra, una lista de trabajo sale. Los estados de las estanterías en esta imagen son simulados.</sub></p>
@@ -66,14 +66,13 @@ La landing está en [strivon-landing.vercel.app](https://strivon-landing.vercel.
 
 ### La app para el personal
 
-<img align="right" width="55%" src="assets/video/demo-tasks.gif" alt="El plano de la tienda y la lista de paradas cambian mientras avanza el día. Al abrir una góndola se ve la foto de su cámara con lo que está mal marcado.">
+<img align="right" width="55%" src="assets/presentation/video/3d/store-3d.gif" alt="La tienda en 3D girando despacio: cada góndola con sus productos y los problemas marcados">
 
 Un plano de la tienda muestra qué góndolas necesitan algo, y la lista de al lado da el orden de la ronda y qué llevar a cada parada.
 
 Reproduce el día para ver cómo cambian los dos, y abre una góndola para ver su estantería con lo que está mal marcado.
 
 <br clear="right">
-<br>
 
 ### Pregunta y recibe una pantalla
 

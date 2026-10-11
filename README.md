@@ -24,7 +24,7 @@
 </p>
 
 <p align="center">
-  <img src="assets/readme/photo-to-tasks.png" alt="A ceiling-camera photo of a banana gondola with its shelf areas outlined, and next to it the list of tasks the staff get: three areas to restock and two to check later" width="100%">
+  <img src="assets/readme/photo-to-tasks.png" alt="A ceiling-camera photo of a banana gondola with its shelf areas marked, and next to it the app's round: the gondolas to go to first and what is wrong in each" width="100%">
 </p>
 
 <p align="center"><sub>One photo in, a list of work out. The shelf states in this image are simulated.</sub></p>
@@ -81,7 +81,7 @@ The landing is at [strivon-landing.vercel.app](https://strivon-landing.vercel.ap
 
 ### The app for staff
 
-<img align="right" width="55%" src="assets/video/demo-tasks.gif" alt="The plan of the store and the list of stops change as the day plays. Opening a gondola shows the photo of its camera with what is wrong marked.">
+<img align="right" width="55%" src="assets/presentation/video/3d/store-3d.gif" alt="The store in 3D, turning slowly: every gondola with its products and the problems marked on it">
 
 A plan of the store shows which gondolas need something, and the list beside it gives the order of
 the round and what to bring to each stop.
@@ -89,7 +89,6 @@ the round and what to bring to each stop.
 Play the day to watch both change, and open a gondola to see its shelf with what is wrong marked.
 
 <br clear="right">
-<br>
 
 ### Ask, and get a screen
 
