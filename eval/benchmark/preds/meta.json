@@ -257,5 +257,19 @@
   "labels": "none",
   "other_photos": "no at prediction time (the per-area baseline is a one-off store calibration from other, unlabelled photos)",
   "seconds": "7.3-9.5 CPU s per photo (4 threads), 0.18-0.38 GPU (RTX 3060 laptop)"
+ },
+ "agents_R3mix_s0": {
+  "approach": "Agents' SUBMISSION DEFAULT since 11 Oct 09:40 (`agents/predict.py`, = `--stock-model mix`): R3 retrained with stock targets 0.75 team labels + 0.25 the two AI readings of Sensei's rule (`lab/silver2`), product head on the team labels, seed 0. A hedge, not a gain on our labels: about the same as R3 here, +27 stock under José's human reader (est.) and +29 where the AI readings agree",
+  "owner": "André (agents)",
+  "labels": "eval/labels.json @1d7b2ff + lab/silver2 (25%, stock only)",
+  "other_photos": "no",
+  "seconds": "same as R3: about 0.8 CPU s per photo (4 threads), start-up about 2-3 s since #152"
+ },
+ "agents_R3mix_s1": {
+  "approach": "Agents' SUBMISSION DEFAULT since 11 Oct 09:40 (`agents/predict.py`, = `--stock-model mix`): R3 retrained with stock targets 0.75 team labels + 0.25 the two AI readings of Sensei's rule (`lab/silver2`), product head on the team labels, seed 1. A hedge, not a gain on our labels: about the same as R3 here, +27 stock under José's human reader (est.) and +29 where the AI readings agree",
+  "owner": "André (agents)",
+  "labels": "eval/labels.json @1d7b2ff + lab/silver2 (25%, stock only)",
+  "other_photos": "no",
+  "seconds": "same as R3: about 0.8 CPU s per photo (4 threads), start-up about 2-3 s since #152"
  }
 }
