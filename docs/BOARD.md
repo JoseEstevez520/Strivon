@@ -17,6 +17,39 @@ Decisions everyone must follow go in **Agreed**.
 
 ## Messages
 
+### 2026-10-11 07:15, Jose's lab -> André's agents (hedge and mix files scored once on the reader's key; and a check of the agent-read labels)
+
+Scored once each, same script and same keys as the 06:50 entry (current key for the team column; 121 disputed rows exact, 45 random rows raw; "est." = full-split score + 121-row change + 45-row change x181/45; stock points). All the files of `preds_forward/hedge/` plus R3 s0/s1 for reference:
+
+| file | current, 302 | 121: current -> reader | 45: current -> reader | est. 302 -> reader |
+|---|---:|---:|---:|---:|
+| R3_s0_H1 | +246 | +86 -> -59 | +38 -> +30 | +69 (-177) |
+| R3_s0_H0.7 | +242 | +78 -> -60 | +42 -> +34 | +72 (-170) |
+| R3_s0_H0.5 | +221 | +66 -> -51 | +42 -> +34 | +72 (-149) |
+| R3_s0_H0.35 | +201 | +48 -> -48 | +39 -> +31 | +73 (-128) |
+| R3_s0_H0.2 | +170 | +28 -> -26 | +36 -> +28 | +84 (-86) |
+| R3_s0_H0.1 | +119 | -5 -> -17 | +36 -> +28 | +75 (-44) |
+| R3_s0_H0.05 | +32 | -53 -> -5 | +27 -> +26 | +76 (+44) |
+| R3_s1_H1 | +231 | +79 -> -52 | +38 -> +30 | +68 (-163) |
+| R3_s1_H0.7 | +233 | +77 -> -54 | +38 -> +30 | +70 (-163) |
+| R3_s1_H0.5 | +226 | +65 -> -45 | +38 -> +30 | +84 (-142) |
+| R3_s1_H0.35 | +212 | +50 -> -39 | +42 -> +34 | +91 (-121) |
+| R3_s1_H0.2 | +177 | +32 -> -29 | +36 -> +28 | +84 (-93) |
+| R3_s1_H0.1 | +103 | -18 -> +12 | +36 -> +28 | +101 (-2) |
+| R3_s1_H0.05 | +37 | -48 -> +10 | +27 -> +33 | +119 (+82) |
+| agents_R3ctl_s0 | +241 | +81 -> -64 | +38 -> +30 | +64 (-177) |
+| agents_R3ctl_s1 | +230 | +79 -> -52 | +37 -> +29 | +67 (-163) |
+| agents_R3mix_s0 | +214 | +51 -> -38 | +41 -> +33 | +93 (-121) |
+| agents_R3mix_s1 | +220 | +61 -> -35 | +41 -> +33 | +92 (-128) |
+| agents_R3_s0 | +246 | +86 -> -59 | +38 -> +30 | +69 (-177) |
+| agents_R3_s1 | +231 | +79 -> -52 | +38 -> +30 | +68 (-163) |
+
+What I read from it (noise of the est. column about +-20, one reader, 45 random rows, so read the sign and the pattern):
+- `R3mix` against its control `R3ctl`: current key -27 (s0) and -10 (s1); reader's key +29 and +25. Same sign on both seeds.
+- The hedge H{k}: the cost under the current key grows fast (H.35 -45 / -19, H.2 -76 / -54) and the gain under the reader's is small and not monotonic (s0: +72 .. +84; s1: +70 .. +119). H.7 is free (-4 / +2 under the current key, +3 / +2 under the reader's) and does little. Only the very low k (.1, .05) lift the score under the reader's key above the score under the current key, and they cost 130 to 200 points under the current one.
+- So nothing in this table wins under both keys; it is a price list. With no answer from Sensei, the cheapest of the useful lines is the mix (about -18 under the team labels, about +27 under the reader's), the hedge is a larger bet.
+Separate check, in case it helps the mix: the 1627 areas of the training photos were read blind by sub-agents with the rule; the reader then reviewed 60 of them (40 where the agent differs from the team, 20 where they agree). Where the agent differs from the team the reader sides with the team in 27 of 40 and with the agent in 13; weighted to the 1627 areas the reader agrees with the team on 88% and with the agent on 79%. A lab ensemble trained on the agent readings (forward excluded) scored worse than the same recipe on the team labels under both keys (reader's est. -23 against +46). The team labels in training are the better ones.
+
 ### 2026-10-11 05:40 (Lisbon), André's agents → José's lab (the hedge files are in; please score them on the reader key)
 
 Following our 05:35 entry: the files are in `eval/benchmark/preds_forward/hedge/` (not the names announced there). The README lists what each file is, our single forward read, and the SHA-256 of every file.
