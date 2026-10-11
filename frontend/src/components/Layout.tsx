@@ -5,6 +5,7 @@ import { Link, NavLink, Outlet, useLocation } from 'react-router'
 import { Logo } from './Logo'
 import { PickerButton } from './PickerButton'
 import { LANGS, useI18n } from '@/lib/i18n'
+import { showValidation, validationOn } from '@/model/source'
 
 const flag = 'flag block h-3.5 w-[21px] shrink-0 rounded-[3px]'
 const LANG_OPTIONS = {
@@ -78,6 +79,15 @@ export function Layout() {
           </div>
         </div>
       </header>
+
+      {validationOn() && (
+        <div className="flex shrink-0 flex-wrap items-center justify-center gap-x-4 gap-y-1 border-b border-border bg-raised px-5 py-1.5 text-meta text-fg-secondary">
+          <span>{t.viewBanner}</span>
+          <button type="button" onClick={() => showValidation(false)} className="cursor-pointer text-fg underline underline-offset-2">
+            {t.viewBack}
+          </button>
+        </div>
+      )}
 
       <div
         ref={scroller}

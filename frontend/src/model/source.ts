@@ -10,11 +10,51 @@ export interface Source {
   simulated: boolean
 }
 
+const FLAG = 'strivon.source'
+
+/** True when staff chose to look at the last validation run instead of the train/test photos. */
+export function validationOn(): boolean {
+  try {
+    return localStorage.getItem(FLAG) === 'validation'
+  } catch {
+    return false
+  }
+}
+
+/** Switches the app between the validation run and the usual photos, then reloads so every screen starts clean. */
+export function showValidation(on: boolean, to?: string): void {
+  try {
+    if (on) localStorage.setItem(FLAG, 'validation')
+    else localStorage.removeItem(FLAG)
+  } catch {
+    // storage blocked: nothing to switch
+    return
+  }
+  if (to) window.location.hash = to
+  window.location.reload()
+}
+
 /**
  * Real photos and shelf areas when the development server can read the local data folder
  * (`STRIVON_DATA_DIR`, kept out of the repo). Invented shelves otherwise.
  */
 export async function loadSource(limit?: number): Promise<Source> {
+  if (validationOn()) {
+    try {
+      const [res, said] = await Promise.all([fetch('/api/validation/index'), fetch('/api/validation/predictions')])
+      if (res.ok && said.ok) {
+        const data = (await res.json()) as { planogram: Planogram; images: Record<string, string[]> }
+        const predictions = (await said.json()) as Predictions
+        return {
+          state: firstCameras(buildRealState(data.planogram, data.images, predictions), limit),
+          photoUrl: (camera, image) => `/api/validation/photo/${camera}/${image}`,
+          simulated: false,
+        }
+      }
+    } catch {
+      // the backend is down: fall through to the usual photos
+    }
+  }
   try {
     const res = await fetch('/local-data/index.json')
     if (res.ok) {

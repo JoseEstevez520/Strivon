@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { DropZone } from '@/components/validate/DropZone'
 import { SummaryTable } from '@/components/validate/SummaryTable'
 import { useI18n } from '@/lib/i18n'
+import { showValidation } from '@/model/source'
 import {
   ApiError,
   RESULT_URL,
@@ -236,6 +237,16 @@ export function ValidatePage() {
           )}
 
           {summary && <SummaryTable summary={summary} />}
+
+          {canDownload && (
+            <button
+              type="button"
+              onClick={() => showValidation(true, '/')}
+              className="h-12 w-full cursor-pointer rounded-lg border border-line px-6 text-label text-fg sm:w-fit"
+            >
+              {t.viewOpen}
+            </button>
+          )}
 
           <div className="grid gap-1">
             {canDownload ? (

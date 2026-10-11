@@ -257,3 +257,54 @@ def summary():
                 tot["areas"] += 1
     tot["images"] = sum(c["images"] for c in cams.values())
     return {"cameras": cams, "totals": tot}
+
+
+# --- look at a finished run inside the normal app ---------------------------------------------
+
+_NAME = re.compile(r"^[A-Za-z0-9._ -]{1,120}$")
+_CAM = re.compile(r"^[A-Za-z0-9_-]{1,40}$")
+
+
+def _photo_files(sess: Path) -> list[tuple[Path, str | None]]:
+    photos = sess / "photos"
+    return sorted(((p, p.parent.name if p.parent != photos else None) for p in photos.rglob("*")
+                   if p.is_file() and p.suffix.lower() in ALLOWED), key=lambda x: str(x[0]))
+
+
+def _camera_of(final: dict, name: str, folder: str | None) -> str | None:
+    """The camera key of final.json that holds this photo. Flat uploads are placed by the file name."""
+    if folder:
+        m = CAMERA_ID.search(folder)
+        if m and m.group(1) in final:
+            return m.group(1)
+    for cam, imgs in final.items():
+        if name in imgs:
+            return cam
+    return None
+
+
+@router.get("/predictions")
+def predictions():
+    return FileResponse(_checked_final(), media_type="application/json")
+
+
+@router.get("/index")
+def view_index():
+    final = json.loads(_checked_final().read_text(encoding="utf-8"))
+    images: dict[str, list[str]] = {}
+    for p, folder in _photo_files(_current()):
+        cam = _camera_of(final, p.name, folder)
+        if cam and p.name not in images.setdefault(cam, []):
+            images[cam].append(p.name)
+    return {"planogram": json.loads(PLANOGRAM.read_text(encoding="utf-8")), "images": images}
+
+
+@router.get("/photo/{camera}/{image}")
+def view_photo(camera: str, image: str):
+    if not _CAM.match(camera) or not _NAME.match(image) or ".." in image:
+        raise HTTPException(400, "bad name")
+    final = json.loads(_checked_final().read_text(encoding="utf-8"))
+    for p, folder in _photo_files(_current()):
+        if p.name == image and _camera_of(final, p.name, folder) == camera:
+            return FileResponse(p, headers={"cache-control": "no-store"})
+    raise HTTPException(404, "photo not found")
