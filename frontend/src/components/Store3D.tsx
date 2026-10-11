@@ -511,6 +511,12 @@ function Room({ count }: { count: number }) {
   )
 }
 
+/** How much closer the camera can sit for a small store: 1 for the full fourteen, more for fewer gondolas. */
+const fitOf = (count: number) => {
+  const full = layoutOf(14), now = layoutOf(count)
+  return Math.min(full.floorW / now.floorW, full.floorD / now.floorD)
+}
+
 const VIEWS = {
   front: [5, 21, 21],
   corner: [17, 19, 17],
@@ -518,20 +524,21 @@ const VIEWS = {
 export type View = keyof typeof VIEWS
 
 /** Fits the floor in the frame whatever the width, and starts from the chosen side. */
-function Rig({ view }: { view: View }) {
+function Rig({ view, count }: { view: View; count: number }) {
   const size = useThree((s) => s.size)
-  const zoom = Math.min(size.width / 25, size.height / 19.4)
+  const zoom = Math.min(size.width / 25, size.height / 19.4) * fitOf(count)
   return <OrthographicCamera makeDefault position={[...VIEWS[view]]} zoom={zoom} near={0.1} far={200} />
 }
 
 /** Moves the camera in on the selected gondola, and back out when nothing is selected. It only drives the camera for a moment after the selection changes, so dragging and zooming stay free. */
-function Focus({ target }: { target: [number, number] | null }) {
+function Focus({ target, count }: { target: [number, number] | null; count: number }) {
   const controls = useThree((s) => s.controls) as unknown as { target: THREE.Vector3; update: () => void } | null
   const camera = useThree((s) => s.camera) as THREE.OrthographicCamera
   const size = useThree((s) => s.size)
   const invalidate = useThree((s) => s.invalidate)
   const until = useRef(0)
-  const base = Math.min(size.width / 25, size.height / 19.4)
+  const fit = Math.min(size.width / 25, size.height / 19.4)
+  const base = fit * fitOf(count)
   useEffect(() => {
     until.current = performance.now() + 1100
     invalidate()
@@ -543,7 +550,7 @@ function Focus({ target }: { target: [number, number] | null }) {
     const before = controls.target.clone()
     controls.target.lerp(goal, k)
     camera.position.add(controls.target.clone().sub(before))
-    camera.zoom += ((target ? base * (size.width < 640 ? 3.4 : 2.7) : base) - camera.zoom) * k
+    camera.zoom += ((target ? fit * (size.width < 640 ? 3.4 : 2.7) : base) - camera.zoom) * k
     camera.updateProjectionMatrix()
     controls.update()
     invalidate()
@@ -579,8 +586,8 @@ export function Scene({ view, selected = null, onOpen, onHoverChange }: { view: 
 
   return (
     <>
-      <Rig view={view} />
-      <Focus target={focusAt} />
+      <Rig view={view} count={list.length} />
+      <Focus target={focusAt} count={list.length} />
       <ambientLight intensity={2.2} />
       <directionalLight position={[8, 16, 10]} intensity={1.5} />
       <Room count={list.length} />
