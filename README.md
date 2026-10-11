@@ -93,8 +93,6 @@ Play the day to watch both change, and open a gondola to see its shelf with what
 
 ### Ask, and get a screen
 
-<img align="right" width="55%" src="assets/video/chat-to-gondola.gif" alt="Someone asks where the bananas are. The chat answers with a chart of how the shelves emptied through the day and a card. Opening the card shows the gondola's photo with its shelf areas marked.">
-
 The chat does not answer with a paragraph. The model writes the layout of the answer out of the
 app's own parts (charts, tables, tasks, a map of the day, photo cards) and the app draws it, so an
 answer can be opened and followed to the shelf it talks about.
@@ -102,35 +100,7 @@ answer can be opened and followed to the shelf it talks about.
 It needs a model key on the server (`LLM_API_KEY` in `frontend/.env`); without one the chat is
 hidden.
 
-<br clear="right">
-<br>
-
-The shelf states in both clips are simulated. Full-size clips are in [`assets/video`](assets/video).
-
-### The screens
-
-Real captures of the app. Click one for the full size. They are made with the simulated day, and more captures of each part of the interface are in [`assets/presentation`](assets/presentation).
-
-<p align="center">
-  <a href="assets/presentation/views/tasks-2d.png"><img src="assets/presentation/views/tasks-2d.png" alt="The first page with the plan of the store in 2D, the round list and the day bar" width="49%"></a>
-  <a href="assets/presentation/views/tasks-3d-front.png"><img src="assets/presentation/views/tasks-3d-front.png" alt="The same page with the store in 3D" width="49%"></a>
-</p>
-
-<p align="center"><sub>The plan in 2D, and the store in 3D.</sub></p>
-
-<p align="center">
-  <a href="assets/presentation/views/tasks-real.png"><img src="assets/presentation/views/tasks-real.png" alt="The same page with the latest photo of every camera" width="49%"></a>
-  <a href="assets/presentation/views/gondola-6215.png"><img src="assets/presentation/views/gondola-6215.png" alt="The page of one gondola: its photo with what is wrong marked, and the problems in plain words" width="49%"></a>
-</p>
-
-<p align="center"><sub>The latest photo of every camera, and one gondola.</sub></p>
-
-<p align="center">
-  <a href="assets/presentation/views/products.png"><img src="assets/presentation/views/products.png" alt="The products page, with a card for each product and where to bring it" width="49%"></a>
-  <a href="assets/presentation/views/insights.png"><img src="assets/presentation/views/insights.png" alt="The insights page with a map of stock over time and the products and gondolas that were empty the longest" width="49%"></a>
-</p>
-
-<p align="center"><sub>Products as cards, and the insights.</sub></p>
+[Watch the clip](assets/video/chat-to-gondola.mp4). The shelf states in the clip and in the one above are simulated. Full-size clips are in [`assets/video`](assets/video).
 
 ## Run it locally
 
