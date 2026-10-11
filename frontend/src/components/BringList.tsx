@@ -37,17 +37,21 @@ export function BringList({ tasks }: { tasks: Task[] }) {
   const [all, setAll] = useState(false)
   const bring = group(tasks.filter((x) => x.group === 'restock'), (x) => x.area.family)
   const back = group(tasks.filter((x) => x.group === 'moveBack'), (x) => x.obs.observed_family)
+  // Without the product that stands there, the row says what the spot was meant to hold.
+  const unknown = group(tasks.filter((x) => x.group === 'moveBack' && !x.obs.observed_family), (x) => x.area.family)
   const shown = all ? bring : bring.slice(0, 8)
   const where = (cameras: string[]) => (cameras.length === 1 ? gondola(cameras[0]) : `${t.navGondolas} ${cameras.map((c) => gondola(c).match(/\d+$/)?.[0] ?? c).join(' · ')}`)
 
-  const rows = (items: Item[], withAreas: boolean) => (
+  const rows = (items: Item[], withAreas: boolean, wrong = false) => (
     <ul className="flex flex-col">
       {items.map((x) => (
         <li key={x.family} className="flex items-center gap-3 rounded-xl px-2 py-2.5">
           <ProductIcon family={x.family} label={family(x.family)} className="size-8 shrink-0 text-fg-secondary" />
           <span className="min-w-0 flex-1">
-            <span className="block truncate text-label">{family(x.family)}</span>
-            <span className="block text-meta tabular-nums text-fg-secondary">{withAreas ? `${t.areasCount(x.areas)} · ${where(x.cameras)}` : where(x.cameras)}</span>
+            <span className="block truncate text-label">{wrong ? t.wrongProduct : family(x.family)}</span>
+            <span className="block text-meta tabular-nums text-fg-secondary">
+              {wrong ? `${t.inPlaceOf(family(x.family))} · ${where(x.cameras)}` : withAreas ? `${t.areasCount(x.areas)} · ${where(x.cameras)}` : where(x.cameras)}
+            </span>
           </span>
         </li>
       ))}
@@ -67,10 +71,11 @@ export function BringList({ tasks }: { tasks: Task[] }) {
           )}
         </section>
       )}
-      {back.length > 0 && (
+      {back.length + unknown.length > 0 && (
         <section>
           <h3 className="px-2 pb-1 text-meta text-fg-muted">{t.putBackHeading}</h3>
           {rows(back, false)}
+          {rows(unknown, false, true)}
         </section>
       )}
     </div>
