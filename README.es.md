@@ -23,7 +23,7 @@
 </p>
 
 <p align="center">
-  <img src="assets/readme/photo-to-tasks.png" alt="Fotos de cámaras de techo con las zonas de estantería marcadas, a la izquierda, y a la derecha la tienda en 3D con los problemas marcados en cada góndola y las tres primeras paradas de la ronda" width="100%">
+  <img src="assets/readme/photo-to-tasks.png" alt="Tres fotos de cámaras de techo con las zonas de estantería marcadas, a la izquierda, y a la derecha la tienda en 3D con los problemas marcados en cada góndola y las tres primeras paradas de la ronda" width="100%">
 </p>
 
 <p align="center"><sub>Entran fotos de las cámaras de techo, sale una lista de trabajo. Las marcas son las respuestas del modelo para la última foto de cada cámara.</sub></p>
@@ -84,7 +84,7 @@ El chat responde con una pantalla. El modelo escribe el diseño de la respuesta 
 
 Necesita una clave de un modelo en el servidor (`LLM_API_KEY` en `frontend/.env`); sin ella el chat se oculta.
 
-[Ver el clip](assets/video/chat-to-gondola.mp4). Los estados de las estanterías en el clip y en el de arriba son simulados. Los vídeos en tamaño completo están en [`assets/video`](assets/video).
+[Ver el clip](assets/video/chat-to-gondola.mp4). Los estados de las estanterías en este clip son simulados; el bucle en 3D de arriba muestra las respuestas del modelo. Los vídeos en tamaño completo están en [`assets/video`](assets/video).
 
 ## Ejecutarlo en local
 
