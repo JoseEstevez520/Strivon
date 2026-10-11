@@ -23,6 +23,10 @@ python lab/predict.py train --model ensemble --out lab/models/lane_i_ens.pkl
 python lab/predict_fast.py predict --images PATH/TO/photos --model lab/models/lane_i_ens.pkl --out predictions.json --threads 1
 ```
 
+On validation day, add `--expect-images 26 --expect-areas 289`: if the folder holds a different number of photos or the planogram gives a different number
+of areas, it prints a warning on stderr and still writes the file (add `--strict` to also exit with code 3 so a script notices). A missing area costs -5.
+`--p-stock` adds `p_stock = [p_empty, p_half, p_full]` to every area, for averaging with other models; the decisions do not change.
+
 `train` reads the answer key `eval/benchmark/labels_v1.json` and the photos in `data/images`. `predict` reads only the model file, the planogram and
 the photos. It stops with exit code 2 and a message when an image cannot be read, a camera is not in the planogram, an area is missing or a value
 is not a number.
