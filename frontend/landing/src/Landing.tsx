@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   ArrowRight,
   ArrowUpRight,
@@ -15,14 +15,10 @@ import {
   ScanSearch,
   type LucideIcon,
 } from 'lucide-react'
-import { MemoryRouter, Navigate, Route, Routes, useNavigate } from 'react-router'
-import { DayBar } from '@/components/DayBar'
-import { StopList } from '@/components/StopList'
-import { Plan } from '@/components/StorePlan'
+import { MemoryRouter, Navigate, Route, Routes } from 'react-router'
 import { GondolaPage } from '@/pages/GondolaPage'
-import { suggest } from '@/lib/suggest'
-import { cameras, type Task } from '@/lib/tasks'
-import { useStore } from '@/lib/store'
+import { RoundPage } from '@/pages/RoundPage'
+import { TasksPage } from '@/pages/TasksPage'
 import { LANGS, useI18n, type Lang } from '@/lib/i18n'
 import { landingText, type LandingStrings } from './landingText'
 
@@ -264,42 +260,17 @@ function Hero() {
   )
 }
 
-/** The app's first page, shortened: the plan of eight gondolas and the round, with the day bar above. */
-function DemoHome() {
-  const { state, tasks } = useStore()
-  const navigate = useNavigate()
-  const stops = useMemo(() => suggest(tasks).filter((s) => s.empty + s.wrong > 0), [tasks])
-  const byCamera = useMemo(() => {
-    const m: Record<string, Task[]> = {}
-    for (const x of tasks) (m[x.area.camera] ??= []).push(x)
-    return m
-  }, [tasks])
-  const rankOf = (c: string) => {
-    const i = stops.findIndex((x) => x.camera === c)
-    return i >= 0 && i < 3 ? i + 1 : 0
-  }
-  const list = cameras(state).slice(0, 8)
-  return (
-    <>
-      <DayBar className="mb-6" />
-      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
-        <Plan list={list} cols={4} byCamera={byCamera} rankOf={rankOf} choose={(c) => navigate(`/gondolas/${c}`)} />
-        <StopList stops={stops.filter((x) => list.includes(x.camera))} byCamera={byCamera} tasks={tasks} />
-      </div>
-    </>
-  )
-}
-
 /**
- * The app's first page in a window so it reads as a demo. It works as in the app: move through the
- * day and the plan and the list follow, and pressing a gondola or a stop opens its photo with what
- * is wrong marked, with a way back. A memory router keeps every link inside the window, so nothing
- * on it leads away from the page, and only eight gondolas are shown.
+ * The app's own first page in a window so it reads as a demo, with the plan in 2D, 3D or as real
+ * photos, the round list, the day bar, and the gondola and round pages behind it. It is the app's
+ * code, not a copy, so it follows the app. A memory router keeps every link inside the window, so
+ * nothing on it leads away from the page. The phone code is hidden by landing.css, because on the
+ * landing it would point at the landing and not at the round.
  */
 function Demo() {
   const text = useText()
   return (
-    <div className="rounded-2xl bg-surface p-2">
+    <div className="demo-window rounded-2xl bg-surface p-2">
       <div className="flex h-9 items-center gap-1.5 px-3">
         {[0, 1, 2].map((i) => (
           <span key={i} className="size-2.5 rounded-full bg-sunk" />
@@ -309,7 +280,8 @@ function Demo() {
       <div className="rounded-xl bg-bg p-4 sm:p-6">
         <MemoryRouter>
           <Routes>
-            <Route path="/" element={<DemoHome />} />
+            <Route path="/" element={<TasksPage />} />
+            <Route path="/round" element={<RoundPage />} />
             <Route path="/gondolas/:camera" element={<GondolaPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

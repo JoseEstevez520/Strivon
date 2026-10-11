@@ -2,3 +2,8 @@
 
 /* The landing is built from its own folder, so the app's parts it borrows must be scanned too. */
 @source "../../src";
+
+/* The app's phone code points at the page it is on, which on the landing is not the round, so it is left out of the demo. */
+.demo-window [class*="xl:flex"][class*="mt-4"] {
+  display: none !important;
+}
