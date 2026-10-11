@@ -26,6 +26,61 @@ interface Strings {
   // --- calibration presets (start)
   calibrationPresets: { label: string; strict: string; relaxed: string; reset: string; hint: string }
   // --- calibration presets (end)
+  // --- sets page (start)
+  sets: {
+    title: string
+    intro: string
+    nameLabel: string
+    defaultName: (n: number) => string
+    uploadRun: string
+    working: string
+    uploadedStep: (n: number) => string
+    runFailed: (why: string) => string
+    listTitle: string
+    none: string
+    photos: (n: number) => string
+    areas: (n: number) => string
+    labelled: string
+    unlabelled: string
+    status: Record<'done' | 'failed' | 'running' | 'uploaded', string>
+    stockMix: string
+    notCompliantPct: (p: string) => string
+    colImages: string
+    colAreas: string
+    colNotCompliant: string
+    colScore: string
+    noLabels: string
+    useTeam: string
+    uploadLabels: string
+    labelsSaved: (n: number, dropped: number) => string
+    labelsFailed: (why: string) => string
+    scoreTitle: string
+    scoreOf: (t: number, max: number, pct: string) => string
+    identification: string
+    stock: string
+    pointsOf: (p: number, max: number, pct: string) => string
+    correct: (pct: string) => string
+    errBelow: (n: number) => string
+    errAbove: (n: number) => string
+    notScored: (n: number) => string
+    missingAreas: (n: number) => string
+    worst: string
+    predicted: string
+    truth: string
+    compliant: string
+    notCompliant: string
+    noPrediction: string
+    compare: string
+    compareHint: string
+    compareSelect: string
+    rename: string
+    delete: string
+    confirmDelete: (name: string) => string
+    close: string
+    scoreByCamera: string
+    labelsFrom: Record<'team' | 'upload', string>
+  }
+  // --- sets page (end)
   // --- validation day (start)
   validate: {
     title: string
@@ -71,6 +126,8 @@ interface Strings {
   navGondolas: string
   navProducts: string
   navCalibration: string
+  navValidate: string
+  navSets: string
   viewBanner: string
   viewBack: string
   viewOpen: string
@@ -204,6 +261,61 @@ const en: Strings = {
   // --- calibration presets (start)
   calibrationPresets: { label: 'Calibration profile', strict: 'Strict', relaxed: 'Relaxed', reset: 'Default', hint: 'Strict: a shelf is full only when well stocked. Relaxed: a bit of stock is already fine.' },
   // --- calibration presets (end)
+  // --- sets page (start)
+  sets: {
+    title: 'Validation sets',
+    intro: 'Upload each set of photos, run the predictor and keep every result. Percentages come from the model; the score needs labels.',
+    nameLabel: 'Set name',
+    defaultName: (n) => `Set ${n}`,
+    uploadRun: 'Upload and run',
+    working: 'Working',
+    uploadedStep: (n) => `${n} photos uploaded, running the predictor`,
+    runFailed: (why) => `Could not run this set: ${why}`,
+    listTitle: 'Sets',
+    none: 'No sets yet. Upload the first one above.',
+    photos: (n) => (n === 1 ? '1 photo' : `${n} photos`),
+    areas: (n) => (n === 1 ? '1 area' : `${n} areas`),
+    labelled: 'Has labels',
+    unlabelled: 'No labels',
+    status: { done: 'Done', failed: 'Failed', running: 'Running', uploaded: 'Not run' },
+    stockMix: 'Stock mix',
+    notCompliantPct: (p) => `${p}% of the areas are not compliant`,
+    colImages: 'Photos',
+    colAreas: 'Areas',
+    colNotCompliant: 'Not compliant',
+    colScore: 'Score',
+    noLabels: 'No labels, so no score: percentages only',
+    useTeam: 'Use team labels',
+    uploadLabels: 'Upload labels',
+    labelsSaved: (n, dropped) => `${n} labelled areas saved${dropped > 0 ? `, ${dropped} left out (photos not in this set)` : ''}`,
+    labelsFailed: (why) => `Labels not saved: ${why}`,
+    scoreTitle: 'Official score',
+    scoreOf: (t, max, pct) => `${t} / ${max} (${pct}%)`,
+    identification: 'Identification',
+    stock: 'Stock',
+    pointsOf: (p, max, pct) => `${p} / ${max} (${pct}%)`,
+    correct: (pct) => `${pct}% correct`,
+    errBelow: (n) => `${n} below the real stock (-2)`,
+    errAbove: (n) => `${n} above the real stock (-3)`,
+    notScored: (n) => `${n} areas have no label and are not scored`,
+    missingAreas: (n) => `${n} labelled areas have no prediction (counted wrong)`,
+    worst: 'Worst areas',
+    predicted: 'Predicted',
+    truth: 'Real',
+    compliant: 'compliant',
+    notCompliant: 'not compliant',
+    noPrediction: 'no prediction',
+    compare: 'Compare sets',
+    compareHint: 'Tick two or more sets to see them side by side.',
+    compareSelect: 'Compare',
+    rename: 'Rename',
+    delete: 'Delete',
+    confirmDelete: (n) => `Delete "${n}" and its photos?`,
+    close: 'Close',
+    scoreByCamera: 'Score by camera',
+    labelsFrom: { team: 'Team labels', upload: 'Uploaded labels' },
+  },
+  // --- sets page (end)
   // --- validation day (start)
   validate: {
     title: 'Validation day',
@@ -255,6 +367,8 @@ const en: Strings = {
   navGondolas: 'Gondolas',
   navProducts: 'Products',
   navCalibration: 'Calibration',
+  navValidate: 'Validation',
+  navSets: 'Sets',
   viewBanner: 'Showing the validation run',
   viewBack: 'Back to the train/test photos',
   viewOpen: 'Open in the app',
@@ -405,6 +519,61 @@ const pt: Strings = {
   // --- calibration presets (start)
   calibrationPresets: { label: 'Perfil de calibração', strict: 'Rigoroso', relaxed: 'Flexível', reset: 'Predefinido', hint: 'Rigoroso: só está cheio quando bem abastecido. Flexível: um pouco de stock já chega.' },
   // --- calibration presets (end)
+  // --- sets page (start)
+  sets: {
+    title: 'Conjuntos de validação',
+    intro: 'Carregue cada conjunto de fotos, execute o preditor e guarde todos os resultados. As percentagens vêm do modelo; a pontuação precisa de etiquetas.',
+    nameLabel: 'Nome do conjunto',
+    defaultName: (n) => `Conjunto ${n}`,
+    uploadRun: 'Carregar e executar',
+    working: 'A trabalhar',
+    uploadedStep: (n) => `${n} fotos carregadas, a executar o preditor`,
+    runFailed: (why) => `Não foi possível executar este conjunto: ${why}`,
+    listTitle: 'Conjuntos',
+    none: 'Ainda não há conjuntos. Carregue o primeiro acima.',
+    photos: (n) => (n === 1 ? '1 foto' : `${n} fotos`),
+    areas: (n) => (n === 1 ? '1 área' : `${n} áreas`),
+    labelled: 'Com etiquetas',
+    unlabelled: 'Sem etiquetas',
+    status: { done: 'Concluído', failed: 'Falhou', running: 'A executar', uploaded: 'Por executar' },
+    stockMix: 'Distribuição do stock',
+    notCompliantPct: (p) => `${p}% das áreas não cumprem`,
+    colImages: 'Fotos',
+    colAreas: 'Áreas',
+    colNotCompliant: 'Não conforme',
+    colScore: 'Pontuação',
+    noLabels: 'Sem etiquetas, logo sem pontuação: só percentagens',
+    useTeam: 'Usar etiquetas da equipa',
+    uploadLabels: 'Carregar etiquetas',
+    labelsSaved: (n, dropped) => `${n} áreas etiquetadas guardadas${dropped > 0 ? `, ${dropped} de fora (fotos que não estão neste conjunto)` : ''}`,
+    labelsFailed: (why) => `Etiquetas não guardadas: ${why}`,
+    scoreTitle: 'Pontuação oficial',
+    scoreOf: (t, max, pct) => `${t} / ${max} (${pct}%)`,
+    identification: 'Identificação',
+    stock: 'Stock',
+    pointsOf: (p, max, pct) => `${p} / ${max} (${pct}%)`,
+    correct: (pct) => `${pct}% certo`,
+    errBelow: (n) => `${n} abaixo do stock real (-2)`,
+    errAbove: (n) => `${n} acima do stock real (-3)`,
+    notScored: (n) => `${n} áreas sem etiqueta não entram na pontuação`,
+    missingAreas: (n) => `${n} áreas etiquetadas sem previsão (contam como erro)`,
+    worst: 'Piores áreas',
+    predicted: 'Previsto',
+    truth: 'Real',
+    compliant: 'conforme',
+    notCompliant: 'não conforme',
+    noPrediction: 'sem previsão',
+    compare: 'Comparar conjuntos',
+    compareHint: 'Marque dois ou mais conjuntos para os ver lado a lado.',
+    compareSelect: 'Comparar',
+    rename: 'Renomear',
+    delete: 'Apagar',
+    confirmDelete: (n) => `Apagar "${n}" e as suas fotos?`,
+    close: 'Fechar',
+    scoreByCamera: 'Pontuação por câmara',
+    labelsFrom: { team: 'Etiquetas da equipa', upload: 'Etiquetas carregadas' },
+  },
+  // --- sets page (end)
   // --- validation day (start)
   validate: {
     title: 'Dia da validação',
@@ -456,6 +625,8 @@ const pt: Strings = {
   navGondolas: 'Gôndolas',
   navProducts: 'Produtos',
   navCalibration: 'Calibração',
+  navValidate: 'Validação',
+  navSets: 'Conjuntos',
   viewBanner: 'A mostrar a execução de validação',
   viewBack: 'Voltar às fotos de treino/teste',
   viewOpen: 'Abrir na aplicação',
@@ -606,6 +777,61 @@ const es: Strings = {
   // --- calibration presets (start)
   calibrationPresets: { label: 'Perfil de calibración', strict: 'Estricto', relaxed: 'Flexible', reset: 'Por defecto', hint: 'Estricto: solo está lleno si está bien surtido. Flexible: con algo de stock ya vale.' },
   // --- calibration presets (end)
+  // --- sets page (start)
+  sets: {
+    title: 'Conjuntos de validación',
+    intro: 'Sube cada conjunto de fotos, ejecuta el predictor y conserva todos los resultados. Los porcentajes salen del modelo; la puntuación necesita etiquetas.',
+    nameLabel: 'Nombre del conjunto',
+    defaultName: (n) => `Conjunto ${n}`,
+    uploadRun: 'Subir y ejecutar',
+    working: 'Trabajando',
+    uploadedStep: (n) => `${n} fotos subidas, ejecutando el predictor`,
+    runFailed: (why) => `No se pudo ejecutar este conjunto: ${why}`,
+    listTitle: 'Conjuntos',
+    none: 'Aún no hay conjuntos. Sube el primero arriba.',
+    photos: (n) => (n === 1 ? '1 foto' : `${n} fotos`),
+    areas: (n) => (n === 1 ? '1 área' : `${n} áreas`),
+    labelled: 'Con etiquetas',
+    unlabelled: 'Sin etiquetas',
+    status: { done: 'Hecho', failed: 'Falló', running: 'Ejecutando', uploaded: 'Sin ejecutar' },
+    stockMix: 'Reparto del stock',
+    notCompliantPct: (p) => `${p}% de las áreas no cumplen`,
+    colImages: 'Fotos',
+    colAreas: 'Áreas',
+    colNotCompliant: 'No conforme',
+    colScore: 'Puntos',
+    noLabels: 'Sin etiquetas no hay puntuación: solo porcentajes',
+    useTeam: 'Usar etiquetas del equipo',
+    uploadLabels: 'Subir etiquetas',
+    labelsSaved: (n, dropped) => `${n} áreas etiquetadas guardadas${dropped > 0 ? `, ${dropped} descartadas (fotos que no están en este conjunto)` : ''}`,
+    labelsFailed: (why) => `Etiquetas no guardadas: ${why}`,
+    scoreTitle: 'Puntuación oficial',
+    scoreOf: (t, max, pct) => `${t} / ${max} (${pct}%)`,
+    identification: 'Identificación',
+    stock: 'Stock',
+    pointsOf: (p, max, pct) => `${p} / ${max} (${pct}%)`,
+    correct: (pct) => `${pct}% acertado`,
+    errBelow: (n) => `${n} por debajo del stock real (-2)`,
+    errAbove: (n) => `${n} por encima del stock real (-3)`,
+    notScored: (n) => `${n} áreas sin etiqueta no puntúan`,
+    missingAreas: (n) => `${n} áreas etiquetadas sin predicción (cuentan como fallo)`,
+    worst: 'Peores áreas',
+    predicted: 'Predicho',
+    truth: 'Real',
+    compliant: 'conforme',
+    notCompliant: 'no conforme',
+    noPrediction: 'sin predicción',
+    compare: 'Comparar conjuntos',
+    compareHint: 'Marca dos o más conjuntos para verlos lado a lado.',
+    compareSelect: 'Comparar',
+    rename: 'Renombrar',
+    delete: 'Borrar',
+    confirmDelete: (n) => `¿Borrar "${n}" y sus fotos?`,
+    close: 'Cerrar',
+    scoreByCamera: 'Puntos por cámara',
+    labelsFrom: { team: 'Etiquetas del equipo', upload: 'Etiquetas subidas' },
+  },
+  // --- sets page (end)
   // --- validation day (start)
   validate: {
     title: 'Día de validación',
@@ -657,6 +883,8 @@ const es: Strings = {
   navGondolas: 'Góndolas',
   navProducts: 'Productos',
   navCalibration: 'Calibración',
+  navValidate: 'Validación',
+  navSets: 'Conjuntos',
   viewBanner: 'Mostrando la ejecución de validación',
   viewBack: 'Volver a las fotos de entrenamiento/prueba',
   viewOpen: 'Abrir en la app',

@@ -1,4 +1,4 @@
-import { Apple, ChartNoAxesColumn, Globe, ListChecks, SlidersHorizontal, type LucideIcon } from 'lucide-react'
+import { Apple, ChartNoAxesColumn, Globe, ClipboardCheck, Layers, ListChecks, SlidersHorizontal, type LucideIcon } from 'lucide-react'
 import { ES, GB, PT } from 'country-flag-icons/react/3x2'
 import { useEffect, useRef, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router'
@@ -19,7 +19,9 @@ interface Page {
   to: string
   end?: boolean
   icon: LucideIcon
-  label: 'navTasks' | 'navProducts' | 'navInsights' | 'navCalibration'
+  /** Staff tools that need a laptop next to the backend: not worth a phone tab. */
+  desktopOnly?: boolean
+  label: 'navTasks' | 'navProducts' | 'navInsights' | 'navCalibration' | 'navValidate' | 'navSets'
 }
 
 const PAGES: Page[] = [
@@ -27,6 +29,8 @@ const PAGES: Page[] = [
   { to: '/products', icon: Apple, label: 'navProducts' },
   { to: '/insights', icon: ChartNoAxesColumn, label: 'navInsights' },
   { to: '/calibration', icon: SlidersHorizontal, label: 'navCalibration' },
+  { to: '/validate', icon: ClipboardCheck, label: 'navValidate' },
+  { to: '/sets', icon: Layers, label: 'navSets', desktopOnly: true },
 ]
 
 /**
@@ -103,10 +107,10 @@ export function Layout() {
       </div>
 
       <nav
-        className="grid shrink-0 grid-cols-4 border-t border-border bg-bg pb-[env(safe-area-inset-bottom)] md:hidden"
+        className="grid shrink-0 grid-cols-5 border-t border-border bg-bg pb-[env(safe-area-inset-bottom)] md:hidden"
         aria-label={t.navLabel}
       >
-        {PAGES.map(({ to, end, icon: Icon, label }) => (
+        {PAGES.filter((p) => !p.desktopOnly).map(({ to, end, icon: Icon, label }) => (
           <NavLink
             key={to}
             to={to}

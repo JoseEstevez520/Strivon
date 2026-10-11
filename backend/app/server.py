@@ -21,6 +21,7 @@ from sensei.geometry import rectify
 from sensei.planogram import load_planogram
 from sensei.scoring import score
 from app.validation import router as validation_router
+from app.sets import router as sets_router
 
 STATIC = Path(__file__).parent / "static"
 DETAILS = config.OUTPUTS_DIR / "details.json"
@@ -29,6 +30,7 @@ ANN_PATH = config.LABELS_PATH
 
 app = FastAPI(title="Strivon")
 app.include_router(validation_router)
+app.include_router(sets_router)
 _lock = threading.Lock()
 ACTIVITY_PATH = config.ANNOTATIONS_DIR / "labels_activity.jsonl"
 # Free-text notes per area (bad photo, hand in the way, unsure...). Kept apart from labels.json,
