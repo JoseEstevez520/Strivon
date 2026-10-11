@@ -142,3 +142,9 @@ test('load/save round trip, bad JSON and bad entries', () => {
   assert.deepEqual(loadCalibration(), {})
   delete (globalThis as any).localStorage
 })
+
+test('two lines set by hand win over a single marker, and keep empty below full', () => {
+  assert.deepEqual(linesFor('citrus_orange', { mode: 'percent', threshold: 60, level: 'full', emptyMax: 20, fullMin: 80 }), { emptyMax: 20, fullMin: 80 })
+  assert.deepEqual(linesFor('citrus_orange', { mode: 'percent', threshold: 60, level: 'full', emptyMax: 90, fullMin: 40 }), { emptyMax: 90, fullMin: 91 })
+  assert.equal(levelFor(0.5, 'citrus_orange', { mode: 'percent', threshold: 80, level: 'full', emptyMax: 20, fullMin: 80 }), 'half')
+})

@@ -141,6 +141,11 @@ interface Strings {
   calFollowsModel: string
   calLines: (empty: string, full: string) => string
   calClear: string
+  calEmptyUpTo: (product: string) => string
+  calFullFrom: (product: string) => string
+  segEmpty: string
+  segHalf: string
+  segFull: string
   calExport: string
   gondolasHeadline: (n: number) => string
   productsHeadline: (n: number) => string
@@ -366,7 +371,7 @@ const en: Strings = {
   viewBack: 'Back to the train/test photos',
   viewOpen: 'Open in the app',
   calTitle: 'Calibration',
-  calIntro: 'Move the slider to an amount, then pick what that amount counts as. Orange at 25% and Full means a quarter of the crate already counts as full.',
+  calIntro: 'Set where Empty ends and where Full starts for each product. Between the two lines it is Half. Orange with Full from 25% means a quarter of the crate already counts as full.',
   calReset: 'Reset to defaults',
   calSlider: (p) => `Amount of ${p}`,
   calLevels: (p) => `Level for ${p}`,
@@ -375,6 +380,11 @@ const en: Strings = {
   calFollowsModel: 'No marker: shows what the model says.',
   calLines: (e, f) => `Empty up to ${e} · Full from ${f} · Half in between`,
   calClear: 'Back to the model',
+  calEmptyUpTo: (p) => `${p}: empty up to`,
+  calFullFrom: (p) => `${p}: full from`,
+  segEmpty: 'Empty',
+  segHalf: 'Half',
+  segFull: 'Full',
   calExport: 'Export calib.json',
   gondolasHeadline: (n) => (n === 0 ? 'Every gondola is fine' : n === 1 ? 'One gondola needs attention' : `${n} gondolas need attention`),
   productsHeadline: (n) => (n === 1 ? 'One product' : `${n} products`),
@@ -617,7 +627,7 @@ const pt: Strings = {
   viewBack: 'Voltar às fotos de treino/teste',
   viewOpen: 'Abrir na aplicação',
   calTitle: 'Calibração',
-  calIntro: 'Move o seletor até uma quantidade e escolhe o que ela conta como. Laranja a 25% com Cheio quer dizer que um quarto da caixa já conta como cheio.',
+  calIntro: 'Marca onde acaba o Vazio e onde começa o Cheio em cada produto. Entre as duas linhas é A meio. Laranja com Cheio a partir de 25% quer dizer que um quarto da caixa já conta como cheio.',
   calReset: 'Repor valores por defeito',
   calSlider: (p) => `Quantidade de ${p}`,
   calLevels: (p) => `Nível de ${p}`,
@@ -626,6 +636,11 @@ const pt: Strings = {
   calFollowsModel: 'Sem marcador: mostra o que o modelo diz.',
   calLines: (e, f) => `Vazio até ${e} · Cheio a partir de ${f} · A meio entre os dois`,
   calClear: 'Voltar ao modelo',
+  calEmptyUpTo: (p) => `${p}: vazio até`,
+  calFullFrom: (p) => `${p}: cheio a partir de`,
+  segEmpty: 'Vazio',
+  segHalf: 'A meio',
+  segFull: 'Cheio',
   calExport: 'Exportar calib.json',
   gondolasHeadline: (n) => (n === 0 ? 'Todas as gôndolas estão bem' : n === 1 ? 'Uma gôndola precisa de atenção' : `${n} gôndolas precisam de atenção`),
   productsHeadline: (n) => (n === 1 ? 'Um produto' : `${n} produtos`),
@@ -868,7 +883,7 @@ const es: Strings = {
   viewBack: 'Volver a las fotos de entrenamiento/prueba',
   viewOpen: 'Abrir en la app',
   calTitle: 'Calibración',
-  calIntro: 'Mueve el control hasta una cantidad y elige qué cuenta como. Naranja al 25% con Lleno significa que un cuarto de la caja ya cuenta como lleno.',
+  calIntro: 'Marca dónde acaba Vacío y dónde empieza Lleno en cada producto. Entre las dos líneas es A medias. Naranja con Lleno desde el 25% significa que un cuarto de la caja ya cuenta como lleno.',
   calReset: 'Restablecer valores',
   calSlider: (p) => `Cantidad de ${p}`,
   calLevels: (p) => `Nivel de ${p}`,
@@ -877,6 +892,11 @@ const es: Strings = {
   calFollowsModel: 'Sin marcador: muestra lo que dice el modelo.',
   calLines: (e, f) => `Vacío hasta ${e} · Lleno desde ${f} · A medias entre los dos`,
   calClear: 'Volver al modelo',
+  calEmptyUpTo: (p) => `${p}: vacío hasta`,
+  calFullFrom: (p) => `${p}: lleno desde`,
+  segEmpty: 'Vacío',
+  segHalf: 'A medias',
+  segFull: 'Lleno',
   calExport: 'Exportar calib.json',
   gondolasHeadline: (n) => (n === 0 ? 'Todas las góndolas están bien' : n === 1 ? 'Una góndola necesita atención' : `${n} góndolas necesitan atención`),
   productsHeadline: (n) => (n === 1 ? 'Un producto' : `${n} productos`),
