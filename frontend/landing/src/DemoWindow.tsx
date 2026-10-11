@@ -17,14 +17,14 @@ import { TasksPage } from '@/pages/TasksPage'
 export default function DemoWindow({ label }: { label: string }) {
   return (
     <StoreProvider limit={4}>
-      <div className="demo-window rounded-2xl bg-surface p-2">
-        <div className="flex h-9 items-center gap-1.5 px-3">
+      <div className="demo-window rounded-2xl bg-surface p-1.5 sm:p-2">
+        <div className="flex h-8 items-center gap-1.5 px-3 sm:h-9">
           {[0, 1, 2].map((i) => (
             <span key={i} className="size-2.5 rounded-full bg-sunk" />
           ))}
           <span className="ml-3 text-meta text-fg-muted">{label}</span>
         </div>
-        <div className="rounded-xl bg-bg p-4 sm:p-6">
+        <div className="rounded-xl bg-bg p-3 sm:p-6">
           <MemoryRouter>
             <Routes>
               <Route path="/" element={<TasksPage />} />

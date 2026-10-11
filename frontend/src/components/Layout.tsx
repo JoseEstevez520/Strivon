@@ -5,6 +5,7 @@ import { Link, NavLink, Outlet, useLocation } from 'react-router'
 import { Logo } from './Logo'
 import { PickerButton } from './PickerButton'
 import { LANGS, useI18n } from '@/lib/i18n'
+import { useDocumentTitle } from '@/lib/useDocumentTitle'
 import { showValidation, validationOn } from '@/model/source'
 
 const flag = 'flag block h-3.5 w-[21px] shrink-0 rounded-[3px]'
@@ -45,6 +46,8 @@ export function Layout() {
   const scroller = useRef<HTMLDivElement>(null)
   const { pathname } = useLocation()
 
+  useDocumentTitle()
+
   // A new page starts at the top, as a browser would with a new document.
   useEffect(() => {
     scroller.current?.scrollTo(0, 0)
@@ -58,7 +61,7 @@ export function Layout() {
             <Logo className="size-5" />
             strivon
           </Link>
-          <nav className="col-start-2 hidden h-full gap-2 md:flex" aria-label="Pages">
+          <nav className="col-start-2 hidden h-full gap-2 md:flex" aria-label={t.navLabel}>
             {PAGES.map(({ to, end, icon: Icon, label }) => (
               <NavLink
                 key={to}
@@ -105,7 +108,7 @@ export function Layout() {
 
       <nav
         className="grid shrink-0 grid-cols-5 border-t border-border bg-bg pb-[env(safe-area-inset-bottom)] md:hidden"
-        aria-label="Pages"
+        aria-label={t.navLabel}
       >
         {PAGES.filter((p) => !p.desktopOnly).map(({ to, end, icon: Icon, label }) => (
           <NavLink

@@ -9,6 +9,12 @@ export interface ProductCal {
   mode: CalMode
   threshold: number
   level: Level
+  /**
+   * Both lines set by hand (empty up to `emptyMax`, full from `fullMin`, half in between), in the family's unit.
+   * When both are present they win over the lines a single marker would give.
+   */
+  emptyMax?: number
+  fullMin?: number
 }
 
 /** Key = product family (Area.family). A family without a marker shows the model's own level. */
@@ -79,11 +85,28 @@ export function defaultLines(family: string): Lines {
  */
 export function linesFor(family: string, c: ProductCal): Lines {
   const top = maxOf(family)
+  if (Number.isFinite(c.emptyMax) && Number.isFinite(c.fullMin)) {
+    const emptyMax = Math.min(top - 1, Math.max(0, c.emptyMax as number))
+    return { emptyMax, fullMin: Math.min(top, Math.max(emptyMax + 1, c.fullMin as number)) }
+  }
   const v = Math.min(top, Math.max(0, Number.isFinite(c.threshold) ? c.threshold : 0))
   if (c.level === 'full') return { emptyMax: Math.min(roundHalfUp((v * 30) / 74), v - 1), fullMin: v }
   if (c.level === 'empty') return { emptyMax: v, fullMin: Math.max(v + 1, Math.min(top, roundHalfUp((v * 74) / 30))) }
   const d = defaultLines(family)
   return { emptyMax: Math.min(d.emptyMax, v - 1), fullMin: Math.max(d.fullMin, v + 1) }
+}
+
+/**
+ * Whether each outcome can happen at all on the family's scale. Empty is out of reach when the
+ * line sits below zero (a full marker at 0), full when it sits above the top (an empty or half
+ * marker at the top). `half` is false in whole pieces when no whole number lies in between.
+ */
+export function reach(family: string, l: Lines): { empty: boolean; full: boolean; half: boolean } {
+  const top = maxOf(family)
+  const whole = family in CAPACITY
+  const lo = Math.max(0, l.emptyMax + (whole ? 1 : 0))
+  const hi = Math.min(top, l.fullMin - (whole ? 1 : 0))
+  return { empty: l.emptyMax >= 0, full: l.fullMin <= top, half: whole ? lo <= hi : hi > lo }
 }
 
 function clamp01(n: number): number {
@@ -178,13 +201,22 @@ export function toCalibFile(cal: Calibration, areas: Record<string, Area>): Cali
   for (const a of Object.values(areas)) {
     const c = cal[a.family]
     if (!c || !a.catalog_id || products[a.catalog_id]) continue
-    const { emptyMax, fullMin } = linesFor(a.family, c)
     const cap = CAPACITY[a.family]
+    const top = maxOf(a.family)
+    const l = linesFor(a.family, c)
+    // The predictor refuses a cutoff outside 0..top or empty_max >= full_min, so the file keeps
+    // both inside the scale. A line the app treats as out of reach ("never") lands on the nearest
+    // cutoff the file can say.
+    const fullMin = Math.min(top, Math.max(1, l.fullMin))
+    const emptyMax = Math.max(0, Math.min(l.emptyMax, fullMin - 1))
+    const value = Math.min(top, Math.max(0, Number.isFinite(c.threshold) ? c.threshold : 0))
+    // A half point must sit strictly between the cutoffs or the predictor refuses the file.
+    const fits = c.level !== 'half' || (emptyMax < value && value < fullMin)
     products[a.catalog_id] = {
       name: a.product_name ?? a.family,
       unit: cap ? 'count' : 'percent',
       capacity: cap ?? null,
-      points: [{ value: Math.min(maxOf(a.family), Math.max(0, c.threshold)), level: c.level }],
+      points: fits ? [{ value, level: c.level }] : [],
       empty_max: emptyMax,
       full_min: fullMin,
     }

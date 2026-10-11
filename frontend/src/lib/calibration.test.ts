@@ -5,6 +5,7 @@ import assert from 'node:assert/strict'
 import {
   levelFor,
   linesFor,
+  reach,
   amountOf,
   calibrate,
   toCalibFile,
@@ -141,4 +142,32 @@ test('load/save round trip, bad JSON and bad entries', () => {
   store.set('strivon.calibration.v2', '{nope')
   assert.deepEqual(loadCalibration(), {})
   delete (globalThis as any).localStorage
+})
+
+test('lines out of reach are reported, and the export stays inside what the predictor accepts', () => {
+  const areas = { a: { family: 'banana', catalog_id: 'p1' }, m: { family: 'melon', catalog_id: 'p2' } }
+  // empty at the top: full can never be reached
+  assert.equal(reach('banana', linesFor('banana', pct(100, 'empty'))).full, false)
+  // full at 0: empty can never be reached (0 counts as full)
+  assert.equal(reach('banana', linesFor('banana', pct(0, 'full'))).empty, false)
+  // whole pieces: nothing between 1 and 2
+  assert.equal(reach('melon', { emptyMax: 1, fullMin: 2 }).half, false)
+  assert.equal(reach('melon', { emptyMax: 0, fullMin: 3 }).half, true)
+  for (const level of ['empty', 'half', 'full'] as const) {
+    for (const [fam, id, top] of [['banana', 'p1', 100], ['melon', 'p2', 3]] as const) {
+      for (const v of [0, 1, top - 1, top]) {
+        const p = toCalibFile({ [fam]: { mode: 'percent', threshold: v, level } }, areas).products[id]
+        assert.ok(p.empty_max >= 0 && p.empty_max < p.full_min && p.full_min <= top, `${fam} ${level} ${v}`)
+        for (const pt of p.points) {
+          if (pt.level === 'half') assert.ok(p.empty_max < pt.value && pt.value < p.full_min)
+        }
+      }
+    }
+  }
+})
+
+test('two lines set by hand win over a single marker, and keep empty below full', () => {
+  assert.deepEqual(linesFor('citrus_orange', { mode: 'percent', threshold: 60, level: 'full', emptyMax: 20, fullMin: 80 }), { emptyMax: 20, fullMin: 80 })
+  assert.deepEqual(linesFor('citrus_orange', { mode: 'percent', threshold: 60, level: 'full', emptyMax: 90, fullMin: 40 }), { emptyMax: 90, fullMin: 91 })
+  assert.equal(levelFor(0.5, 'citrus_orange', { mode: 'percent', threshold: 80, level: 'full', emptyMax: 20, fullMin: 80 }), 'half')
 })
