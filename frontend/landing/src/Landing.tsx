@@ -23,21 +23,14 @@ import { GondolaPage } from '@/pages/GondolaPage'
 import { suggest } from '@/lib/suggest'
 import { cameras, type Task } from '@/lib/tasks'
 import { useStore } from '@/lib/store'
+import { LANGS, useI18n, type Lang } from '@/lib/i18n'
+import { landingText, type LandingStrings } from './landingText'
 
-const STEPS: [LucideIcon, string, string][] = [
-  [Camera, 'A camera looks', 'Each gondola has a ceiling camera that takes a photo about once an hour.'],
-  [ScanSearch, 'Each shelf area is checked', 'Against the planogram: is it holding the right product, and how full is it?'],
-  [ClipboardCheck, 'Staff get the work', 'What is empty, what is in the wrong place, and what can wait.'],
-]
+const STEP_ICONS: LucideIcon[] = [Camera, ScanSearch, ClipboardCheck]
+const TODAY_ICONS: LucideIcon[] = [ListChecks, LayoutGrid, Apple, Play, ChartNoAxesColumn, Languages]
 
-const TODAY: [LucideIcon, string, string][] = [
-  [ListChecks, 'A round for the whole store', 'A plan shows which gondolas need something, and the list gives the order of the round and what to carry to each stop.'],
-  [LayoutGrid, 'Every gondola, in 2D, 3D or real', 'The store as a plan, a 3D model or the latest photo of each camera, with the shelf areas drawn on it so the proof is in view.'],
-  [Apple, 'Products as cards', 'Each product with its stock over every shelf area it sits on, where to bring it or put it back, and since when.'],
-  [Play, 'The day, replayed', 'Move through the photos of the day and watch each area change, or open a card to see its day as a strip.'],
-  [ChartNoAxesColumn, 'How the store is doing', 'How much of the time shelves were empty, when and where, marked as an estimate because photos come an hour apart.'],
-  [Languages, 'English, Portuguese and Spanish', 'The whole app, in the language of whoever is on shift.'],
-]
+/** The strings of the language in use. */
+const useText = (): LandingStrings => landingText[useI18n().lang]
 
 const REPO = 'https://github.com/JoseEstevez520/Strivon'
 
@@ -48,20 +41,18 @@ const GithubMark = ({ className }: { className?: string }) => (
   </svg>
 )
 
-const CHAT_CLIP_LABEL =
-  "Someone asks where the bananas are. The chat answers with a chart of how the shelves emptied through the day and a card. Opening the card shows the gondola's photo with its shelf areas marked."
-
 /** The chat clip, small beside its text, with a button that opens it large in a dialog. */
 function ChatClip() {
+  const text = useText()
   const dialog = useRef<HTMLDialogElement>(null)
   return (
     <>
       <div className="relative">
-        <video className="w-full rounded-2xl bg-bg" src="./video/chat-to-gondola.mp4" autoPlay loop muted playsInline preload="metadata" aria-label={CHAT_CLIP_LABEL} />
+        <video className="w-full rounded-2xl bg-bg" src="./video/chat-to-gondola.mp4" autoPlay loop muted playsInline preload="metadata" aria-label={text.clipLabel} />
         <button
           type="button"
           onClick={() => dialog.current?.showModal()}
-          aria-label="Open the video large"
+          aria-label={text.enlarge}
           className="absolute top-3 right-3 grid size-9 cursor-pointer place-items-center rounded-full bg-surface/90 text-fg-secondary transition-colors hover:bg-sunk hover:text-fg"
         >
           <Maximize2 className="size-4" strokeWidth={1.5} aria-hidden />
@@ -74,11 +65,11 @@ function ChatClip() {
         className="m-auto w-[min(92vw,1400px)] rounded-2xl bg-bg p-2 text-fg backdrop:bg-black/60"
       >
         <div className="relative">
-          <video className="w-full rounded-xl bg-bg" src="./video/chat-to-gondola.mp4" controls autoPlay loop muted playsInline preload="none" aria-label={CHAT_CLIP_LABEL} />
+          <video className="w-full rounded-xl bg-bg" src="./video/chat-to-gondola.mp4" controls autoPlay loop muted playsInline preload="none" aria-label={text.clipLabel} />
           <button
             type="button"
             onClick={() => dialog.current?.close()}
-            aria-label="Close"
+            aria-label={text.close}
             className="absolute top-3 right-3 grid size-9 cursor-pointer place-items-center rounded-full bg-surface/90 text-fg-secondary transition-colors hover:bg-sunk hover:text-fg"
           >
             <X className="size-4" strokeWidth={1.5} aria-hidden />
@@ -233,17 +224,41 @@ function SlotsBand() {
  * them a scatter of slots like the day map's, some of them gone. Nothing literal, and nothing to
  * press.
  */
+/** Three small buttons, EN PT ES, in the corner of the first screen. The choice is kept, and it wins over the browser. */
+function LanguagePicker() {
+  const { lang, setLang } = useI18n()
+  const text = useText()
+  const names: Record<Lang, string> = { en: 'English', pt: 'Português', es: 'Español' }
+  return (
+    <div role="group" aria-label={text.language} className="absolute top-5 right-5 z-10 flex gap-1">
+      {LANGS.map((l) => (
+        <button
+          key={l}
+          type="button"
+          lang={l}
+          title={names[l]}
+          aria-label={names[l]}
+          aria-pressed={lang === l}
+          onClick={() => setLang(l)}
+          className="h-9 min-w-10 cursor-pointer rounded-lg px-2.5 text-label text-fg-secondary uppercase transition-colors hover:bg-surface aria-pressed:bg-surface aria-pressed:text-fg"
+        >
+          {l}
+        </button>
+      ))}
+    </div>
+  )
+}
+
 function Hero() {
+  const text = useText()
   return (
     <div className="relative mb-52 grid min-h-dvh place-items-center px-5">
       <Slots />
+      <LanguagePicker />
 
       <div className="relative flex max-w-3xl flex-col items-center gap-6 text-center">
         <h1 className="text-[clamp(3.5rem,9vw,7rem)] leading-none font-semibold tracking-[-0.045em]">Strivon</h1>
-        <p className="text-[clamp(1.125rem,1.8vw,1.5rem)] leading-relaxed text-fg-secondary">
-          Ceiling cameras watch the fruit and vegetable shelves. Strivon compares what they see with the planogram and tells the staff
-          what to restock and what to put back.
-        </p>
+        <p className="text-[clamp(1.125rem,1.8vw,1.5rem)] leading-relaxed text-fg-secondary">{text.hero}</p>
       </div>
     </div>
   )
@@ -282,13 +297,14 @@ function DemoHome() {
  * on it leads away from the page, and only eight gondolas are shown.
  */
 function Demo() {
+  const text = useText()
   return (
     <div className="rounded-2xl bg-surface p-2">
       <div className="flex h-9 items-center gap-1.5 px-3">
         {[0, 1, 2].map((i) => (
           <span key={i} className="size-2.5 rounded-full bg-sunk" />
         ))}
-        <span className="ml-3 text-meta text-fg-muted">Demo</span>
+        <span className="ml-3 text-meta text-fg-muted">{text.demo}</span>
       </div>
       <div className="rounded-xl bg-bg p-4 sm:p-6">
         <MemoryRouter>
@@ -310,66 +326,68 @@ function Demo() {
  * layout so it reads as one page.
  */
 export function Landing() {
+  const text = useText()
+  const { lang } = useI18n()
+  // The page follows the language in its own tags too: html lang, the title and the description.
+  useEffect(() => {
+    document.documentElement.lang = lang
+    document.title = text.docTitle
+    document.querySelector('meta[name="description"]')?.setAttribute('content', text.docDescription)
+  }, [lang, text])
   return (
     <div className="scrollbar-subtle h-dvh overflow-x-clip overflow-y-auto [scrollbar-gutter:stable]">
       <Hero />
       <div className="relative">
         <SlotsBand />
         <main className="relative mx-auto max-w-6xl px-5 pb-16">
-          <Section title="What is Strivon?">
+          <Section title={text.whatTitle}>
             <div className="flex flex-col gap-4 text-copy text-fg-secondary">
-              <p>
-                In a store, nobody can look at every shelf all day. A shelf runs empty, a product ends up in another one’s place,
-                and the staff find out when a customer asks.
-              </p>
-              <p>
-                Strivon looks for them. From a ceiling-camera photo and the store planogram it checks each shelf area: is it
-                holding the product it should, and how full is it? What comes out is a list of work, not a report.
-              </p>
+              <p>{text.whatFirst}</p>
+              <p>{text.whatSecond}</p>
             </div>
           </Section>
 
-          <Section title="How it works">
+          <Section title={text.howTitle}>
             <ol className="grid items-stretch gap-4 md:grid-cols-[1fr_auto_1fr_auto_1fr]">
-              {STEPS.flatMap(([Icon, title, text], i) => [
-                <li key={title} className="rounded-2xl bg-surface p-5">
+              {text.steps.flatMap((step, i) => {
+                const Icon = STEP_ICONS[i]
+                return [
+                <li key={step.title} className="rounded-2xl bg-surface p-5">
                   <Icon className="size-5 text-fg-secondary" strokeWidth={1.5} aria-hidden />
-                  <p className="mt-3 text-label text-fg">{title}</p>
-                  <p className="mt-1 text-ui text-fg-secondary">{text}</p>
+                  <p className="mt-3 text-label text-fg">{step.title}</p>
+                  <p className="mt-1 text-ui text-fg-secondary">{step.text}</p>
                 </li>,
-                i < STEPS.length - 1 && (
+                i < text.steps.length - 1 && (
                   <li key={`a${i}`} aria-hidden className="hidden items-center text-fg-muted md:flex">
                     <ArrowRight className="size-5" strokeWidth={1.5} />
                   </li>
                 ),
-              ])}
+                ]
+              })}
             </ol>
           </Section>
 
-          <Section title="What it does today">
+          <Section title={text.todayTitle}>
             <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {TODAY.map(([icon, title, text]) => (
-                <Card key={title} icon={icon} title={title} text={text} />
+              {text.today.map((item, i) => (
+                <Card key={item.title} icon={TODAY_ICONS[i]} title={item.title} text={item.text} />
               ))}
             </ul>
           </Section>
 
-          <Section title="See it" lead="The app, shortened. The plan shows where the problems are and the list gives the order of the round. Move through the day, or press a gondola to see its shelf.">
+          <Section title={text.seeTitle} lead={text.seeLead}>
             <Demo />
           </Section>
 
           <section className="grid items-center gap-8 py-12 sm:py-16 md:grid-cols-[2fr_3fr]">
             <div>
-              <h2 className="text-title">Ask, and get a screen</h2>
-              <p className="mt-3 text-copy text-fg-secondary">
-                You can ask the store a question in plain words. The answer is not a paragraph: the chat builds the screen that
-                answers it, with a chart of the day and a card that opens the shelf.
-              </p>
+              <h2 className="text-title">{text.askTitle}</h2>
+              <p className="mt-3 text-copy text-fg-secondary">{text.askText}</p>
             </div>
             <ChatClip />
           </section>
 
-          <Section title="Code">
+          <Section title={text.codeTitle}>
             <a
               href={REPO}
               target="_blank"
@@ -382,16 +400,16 @@ export function Landing() {
               <span className="min-w-0 flex-1">
                 <span className="block text-meta text-fg-muted">github.com</span>
                 <span className="mt-1 block text-display">Strivon</span>
-                <span className="mt-2 block text-copy text-fg-secondary">Shelf monitoring for the Sensei challenge at JunctionX Lisbon 2026.</span>
+                <span className="mt-2 block text-copy text-fg-secondary">{text.repoDescription}</span>
               </span>
               <span className="inline-flex h-11 shrink-0 items-center gap-2 self-start rounded-xl bg-fg px-5 text-label text-bg transition-opacity group-hover:opacity-85 sm:self-center">
-                Open the repository
+                {text.openRepo}
                 <ArrowUpRight className="size-4" aria-hidden />
               </span>
             </a>
           </Section>
 
-          <Section title="Team">
+          <Section title={text.teamTitle}>
             <ul className="flex flex-wrap gap-x-10 gap-y-2 text-copy">
               {TEAM.map((name) => (
                 <li key={name}>{name}</li>
@@ -404,7 +422,7 @@ export function Landing() {
               <img src="partners/junctionx.png" alt="JunctionX Lisbon" className="h-14 w-auto" />
               <img src="partners/sensei.png" alt="Sensei" className="h-14 w-auto" />
             </div>
-            <p className="text-center text-meta text-fg-muted">Built at JunctionX Lisbon 2026, for the Sensei challenge. The logos belong to their owners.</p>
+            <p className="text-center text-meta text-fg-muted">{text.footer}</p>
           </footer>
         </main>
       </div>
