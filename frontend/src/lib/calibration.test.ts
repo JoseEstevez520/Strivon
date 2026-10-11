@@ -16,7 +16,7 @@ const pct = (threshold: number, level: ProductCal['level']): ProductCal => ({ mo
 test('orange: 25% marked as full', () => {
   const c = pct(25, 'full')
   assert.equal(levelFor(0.25, c), 'full')
-  assert.equal(levelFor(0.15, c), 'half')
+  assert.equal(levelFor(0.1, c), 'half')
   assert.equal(levelFor(0.05, c), 'empty')
   assert.equal(levelFor(1, c), 'full')
 })

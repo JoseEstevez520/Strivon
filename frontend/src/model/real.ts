@@ -21,7 +21,14 @@ export interface Planogram {
 }
 
 /** What the pipeline writes: camera, then photo, then area. Other fields of an area are ignored. */
-export type Predictions = Record<string, Record<string, Record<string, { planogram_compliant: boolean; stock_level: Level; stock_value?: number }>>>
+/** The finest fill the pipeline gives: the raw fill, else the expected value of p_stock, else the plain value. */
+function fillOf(o: { stock_value?: number; fill_raw?: number; p_stock?: number[] }): number | undefined {
+  if (o.fill_raw !== undefined) return o.fill_raw
+  if (o.p_stock?.length === 3) return o.p_stock[1] * 0.5 + o.p_stock[2]
+  return o.stock_value
+}
+
+export type Predictions = Record<string, Record<string, Record<string, { planogram_compliant: boolean; stock_level: Level; stock_value?: number; fill_raw?: number; p_stock?: number[] }>>>
 
 /**
  * The real cameras, photos and shelf areas, read from the planogram and the photo names (which
@@ -69,7 +76,7 @@ export function buildRealState(planogram: Planogram, photos: Record<string, stri
     for (const { image } of state.images[camera]) {
       const frame: Record<string, Observation> = {}
       for (const [area, o] of Object.entries(said[image])) {
-        if (state.areas[area]) frame[area] = { planogram_compliant: o.planogram_compliant, stock_level: o.stock_level, stock_value: o.stock_value }
+        if (state.areas[area]) frame[area] = { planogram_compliant: o.planogram_compliant, stock_level: o.stock_level, stock_value: fillOf(o) }
       }
       state.observations[camera][image] = frame
     }

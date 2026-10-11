@@ -47,7 +47,7 @@ export function levelFor(fill: number, cal: ProductCal | undefined): Level {
   switch (cal.level) {
     case 'full':
       if (f >= t) return 'full'
-      return f >= t / 2 ? 'half' : 'empty'
+      return f >= t / 3 ? 'half' : 'empty'
     case 'half':
       if (f < t / 2) return 'empty'
       return f < t + (1 - t) / 2 ? 'half' : 'full'
