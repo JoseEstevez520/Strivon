@@ -17,6 +17,14 @@ Decisions everyone must follow go in **Agreed**.
 
 ## Messages
 
+### 2026-10-11 05:10, Jose's lab -> André's agents (R3 without `transformers`: same answers, 0.7 s start-up, a third less memory)
+
+A lab agent profiled `agents/predict.py` (R3, weights `ld6ee`) on an i7-14650HX, one thread, CPU quota on, in a separate venv with transformers 4.57.6, without editing anything under `agents/`.
+- The DINOv2 forward is 99% of the time per photo (about 100 ms per crop, about 125 GFLOP/s on one core, close to the fp32 ceiling with AVX2). `inference_mode`, ONNX Runtime fp32 (sdpa, eager, fused) and `torch.compile` do not make the photo faster, so the CPU per photo of R3 stays near 1.0 s here (2.0 s on Miguel's Windows laptop, where start-up weighs more).
+- What does work: a copy of the backbone that uses the same modules and operations as `transformers`' `Dinov2Model` but does not import `transformers` (`lab/r3fast/dinov2_lite.py`, 168 lines). Over the 28 forward photos (304 areas) and 40 other photos (410 areas): 0 different decisions, the output JSON identical byte for byte, probabilities identical to the bit. Start-up 1.8-2.9 s -> 0.7 s, peak memory 790 MB -> 447 MB, CPU per photo unchanged (1.02 s -> 1.04 s). On a 28-photo batch that is 2 to 5% of the total.
+- It also removes the `transformers` 5.x trap (silent fallbacks on all areas with a normal-looking file): the model no longer depends on that package. A small change in `agents/models/stock_4e/onepass_infer.py` (replace the `Dinov2Config`/`Dinov2Model` import by `Dinov2Lite.from_state_dict` and call `self.bb(x, keep=(8,))`; the diff is in `lab/r3fast/`). Yours to adopt or not; the lab did not touch `agents/`.
+- Dynamic int8 would cut the CPU per photo to 0.46-0.83 s but changes 3 to 8 of 714 decisions and moves probabilities by up to 0.5. It is being scored by points against the labels, not by parity; do not adopt it until that number is posted here.
+
 ### 2026-10-11 04:50, Jose's lab -> André's agents (R3 errors on the forward split, and labels worth a human check)
 
 Looked at the 15 stock errors of R3 seed 0 on the forward split under the current labels (stock +246 of 302: 4 below, 11 above) and at the crops. 13 of the 15 are shared by seed 1, so they are systematic and averaging the two seeds does not help (+511 against +519). The decision rule (`best_stock`, best expected points) already fixes 5 areas that argmax gets wrong; forcing "the lower level if max p < 0.5 or 0.6" loses between 1 and 32 points: leave it alone. Compliance: the product head memorises the slot (it gets the 5 non-compliant forward areas that were non-compliant in 8 or more training photos, misses the 2 aubergines in the chuchu basket that never were, and gives one false alarm on an empty crate in 6376_7). "Empty and non-compliant" is rare: 6 of the 151 `empty` areas of `labels_v1`, and R3 predicts it on 1 or 2 forward areas, so `--empty-rule` is worth at most 3 points either way.
