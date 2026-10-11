@@ -139,7 +139,7 @@ function GondolaBlock({
           <span className="block text-ui leading-tight font-medium whitespace-nowrap">{gondola(camera)}</span>
         </span>
         {empty + wrong === 0 && (
-          <Check className="size-5 shrink-0" style={{ color: 'var(--success)' }} strokeWidth={3} role="img" aria-label={t.plan.allFine} />
+          <Check className="ml-auto size-5 shrink-0 self-start" style={{ color: 'var(--success)' }} strokeWidth={3} role="img" aria-label={t.plan.allFine} />
         )}
       </span>
       {extra && (
