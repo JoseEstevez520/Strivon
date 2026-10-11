@@ -23,7 +23,7 @@
 </p>
 
 <p align="center">
-  <img src="assets/readme/photo-to-tasks.png" alt="Tres fotos de cámaras de techo con las zonas de estantería marcadas, a la izquierda, y a la derecha una tienda pequeña en 3D con cuatro góndolas y los problemas marcados en cada una" width="100%">
+  <img src="assets/readme/photo-to-tasks.png" alt="Tres fotos de cámaras de techo con las zonas de estantería marcadas, a la izquierda, y a la derecha una tienda pequeña en 3D con cuatro góndolas y la lista de paradas de la ronda, con lo que está mal en cada una" width="100%">
 </p>
 
 <p align="center"><sub>Entran fotos de las cámaras de techo, sale una lista de trabajo. Las marcas son las respuestas del modelo para la última foto de cada cámara.</sub></p>
