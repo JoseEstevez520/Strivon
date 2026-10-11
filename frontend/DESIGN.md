@@ -6,9 +6,10 @@ next change starts from what we already learned and not from a blank page.
 
 ## What the screen is for
 
-A store employee opens it at the start of a shift and needs to see what to do. The challenge
-judges score how clearly and how quickly that reads, and the score only breaks ties, but it is
-the part of the work people see. The store has 14 cameras and about 150 shelf areas, so the
+A store employee opens it at the start of a shift and needs to see what to do. The person is in a
+hurry, often has their hands full and has had no training, so the screen has to be easy for the
+least patient reader. The challenge judges score how clearly and how quickly that reads, and the
+score only breaks ties, but it is the part of the work people see. The store has 14 cameras and about 150 shelf areas, so the
 interface has a few pages, as the first web did, with the design rebuilt. The team's own tools
 (labelling and scoring) stay in the old interface under `/tools`.
 
@@ -17,12 +18,13 @@ interface has a few pages, as the first web did, with the design rebuilt. The te
 The pages are the structure of the first web, kept because they fit what the staff do. The
 interface of that web was the problem, not its pages.
 
-- Tasks is the first page. What to do is the main thing, so the list takes the wider column on
-  the left (three fifths), grouped by action, and the context takes two fifths. Cards sit two to
-  a row, because a wide card has a large empty gap between the name and the time. A card that is
-  open grows in its own column and does not change row, and the card next to it keeps its height. On the right are all the cameras with their latest photo and a strip of their state, and when a task
-  is open the panel shows the photo of its camera with the area marked, and a way back to all
-  cameras.
+- Tasks is the first page. Empty and half full sit side by side, because they ask for different
+  things (go now, or when you can), with what is in the wrong place below. To the right, "Go
+  first" names the gondola to go to and what it needs, and "Then" lists the next three. Opening a
+  task swaps that side for the photo of its camera with the area marked.
+- Map shows the store as a plan, one box per gondola, with only what needs doing drawn inside it.
+  It is a live view of what the cameras see, so it never asks anyone to mark anything. See
+  "Rules we learned" and the log for how it got here.
 - Gondolas shows the 14 cameras as tiles, in a fixed order. A tile opens the page
   of that gondola: its photo, and its own tasks with every area that is fine.
 - Products shows the stock of each product summed over all its areas, the ones running out first,
@@ -30,12 +32,13 @@ interface of that web was the problem, not its pages.
 
 - Insights is for whoever runs the store. One sentence leads: what share of the time shelf areas
   were empty. Under it, a map of stock over time, the products and gondolas that were empty the
-  longest, and the share of the time areas held the right product. A quiet field below it asks
-  about the store.
+  longest, and the share of the time areas held the right product. A chat bubble in the corner
+  lets you ask about the store.
 
-The day bar is not in the header. It sits where the photos are, under the camera panel on the
-first page and on a gondola page, and under the headline on the pages that have no photo. The
-moment it chooses is shared by every page.
+The day bar is not in the header. It sits under the headline of the pages that show the store at a
+moment (Tasks, Gondolas, Products), and under the camera panel on a gondola page. The moment it
+chooses is shared by every page. On the Map it moves behind a small control, because the person
+on the floor wants the last photo.
 
 ## Where the rules come from
 
@@ -50,6 +53,79 @@ and this one recalculates the whole list every time the day bar moves.
 
 Where we differ on purpose: the neutrals are warm, taken from Sensei's site, where cool greys
 are the usual choice. There is no accent colour. Only the light theme exists for now.
+
+## Rules we learned
+
+These came from building and rebuilding the map and the first page. Each one cost us a version.
+
+**For the person with the cart**
+
+- One main action per screen. The answer to "what do I do now?" is the biggest thing on it.
+- Recognise, do not remember. A product is its icon and its name, never "Orange / citrus" twelve
+  times in a row with nothing to tell them apart.
+- Colour is never the only signal. Empty has a "!", wrong product has a return arrow, and a fine
+  gondola has a check. White on white says nothing.
+- Anything you press is at least 44 px, and 48 for the main thing. Text that matters is never
+  under 13 px and is never cut off.
+- Plain words: "Go first", "Bring", "Empty since 18:22". Not "Wrong product" if "In another
+  product's place" says it.
+- Little scrolling and nothing to learn.
+
+**The app only watches**
+
+The cameras and the model already see what is empty or misplaced, and the next photo clears the
+warning by itself. So the app never asks anyone to mark anything: no "Done", no "No stock", no
+progress counters. We built those once, copying a pick-list app, and took them out. A live view
+should say it is a live view: what you see is the last photo, and it updates with the next.
+
+**Draw only what needs doing**
+
+What needs no action is not drawn. The map shows the tiles of what is empty or in the wrong
+place. Fine areas and half full ones stay out of it. They are in the panel, one touch away. A
+first version drew one tile for each of the 150 areas and it was noise.
+
+**Say each thing once**
+
+- A count that the tiles already show is not repeated as a chip.
+- A name that the drawing already says is not written again: no "Entrance" over a door, no "All
+  fine" next to a check, no department sign over a department, no aisle names when the gondolas
+  have numbers.
+- A line of the products under each gondola name was crowding it, so it lives in the panel.
+
+**Tone over lines, flat over ornament**
+
+- Lines stacked on lines (a grid in the floor, dashed lanes, a dotted route, dashed outlines on
+  the tiles and a ring on the selected box) added nothing. Separation comes from tone and space.
+- No skeuomorphism: no poles or chains on signs, no speech-bubble tails, no 3D, no mats with
+  stripes. The store feel comes from structure (an outer wall, an opening, rows of gondolas).
+- No black as a highlight. Dark headers, a black "go first" card and black markers all looked
+  like foreign bodies. The first gondola to visit stands out by size, a lighter tone and a number.
+- Colour is for outcomes. A soft red for empty, a soft amber for the wrong product, a soft green
+  for a gondola with nothing to do, at the same strength, so the worst can still be told apart.
+
+**Same things look the same**
+
+- Objects of one kind (the gondolas) have one size and sit on one grid: the header at the top,
+  the tiles from the same height, and any secondary line anchored in the same corner of every box.
+  Boxes that shrink to their content looked uneven.
+- They need contrast against the floor. Light boxes on a darker flat floor.
+
+**Responsive means reflow, not shrink**
+
+A drawn plan with fixed proportions does not fit a phone. The map is a layout of boxes that
+reflows: the plan on a wide screen, three or four columns on a tablet, and on a phone two columns
+in the order of the round, most urgent first, with the first one wide and carrying what to bring.
+The same box is used at every width. Test at 1440, 768 and 390 and look at the result.
+
+**How we work**
+
+- We try ideas as pages in the lab (`/lab`, `/lab/home`, `/lab/map`), side by side with real data,
+  before touching the app. Nothing from the lab goes to main without being chosen.
+- Several agents can propose different directions, and a critic can review them. Their reports are
+  opinions. Look at the screenshot yourself: more than once an agent said a change was done and it
+  was not.
+- Research in the web is cited only from pages that were opened, and we say what was not verified.
+- When we decide something, it goes here in the same commit.
 
 ## Header and navigation
 
@@ -102,7 +178,8 @@ smaller. Times and counts use tabular figures so columns line up.
 
 The screen is grey and warm. Colour means a state and nothing else.
 
-- Restock is red, move back is amber, later is grey and all good is green.
+- Restock is red, move back is amber, later is grey and all good is green. There is no black or
+  brand colour as a highlight.
 - A card that asks for action takes a soft tint of its colour, 13% at rest and 19% on hover and
   while open. There is no border. The tint takes the place of a border.
 - The icon next to each group heading carries the colour. The heading text stays grey.
@@ -143,6 +220,10 @@ under it, name alone with the time as the right edge, or elapsed time as a large
 second has the least text, which was the complaint about the first version.
 
 ## Gondola tiles
+
+A gondola is named by a number, "Gondola 4", in the order of the cameras. The two products that
+fill most of it go in a quiet second line where there is room. The numbers are placeholders until
+the store gives us its own.
 
 A tile is a camera, and nothing goes over its photo. The photo is the proof of what the app says,
 and the lower shelf is where the stock shows, so it sits whole in a quiet box. Under it, in one
@@ -535,6 +616,16 @@ a collapsing block by hand once, and Base UI and shadcn already had it.
   its text and callout parts and never the figures of a chart. Escape ends a recording before
   it closes the box. Failures are one short line that clears itself, not a dialog.
 
+- 2026-10-11. The map is a passive live view and was cleaned up in many steps, each with its reason in
+  "Rules we learned". We dropped the "Done" and "No stock" buttons because the cameras detect it,
+  the dark highlights, the poles and tails, the grid and dashed lines, the count chips, the
+  department sign, the aisle names, the entrance label and the "N fine" line. Gondolas became boxes
+  of one size on a darker floor, with only their problem tiles inside, and the ones with nothing to
+  do a soft green with a check. A 3D view was built and set aside: the team did not want it.
+- 2026-10-11. Rules about ease of use were checked against sources that were opened, with the
+  caveat that the frontline-worker advice comes from company blogs: Nielsen's heuristics (recognise
+  rather than remember, prevent errors), WCAG 1.4.1 (colour is never the only signal), target sizes
+  (44 to 48 px for touch, 24 px as the legal floor in WCAG 2.5.8), and one main action per screen.
 - 2026-10-11. Pressing a gondola on the map opens its own page instead of a side panel or a sheet.
   The map then takes the whole width and has one job, to show where the problems are. The gondola
   page has the other job: the camera photo with what is empty or misplaced marked on it, and the
@@ -560,11 +651,23 @@ what we decide into the sections above and the decisions log.
   problem, and which figures a manager already looks at each day. Write what we find, with its
   source, in `docs/` and design from that, not from guesses. The Insights page is the starting
   point; this version may replace it or sit beside it.
-- A store plan with the real layout. The Map page places the gondolas in rows because we do not
-  have the plan of the store. When we get it, fill in `src/model/layout.ts`.
+- A store plan with the real layout. The Map places the gondolas on a made-up floor because we do
+  not have the plan of the store. When we get it, the order and the rows follow it.
+- Improve the panel of the map: the real photo of the gondola with the problem areas marked on
+  top, the problems grouped by product ("Orange x6, empty since 19:30") instead of one row each,
+  and no list of every fine area.
+- Make the map livelier: play the day on it and watch gondolas change colour, search a product to
+  light up where it is, mark what changed since the previous photo, and a photo preview on hover.
+- Move the chat relay to the pipeline's server, so a built version has the chat and the voice. At
+  the moment it only exists in development and on the shared server.
 
 ## Open questions
 
+- Who is the screen for in practice: a phone in a hand, or a tablet on a cart? It changes where
+  the main control goes. A person on the floor should try it without explanation and we watch what
+  they touch first.
+- The microphone only works on localhost or over https, and the shared server is http on an
+  address.
 - The English flag is the UK flag. A code such as EN would avoid the question of which country
   English belongs to.
 - The Insights page and every figure on it depend on the real predictions replacing the simulated
