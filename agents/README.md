@@ -48,7 +48,8 @@ camera gives a warn-only WARN. Neither check ever changes an answer.
 `--label-free` swaps in a model that uses no labels at all:
 
 - product: SigLIP2-base zero-shot over the camera's product families, plus EMPTY;
-- stock: the share of the crate's 3x3 tiles that look like empty floor, minus a per-area baseline (candidate U6).
+- stock: one SigLIP2-base pass over the whole crate at 336 px, MAP-pooled into 3x3 regions. It counts the share of
+  regions that look like empty floor, minus a per-area baseline (candidate U7).
 
 The baseline is the area's minimum share over a set of unlabelled photos of the store, built once.
 
@@ -65,8 +66,9 @@ python -I agents/labelfree_setup.py baselines --images <unlabelled photos of a n
   evaluation only.
 - Without the weights it stops with an ERROR naming the setup command. `LABELFREE_WEIGHTS=<path>.pt` uses a copy of
   the weights stored elsewhere, read-only.
-- Speed: ~1.3 s per photo on an RTX 3060 Laptop GPU (2.5 GB VRAM), ~22 s per photo on a laptop CPU (4 threads), because
-  every crate is cut into 9 tiles.
+- Speed: ~0.2 s per photo on an RTX 3060 Laptop GPU, ~8 s per photo on a laptop CPU (4 threads).
+- Score with zero labels (all points, rules' table, team key): +1906 / 3858 on all 1929 labelled areas, +240 / 604 on
+  each camera's last 2 photos. The supervised model scores +483 / 604 on those last photos.
 
 Needs Python 3.12+, torch, transformers (see requirements.txt), numpy, opencv-python and pillow. Not included: the
 challenge data (planogram, photos, labels). Pass them in with the flags above.
