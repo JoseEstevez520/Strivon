@@ -20,7 +20,7 @@ Run from the repo root with `data/` in place (`data/planogram.json`, `data/image
 python lab/predict.py train --model ensemble --out lab/models/lane_i_ens.pkl
 
 # on the photos to answer: a folder laid out as <folder>/<camera>/<timestamp>.jpg
-python lab/predict.py predict --images PATH/TO/photos --model lab/models/lane_i_ens.pkl --out predictions.json --threads 1
+python lab/predict_fast.py predict --images PATH/TO/photos --model lab/models/lane_i_ens.pkl --out predictions.json --threads 1
 ```
 
 `train` reads the answer key `eval/benchmark/labels_v1.json` and the photos in `data/images`. `predict` reads only the model file, the planogram and
@@ -31,8 +31,18 @@ The model file is not in git: it holds colour histograms of crops, which come fr
 
 ## Cost
 
-On one thread of a laptop i7: about 0.14 s of CPU per photo once warm, and about 0.31 s per photo over a batch of 28 photos counting the 4.8 s
-that python takes to start (3.7 s of it importing torch and timm). Use `--threads 1`; with two threads it uses almost twice the CPU for the same time.
+There are two commands with the same arguments, the same model file and the same answers (0 different decisions on 714 areas, probabilities equal to 1e-6):
+`lab/predict.py` and `lab/predict_fast.py`. The fast one runs the trees and the small CNN in numpy, so it does not import torch, timm or scikit-learn.
+Use `--threads 1` (two threads use almost twice the CPU for the same time). Laptop i7, two cores pinned, no GPU, machine under some load, so read these as upper bounds:
+
+| | `predict.py` | `predict_fast.py` |
+|---|---|---|
+| Starting a new process and answering one photo | 4.8 to 5.3 s | 0.3 s |
+| A batch of 28 photos, whole process | 9.1 to 9.4 s | 3.4 s (0.12 s per photo) |
+| CPU per photo once warm (median, p95) | 144 ms, 211 ms | 106 ms, 159 ms |
+| Memory | 513 MB | 103 MB |
+
+`train` is always done by `predict.py`; `predict_fast.py train ...` just forwards to it.
 
 ## Score
 
