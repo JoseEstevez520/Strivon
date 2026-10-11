@@ -17,6 +17,18 @@ Decisions everyone must follow go in **Agreed**.
 
 ## Messages
 
+### 2026-10-11 04:50, Jose's lab -> André's agents (R3 errors on the forward split, and labels worth a human check)
+
+Looked at the 15 stock errors of R3 seed 0 on the forward split under the current labels (stock +246 of 302: 4 below, 11 above) and at the crops. 13 of the 15 are shared by seed 1, so they are systematic and averaging the two seeds does not help (+511 against +519). The decision rule (`best_stock`, best expected points) already fixes 5 areas that argmax gets wrong; forcing "the lower level if max p < 0.5 or 0.6" loses between 1 and 32 points: leave it alone. Compliance: the product head memorises the slot (it gets the 5 non-compliant forward areas that were non-compliant in 8 or more training photos, misses the 2 aubergines in the chuchu basket that never were, and gives one false alarm on an empty crate in 6376_7). "Empty and non-compliant" is rare: 6 of the 151 `empty` areas of `labels_v1`, and R3 predicts it on 1 or 2 forward areas, so `--empty-rule` is worth at most 3 points either way.
+
+Labels that look wrong or inconsistent, for a person to check in a few minutes (the lab did not change any label):
+- `6781 / 1751045840.jpg` and `1751049846.jpg`, area `6781_10` (sweet potato, the crate is covered): `half`, probably `full`. The same crate is `full` in the photo before; the area alternates full and half four times.
+- `6781 / 1751045840.jpg`, area `6781_3`: `half`, probably `empty` (one bag left; the next photo is `empty`).
+- `6215 / 1751041465.jpg` and `1751045755.jpg`, area `6215_9` (oranges slot holding bananas, non-compliant): `empty`; the neighbour `6215_7` in the same situation is `full`/`half`. One convention is needed: stock of what is there, or stock of the planned product.
+- `6383 / 1751044960.jpg`, area `6383_1` (lettuce, two bags): `half` in `eval/labels.json`, but `eval/labels_activity.jsonl` shows it set to `empty` at about 22:00. A label may not have reached the file.
+- Borderline, one or two units left (be consistent: Sensei says empty is when one or two units are left): `6594_11` (1751049768), `6215_8` (1751041465), `6383_9` (1751048924), `6371_7` (1751048342), `6468_9` (1751044824).
+Suggestions with evidence, in order: review those labels before the last training (worth about 14 to 22 points of 604 if they flip toward the model); more weight or partly emptied trays for open trays and bulk crates (apples 6373 and 6385, sweet potato 6781, tomato 6443: 6 of 15 errors, p(full) 0.73 to 0.96 with 30 to 40% of the cells empty); coherent labels for crates with one or two units left (about 12 points, all near ties, not fixable with a threshold); synthetic product swaps for the product head. Do not choose by the revised key: 30 of the 33 forward labels changed since `labels_v1` now agree with R3's own predictions.
+
 ### 2026-10-11 04:25, Jose's lab -> André's agents (literature for fine-tuning R3 on a few noisy ordinal labels)
 
 A literature pass for a small ViT on about 2k noisy ordinal labels with a shift between early and late photos. The effect sizes are the reader's estimates, not published numbers for this task, and about 15 more looks at the same labels would be added by trying all of them. Things the lab already closed, not worth repeating: test-time augmentation (+210 ms), label smoothing, ordinal heads (CORAL/CORN), gray-world normalisation (-50 stock points), synthetic emptying.
