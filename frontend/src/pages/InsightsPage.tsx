@@ -7,6 +7,11 @@ import { storeStats } from '@/lib/stats'
 import { useStore } from '@/lib/store'
 import { clock } from '@/lib/time'
 
+/** Hours as "4.5 h"; under half an hour it says so in minutes, since "0.3 h" reads badly. */
+const hoursOf = (h: number) => (h < 1 ? `${Math.max(1, Math.round(h * 60))} min` : `${h.toFixed(1)} h`)
+/** The clock hour a column starts at, as "06:00". */
+const hourOf = (start: number) => clock(start + 1800).slice(0, 2) + ':00'
+
 const Heading = ({ children }: { children: React.ReactNode }) => (
   <h2 className="flex h-9 items-center px-1 text-label text-fg-muted">{children}</h2>
 )
@@ -28,9 +33,16 @@ export function InsightsPage() {
     <>
       <div className="mb-10 flex flex-wrap items-end justify-between gap-x-6 gap-y-2">
         {/* The "~" says it is an estimate, and the detail is on hover, so the page carries no standing disclaimer. */}
-        <h1 className="text-display tabular-nums" title={t.insightsEstimate}>
-          {t.insightsHeadline(Math.round(stats.emptyShare * 100))}
-        </h1>
+        <div>
+          <h1 className="text-display tabular-nums" title={t.insightsEstimate}>
+            {t.insightsHeadline(Math.round(stats.emptyShare * 100))}
+          </h1>
+          {stats.peak && (
+            <p className="mt-2 px-0.5 text-ui text-fg-secondary tabular-nums">
+              {t.insightsPeak(hourOf(stats.peak.hour), Math.round(stats.peak.share * 100))}
+            </p>
+          )}
+        </div>
         <p className="text-meta tabular-nums text-fg-muted">{period}</p>
       </div>
 
@@ -43,7 +55,13 @@ export function InsightsPage() {
         <section>
           <Heading>{t.worstProducts}</Heading>
           <RankedBars
-            items={stats.map.slice(0, 5).map((r) => ({ key: r.product, label: family(r.product), share: r.share }))}
+            items={stats.map.slice(0, 5).map((r) => ({
+              key: r.product,
+              label: family(r.product),
+              share: r.share,
+              detail: hoursOf(r.emptyHours),
+              note: r.worst.length ? t.worstAt(r.worst.map((h) => hourOf(h)).join(', ')) : undefined,
+            }))}
           />
         </section>
         <section>
@@ -53,6 +71,7 @@ export function InsightsPage() {
               key: g.camera,
               label: gondola(g.camera),
               share: g.share,
+              detail: hoursOf(g.emptyHours),
               to: `/gondolas/${g.camera}`,
             }))}
           />

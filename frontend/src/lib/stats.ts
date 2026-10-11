@@ -8,6 +8,10 @@ export interface MapRow {
   share: number
   /** For each hour column, the share of its areas that were empty, or null where no camera saw it. */
   cells: (number | null)[]
+  /** How many hours of the period an area of this product was empty on average: the share times the length of the period. */
+  emptyHours: number
+  /** The start of the hours in which the most of it was empty, worst first, at most two. */
+  worst: number[]
 }
 
 export interface Stats {
@@ -20,7 +24,9 @@ export interface Stats {
   /** The start of each hour column, in unix seconds. */
   hours: number[]
   map: MapRow[]
-  byGondola: { camera: string; share: number }[]
+  byGondola: { camera: string; share: number; emptyHours: number }[]
+  /** The hour in which the most areas were empty, among the hours most cameras were taking photos. */
+  peak: { hour: number; share: number } | null
 }
 
 /**
@@ -79,12 +85,19 @@ export function storeStats(state: StoreState): Stats {
   const hours: number[] = []
   for (let t = start; t < end; t += HOUR) hours.push(t)
 
+  const periodHours = (last - first) / HOUR
   const products = [...new Set(areas.map((a) => a.product_id))]
   const map: MapRow[] = products.map((product) => {
     const own = areas.filter((a) => a.product_id === product)
     const cells = hours.map((hour) => cell(state, own, hour + HOUR / 2))
     const time = timeByProduct[product] ?? 0
-    return { product, share: time ? (emptyByProduct[product] ?? 0) / time : 0, cells }
+    const worst = cells
+      .map((share, i) => ({ share: share ?? 0, hour: hours[i] }))
+      .filter((c) => c.share > 0)
+      .sort((a, b) => b.share - a.share || a.hour - b.hour)
+      .slice(0, 2)
+      .map((c) => c.hour)
+    return { product, share: time ? (emptyByProduct[product] ?? 0) / time : 0, cells, emptyHours: (time ? (emptyByProduct[product] ?? 0) / time : 0) * periodHours, worst }
   })
 
   return {
@@ -94,13 +107,31 @@ export function storeStats(state: StoreState): Stats {
     hours,
     map: map.sort((a, b) => b.share - a.share),
     byGondola: Object.keys(timeByCamera)
-      .map((camera) => ({ camera, share: (emptyByCamera[camera] ?? 0) / timeByCamera[camera] }))
+      .map((camera) => ({ camera, share: (emptyByCamera[camera] ?? 0) / timeByCamera[camera], emptyHours: ((emptyByCamera[camera] ?? 0) / timeByCamera[camera]) * periodHours }))
       .sort((a, b) => b.share - a.share),
+    peak: peakHour(state, areas, hours),
   }
+}
+
+/** The hour with the most areas empty. Hours where fewer than 60% of the areas had a camera on them are left out, since a few areas alone would swing it. */
+function peakHour(state: StoreState, areas: Area[], hours: number[]): Stats['peak'] {
+  let best: Stats['peak'] = null
+  for (const hour of hours) {
+    const { seen, empty } = tally(state, areas, hour + HOUR / 2)
+    if (seen < areas.length * 0.6) continue
+    const share = empty / seen
+    if (share > 0 && (!best || share > best.share)) best = { hour, share }
+  }
+  return best
 }
 
 /** The share of a product's areas that were empty at a moment, counting only cameras that were taking photos then. */
 export function cell(state: StoreState, areas: Area[], at: number): number | null {
+  const { seen, empty } = tally(state, areas, at)
+  return seen ? empty / seen : null
+}
+
+function tally(state: StoreState, areas: Area[], at: number): { seen: number; empty: number } {
   let seen = 0
   let empty = 0
   for (const area of areas) {
@@ -112,5 +143,5 @@ export function cell(state: StoreState, areas: Area[], at: number): number | nul
     seen++
     if (groupOf(obs) === 'restock') empty++
   }
-  return seen ? empty / seen : null
+  return { seen, empty }
 }
