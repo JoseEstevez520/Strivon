@@ -1,4 +1,4 @@
-import { Html, OrbitControls, OrthographicCamera, RoundedBox } from '@react-three/drei'
+import { OrbitControls, OrthographicCamera, RoundedBox } from '@react-three/drei'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
@@ -9,7 +9,6 @@ import { useStore } from '@/lib/store'
 import { suggest } from '@/lib/suggest'
 import { cameras, type Task } from '@/lib/tasks'
 import { FAMILY_ICON, ICON_BODY } from '@/model/produceIcons'
-import { isProblem, shelfOrder } from '@/pages/MapStorePage'
 
 /*
  * The store as a small 3D diorama, for the lab. Gondolas are rounded boxes standing on a floor with
@@ -32,24 +31,31 @@ const C = {
 }
 const tint = (c: string, pct: number, base = C.raised) => new THREE.Color(base).lerp(new THREE.Color(c), pct / 100).getStyle()
 
-// World units. A gondola is W wide, D deep and H tall; tiles are TILE on a side.
-const W = 3.6
-const D = 2.8
-const H = 1
-const TILE = 0.62
-const PITCH = 0.74
-const GAP_X = 0.9
-const GAP_Z = 1.3
-const MARGIN = 1
+// World units. A gondola is a shelf unit W wide, D deep and H tall, facing the front.
+const W = 3.8
+const D = 1.3
+const H = 2.1
+const BOARD = 0.1
+const GAP_X = 0.8
+const GAP_Z = 2.6
+const MARGIN = 1.1
 const COLS = 5
-const FLOOR_W = COLS * W + (COLS - 1) * GAP_X + MARGIN * 2
 const ROWS = 3
-const FLOOR_D = ROWS * D + (ROWS - 1) * GAP_Z + MARGIN * 2 + 1.4
+const FLOOR_W = COLS * W + (COLS - 1) * GAP_X + MARGIN * 2
+const FLOOR_D = ROWS * D + (ROWS - 1) * GAP_Z + MARGIN * 2 + 1.8
 
-type Look = 'critical' | 'empty' | 'wrong'
-const lookOf = (x: Task): Look => (x.group === 'moveBack' ? 'wrong' : x.urgency >= 0.5 ? 'critical' : 'empty')
-const TILE_BG: Record<Look, string> = { critical: tint(C.danger, 34), empty: tint(C.danger, 14), wrong: tint(C.warning, 28) }
-const INK: Record<Look, string> = { critical: C.danger, empty: tint(C.danger, 80, C.fg), wrong: C.warning }
+type Look = 'critical' | 'empty' | 'wrong' | 'half' | 'fine'
+const lookOf = (x: Task): Look =>
+  x.group === 'moveBack' ? 'wrong' : x.group === 'restock' ? (x.urgency >= 0.5 ? 'critical' : 'empty') : x.group === 'later' ? 'half' : 'fine'
+const BODY: Record<Look, string> = {
+  critical: tint(C.danger, 42),
+  empty: tint(C.danger, 22),
+  wrong: tint(C.warning, 36),
+  half: '#e4e1d9',
+  fine: '#f3f1ec',
+}
+const INK: Record<Look, string> = { critical: C.danger, empty: tint(C.danger, 85, C.fg), wrong: C.warning, half: '#8d8c85', fine: '#a9a8a1' }
+const loud = (l: Look) => l === 'critical' || l === 'empty' || l === 'wrong'
 
 /** The icon of a product with its warning badge, drawn once as a texture and reused. */
 const textures = new Map<string, THREE.Texture>()
@@ -60,7 +66,9 @@ function iconTexture(family: string, look: Look, onLoad: () => void): THREE.Text
   const body = ICON_BODY[FAMILY_ICON[family]] ?? ''
   const ink = INK[look]
   const badge =
-    look === 'wrong'
+    look === 'half' || look === 'fine'
+      ? ''
+      : look === 'wrong'
       ? `<circle cx="26" cy="6" r="5.5" fill="${C.warning}"/><path d="M23.5 6h5M23.5 6l2-2M23.5 6l2 2" stroke="#fff" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`
       : `<circle cx="26" cy="6" r="5.5" fill="${C.danger}"/><rect x="25.2" y="2.6" width="1.6" height="4.2" rx=".8" fill="#fff"/><circle cx="26" cy="8.9" r="1" fill="#fff"/>`
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="256" height="256"><g color="${ink}" fill="${ink}" transform="translate(1.6 2.4) scale(.95)">${body}</g>${badge}</svg>`
@@ -126,7 +134,6 @@ function useLabel(name: string, rank: number, fine: boolean) {
 }
 
 interface GondolaProps {
-  camera: string
   position: [number, number]
   tasks: Task[]
   rank: number
@@ -136,36 +143,63 @@ interface GondolaProps {
   onOpen: () => void
 }
 
-/** One gondola: a rounded box that lifts a little when you point at it, with its problem tiles on top. */
+/** The areas of a gondola grouped in shelves, from the top one down, each from left to right. */
+function shelves(tasks: Task[]): Task[][] {
+  const cy = (x: Task) => x.area.quad.reduce((sum, p) => sum + p[1], 0) / 4
+  const cx = (x: Task) => x.area.quad.reduce((sum, p) => sum + p[0], 0) / 4
+  const rows = new Map<number, Task[]>()
+  for (const x of tasks) {
+    const k = Math.round(cy(x) / 150)
+    rows.set(k, [...(rows.get(k) ?? []), x])
+  }
+  const out = [...rows.entries()].sort((a, b) => a[0] - b[0]).map(([, v]) => v.sort((a, b) => cx(a) - cx(b)))
+  // Never more than three shelves: fold the extra ones into the last.
+  while (out.length > 3) out[out.length - 2] = [...out[out.length - 2], ...out.pop()!]
+  return out
+}
+
+/** One crate on a shelf: a tinted box with the product's icon on its front, and a badge if something is wrong. */
+function Crate({ x, y, w, look, family }: { x: number; y: number; w: number; look: Look; family: string }) {
+  const invalidate = useThree((s) => s.invalidate)
+  const map = useMemo(() => iconTexture(family, look, invalidate), [family, look, invalidate])
+  const h = 0.5
+  const d = D - 0.34
+  return (
+    <group position={[x, y, 0.04]}>
+      <mesh position={[0, h / 2, 0]}>
+        <boxGeometry args={[w, h, d]} />
+        <meshStandardMaterial color={BODY[look]} roughness={1} />
+      </mesh>
+      <mesh position={[0, h / 2, d / 2 + 0.004]} renderOrder={5}>
+        <planeGeometry args={[Math.min(w * 0.92, 0.7), Math.min(w * 0.92, 0.7)]} />
+        <meshBasicMaterial map={map} transparent toneMapped={false} />
+      </mesh>
+    </group>
+  )
+}
+
+/** One gondola: a shelf unit with a header board, shelves and a crate for each area. It lifts when pointed at. */
 function Gondola({ position, tasks, rank, name, hovered, onHover, onOpen }: GondolaProps) {
-  const { t, family } = useI18n()
   const group = useRef<THREE.Group>(null)
   const invalidate = useThree((s) => s.invalidate)
-  const problems = useMemo(() => shelfOrder(tasks).filter(isProblem), [tasks])
+  const rows = useMemo(() => shelves(tasks), [tasks])
+  const problems = useMemo(() => tasks.filter((x) => loud(lookOf(x))), [tasks])
   const fine = problems.length === 0
-  const cols = Math.max(1, Math.floor((W - 0.4) / PITCH))
   const label = useLabel(name, rank, fine)
-  const summary = useMemo(() => {
-    const m = new Map<string, { key: string; family: string; label: string; look: Look; n: number }>()
-    for (const x of problems) {
-      const look = x.group === 'moveBack' ? 'wrong' : 'empty'
-      const k = `${look}:${x.area.family}`
-      const row = m.get(k) ?? { key: k, family: x.area.family, label: family(x.area.family), look: look as Look, n: 0 }
-      row.n += 1
-      m.set(k, row)
-    }
-    return [...m.values()].sort((a, b) => b.n - a.n)
-  }, [problems, family])
+  const cols = Math.max(1, ...rows.map((r) => r.length))
+  const slot = (W - 0.5) / cols
+  const shelfY = (k: number) => 0.3 + (rows.length - 1 - k) * 0.62
 
   useFrame((_, dt) => {
     const g = group.current
     if (!g) return
-    const target = hovered ? 0.22 : 0
+    const target = hovered ? 0.2 : 0
     const next = g.position.y + (target - g.position.y) * Math.min(1, dt * 14)
     g.position.y = Math.abs(target - next) < 0.002 ? target : next
     if (g.position.y !== target) invalidate()
   })
 
+  const frame = fine ? tint(C.success, 20, C.box) : hovered ? C.raised : '#fdfcfa'
   return (
     <group
       position={[position[0], 0, position[1]]}
@@ -180,70 +214,48 @@ function Gondola({ position, tasks, rank, name, hovered, onHover, onOpen }: Gond
       }}
     >
       <group ref={group}>
-        <RoundedBox args={[W, H, D]} radius={0.14} smoothness={4} position={[0, H / 2, 0]}>
-          <meshStandardMaterial color={fine ? tint(C.success, 16, C.box) : hovered ? C.raised : C.box} roughness={0.95} />
+        {/* the frame: a plinth, a back panel, two ends and a top */}
+        <RoundedBox args={[W, 0.2, D]} radius={0.06} smoothness={3} position={[0, 0.1, 0]}>
+          <meshStandardMaterial color={frame} roughness={1} />
         </RoundedBox>
-        {/* a groove on the front face, like the shelf edge */}
-        <mesh position={[0, 0.22, D / 2 + 0.002]}>
-          <planeGeometry args={[W - 0.5, 0.05]} />
-          <meshBasicMaterial color="#e2dfd8" />
+        <mesh position={[0, H / 2, -D / 2 + 0.05]}>
+          <boxGeometry args={[W, H, 0.1]} />
+          <meshStandardMaterial color={tint(C.fg, 5, frame)} roughness={1} />
         </mesh>
-        {problems.map((x, i) => {
-          const look = lookOf(x)
-          const col = i % cols
-          const row = Math.floor(i / cols)
-          const px = -((cols - 1) * PITCH) / 2 + col * PITCH
-          const pz = -D / 2 + 0.6 + row * PITCH
-          return <Tile key={x.area.area_id} x={px} z={pz} look={look} family={x.area.family} />
-        })}
-        {hovered && problems.length > 0 && (
-          <Html position={[0, H + 0.9, 0]} center zIndexRange={[20, 10]} style={{ pointerEvents: 'none' }}>
-            <div className="w-56 rounded-xl bg-raised p-2.5 text-left">
-              <p className="mb-1.5 text-ui font-medium">{name}</p>
-              <ul className="flex flex-col gap-1">
-                {summary.map((r) => (
-                  <li key={r.key} className="flex items-center gap-2 text-meta text-fg-secondary">
-                    <span className="grid size-6 shrink-0 place-items-center rounded-md" style={{ background: TILE_BG[r.look], color: INK[r.look] }}>
-                      <ProductIcon family={r.family} label={r.label} className="size-4" />
-                    </span>
-                    <span className="min-w-0 flex-1 truncate text-fg">{r.label}</span>
-                    <span className="tabular-nums">×{r.n}</span>
-                    <span className="text-fg-muted">{r.look === 'wrong' ? t.wrongProduct : t.level.empty}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </Html>
-        )}
-        <mesh position={[0, 0.64, D / 2 + 0.004]}>
-          <planeGeometry args={[W - 0.3, (W - 0.3) / 4]} />
+        {[-1, 1].map((side) => (
+          <mesh key={side} position={[side * (W / 2 - 0.06), H / 2, 0]}>
+            <boxGeometry args={[0.12, H, D]} />
+            <meshStandardMaterial color={frame} roughness={1} />
+          </mesh>
+        ))}
+        {rows.map((_, k) => (
+          <mesh key={k} position={[0, shelfY(k) - BOARD / 2, 0]}>
+            <boxGeometry args={[W - 0.2, BOARD, D]} />
+            <meshStandardMaterial color={frame} roughness={1} />
+          </mesh>
+        ))}
+        {/* the header board, with the name painted on its front */}
+        <mesh position={[0, H - 0.0, 0]}>
+          <boxGeometry args={[W, 0.62, D + 0.04]} />
+          <meshStandardMaterial color={frame} roughness={1} />
+        </mesh>
+        <mesh position={[0, H, D / 2 + 0.03]}>
+          <planeGeometry args={[W - 0.2, (W - 0.2) / 4.2]} />
           <meshBasicMaterial map={label} transparent toneMapped={false} depthWrite={false} />
         </mesh>
+        {rows.map((row, k) =>
+          row.map((x, i) => (
+            <Crate key={x.area.area_id} x={-((row.length - 1) * slot) / 2 + i * slot} y={shelfY(k)} w={slot * 0.88} look={lookOf(x)} family={x.area.family} />
+          )),
+        )}
       </group>
-    </group>
-  )
-}
-
-/** One tile on a box: a thin tinted slab with the product icon laid on its top. */
-function Tile({ x, z, look, family }: { x: number; z: number; look: Look; family: string }) {
-  const invalidate = useThree((s) => s.invalidate)
-  const map = useMemo(() => iconTexture(family, look, invalidate), [family, look, invalidate])
-  return (
-    <group position={[x, H, z]}>
-      <RoundedBox args={[TILE, 0.08, TILE]} radius={0.05} smoothness={3} position={[0, 0.04, 0]}>
-        <meshStandardMaterial color={TILE_BG[look]} roughness={1} />
-      </RoundedBox>
-      <mesh rotation-x={-Math.PI / 2} position={[0, 0.1, 0]} renderOrder={5}>
-        <planeGeometry args={[TILE * 0.96, TILE * 0.96]} />
-        <meshBasicMaterial map={map} transparent toneMapped={false} />
-      </mesh>
     </group>
   )
 }
 
 /** The floor with low walls on three sides and an opening in the front wall. */
 function Room() {
-  const wallH = 0.7
+  const wallH = 0.8
   const t = 0.45
   const doorW = 3.6
   const doorX = -FLOOR_W / 2 + 7
@@ -289,11 +301,11 @@ function Room() {
 /** Fits the floor in the frame whatever the width, and starts looking from a corner. */
 function Rig() {
   const size = useThree((s) => s.size)
-  const zoom = Math.min(size.width / 27, size.height / 18.5)
-  return <OrthographicCamera makeDefault position={[19, 15, 19]} zoom={zoom} near={0.1} far={200} />
+  const zoom = Math.min(size.width / 27, size.height / 21)
+  return <OrthographicCamera makeDefault position={[17, 17, 17]} zoom={zoom} near={0.1} far={200} />
 }
 
-function Scene({ onOpen }: { onOpen: (camera: string) => void }) {
+function Scene({ onOpen, onHoverChange }: { onOpen: (camera: string) => void; onHoverChange: (camera: string | null) => void }) {
   const { state, tasks, gondola } = useStore()
   const list = cameras(state)
   const ranking = useMemo(() => suggest(tasks).filter((s) => s.empty + s.wrong > 0), [tasks])
@@ -306,11 +318,12 @@ function Scene({ onOpen }: { onOpen: (camera: string) => void }) {
   const [hover, setHover] = useState<string | null>(null)
 
   useEffect(() => {
+    onHoverChange(hover)
     document.body.style.cursor = hover ? 'pointer' : ''
     return () => {
       document.body.style.cursor = ''
     }
-  }, [hover])
+  }, [hover, onHoverChange])
 
   return (
     <>
@@ -326,7 +339,6 @@ function Scene({ onOpen }: { onOpen: (camera: string) => void }) {
         return (
           <Gondola
             key={c}
-            camera={c}
             position={[x, z]}
             tasks={byCamera[c] ?? []}
             rank={rankOf(c)}
@@ -359,6 +371,21 @@ export function Map3DPage() {
   const { t } = useI18n()
   const navigate = useNavigate()
   const [key, setKey] = useState(0)
+  const [hover, setHover] = useState<string | null>(null)
+  const { tasks, gondola } = useStore()
+  const { family } = useI18n()
+  // What is wrong in the gondola pointed at, shown in a corner of the frame so it never covers the scene.
+  const summary = useMemo(() => {
+    const m = new Map<string, { key: string; family: string; look: Look; n: number }>()
+    for (const x of tasks.filter((y) => y.area.camera === hover && loud(lookOf(y)))) {
+      const look = lookOf(x) === 'wrong' ? 'wrong' : 'empty'
+      const k = `${look}:${x.area.family}`
+      const row = m.get(k) ?? { key: k, family: x.area.family, look: look as Look, n: 0 }
+      row.n += 1
+      m.set(k, row)
+    }
+    return [...m.values()].sort((a, b) => b.n - a.n)
+  }, [tasks, hover])
   const webgl = useMemo(() => {
     try {
       const c = document.createElement('canvas')
@@ -378,10 +405,31 @@ export function Map3DPage() {
       <div className="relative h-[min(82dvh,52rem)] min-h-[26rem] overflow-hidden rounded-2xl" style={{ background: C.bg }}>
         {webgl ? (
           <Canvas key={key} flat dpr={[1, 2]} frameloop="demand" gl={{ antialias: true }}>
-            <Scene onOpen={(c) => navigate(`/gondolas/${c}`)} />
+            <Scene onOpen={(c) => navigate(`/gondolas/${c}`)} onHoverChange={setHover} />
           </Canvas>
         ) : (
           <p className="grid size-full place-items-center text-ui text-fg-secondary">This browser cannot draw 3D.</p>
+        )}
+        {hover && (
+          <div className="pointer-events-none absolute top-3 left-3 w-60 rounded-xl bg-raised p-3">
+            <p className="mb-2 text-label">{gondola(hover)}</p>
+            {summary.length === 0 ? (
+              <p className="text-meta text-fg-secondary">{t.plan.nothingHere}</p>
+            ) : (
+              <ul className="flex flex-col gap-1.5">
+                {summary.map((r) => (
+                  <li key={r.key} className="flex items-center gap-2 text-meta text-fg-secondary">
+                    <span className="grid size-7 shrink-0 place-items-center rounded-md" style={{ background: BODY[r.look], color: INK[r.look] }}>
+                      <ProductIcon family={r.family} label={family(r.family)} className="size-5" />
+                    </span>
+                    <span className="min-w-0 flex-1 truncate text-fg">{family(r.family)}</span>
+                    <span className="tabular-nums">×{r.n}</span>
+                    <span className="text-fg-muted">{r.look === 'wrong' ? t.wrongProduct : t.level.empty}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         )}
       </div>
       <p className="mt-2 px-1 text-meta text-fg-muted">Drag to turn it a little, scroll to zoom. Press a gondola to open it.</p>
