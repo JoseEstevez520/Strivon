@@ -1,4 +1,4 @@
-import { Apple, ChartNoAxesColumn, Globe, ListChecks, SlidersHorizontal, type LucideIcon } from 'lucide-react'
+import { Apple, ChartNoAxesColumn, Globe, ClipboardCheck, ListChecks, SlidersHorizontal, type LucideIcon } from 'lucide-react'
 import { ES, GB, PT } from 'country-flag-icons/react/3x2'
 import { useEffect, useRef, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router'
@@ -18,7 +18,7 @@ interface Page {
   to: string
   end?: boolean
   icon: LucideIcon
-  label: 'navTasks' | 'navProducts' | 'navInsights' | 'navCalibration'
+  label: 'navTasks' | 'navProducts' | 'navInsights' | 'navCalibration' | 'navValidate'
 }
 
 const PAGES: Page[] = [
@@ -26,6 +26,7 @@ const PAGES: Page[] = [
   { to: '/products', icon: Apple, label: 'navProducts' },
   { to: '/insights', icon: ChartNoAxesColumn, label: 'navInsights' },
   { to: '/calibration', icon: SlidersHorizontal, label: 'navCalibration' },
+  { to: '/validate', icon: ClipboardCheck, label: 'navValidate' },
 ]
 
 /**
@@ -100,7 +101,7 @@ export function Layout() {
       </div>
 
       <nav
-        className="grid shrink-0 grid-cols-4 border-t border-border bg-bg pb-[env(safe-area-inset-bottom)] md:hidden"
+        className="grid shrink-0 grid-cols-5 border-t border-border bg-bg pb-[env(safe-area-inset-bottom)] md:hidden"
         aria-label="Pages"
       >
         {PAGES.map(({ to, end, icon: Icon, label }) => (

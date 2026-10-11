@@ -71,6 +71,7 @@ interface Strings {
   navGondolas: string
   navProducts: string
   navCalibration: string
+  navValidate: string
   viewBanner: string
   viewBack: string
   viewOpen: string
@@ -248,6 +249,7 @@ const en: Strings = {
   navGondolas: 'Gondolas',
   navProducts: 'Products',
   navCalibration: 'Calibration',
+  navValidate: 'Validation',
   viewBanner: 'Showing the validation run',
   viewBack: 'Back to the train/test photos',
   viewOpen: 'Open in the app',
@@ -442,6 +444,7 @@ const pt: Strings = {
   navGondolas: 'Gôndolas',
   navProducts: 'Produtos',
   navCalibration: 'Calibração',
+  navValidate: 'Validação',
   viewBanner: 'A mostrar a execução de validação',
   viewBack: 'Voltar às fotos de treino/teste',
   viewOpen: 'Abrir na aplicação',
@@ -636,6 +639,7 @@ const es: Strings = {
   navGondolas: 'Góndolas',
   navProducts: 'Productos',
   navCalibration: 'Calibración',
+  navValidate: 'Validación',
   viewBanner: 'Mostrando la ejecución de validación',
   viewBack: 'Volver a las fotos de entrenamiento/prueba',
   viewOpen: 'Abrir en la app',
