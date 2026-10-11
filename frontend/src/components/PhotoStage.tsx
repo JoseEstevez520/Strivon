@@ -36,7 +36,7 @@ export function PhotoStage({ tasks, selected, onSelect, src, marks = false }: Pr
                 points={points}
                 onClick={() => onSelect(task.area.area_id)}
                 fill={color}
-                fillOpacity={on ? 0.4 : marks && task.group === 'restock' ? 0.34 : 0.12}
+                fillOpacity={on ? 0.4 : marks && task.group === 'restock' ? 0.2 : 0.12}
                 stroke={color}
                 strokeWidth={on ? 8 : 5}
                 strokeLinejoin="round"
@@ -51,14 +51,16 @@ export function PhotoStage({ tasks, selected, onSelect, src, marks = false }: Pr
             .map((task) => {
               const xs = task.area.quad.map((p) => p[0])
               const ys = task.area.quad.map((p) => p[1])
-              const cx = xs.reduce((a, b) => a + b, 0) / 4
-              const cy = ys.reduce((a, b) => a + b, 0) / 4
-              const size = Math.max(26, Math.min(58, Math.min(Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys)) * 0.5))
+              // A small badge in the top-left corner of the area, so the product itself stays in view.
+              const side = Math.min(Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys))
+              const size = Math.max(16, Math.min(26, side * 0.3))
+              const cx = Math.min(...xs) + size * 0.85
+              const cy = Math.min(...ys) + size * 0.85
               const body = ICON_BODY[FAMILY_ICON[task.area.family]]
               const color = GROUP_COLOR[task.group]
               return (
                 <g key={`mark-${task.area.area_id}`} pointerEvents="none">
-                  <circle cx={cx} cy={cy} r={size * 0.78} fill={color} stroke="white" strokeWidth={4} />
+                  <circle cx={cx} cy={cy} r={size * 0.78} fill={color} stroke="white" strokeWidth={3} />
                   {body && (
                     <g transform={`translate(${cx - size / 2} ${cy - size / 2}) scale(${size / 32})`} color="white" dangerouslySetInnerHTML={{ __html: body }} />
                   )}

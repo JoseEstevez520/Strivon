@@ -6,10 +6,19 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { Input } from '@/components/ui/input'
 import { useI18n } from '@/lib/i18n'
 import { useStore } from '@/lib/store'
-import { ACTION, type Task } from '@/lib/tasks'
+import { ACTION, cameras, type Task } from '@/lib/tasks'
 import { clock } from '@/lib/time'
 
 const VALUE = { empty: 0, half: 0.5, full: 1 } as const
+
+type Status = 'all' | 'empty' | 'wrong' | 'half'
+const STATUS: Status[] = ['all', 'empty', 'wrong', 'half']
+/** The state colours used everywhere else, so a filter reads like what it filters. */
+const DOT: Partial<Record<Status, string>> = { empty: 'var(--danger)', wrong: 'var(--warning)' }
+
+/** What a task says about its product, for the filter. */
+const statusOf = (x: Task): Exclude<Status, 'all'> | 'fine' =>
+  !x.obs.planogram_compliant ? 'wrong' : x.obs.stock_level === 'empty' ? 'empty' : x.obs.stock_level === 'half' ? 'half' : 'fine'
 
 interface Row {
   product: string
@@ -72,13 +81,18 @@ function ProductRow({ row, focused }: { row: Row; focused: boolean }) {
 /** Stock per product across the store, the ones running out first. */
 export function ProductsPage() {
   const { t, family } = useI18n()
-  const { tasks } = useStore()
+  const { state, tasks, gondola } = useStore()
   const [query, setQuery] = useState('')
+  const [status, setStatus] = useState<Status>('all')
+  const [camera, setCamera] = useState('all')
   const focus = useSearchParams()[0].get('product')
+
+  // The gondola narrows the areas first, so a product's figure is its stock in that gondola.
+  const inCamera = useMemo(() => (camera === 'all' ? tasks : tasks.filter((x) => x.area.camera === camera)), [tasks, camera])
 
   const rows = useMemo<Row[]>(() => {
     const byProduct = new Map<string, Task[]>()
-    for (const task of tasks) byProduct.set(task.area.product_id, [...(byProduct.get(task.area.product_id) ?? []), task])
+    for (const task of inCamera) byProduct.set(task.area.product_id, [...(byProduct.get(task.area.product_id) ?? []), task])
     return [...byProduct.entries()]
       .map(([product, list]) => ({
         product,
@@ -87,10 +101,13 @@ export function ProductsPage() {
         short: list.filter((x) => ACTION.includes(x.group)).length,
       }))
       .sort((a, b) => a.fill - b.fill || b.short - a.short)
-  }, [tasks])
+  }, [inCamera])
 
   const q = query.trim().toLowerCase()
-  const shown = q ? rows.filter((r) => family(r.product).toLowerCase().includes(q)) : rows
+  const withStatus = (st: Status) => (st === 'all' ? rows : rows.filter((r) => r.tasks.some((x) => statusOf(x) === st)))
+  const named = q ? rows.filter((r) => family(r.product).toLowerCase().includes(q)) : rows
+  const shown = status === 'all' ? named : named.filter((r) => r.tasks.some((x) => statusOf(x) === status))
+  const label = (st: Status) => (st === 'all' ? t.all : st === 'empty' ? t.level.empty : st === 'wrong' ? t.wrongProduct : t.level.half)
 
   return (
     <>
@@ -106,6 +123,40 @@ export function ProductsPage() {
             aria-label={t.searchProducts}
             className="pl-9"
           />
+        </div>
+      </div>
+      <div className="mb-4 flex flex-col gap-2">
+        <div className="flex flex-wrap gap-1" role="group" aria-label={t.filterState}>
+          {STATUS.map((st) => (
+            <button
+              key={st}
+              type="button"
+              data-on={status === st}
+              aria-pressed={status === st}
+              onClick={() => setStatus(st)}
+              className="flex h-9 cursor-pointer items-center gap-1.5 rounded-lg px-3 text-ui text-fg-secondary transition-colors hover:bg-surface data-[on=true]:bg-surface data-[on=true]:text-fg"
+            >
+              {DOT[st] && <span className="size-2 rounded-full" style={{ background: DOT[st] }} aria-hidden />}
+              {label(st)}
+              <span className="text-meta tabular-nums text-fg-muted">{withStatus(st).length}</span>
+            </button>
+          ))}
+        </div>
+        {/* Fourteen gondolas are too many names for a list that hides, and the numbers are short: one row that scrolls on a phone. */}
+        <div className="-mx-1 flex items-center gap-1 overflow-x-auto px-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="group" aria-label={t.allGondolas}>
+          {['all', ...cameras(state)].map((c) => (
+            <button
+              key={c}
+              type="button"
+              data-on={camera === c}
+              aria-pressed={camera === c}
+              title={c === 'all' ? t.allGondolas : gondola(c)}
+              onClick={() => setCamera(c)}
+              className="h-9 shrink-0 cursor-pointer rounded-lg px-3 text-ui tabular-nums text-fg-secondary transition-colors hover:bg-surface data-[on=true]:bg-surface data-[on=true]:text-fg"
+            >
+              {c === 'all' ? t.allGondolas : (gondola(c).match(/\d+$/)?.[0] ?? gondola(c))}
+            </button>
+          ))}
         </div>
       </div>
       <DayBar className="mb-6" />

@@ -529,6 +529,19 @@ a collapsing block by hand once, and Base UI and shadcn already had it.
   its text and callout parts and never the figures of a chart. Escape ends a recording before
   it closes the box. Failures are one short line that clears itself, not a dialog.
 
+- 2026-10-11. Pressing a gondola on the map opens its own page instead of a side panel or a sheet.
+  The map then takes the whole width and has one job, to show where the problems are. The gondola
+  page has the other job: the camera photo with what is empty or misplaced marked on it, and the
+  problems in plain words, one line for each product with how many areas and since when ("Orange
+  x3, empty since 18:22"), grouped as empty, wrong product and half full. Hovering a line lights its
+  area on the photo. There is still nothing to press to mark a task.
+- 2026-10-11. The side panel of Tasks was cut down with what we learned on the map. It held a photo,
+  a name, a products line, three counts with words, a line of since when and a card with a tile for
+  every area, then three more gondolas with their own photo, products and counts. Now "Go first" is
+  the photo, the name, since when it has been empty and one tile for each thing that is wrong, and
+  "Then" is three lines with a number, a name and how many things are wrong. Fine and half full
+  areas are not drawn, the counts and the products line are gone, and the small photos are gone.
+
 ## Roadmap
 
 What we want to build next on the interface, in no fixed order. When one of these starts, move
@@ -563,8 +576,25 @@ what we decide into the sections above and the decisions log.
 
 ## Store plan (lab, `/lab/map-store`)
 
+Superseded by "First page: plan, list and 3D" below, which keeps the plan but drops the detail panel and the department sign.
+
 A passive live view. The cameras and the model already detect what is empty or misplaced, and the next hourly photo clears a warning by itself, so the screen never asks the employee to mark anything: no Done, no No stock, no counters. The detail panel is plain information per problem: product, where on the shelf, the state and since when.
 
 From 1024 px it is a top-down plan in HTML and CSS: walls, a door with a mat and an awning, a hanging department sign, aisle lanes with arrows and names, and gondolas as furniture with hanging name signs. A grey dotted line shows the walk. Below that the same gondola block sits in a compact grid in walking order (four columns, two on a phone) and the first gondola spans two columns and carries what to bring, so no second card repeats it. The first gondola is marked by tone, a larger neutral number and the card above the plan, never by black.
 
 Every state has a shape as well as a colour: empty a dashed tile with "!", wrong product a return arrow, half full a filled lower half. Fine areas are plain white tiles with no badge; a green check appears once, on a gondola with nothing to fix. Pure red is kept for a product gone from half the store or more. Sizes are small on purpose (20 px icons, 32 px tiles, 14 px names, nothing under 12 px), because nothing here is pressed except the gondola blocks, which are at least 44 px tall.
+
+## First page: plan, list and 3D
+
+Tasks is one screen. The plan says where, the list says what to carry. The Map and Gondolas tabs are gone (their routes redirect here) because the plan and the gondola tiles said the same thing twice.
+
+The plan is the flat one by default. It is the quickest to read for someone in a hurry, it reflows to two columns on a phone, and it shows only what needs doing. On a phone the list comes first, then the plan.
+
+From 1280 px a 2D / 3D button swaps the plan for a 3D store. The choice is remembered in the browser, and `/#/?view=3d` opens it directly for a demo. The 3D code and three.js load only when the button is pressed. Below 1280 px there is no button: at phone width the whole store is too small to tell the fruit apart, and a two-step tap-to-zoom costs more than the flat plan does.
+
+What we settled on for the 3D, so it is not argued again:
+- Shelves rise like stairs toward the back, so every crate shows from above. A tall back wall hid the row behind it, so the wall is only high enough to carry the name.
+- Each product is a small solid of its own (about a dozen shapes, coloured by family), not an icon on a tile. An empty crate shows a faint red ghost of what should be there, a half crate holds one piece, a wrong product is the same fruit washed out.
+- Empty and wrong crates carry a pin with the product icon above them. The pin is the only thing that asks for attention; fine gondolas get a check, as in 2D.
+- Pressing a gondola moves the camera in and lists each product with its count and state; pressing it again opens its page. Escape or pressing the floor goes back. There is no reset button, since those cover it.
+- Pointing at a gondola must not cover the scene, so its details sit in a fixed corner card.
