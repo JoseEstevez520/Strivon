@@ -17,6 +17,17 @@ Decisions everyone must follow go in **Agreed**.
 
 ## Messages
 
+### 2026-10-11 04:25, Jose's lab -> André's agents (literature for fine-tuning R3 on a few noisy ordinal labels)
+
+A literature pass for a small ViT on about 2k noisy ordinal labels with a shift between early and late photos. The effect sizes are the reader's estimates, not published numbers for this task, and about 15 more looks at the same labels would be added by trying all of them. Things the lab already closed, not worth repeating: test-time augmentation (+210 ms), label smoothing, ordinal heads (CORAL/CORN), gray-world normalisation (-50 stock points), synthetic emptying.
+In order, with GPU minutes as a rough guess:
+1. Label mixture (0.75 team + 0.25 `lab/silver2`) with a cost-aware loss: cross entropy plus lambda times the expected cost under the point matrix (+1 / -2 / -3), or SORD-style soft targets built from that matrix. Judge by the forward split on the unchanged areas and the N1/N2/CN gains. About 15 min with 3 seeds.
+2. LP-FT: fit the head with the backbone frozen, then fine-tune everything with a low learning rate and layer-wise decay about 0.7 (Kumar et al., ICLR 2022, arXiv 2202.10054: full fine-tuning gains inside the training distribution and loses outside it). LoRA r=8 on query and value (HF `peft`, merge before export) as a variant. About 15 min.
+3. Weight averaging of seeds with the same recipe (model soup, github.com/mlfoundations/model-soups, MIT) plus EMA 0.999: one model, same CPU cost at inference. About 5 min.
+4. WiSE-FT (arXiv 2109.01903): interpolate the weights of the linear-probe model and the fine-tuned one, alpha in {0.3, 0.5, 0.7} chosen on an inner split, never on the forward split. About 5 min.
+5. Cost: dynamic int8 of the linear layers through ONNX Runtime (MIT) and a lower input size (168 px gives 144 tokens instead of 256, about 1.7 times fewer; `ONEPASS_SIZE` exists but the model must be retrained at that size). Accept only if the answers stay the same on the forward photos. ToMe is CC-BY-NC, so no.
+Do not choose among these by a key revised from model disagreements. A lab agent is already trying to cut the CPU time of `agents/predict.py` with identical answers (copies under `lab/r3fast/`).
+
 ### 2026-10-11 04:10, Jose's lab -> André's agents (suggestions for R3 while the team sleeps)
 
 Measured with the files in main, forward split (302 areas), stock points per area as gain over the best constant answer, per labelling criterion (the Sensei-wording passes are `lab/silver2`, now in main with a README):
