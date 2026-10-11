@@ -72,6 +72,8 @@ interface Strings {
   insightsPeriod: (date: string, from: string, to: string) => string
   insightsSimulatedShort: string
   insightsEstimate: string
+  insightsPeak: (hour: string, pct: number) => string
+  worstAt: (hours: string) => string
   insightsSimulated: string
   mapTitle: string
   mapCell: (product: string, hour: string, pct: number) => string
@@ -185,6 +187,8 @@ const en: Strings = {
   insightsPeriod: (d, a, b) => `${d} · ${a}–${b}`,
   insightsSimulatedShort: 'simulated',
   insightsEstimate: 'Estimated from about 13 photos per camera.',
+  insightsPeak: (h, p) => `Most empty at ${h}, with ${p}% of the areas`,
+  worstAt: (h) => `worst at ${h}`,
   insightsSimulated: 'Provisional: the stock states are simulated.',
   mapTitle: 'Stock over time',
   mapCell: (p, hour, pct) => `${p}, ${hour}: ${pct}% of its areas empty`,
@@ -315,6 +319,8 @@ const pt: Strings = {
   insightsPeriod: (d, a, b) => `${d} · ${a}–${b}`,
   insightsSimulatedShort: 'simulado',
   insightsEstimate: 'Estimado com cerca de 13 fotos por câmara.',
+  insightsPeak: (h, p) => `Mais vazio às ${h}, com ${p}% das áreas`,
+  worstAt: (h) => `pior às ${h}`,
   insightsSimulated: 'Provisório: os estados de stock são simulados.',
   mapTitle: 'Stock ao longo do tempo',
   mapCell: (p, hour, pct) => `${p}, ${hour}: ${pct}% das áreas vazias`,
@@ -445,6 +451,8 @@ const es: Strings = {
   insightsPeriod: (d, a, b) => `${d} · ${a}–${b}`,
   insightsSimulatedShort: 'simulado',
   insightsEstimate: 'Estimado con unas 13 fotos por cámara.',
+  insightsPeak: (h, p) => `Más vacío a las ${h}, con el ${p}% de las áreas`,
+  worstAt: (h) => `peor a las ${h}`,
   insightsSimulated: 'Provisional: los estados de stock están simulados.',
   mapTitle: 'Stock a lo largo del tiempo',
   mapCell: (p, hour, pct) => `${p}, ${hour}: ${pct}% de sus zonas vacías`,
