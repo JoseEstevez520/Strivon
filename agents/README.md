@@ -126,6 +126,21 @@ camera gives a warn-only WARN. Neither check ever changes an answer.
   start-up (it was ~12 s and 1.0 GB while transformers was imported). Env vars: `ONEPASS_DEVICE=cuda`,
   `ONEPASS_THREADS=4`, `ONEPASS_SIZE=224`, `ONEPASS_TAG`, `ONEPASS_B8_HEAD=off`.
 
+
+### Calibrating to another annotator (e.g. the employee who labels the validation photos)
+
+If someone draws the empty / half / full lines differently from us, fit the calibration to their labels:
+
+1. Run the predictor on photos they labelled, keeping the probabilities and the fill estimate:
+   `python -I agents/predict.py --images <their photos> --planogram <planogram.json> --out val.json --p-stock-out val_p.json --fill-out val_fill.json`.
+   `val_fill.json` shows each area's fill % (units for big items): see where their empty / half / full lines fall per product.
+2. Set the sliders on the app's calibration page (`#/calibration`) to match, and download `calib.json`.
+3. Score it against their labels in about 1 s, without re-running the model:
+   `python -I eval/calib_score.py calib.json --planogram <planogram.json> --preds val_p.json --labels <their_labels.json>`
+   (labels in the `eval/labels.json` format, `stock_value` 0 / 0.5 / 1). Repeat 2-3; trust gains of several points per
+   product, not +1.
+4. Predict with it: add `--calibration calib.json` to the run command. Without it the answers are the validated default.
+
 ## Label-free mode (pitch / new-store path, zero labels; not the submission)
 
 `--label-free` swaps in a model that uses no labels at all:
