@@ -23,7 +23,7 @@
 </p>
 
 <p align="center">
-  <img src="assets/readme/photo-to-tasks.png" alt="Fotografias de câmaras de teto com as zonas da prateleira assinaladas, à esquerda, e à direita a primeira página da aplicação: o plano da loja com os problemas assinalados em cada gôndola e a lista da ronda" width="100%">
+  <img src="assets/readme/photo-to-tasks.png" alt="Fotografias de câmaras de teto com as zonas da prateleira assinaladas, à esquerda, e à direita a primeira página da aplicação com a loja em 3D e a lista da ronda" width="100%">
 </p>
 
 <p align="center"><sub>Entram fotografias das câmaras de teto, sai uma lista de trabalho. As marcas são as respostas do modelo para a última fotografia de cada câmara.</sub></p>
