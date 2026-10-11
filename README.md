@@ -24,7 +24,7 @@
 </p>
 
 <p align="center">
-  <img src="assets/readme/photo-to-tasks.png" alt="Photos from ceiling cameras with the shelf areas marked, on the left, and on the right the app's first page with the store in 3D and the round list" width="100%">
+  <img src="assets/readme/photo-to-tasks.png" alt="Photos from ceiling cameras with the shelf areas marked, on the left, and on the right the store in 3D with the problems marked on each gondola and the first three stops of the round" width="100%">
 </p>
 
 <p align="center"><sub>Photos from the ceiling cameras in, a list of work out. The marks are the model's answers for the last photo of each camera.</sub></p>
