@@ -1,11 +1,16 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { DropZone } from '@/components/validate/DropZone'
 import { SummaryTable } from '@/components/validate/SummaryTable'
+import { toCalibFile } from '@/lib/calibration'
+import { useCalibration } from '@/lib/calibrationStore'
 import { useI18n } from '@/lib/i18n'
+import { useStore } from '@/lib/store'
 import { showValidation } from '@/model/source'
 import {
   ApiError,
   RESULT_URL,
+  deleteCalibration,
+  putCalibration,
   getStatus,
   getSummary,
   startRun,
@@ -20,11 +25,22 @@ import {
 const EXPECTED_IMAGES = 26
 const EXPECTED_AREAS = 289
 
+// The two "expected" fields survive a reload. Empty areas means "work it out from the photos".
+const KEY = 'strivon.validate.expect'
+function loadExpect(): { images: string; areas: string } {
+  try {
+    const o = JSON.parse(sessionStorage.getItem(KEY) ?? '{}')
+    return { images: String(Number(o.images) > 0 ? Number(o.images) : EXPECTED_IMAGES), areas: Number(o.areas) > 0 ? String(Number(o.areas)) : '' }
+  } catch {
+    return { images: String(EXPECTED_IMAGES), areas: '' }
+  }
+}
+
 const clock = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`
 
 function Step({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="grid gap-3">
+    <section className="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-3">
       <h2 className="text-title">{title}</h2>
       {children}
     </section>
@@ -39,17 +55,18 @@ function Alert({ children }: { children: React.ReactNode }) {
   )
 }
 
-function NumberField({ label, value, onChange, disabled }: { label: string; value: number; onChange: (n: number) => void; disabled: boolean }) {
+function NumberField({ label, value, onChange, disabled, placeholder }: { label: string; value: string; onChange: (s: string) => void; disabled: boolean; placeholder?: string }) {
   return (
-    <label className="grid flex-1 gap-1 text-label text-fg">
+    <label className="grid min-w-0 flex-1 gap-1 text-label text-fg">
       {label}
       <input
         type="number"
         inputMode="numeric"
         min={1}
         value={value}
+        placeholder={placeholder}
         disabled={disabled}
-        onChange={(e) => onChange(Math.max(1, Number(e.target.value) || 1))}
+        onChange={(e) => onChange(e.target.value.replace(/\D/g, ''))}
         className="h-11 w-full min-w-24 rounded-lg border border-line bg-raised px-3 text-copy tabular-nums disabled:opacity-50"
       />
     </label>
@@ -64,10 +81,22 @@ export function ValidatePage() {
   const [status, setStatus] = useState<ValidationStatus | null>(null)
   const [summary, setSummary] = useState<ValidationSummary | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [expImages, setExpImages] = useState(EXPECTED_IMAGES)
-  const [expAreas, setExpAreas] = useState(EXPECTED_AREAS)
+  const [exp, setExp] = useState(loadExpect)
+  const expImages = Number(exp.images) || EXPECTED_IMAGES
+  const expAreas = Number(exp.areas) || undefined
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(KEY, JSON.stringify({ images: exp.images, areas: exp.areas }))
+    } catch {
+      /* storage unavailable: the fields just reset on reload */
+    }
+  }, [exp])
   const [polling, setPolling] = useState(false)
   const [elapsed, setElapsed] = useState(0)
+  const [useCal, setUseCal] = useState(false)
+  const [calCount, setCalCount] = useState<number | null>(null)
+  const { cal } = useCalibration()
+  const { state: appState } = useStore()
   const logEnd = useRef<HTMLPreElement>(null)
 
   const fail = useCallback(
@@ -101,13 +130,15 @@ export function ValidatePage() {
         const s = await getStatus()
         setStatus(s)
         if (s.state !== 'running') setPolling(false)
+        if (s.state === 'idle' && !s.session) setError(v.restarted)
       } catch (e) {
+        // A backend that is down for a moment keeps the poll going; the next answer says what became of the run.
         fail(e)
-        setPolling(false)
+        if (!(e instanceof ApiError && e.kind === 'down')) setPolling(false)
       }
     }, 1500)
     return () => clearInterval(id)
-  }, [polling, fail])
+  }, [polling, fail, v])
 
   useEffect(() => {
     if (!running) return
@@ -130,10 +161,46 @@ export function ValidatePage() {
       .catch(() => setSummary(null))
   }, [state])
 
+  // The stored calibration belongs to the session, so a status refresh tells what the server holds.
+  const stored = status?.calibration?.products ?? 0
+  const calReady = calCount ?? stored
+  const appProducts = Object.keys(toCalibFile(cal, appState.areas).products).length
+
+  const sendCalibration = async (file: unknown) => {
+    setError(null)
+    try {
+      const r = await putCalibration(file)
+      setCalCount(r.products)
+    } catch (e) {
+      fail(e, v.calBadFile)
+    }
+  }
+
+  const useMine = () => sendCalibration(toCalibFile(cal, appState.areas))
+
+  const onCalFile = async (f: File | undefined) => {
+    if (!f) return
+    try {
+      await sendCalibration(JSON.parse(await f.text()))
+    } catch {
+      setError(v.calBadFile('Not valid JSON.'))
+    }
+  }
+
+  const clearCalibration = async () => {
+    try {
+      await deleteCalibration()
+      setCalCount(0)
+    } catch (e) {
+      fail(e)
+    }
+  }
+
   const onPick = async (files: PickedFile[]) => {
     setError(null)
     setSummary(null)
     setUploading(true)
+    setCalCount(null)
     try {
       setUpload(await uploadPhotos(files))
       setStatus(await getStatus())
@@ -149,8 +216,12 @@ export function ValidatePage() {
     setError(null)
     setSummary(null)
     setElapsed(0)
+    if (useCal && calReady === 0) {
+      setError(v.calMissing)
+      return
+    }
     try {
-      await startRun({ expect_images: expImages, expect_areas: expAreas })
+      await startRun({ expect_images: expImages, ...(expAreas ? { expect_areas: expAreas } : {}), ...(useCal ? { use_calibration: true } : {}) })
       setStatus((s) => (s ? { ...s, state: 'running', log: [], verdict: null, validator: null } : s))
       setPolling(true)
     } catch (e) {
@@ -159,13 +230,15 @@ export function ValidatePage() {
   }
 
   const photos = upload?.count ?? status?.photos ?? 0
+  const autoAreas = upload?.expected_areas ?? status?.expected_areas ?? null
   const hasPhotos = photos > 0
   const verdict: Verdict | null = status?.verdict ?? null
   const finished = status?.state === 'done' || status?.state === 'error'
+  const calibrated = status?.calibration?.used === true
   const canDownload = verdict === 'OK' && status?.validator?.ok === true
 
   return (
-    <div className="mx-auto grid max-w-3xl gap-8">
+    <div className="mx-auto grid min-w-0 max-w-3xl grid-cols-[minmax(0,1fr)] gap-8">
       <header className="grid gap-2">
         <h1 className="text-display">{v.title}</h1>
         <p className="text-ui text-fg-secondary">{v.intro}</p>
@@ -183,15 +256,74 @@ export function ValidatePage() {
               <p className="break-words text-fg-secondary">{v.cameras(upload.cameras.length, upload.cameras.join(', '))}</p>
             )}
             {upload?.layout === 'flat' && <p className="text-warning">{v.flat}</p>}
-            {photos !== EXPECTED_IMAGES && <p className="text-warning">{v.countWarning(photos, EXPECTED_IMAGES)}</p>}
+            {photos !== expImages && <p className="text-warning">{v.countWarning(photos, expImages)}</p>}
+            {autoAreas != null && !expAreas && <p className="text-fg-secondary">{v.areasAuto(autoAreas, EXPECTED_AREAS)}</p>}
           </div>
         )}
       </Step>
 
+      <section className="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-3">
+        <label className="flex items-start gap-3 text-ui text-fg">
+          <input
+            type="checkbox"
+            checked={useCal}
+            disabled={running}
+            onChange={(e) => setUseCal(e.target.checked)}
+            className="mt-1 size-5 cursor-pointer"
+          />
+          <span className="grid gap-1">
+            <span className="text-label">{v.calTitle}</span>
+            <span className="text-fg-secondary">{v.calOptIn}</span>
+          </span>
+        </label>
+        {useCal && (
+          <div className="grid gap-3 rounded-lg border border-line p-3">
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={useMine}
+                disabled={!hasPhotos || running}
+                className="h-11 cursor-pointer rounded-lg border border-line px-4 text-label text-fg disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                {v.calUse}
+              </button>
+              <label
+                className={`inline-flex h-11 items-center rounded-lg border border-line px-4 text-label text-fg ${!hasPhotos || running ? 'cursor-not-allowed opacity-40' : 'cursor-pointer'}`}
+              >
+                {v.calUpload}
+                <input
+                  type="file"
+                  accept=".json,application/json"
+                  className="sr-only"
+                  disabled={!hasPhotos || running}
+                  onChange={(e) => {
+                    void onCalFile(e.target.files?.[0])
+                    e.target.value = ''
+                  }}
+                />
+              </label>
+              {calReady > 0 && (
+                <button
+                  type="button"
+                  onClick={clearCalibration}
+                  disabled={running}
+                  className="h-11 cursor-pointer rounded-lg px-4 text-ui text-fg-secondary hover:bg-surface hover:text-fg"
+                >
+                  {v.calClear}
+                </button>
+              )}
+            </div>
+            <p className="text-ui text-fg-secondary">{calReady > 0 ? v.calSummary(calReady) : v.calHint}</p>
+            {appProducts === 0 && calReady === 0 && <p className="text-ui text-warning">{v.calEmpty}</p>}
+            {!hasPhotos && <p className="text-ui text-fg-muted">{v.needPhotos}</p>}
+          </div>
+        )}
+      </section>
+
       <Step title={v.step2}>
         <div className="flex flex-wrap gap-3">
-          <NumberField label={v.expectImages} value={expImages} onChange={setExpImages} disabled={running} />
-          <NumberField label={v.expectAreas} value={expAreas} onChange={setExpAreas} disabled={running} />
+          <NumberField label={v.expectImages} value={exp.images} onChange={(images) => setExp((e) => ({ ...e, images }))} disabled={running} />
+          <NumberField label={v.expectAreas} value={exp.areas} placeholder={v.auto} onChange={(areas) => setExp((e) => ({ ...e, areas }))} disabled={running} />
         </div>
         <button
           type="button"
@@ -204,11 +336,11 @@ export function ValidatePage() {
         {!hasPhotos && <p className="text-ui text-fg-muted">{v.needPhotos}</p>}
         {running && <p className="text-ui text-fg-secondary tabular-nums">{v.elapsed(clock(elapsed))}</p>}
         {status && status.log.length > 0 && (
-          <div className="grid gap-1">
+          <div className="grid min-w-0 gap-1">
             <h3 className="text-label text-fg">{v.log}</h3>
             <pre
               ref={logEnd}
-              className="max-h-72 overflow-auto whitespace-pre-wrap break-words rounded-lg bg-fg p-3 font-mono text-meta leading-relaxed text-bg"
+              className="max-h-72 min-w-0 max-w-full overflow-auto whitespace-pre-wrap break-all rounded-lg bg-fg p-3 font-mono text-meta leading-relaxed text-bg"
             >
               {status.log.join('\n')}
             </pre>
@@ -219,14 +351,20 @@ export function ValidatePage() {
       {finished && (
         <Step title={v.step3}>
           <div
-            className={`grid gap-2 rounded-xl border-2 p-4 ${verdict === 'OK' ? 'border-success' : 'border-danger'}`}
+            className={`grid min-w-0 grid-cols-[minmax(0,1fr)] gap-2 rounded-xl border-2 p-4 ${verdict === 'OK' ? 'border-success' : 'border-danger'}`}
           >
             <p className={`text-display ${verdict === 'OK' ? 'text-success' : 'text-danger'}`}>
               <span aria-hidden>{verdict === 'OK' ? '✓ ' : '! '}</span>
               {verdict ? v.verdict[verdict] : v.verdict.ERROR}
+              <span
+                className={`ml-3 align-middle rounded-full border px-3 py-1 text-label ${calibrated ? 'border-fg text-fg' : 'border-line text-fg-secondary'}`}
+              >
+                {calibrated ? v.calibrated : v.notCalibrated}
+              </span>
             </p>
+            {calibrated && <p className="text-ui text-fg-secondary">{v.calibratedNote(status?.calibration?.products ?? 0)}</p>}
             <p className="text-copy text-fg">{verdict ? v.advice[verdict] : v.advice.ERROR}</p>
-            {status?.last_line && <p className="break-words font-mono text-meta text-fg-secondary">{status.last_line}</p>}
+            {status?.last_line && <p className="break-all font-mono text-meta text-fg-secondary">{status.last_line}</p>}
           </div>
 
           {status?.validator && (
@@ -252,10 +390,10 @@ export function ValidatePage() {
             {canDownload ? (
               <a
                 href={RESULT_URL}
-                download="final.json"
+                download={calibrated ? 'final_calibrated.json' : 'final.json'}
                 className="inline-flex h-12 w-full items-center justify-center rounded-lg bg-fg px-6 text-label text-bg sm:w-fit"
               >
-                {v.download}
+                {calibrated ? v.downloadCalibrated : v.download}
               </a>
             ) : (
               <>
