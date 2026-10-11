@@ -80,7 +80,7 @@ Fifteen examples. The first nine are areas where the team, the reader and the AI
 
 Three recurring kinds of difference: room for one more bag that would have to be squeezed in (the team says full, the reader says full or half depending on how many fit); a third of a basket empty (team full, reader half); a few units left in a big bin (team empty, reader half). In the last group the models disagree with each other, as in `6376_7`, where R3 says half and the lab says full.
 
-The crops are on Jose's laptop in `lab/handoff/`: `ejemplos_sensei.html` shows the fifteen without labels, with the key closed at the bottom, to put in front of Sensei, and `dos_criterios.html` shows all 166 readings against the team labels. Photos stay out of git.
+The crops are on Jose's laptop in `lab/handoff/`: `PARA_EL_EQUIPO.html` puts this page and the examples together in Spanish. `ejemplos_sensei.html` shows the fifteen without labels, with the key closed at the bottom, to put in front of Sensei, and `dos_criterios.html` shows all 166 readings against the team labels. Photos stay out of git.
 
 ## Where everything is
 

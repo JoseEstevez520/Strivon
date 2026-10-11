@@ -14,7 +14,7 @@ What is in git (all under `lab/`):
 - `labels_reader166.json` holds the 166 forward areas read by one person with Sensei's rule: camera, photo, area and level.
 - `r3fast/` has `dinov2_lite.py` (adopted by André), `cascade.py` (a prototype that runs R3 only on the areas the lab is unsure about) and the R3 timing scripts.
 
-What is not in git, on Jose's laptop in `lab/handoff/`: `dos_criterios.html` (the 166 readings against the team labels, with the photos), `ejemplos_sensei.html` (15 example crops to ask Sensei where the levels start), `labels_v1_con_lectura.json` and the lab model trained on it. They hold photos or weights, so they stay out of git.
+What is not in git, on Jose's laptop in `lab/handoff/`: `PARA_EL_EQUIPO.html` (one page in Spanish with the options, the choice once Sensei answers and the fifteen examples with photos, for the people next to Jose), `dos_criterios.html` (the 166 readings against the team labels, with the photos), `ejemplos_sensei.html` (15 example crops to ask Sensei where the levels start), `labels_v1_con_lectura.json` and the lab model trained on it. They hold photos or weights, so they stay out of git.
 
 What tonight showed:
 - The reader agrees with the team on 75 of the 121 disputed areas and on 41 of 45 areas drawn at random from the agreed ones; about 62 of the 302 forward answers (21%) would change. The reader never says `full` where the team did not.
