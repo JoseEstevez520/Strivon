@@ -19,4 +19,5 @@ planogram_compliant and stock_level for each shelf area.
 - How the frontend looks, and why: frontend/DESIGN.md
 - What Sensei told us, including the stock levels: docs/SENSEI_INFO.md
 - Workflow, branches and language: CONTRIBUTING.md
+- The stock model options, the choice at the freeze and the label question with examples: docs/OPTIONS.md
 - Setup and prior code: README.md
