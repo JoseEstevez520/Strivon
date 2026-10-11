@@ -217,6 +217,7 @@ Forward split: trained without each camera's last 2 photos, tested on them (302 
 Written during the hackathon, except:
 
 - `frontend/src/model/catalog.ts` ports the product family rules of `backend/sensei/catalog.py`.
+- The models start from pretrained weights and libraries we did not write: DINOv2 (R3), CLIP (the backend crate model), SigLIP2 (the label-free mode) and MobileNetV3-small through `timm` (the lab model), on top of PyTorch, timm, NumPy, OpenCV and scikit-learn. The code that fine-tunes, fits and combines them was written here.
 - The interface uses React, Vite, Tailwind CSS, shadcn/ui, Base UI, OpenUI, Lucide and
   country-flag-icons, all MIT. Versions are in `frontend/package.json`.
 
