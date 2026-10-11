@@ -88,6 +88,31 @@ Necesita una clave de un modelo en el servidor (`LLM_API_KEY` en `frontend/.env`
 
 Los estados de las estanterías en los dos clips son simulados. Los vídeos en tamaño completo están en [`assets/video`](assets/video).
 
+### Las pantallas
+
+Capturas reales de la app. Pulsa una para verla a tamaño completo. Están hechas con el día simulado, y hay más capturas de cada parte de la interfaz en [`assets/presentation`](assets/presentation).
+
+<p align="center">
+  <a href="assets/presentation/views/tasks-2d.png"><img src="assets/presentation/views/tasks-2d.png" alt="La primera página con el plano de la tienda en 2D, la lista de la ronda y la barra del día" width="49%"></a>
+  <a href="assets/presentation/views/tasks-3d-front.png"><img src="assets/presentation/views/tasks-3d-front.png" alt="La misma página con la tienda en 3D" width="49%"></a>
+</p>
+
+<p align="center"><sub>El plano en 2D y la tienda en 3D.</sub></p>
+
+<p align="center">
+  <a href="assets/presentation/views/tasks-real.png"><img src="assets/presentation/views/tasks-real.png" alt="La misma página con la última foto de cada cámara" width="49%"></a>
+  <a href="assets/presentation/views/gondola-6215.png"><img src="assets/presentation/views/gondola-6215.png" alt="La página de una góndola: su foto con lo que está mal marcado y los problemas en palabras" width="49%"></a>
+</p>
+
+<p align="center"><sub>La última foto de cada cámara y una góndola.</sub></p>
+
+<p align="center">
+  <a href="assets/presentation/views/products.png"><img src="assets/presentation/views/products.png" alt="La página de productos, con una tarjeta por producto y dónde llevarlo" width="49%"></a>
+  <a href="assets/presentation/views/insights.png"><img src="assets/presentation/views/insights.png" alt="La página de análisis con un mapa del stock a lo largo del día y los productos y góndolas que más tiempo estuvieron vacíos" width="49%"></a>
+</p>
+
+<p align="center"><sub>Los productos en tarjetas y el análisis.</sub></p>
+
 ## Ejecutarlo en local
 
 La app, con Node 20 o superior:
