@@ -120,10 +120,9 @@ const slotFill = (v: number) => (v < 0.25 ? tone(84) : v < 0.5 ? tone(52) : v < 
 /** How far the slots run on below the first screen, fading out, in px. */
 const SPILL = 208
 
-function Slots() {
-  const ref = useRef<HTMLDivElement>(null)
+/** Measures how many whole slots fit in the element, and keeps it up to date. */
+function useGrid(ref: React.RefObject<HTMLDivElement | null>) {
   const [size, setSize] = useState({ cols: 0, rows: 0, height: 0 })
-
   useEffect(() => {
     const el = ref.current
     if (!el) return
@@ -137,7 +136,13 @@ function Slots() {
     const observer = new ResizeObserver(measure)
     observer.observe(el)
     return () => observer.disconnect()
-  }, [])
+  }, [ref])
+  return size
+}
+
+function Slots() {
+  const ref = useRef<HTMLDivElement>(null)
+  const size = useGrid(ref)
 
   const cells = []
   for (let r = 0; r < size.rows; r++) {
@@ -169,6 +174,35 @@ function Slots() {
       ref={ref}
       aria-hidden
       className="pointer-events-none absolute inset-x-0 top-0 -bottom-52 grid gap-2"
+      style={{ gridTemplateColumns: `repeat(${size.cols || 1}, minmax(0, 1fr))`, gridTemplateRows: `repeat(${size.rows || 1}, minmax(0, 1fr))` }}
+    >
+      {cells}
+    </div>
+  )
+}
+
+/**
+ * The same slots closing the page: none at the top of the band, more and more toward the bottom, so
+ * the page ends the way it began.
+ */
+function SlotsBand() {
+  const ref = useRef<HTMLDivElement>(null)
+  const size = useGrid(ref)
+  const cells = []
+  for (let r = 0; r < size.rows; r++) {
+    for (let c = 0; c < size.cols; c++) {
+      const fade = Math.pow((r + 0.5) / size.rows, 1.6)
+      const shown = hash(c, r) > 0.35
+      cells.push(
+        <span key={`${r}-${c}`} className="rounded-[7px]" style={{ background: shown ? slotFill(hash(r, c)) : 'transparent', opacity: 0.85 * fade }} />,
+      )
+    }
+  }
+  return (
+    <div
+      ref={ref}
+      aria-hidden
+      className="pointer-events-none mt-16 grid h-56 gap-2"
       style={{ gridTemplateColumns: `repeat(${size.cols || 1}, minmax(0, 1fr))`, gridTemplateRows: `repeat(${size.rows || 1}, minmax(0, 1fr))` }}
     >
       {cells}
@@ -321,6 +355,7 @@ export function Landing() {
           <p className="text-meta text-fg-muted">Built at JunctionX Lisbon 2026, for the Sensei challenge. The logos belong to their owners.</p>
         </footer>
       </main>
+      <SlotsBand />
     </div>
   )
 }
