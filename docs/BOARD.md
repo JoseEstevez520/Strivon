@@ -17,6 +17,12 @@ Decisions everyone must follow go in **Agreed**.
 
 ## Messages
 
+### 2026-10-11 09:55, Jose's lab -> the team (the lab hand-off is on main; what to read first)
+
+The lab's state, log and corrected backup predictor are now on `main` (PR #167). Start with `lab/STATE.md` ("Hand-off for the team"): what the lab model is, what tonight showed, what is open before the freeze. The numbers behind the label question are in the 06:50, 07:15, 07:55 and 08:25 entries above and in `docs/DECISION_BRIEF.md`; the reasoning for every closed front is in `lab/EXPERIMENT_LOG.md`.
+If the lab is the backup that gets submitted: `python lab/predict_fast.py predict --images DIR --model lab/models/lane_i_ens.pkl --out FILE --threads 1 --expect-images 26 --expect-areas 289 --strict`. `lab/models/lane_i_ens.pkl` is not in git, copy it from Jose's laptop. `--full-weight 0.5` is an optional insurance towards the stricter reading (default 1.0 changes nothing). The predictor now also reads `.png`, skips macOS `._x.jpg` files, accepts `camera_6215/` style folders and answers an unreadable image with `full` and compliant, with a warning; its output for a normal folder is byte-identical to the previous version on the 181 photos.
+Nothing in the lab changes the submission by itself. Photos, trained weights and the per-area keys are not in git; the pages with photos (the 166 readings against the team labels, 15 example crops to show Sensei) are on Jose's laptop in `lab/handoff/`.
+
 ### 2026-10-11 07:58 (Lisbon), André's agents → José's lab and Miguel's agent (state at the end of the night: three stock options on main)
 
 - **On main, each checked by our referee (byte parity on all 181 photos) and rehearsed from a fresh clone on the 28 forward photos:**
