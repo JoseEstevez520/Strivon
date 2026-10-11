@@ -26,6 +26,44 @@ interface Strings {
   // --- calibration presets (start)
   calibrationPresets: { label: string; strict: string; relaxed: string; reset: string; hint: string }
   // --- calibration presets (end)
+  // --- validation day (start)
+  validate: {
+    title: string
+    intro: string
+    step1: string
+    step2: string
+    step3: string
+    dropHere: string
+    dropOr: string
+    pickFolder: string
+    pickFiles: string
+    photos: (n: number) => string
+    cameras: (n: number, names: string) => string
+    flat: string
+    countWarning: (n: number, expected: number) => string
+    uploading: string
+    uploadFailed: (why: string) => string
+    expectImages: string
+    expectAreas: string
+    run: string
+    running: string
+    needPhotos: string
+    elapsed: (time: string) => string
+    log: string
+    backendDown: string
+    busy: string
+    runFailed: (why: string) => string
+    verdict: Record<'OK' | 'FALLBACKS' | 'INCOMPLETE' | 'INVALID' | 'ERROR', string>
+    advice: Record<'OK' | 'FALLBACKS' | 'INCOMPLETE' | 'INVALID' | 'ERROR', string>
+    validatorLine: (images: number, areas: number, errors: number) => string
+    validatorFailed: string
+    perCamera: string
+    total: string
+    notCompliant: string
+    download: string
+    downloadLocked: string
+  }
+  // --- validation day (end)
   throughDay: string
   close: string
   allCameras: string
@@ -152,6 +190,50 @@ const en: Strings = {
   // --- calibration presets (start)
   calibrationPresets: { label: 'Calibration profile', strict: 'Strict', relaxed: 'Relaxed', reset: 'Default', hint: 'Strict: a shelf is full only when well stocked. Relaxed: a bit of stock is already fine.' },
   // --- calibration presets (end)
+  // --- validation day (start)
+  validate: {
+    title: 'Validation day',
+    intro: 'Drop the photos the organisers send, run the official predictor and download the checked file. Only send a file when the verdict is OK.',
+    step1: '1. Photos',
+    step2: '2. Run',
+    step3: '3. Result',
+    dropHere: 'Drop the photos or the folder here',
+    dropOr: 'or choose them',
+    pickFolder: 'Choose a folder',
+    pickFiles: 'Choose photos',
+    photos: (n) => (n === 1 ? '1 photo' : `${n} photos`),
+    cameras: (n, names) => `${n} cameras: ${names}`,
+    flat: 'The photos are not in camera folders. The predictor will match them to cameras by looking at them.',
+    countWarning: (n, expected) => `${n} photos, but ${expected} are expected. Check that none are missing.`,
+    uploading: 'Uploading…',
+    uploadFailed: (why) => `The photos did not upload. ${why}`,
+    expectImages: 'Photos expected',
+    expectAreas: 'Areas expected',
+    run: 'Run the predictor',
+    running: 'Running…',
+    needPhotos: 'Add the photos first.',
+    elapsed: (time) => `Running for ${time}`,
+    log: 'Live log',
+    backendDown: 'The backend does not answer. Start it on port 8000 and try again.',
+    busy: 'A run is already in progress. Wait for it to finish.',
+    runFailed: (why) => `The run could not start. ${why}`,
+    verdict: { OK: 'OK', FALLBACKS: 'Fallbacks', INCOMPLETE: 'Incomplete', INVALID: 'Invalid', ERROR: 'Error' },
+    advice: {
+      OK: 'All checks passed. You can send the file.',
+      FALLBACKS: 'Some answers did not come from the model, for example a corrupt photo. Do not send this file.',
+      INCOMPLETE: 'The photo or area count does not match what was expected, or files were skipped. Check before sending anything.',
+      INVALID: 'The file failed the format check. Do not send it.',
+      ERROR: 'The run stopped with an error. Read the log, fix it and run again. Do not send anything.',
+    },
+    validatorLine: (images, areas, errors) => `${images} images, ${areas} areas, ${errors} errors`,
+    validatorFailed: 'The validator did not pass.',
+    perCamera: 'Per camera',
+    total: 'Total',
+    notCompliant: 'Not compliant',
+    download: 'Download final.json',
+    downloadLocked: 'Only available when the verdict is OK and the validator passed.',
+  },
+  // --- validation day (end)
   throughDay: 'Through the day',
   close: 'Close',
   allCameras: 'All cameras',
@@ -295,6 +377,50 @@ const pt: Strings = {
   // --- calibration presets (start)
   calibrationPresets: { label: 'Perfil de calibração', strict: 'Rigoroso', relaxed: 'Flexível', reset: 'Predefinido', hint: 'Rigoroso: só está cheio quando bem abastecido. Flexível: um pouco de stock já chega.' },
   // --- calibration presets (end)
+  // --- validation day (start)
+  validate: {
+    title: 'Dia da validação',
+    intro: 'Larga as fotos que a organização envia, corre o previsor oficial e descarrega o ficheiro verificado. Envia o ficheiro só se o veredito for OK.',
+    step1: '1. Fotos',
+    step2: '2. Correr',
+    step3: '3. Resultado',
+    dropHere: 'Larga aqui as fotos ou a pasta',
+    dropOr: 'ou escolhe-as',
+    pickFolder: 'Escolher pasta',
+    pickFiles: 'Escolher fotos',
+    photos: (n) => (n === 1 ? '1 foto' : `${n} fotos`),
+    cameras: (n, names) => `${n} câmaras: ${names}`,
+    flat: 'As fotos não estão em pastas por câmara. O previsor vai associá-las às câmaras olhando para elas.',
+    countWarning: (n, expected) => `${n} fotos, mas esperam-se ${expected}. Confirma que não falta nenhuma.`,
+    uploading: 'A enviar…',
+    uploadFailed: (why) => `As fotos não foram enviadas. ${why}`,
+    expectImages: 'Fotos esperadas',
+    expectAreas: 'Áreas esperadas',
+    run: 'Correr o previsor',
+    running: 'A correr…',
+    needPhotos: 'Primeiro adiciona as fotos.',
+    elapsed: (time) => `A correr há ${time}`,
+    log: 'Registo em direto',
+    backendDown: 'O backend não responde. Arranca-o na porta 8000 e tenta de novo.',
+    busy: 'Já há uma execução em curso. Espera que termine.',
+    runFailed: (why) => `Não foi possível começar. ${why}`,
+    verdict: { OK: 'OK', FALLBACKS: 'Alternativas', INCOMPLETE: 'Incompleto', INVALID: 'Inválido', ERROR: 'Erro' },
+    advice: {
+      OK: 'Todas as verificações passaram. Podes enviar o ficheiro.',
+      FALLBACKS: 'Algumas respostas não vieram do modelo, por exemplo por uma foto corrompida. Não envies este ficheiro.',
+      INCOMPLETE: 'O número de fotos ou de áreas não coincide com o esperado, ou houve ficheiros ignorados. Confirma antes de enviar.',
+      INVALID: 'O ficheiro falhou a verificação de formato. Não o envies.',
+      ERROR: 'A execução parou com um erro. Lê o registo, corrige e corre outra vez. Não envies nada.',
+    },
+    validatorLine: (images, areas, errors) => `${images} imagens, ${areas} áreas, ${errors} erros`,
+    validatorFailed: 'O validador não passou.',
+    perCamera: 'Por câmara',
+    total: 'Total',
+    notCompliant: 'Fora do planograma',
+    download: 'Descarregar final.json',
+    downloadLocked: 'Só disponível quando o veredito é OK e o validador passou.',
+  },
+  // --- validation day (end)
   throughDay: 'Ao longo do dia',
   close: 'Fechar',
   allCameras: 'Todas as câmaras',
@@ -438,6 +564,50 @@ const es: Strings = {
   // --- calibration presets (start)
   calibrationPresets: { label: 'Perfil de calibración', strict: 'Estricto', relaxed: 'Flexible', reset: 'Por defecto', hint: 'Estricto: solo está lleno si está bien surtido. Flexible: con algo de stock ya vale.' },
   // --- calibration presets (end)
+  // --- validation day (start)
+  validate: {
+    title: 'Día de validación',
+    intro: 'Suelta las fotos que manda la organización, ejecuta el predictor oficial y descarga el archivo comprobado. Envía el archivo solo si el veredicto es OK.',
+    step1: '1. Fotos',
+    step2: '2. Ejecutar',
+    step3: '3. Resultado',
+    dropHere: 'Suelta aquí las fotos o la carpeta',
+    dropOr: 'o elígelas',
+    pickFolder: 'Elegir carpeta',
+    pickFiles: 'Elegir fotos',
+    photos: (n) => (n === 1 ? '1 foto' : `${n} fotos`),
+    cameras: (n, names) => `${n} cámaras: ${names}`,
+    flat: 'Las fotos no están en carpetas por cámara. El predictor las asignará a las cámaras mirándolas.',
+    countWarning: (n, expected) => `${n} fotos, pero se esperan ${expected}. Comprueba que no falte ninguna.`,
+    uploading: 'Subiendo…',
+    uploadFailed: (why) => `Las fotos no se subieron. ${why}`,
+    expectImages: 'Fotos esperadas',
+    expectAreas: 'Zonas esperadas',
+    run: 'Ejecutar el predictor',
+    running: 'Ejecutando…',
+    needPhotos: 'Primero añade las fotos.',
+    elapsed: (time) => `Ejecutando desde hace ${time}`,
+    log: 'Registro en vivo',
+    backendDown: 'El backend no responde. Arráncalo en el puerto 8000 e inténtalo de nuevo.',
+    busy: 'Ya hay una ejecución en curso. Espera a que termine.',
+    runFailed: (why) => `No se pudo empezar. ${why}`,
+    verdict: { OK: 'OK', FALLBACKS: 'Alternativas', INCOMPLETE: 'Incompleto', INVALID: 'Inválido', ERROR: 'Error' },
+    advice: {
+      OK: 'Todas las comprobaciones han pasado. Puedes enviar el archivo.',
+      FALLBACKS: 'Algunas respuestas no vinieron del modelo, por ejemplo por una foto corrupta. No envíes este archivo.',
+      INCOMPLETE: 'El número de fotos o de zonas no coincide con lo esperado, o se saltaron archivos. Comprueba antes de enviar.',
+      INVALID: 'El archivo no pasó la comprobación de formato. No lo envíes.',
+      ERROR: 'La ejecución se detuvo con un error. Lee el registro, corrígelo y ejecuta otra vez. No envíes nada.',
+    },
+    validatorLine: (images, areas, errors) => `${images} imágenes, ${areas} zonas, ${errors} errores`,
+    validatorFailed: 'El validador no pasó.',
+    perCamera: 'Por cámara',
+    total: 'Total',
+    notCompliant: 'Fuera del planograma',
+    download: 'Descargar final.json',
+    downloadLocked: 'Solo disponible cuando el veredicto es OK y el validador pasó.',
+  },
+  // --- validation day (end)
   throughDay: 'A lo largo del día',
   close: 'Cerrar',
   allCameras: 'Todas las cámaras',

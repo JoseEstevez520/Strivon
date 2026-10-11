@@ -12,3 +12,4 @@ open_clip_torch
 # Optional: Claude vision labels (python -m sensei vlm-label)
 anthropic
 python-dotenv
+python-multipart

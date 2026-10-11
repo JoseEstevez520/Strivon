@@ -1,5 +1,23 @@
 # Validation day
 
+## Fast path on the day
+
+The script and the web page run the same commands as the manual steps further down, so use whichever is open.
+
+1. Have ready: the validation folder laid out as `<camera>/<timestamp>.jpg`, a terminal at the repo root, and `python -m pip install -r agents/requirements.txt` already done.
+2. Run one command (it sets `SENSEI_DATASET` and `ONEPASS_THREADS=1` for you, building a temporary dataset folder from `data/images` if `outputs/dataset` is missing):
+   - bash: `scripts/validation_day.sh PATH/TO/validation`
+   - PowerShell: `scripts\validation_day.ps1 PATH\TO\validation`
+   - Defaults are 26 photos and 289 areas. Change them with `--expect-images N --expect-areas N` (bash) or `-ExpectImages N -ExpectAreas N` (PowerShell). The file goes to `agents/submission/final.json`; add `--out` / `-Out` to move it.
+3. Or use the page at `#/validate`: start the backend with `python -m sensei serve` (from `backend/`, port 8000) and the frontend dev server, then open `http://localhost:5173/#/validate` (or the port Vite prints).
+4. OK looks like this: the predictor ends with `OK (stock model mix): 289 areas ...`, the check says `26 images, 289 areas, 0 errors`, and the script prints `OK. Send this file: ...` plus a table of empty/half/full per camera. Glance at the table: no camera should be all one level by accident.
+5. Any other verdict (the script deletes the output file, so nothing can be sent by mistake):
+   - `INVALID` (exit 1): format error. Don't send. Read the lines above and call André.
+   - `FALLBACKS` (exit 2): some answers did not come from the model, usually a corrupt photo. Don't send. Find the photo in the WARN lines, replace it, run again.
+   - `INCOMPLETE` (exit 3): photo or area count differs, or files were skipped. Check the layout and the skipped files. If the real numbers are right and differ from 26/289, rerun with the matching `--expect-*`.
+   - Exit 1 without a verdict (a Python traceback, e.g. `No module named ...`): the install is missing. Run the pip command above and retry.
+6. Send `agents/submission/final.json` (the path the script printed) to the organisers through the channel they gave us, and post the last line of the run in the team chat.
+
 ## The submission: André's one-pass predictor (`agents/predict.py`)
 
 Chosen on the forward split (`docs/BOARD.md`, 11 Oct 02:20 Lisbon): the R3 weights alone, with their own
