@@ -560,3 +560,11 @@ what we decide into the sections above and the decisions log.
 - The list changes height as the day plays, and the browser clamps the page scroll when it gets
   shorter. A minimum height for the list column may be needed.
 - A products view, with stock summed per product.
+
+## Store plan (lab, `/lab/map-store`)
+
+A passive live view. The cameras and the model already detect what is empty or misplaced, and the next hourly photo clears a warning by itself, so the screen never asks the employee to mark anything: no Done, no No stock, no counters. The detail panel is plain information per problem: product, where on the shelf, the state and since when.
+
+From 1024 px it is a top-down plan in HTML and CSS: walls, a door with a mat and an awning, a hanging department sign, aisle lanes with arrows and names, and gondolas as furniture with hanging name signs. A grey dotted line shows the walk. Below that the same gondola block sits in a compact grid in walking order (four columns, two on a phone) and the first gondola spans two columns and carries what to bring, so no second card repeats it. The first gondola is marked by tone, a larger neutral number and the card above the plan, never by black.
+
+Every state has a shape as well as a colour: empty a dashed tile with "!", wrong product a return arrow, half full a filled lower half. Fine areas are plain white tiles with no badge; a green check appears once, on a gondola with nothing to fix. Pure red is kept for a product gone from half the store or more. Sizes are small on purpose (20 px icons, 32 px tiles, 14 px names, nothing under 12 px), because nothing here is pressed except the gondola blocks, which are at least 44 px tall.

@@ -87,6 +87,25 @@ interface Strings {
   withProduct: (names: string) => string
   noMatches: string
   areasCount: (n: number) => string
+  plan: {
+    title: string
+    department: string
+    anotherMoment: string
+    hideMoment: string
+    entrance: string
+    aisle: (n: number) => string
+    stop: (n: number) => string
+    show: (name: string) => string
+    fine: string
+    nothingHere: string
+    fineCount: (n: number) => string
+    allFine: string
+    otherAreas: string
+    nothingToDo: string
+    areaLabel: (name: string, state: string) => string
+    moreItems: (n: number) => string
+    spot: (top: boolean, n: number) => string
+  }
 }
 
 const en: Strings = {
@@ -156,6 +175,25 @@ const en: Strings = {
   withProduct: (x) => `with ${x}`,
   noMatches: 'Nothing matches',
   areasCount: (n) => `${n} areas`,
+  plan: {
+    title: 'Store map',
+    department: 'Fruit and vegetables',
+    anotherMoment: 'See another moment',
+    hideMoment: 'Back to now',
+    entrance: 'Entrance',
+    aisle: (n) => `Aisle ${n}`,
+    stop: (n) => `Stop ${n}`,
+    show: (name) => `Show ${name}`,
+    fine: 'Fine',
+    nothingHere: 'Nothing to fix here',
+    fineCount: (n) => `${n} fine`,
+    allFine: 'All fine',
+    otherAreas: 'The rest of the shelf',
+    nothingToDo: 'Every gondola is fine',
+    areaLabel: (name, state) => `${name}, ${state}`,
+    moreItems: (n) => `+${n}`,
+    spot: (top, n) => `${top ? 'Top' : 'Bottom'} shelf, ${n} from the left`,
+  },
   headline: (n) => (n === 0 ? 'Nothing to do right now' : n === 1 ? 'One thing to do now' : `${n} things to do now`),
   photoFrom: (t) => `Photos up to ${t}`,
   camera: 'Camera',
@@ -241,6 +279,25 @@ const pt: Strings = {
   withProduct: (x) => `com ${x}`,
   noMatches: 'Nada encontrado',
   areasCount: (n) => `${n} áreas`,
+  plan: {
+    title: 'Mapa da loja',
+    department: 'Frutas e legumes',
+    anotherMoment: 'Ver outro momento',
+    hideMoment: 'Voltar a agora',
+    entrance: 'Entrada',
+    aisle: (n) => `Corredor ${n}`,
+    stop: (n) => `Paragem ${n}`,
+    show: (name) => `Mostrar ${name}`,
+    fine: 'Bem',
+    nothingHere: 'Nada a corrigir aqui',
+    fineCount: (n) => `${n} bem`,
+    allFine: 'Tudo bem',
+    otherAreas: 'O resto da prateleira',
+    nothingToDo: 'Todas as gôndolas estão bem',
+    areaLabel: (name, state) => `${name}, ${state}`,
+    moreItems: (n) => `+${n}`,
+    spot: (top, n) => `${top ? 'Prateleira de cima' : 'Prateleira de baixo'}, ${n} a contar da esquerda`,
+  },
   headline: (n) => (n === 0 ? 'Nada a fazer agora' : n === 1 ? 'Uma coisa a fazer agora' : `${n} coisas a fazer agora`),
   photoFrom: (t) => `Fotos até às ${t}`,
   camera: 'Câmara',
@@ -326,6 +383,25 @@ const es: Strings = {
   withProduct: (x) => `con ${x}`,
   noMatches: 'Sin resultados',
   areasCount: (n) => `${n} zonas`,
+  plan: {
+    title: 'Mapa de la tienda',
+    department: 'Frutas y verduras',
+    anotherMoment: 'Ver otro momento',
+    hideMoment: 'Volver a ahora',
+    entrance: 'Entrada',
+    aisle: (n) => `Pasillo ${n}`,
+    stop: (n) => `Parada ${n}`,
+    show: (name) => `Mostrar ${name}`,
+    fine: 'Bien',
+    nothingHere: 'Nada que corregir aquí',
+    fineCount: (n) => `${n} bien`,
+    allFine: 'Todo bien',
+    otherAreas: 'El resto del estante',
+    nothingToDo: 'Todas las góndolas están bien',
+    areaLabel: (name, state) => `${name}, ${state}`,
+    moreItems: (n) => `+${n}`,
+    spot: (top, n) => `${top ? 'Estante de arriba' : 'Estante de abajo'}, ${n} desde la izquierda`,
+  },
   headline: (n) => (n === 0 ? 'Nada que hacer ahora' : n === 1 ? 'Una cosa que hacer ahora' : `${n} cosas que hacer ahora`),
   photoFrom: (t) => `Fotos hasta las ${t}`,
   camera: 'Cámara',
