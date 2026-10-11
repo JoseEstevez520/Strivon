@@ -262,17 +262,23 @@ def main():
 
     t0 = time.time()
     planogram = load_planogram(args.planogram)
+    skipped = []  # photos found but not predicted (unknown camera, unreadable, unsupported format)
     try:
-        images = list_images(args.images, args.planogram)
+        images = list_images(args.images, args.planogram, skipped=skipped)
     except ValueError as e:
         sys.exit(f"ERROR {e}")
+    count_problems = []
     if args.cams:
         images = [r for r in images if r.cam in set(args.cams.split(","))]
     n_areas = sum(len(planogram[r.cam]) for r in images)
     if args.expect_images is not None and len(images) != args.expect_images:
+        count_problems.append(f"{len(images)} photos, expected {args.expect_images}")
         print(f"WARN  found {len(images)} photos, expected {args.expect_images}: check the folder")
     if args.expect_areas is not None and n_areas != args.expect_areas:
+        count_problems.append(f"{n_areas} areas, expected {args.expect_areas}")
         print(f"WARN  {n_areas} areas to predict, expected {args.expect_areas}: check the folder and the planogram")
+    if skipped:
+        count_problems.append(f"{len(skipped)} files NOT predicted")
     try:
         if not _curtain_refs():
             print("WARN  night-curtain look-up (log only) is off: our dataset not found (SENSEI_DATASET)")
@@ -380,10 +386,12 @@ def main():
     if n_fallback:
         print(f"!! {n_fallback} answers are FALLBACKS (a model is missing or failed, see the errors above). "
               "Fix that before sending this file.")
-    status = "INVALID" if errors else "FALLBACKS" if n_fallback else "OK"
+    if count_problems:
+        print(f"!! INCOMPLETE: {'; '.join(count_problems)} (see the WARN lines above). Check before sending this file.")
+    status = "INVALID" if errors else "FALLBACKS" if n_fallback else "INCOMPLETE" if count_problems else "OK"
     print(f"{status}: {len(entries)} areas -> {args.out}"
           f"{f' ({filled} filled by safety net)' if filled else ''}  [{time.time() - t0:.0f}s]  {mode}")
-    sys.exit(1 if errors else 2 if n_fallback else 0)
+    sys.exit(1 if errors else 2 if n_fallback else 3 if count_problems else 0)
 
 
 if __name__ == "__main__":

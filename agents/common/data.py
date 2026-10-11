@@ -29,6 +29,9 @@ CORNERS = ("top_left", "top_right", "bottom_right", "bottom_left")
 OVERLAP_PAIRS = [("6383", "6386"), ("6591", "6594"), ("6371", "6376"), ("6373", "6385"), ("6462", "6468")]
 IMAGE_EXTS = (".jpg", ".jpeg", ".png")
 OTHER_IMAGE_EXTS = (".webp", ".tif", ".tiff", ".bmp", ".gif", ".heic", ".jfif")  # not read: list_images warns
+# Recognising a camera by appearance: our photos score >= 0.8 against their own camera (5th percentile, leave-one-out;
+# the 06:12 curtain photo 0.30), other cameras <= 0.33, and a screenshot, noise or a mirrored photo <= 0.38.
+MIN_ID_SCORE = 0.5
 
 
 @lru_cache(maxsize=None)
@@ -91,35 +94,47 @@ def parse_path(path, cams):
     return None, ts
 
 
-def list_images(root=IMAGES_DIR, planogram_path=PLANOGRAM_PATH, identify=True):
+def list_images(root=IMAGES_DIR, planogram_path=PLANOGRAM_PATH, identify=True, skipped=None):
     """Every image under `root` as ImageRec, sorted by (cam, ts).
 
     The camera comes from a folder (or file-name part) equal to a planogram camera id; when there
-    is none and identify=True, it is recognised by appearance with identify_camera()."""
+    is none and identify=True, it is recognised by appearance with identify_camera(). A photo that matches no
+    planogram camera well enough (score < MIN_ID_SCORE) or can't be read is left out with a WARN, and so are image
+    files in formats we don't read; their paths are appended to `skipped` when a list is given."""
     cams = set(load_planogram(planogram_path))
-    recs, skipped = [], []
+    recs, unread = [], []
+    skipped = [] if skipped is None else skipped
     for p in sorted(Path(root).rglob("*")):
         if p.name.startswith("._") or "__MACOSX" in p.parts:
             continue
         if p.suffix.lower() in OTHER_IMAGE_EXTS:
-            skipped.append(p.name)
+            unread.append(p.name)
             continue
         if p.suffix.lower() not in IMAGE_EXTS:
             continue
         cam, ts = parse_path(p, cams)
         if cam is None and identify:
             try:
-                cam, _ = identify_camera(p, cams)
+                cam, score = identify_camera(p, cams)
             except Exception as e:  # unreadable file: its camera (so its areas) can't be known
-                print(f"WARN  {p}: can't read it to recognise the camera ({e!r}); skipped")
+                print(f"WARN  {p}: can't read it to recognise the camera ({e!r}); NOT predicted")
+                skipped.append(str(p))
                 continue
+            if cam is not None and score < MIN_ID_SCORE:
+                print(f"WARN  {p}: looks like no planogram camera (best {cam}, score {score:.2f} < {MIN_ID_SCORE}); "
+                      "NOT predicted")
+                skipped.append(str(p))
+                continue
+            if cam is not None:
+                print(f"WARN  {p}: camera not in the path, recognised as {cam} by appearance (score {score:.2f})")
         if cam is None:
             raise ValueError(f"can't tell which camera took {p}: put the photos in <camera>/ folders or name them "
                              "<camera>_<timestamp>.jpg, or set SENSEI_DATASET to our dataset folder so the camera can "
                              "be recognised by appearance")
         recs.append(ImageRec(cam, ts if ts is not None else 0, p))
-    if skipped:
-        print(f"WARN  {len(skipped)} image files in a format we don't read, NOT predicted: {skipped[:10]}")
+    if unread:
+        print(f"WARN  {len(unread)} image files in a format we don't read, NOT predicted: {unread[:10]}")
+        skipped += unread
     return sorted(recs)
 
 

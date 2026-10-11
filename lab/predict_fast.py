@@ -679,6 +679,9 @@ def predict(a):
             die(f"NaN stock probability in {cam}/{img}")
         out.setdefault(cam, {})[img] = {aid: dict(planogram_compliant=bool(c), stock_level=l, stock_value=VAL[l])
                                         for aid, l, c in zip(aids, lv, ok)}
+        if a.p_stock:  # optional: the ensemble's [p_empty, p_half, p_full] per area, so the team can average models
+            for i, aid in enumerate(aids):
+                out[cam][img][aid]["p_stock"] = [round(float(x), 5) for x in Pr[i]]
         timing.append(dict(photo=f"{cam}/{img}", areas=len(aids), wall=t.wall, cpu=t.cpu))
         if a.features:
             feats[f"{cam}/{img}"] = (aids, Pm, None, Pr)
@@ -688,6 +691,14 @@ def predict(a):
             if set(areas) != need:
                 die(f"{cam}/{img}: missing areas {sorted(need - set(areas))}")
     json.dump(out, open(a.out, "w"), indent=1)
+    n_img = sum(len(v) for v in out.values()); n_area = sum(len(x) for v in out.values() for x in v.values())
+    bad = []
+    if a.expect_images is not None and n_img != a.expect_images:
+        bad.append(f"found {n_img} photos, expected {a.expect_images}")
+    if a.expect_areas is not None and n_area != a.expect_areas:
+        bad.append(f"{n_area} areas predicted, expected {a.expect_areas}")
+    for m in bad:
+        print(f"predict.py: WARNING: {m}: check the folder and the planogram (a missing area costs -5)", file=sys.stderr)
     T_END = time.perf_counter()
     if a.timing:
         json.dump(dict(imports=T_IMPORTS - T_START, load=T_LOAD - T_IMPORTS, total=T_END - T_START,
@@ -697,6 +708,8 @@ def predict(a):
     n = sum(len(v) for v in out.values())
     print(f"{n} photos, {sum(len(x) for v in out.values() for x in v.values())} areas -> {a.out} "
           f"({T_END - T_START:.2f} s after interpreter start)")
+    if bad and a.strict:
+        sys.exit(3)
 
 
 def main():
@@ -710,6 +723,10 @@ def main():
     pr.add_argument("--features")
     pr.add_argument("--threads", type=int, default=2)
     pr.add_argument("--planogram", default=os.path.join(ROOT, "data/planogram.json"))
+    pr.add_argument("--expect-images", type=int, help="warn if the number of photos found differs (26 on validation day)")
+    pr.add_argument("--expect-areas", type=int, help="warn if the number of areas predicted differs (289 on validation day)")
+    pr.add_argument("--strict", action="store_true", help="exit with code 3 after writing the file when an --expect check fails")
+    pr.add_argument("--p-stock", action="store_true", help="also write p_stock = [p_empty, p_half, p_full] for every area")
     a = ap.parse_args()
     predict(a)
 

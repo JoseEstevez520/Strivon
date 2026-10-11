@@ -119,11 +119,12 @@ const slotFill = (v: number) => (v < 0.25 ? tone(84) : v < 0.5 ? tone(52) : v < 
  */
 /** How far the slots run on below the first screen, fading out, in px. */
 const SPILL = 208
+/** How much further they run down at the left and right edges, so they trail down the corners. */
+const SPILL_EDGE = 260
 
-function Slots() {
-  const ref = useRef<HTMLDivElement>(null)
+/** Measures how many whole slots fit in the element, and keeps it up to date. */
+function useGrid(ref: React.RefObject<HTMLDivElement | null>) {
   const [size, setSize] = useState({ cols: 0, rows: 0, height: 0 })
-
   useEffect(() => {
     const el = ref.current
     if (!el) return
@@ -137,21 +138,29 @@ function Slots() {
     const observer = new ResizeObserver(measure)
     observer.observe(el)
     return () => observer.disconnect()
-  }, [])
+  }, [ref])
+  return size
+}
+
+function Slots() {
+  const ref = useRef<HTMLDivElement>(null)
+  const size = useGrid(ref)
 
   const cells = []
   for (let r = 0; r < size.rows; r++) {
     for (let c = 0; c < size.cols; c++) {
       // The first screen is the top part of the grid; the rest runs on below it.
       const total = size.height
-      const screen = Math.max(1, total - SPILL)
+      const screen = Math.max(1, total - SPILL - SPILL_EDGE)
       const y = ((r + 0.5) / size.rows) * total
       const dx = (c + 0.5) / size.cols - 0.5
       const dy = y / screen - 0.5
       // Nothing close to the text, then more and more of the slots as they get further from it, so
       // the scatter fades in instead of stopping at an edge. Below the first screen it fades out.
       const near = Math.max(0, Math.min(1, (Math.hypot(dx * 1.1, dy * 2) - 0.45) / 0.3))
-      const below = y <= screen ? 1 : Math.max(0, 1 - (y - screen) / SPILL)
+      const edge = Math.min(1, Math.abs(dx) * 2)
+      const run = SPILL + SPILL_EDGE * Math.pow(edge, 1.6)
+      const below = y <= screen ? 1 : Math.max(0, 1 - (y - screen) / run)
       const fade = near * below
       const shown = hash(c, r) > 0.4 && fade > 0
       cells.push(
@@ -168,7 +177,44 @@ function Slots() {
     <div
       ref={ref}
       aria-hidden
-      className="pointer-events-none absolute inset-x-0 top-0 -bottom-52 grid gap-2"
+      className="pointer-events-none absolute inset-x-0 top-0 -bottom-[468px] grid gap-2"
+      style={{ gridTemplateColumns: `repeat(${size.cols || 1}, minmax(0, 1fr))`, gridTemplateRows: `repeat(${size.rows || 1}, minmax(0, 1fr))` }}
+    >
+      {cells}
+    </div>
+  )
+}
+
+/**
+ * The same slots closing the page, behind the footer and taking no room of their own: none at the top
+ * of the band, more and more toward the bottom, so the page ends the way it began.
+ */
+function SlotsBand() {
+  const ref = useRef<HTMLDivElement>(null)
+  const size = useGrid(ref)
+  const cells = []
+  for (let r = 0; r < size.rows; r++) {
+    for (let c = 0; c < size.cols; c++) {
+      const dy = (r + 0.5) / size.rows
+      const dx = (c + 0.5) / size.cols - 0.5
+      // Fewer toward the centre, where the logos and the line of text are, as the first screen keeps
+      // the slots away from its text.
+      const near = Math.max(0, Math.min(1, (Math.hypot(dx * 1.2, (dy - 0.72) * 1.5) - 0.2) / 0.3))
+      // The band is tall so the slots can climb the sides, like they rise out of the corners.
+      const edge = Math.min(1, Math.abs(dx) * 2)
+      const rise = Math.max(0, Math.min(1, (dy - 0.35) / 0.65 + 0.75 * Math.pow(edge, 1.7)))
+      const fade = Math.pow(rise, 1.6) * near
+      const shown = hash(c, r) > 0.35
+      cells.push(
+        <span key={`${r}-${c}`} className="rounded-[7px]" style={{ background: shown ? slotFill(hash(r, c)) : 'transparent', opacity: 0.6 * fade }} />,
+      )
+    }
+  }
+  return (
+    <div
+      ref={ref}
+      aria-hidden
+      className="pointer-events-none absolute inset-x-0 bottom-0 grid h-[24rem] gap-2"
       style={{ gridTemplateColumns: `repeat(${size.cols || 1}, minmax(0, 1fr))`, gridTemplateRows: `repeat(${size.rows || 1}, minmax(0, 1fr))` }}
     >
       {cells}
@@ -229,98 +275,101 @@ export function Landing() {
   return (
     <div className="scrollbar-subtle h-dvh overflow-x-clip overflow-y-auto [scrollbar-gutter:stable]">
       <Hero />
-      <main className="mx-auto max-w-6xl px-5 pb-16">
-        <Section title="What is Strivon?">
-          <div className="flex flex-col gap-4 text-copy text-fg-secondary">
-            <p>
-              In a store, nobody can look at every shelf all day. A shelf runs empty, a product ends up in another one’s place,
-              and the staff find out when a customer asks.
-            </p>
-            <p>
-              Strivon looks for them. From a ceiling-camera photo and the store planogram it checks each shelf area: is it
-              holding the product it should, and how full is it? What comes out is a list of work, not a report.
-            </p>
-          </div>
-        </Section>
+      <div className="relative">
+        <SlotsBand />
+        <main className="relative mx-auto max-w-6xl px-5 pb-16">
+          <Section title="What is Strivon?">
+            <div className="flex flex-col gap-4 text-copy text-fg-secondary">
+              <p>
+                In a store, nobody can look at every shelf all day. A shelf runs empty, a product ends up in another one’s place,
+                and the staff find out when a customer asks.
+              </p>
+              <p>
+                Strivon looks for them. From a ceiling-camera photo and the store planogram it checks each shelf area: is it
+                holding the product it should, and how full is it? What comes out is a list of work, not a report.
+              </p>
+            </div>
+          </Section>
 
-        <Section title="How it works">
-          <ol className="grid items-stretch gap-4 md:grid-cols-[1fr_auto_1fr_auto_1fr]">
-            {STEPS.flatMap(([Icon, title, text], i) => [
-              <li key={title} className="rounded-2xl bg-surface p-5">
-                <Icon className="size-5 text-fg-secondary" strokeWidth={1.5} aria-hidden />
-                <p className="mt-3 text-label text-fg">{title}</p>
-                <p className="mt-1 text-ui text-fg-secondary">{text}</p>
-              </li>,
-              i < STEPS.length - 1 && (
-                <li key={`a${i}`} aria-hidden className="hidden items-center text-fg-muted md:flex">
-                  <ArrowRight className="size-5" strokeWidth={1.5} />
-                </li>
-              ),
-            ])}
-          </ol>
-        </Section>
+          <Section title="How it works">
+            <ol className="grid items-stretch gap-4 md:grid-cols-[1fr_auto_1fr_auto_1fr]">
+              {STEPS.flatMap(([Icon, title, text], i) => [
+                <li key={title} className="rounded-2xl bg-surface p-5">
+                  <Icon className="size-5 text-fg-secondary" strokeWidth={1.5} aria-hidden />
+                  <p className="mt-3 text-label text-fg">{title}</p>
+                  <p className="mt-1 text-ui text-fg-secondary">{text}</p>
+                </li>,
+                i < STEPS.length - 1 && (
+                  <li key={`a${i}`} aria-hidden className="hidden items-center text-fg-muted md:flex">
+                    <ArrowRight className="size-5" strokeWidth={1.5} />
+                  </li>
+                ),
+              ])}
+            </ol>
+          </Section>
 
-        <Section title="What it does today">
-          <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {TODAY.map(([icon, title, text]) => (
-              <Card key={title} icon={icon} title={title} text={text} />
-            ))}
-          </ul>
-        </Section>
+          <Section title="What it does today">
+            <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {TODAY.map(([icon, title, text]) => (
+                <Card key={title} icon={icon} title={title} text={text} />
+              ))}
+            </ul>
+          </Section>
 
-        <Section title="See it" lead="The app, shortened. Open a task to see its day and its shelf, or move through the day.">
-          <Demo />
-        </Section>
+          <Section title="See it" lead="The app, shortened. Open a task to see its day and its shelf, or move through the day.">
+            <Demo />
+          </Section>
 
-        <section className="grid items-center gap-8 py-12 sm:py-16 md:grid-cols-[2fr_3fr]">
-          <div>
-            <h2 className="text-title">Ask, and get a screen</h2>
-            <p className="mt-3 text-copy text-fg-secondary">
-              You can ask the store a question in plain words. The answer is not a paragraph: the chat builds the screen that
-              answers it, with a chart of the day and a card that opens the shelf.
-            </p>
-          </div>
-          <ChatClip />
-        </section>
+          <section className="grid items-center gap-8 py-12 sm:py-16 md:grid-cols-[2fr_3fr]">
+            <div>
+              <h2 className="text-title">Ask, and get a screen</h2>
+              <p className="mt-3 text-copy text-fg-secondary">
+                You can ask the store a question in plain words. The answer is not a paragraph: the chat builds the screen that
+                answers it, with a chart of the day and a card that opens the shelf.
+              </p>
+            </div>
+            <ChatClip />
+          </section>
 
-        <Section title="Code">
-          <a
-            href={REPO}
-            target="_blank"
-            rel="noreferrer"
-            className="group flex flex-col gap-6 rounded-2xl bg-surface p-6 transition-colors hover:bg-raised sm:flex-row sm:items-center sm:gap-8 sm:p-8"
-          >
-            <span className="grid size-20 shrink-0 place-items-center rounded-2xl bg-fg text-bg">
-              <GithubMark className="size-10" />
-            </span>
-            <span className="min-w-0 flex-1">
-              <span className="block text-meta text-fg-muted">github.com</span>
-              <span className="mt-1 block text-display">Strivon</span>
-              <span className="mt-2 block text-copy text-fg-secondary">Shelf monitoring for the Sensei challenge at JunctionX Lisbon 2026.</span>
-            </span>
-            <span className="inline-flex h-11 shrink-0 items-center gap-2 self-start rounded-xl bg-fg px-5 text-label text-bg transition-opacity group-hover:opacity-85 sm:self-center">
-              Open the repository
-              <ArrowUpRight className="size-4" aria-hidden />
-            </span>
-          </a>
-        </Section>
+          <Section title="Code">
+            <a
+              href={REPO}
+              target="_blank"
+              rel="noreferrer"
+              className="group flex flex-col gap-6 rounded-2xl bg-surface p-6 transition-colors hover:bg-raised sm:flex-row sm:items-center sm:gap-8 sm:p-8"
+            >
+              <span className="grid size-20 shrink-0 place-items-center rounded-2xl bg-fg text-bg">
+                <GithubMark className="size-10" />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block text-meta text-fg-muted">github.com</span>
+                <span className="mt-1 block text-display">Strivon</span>
+                <span className="mt-2 block text-copy text-fg-secondary">Shelf monitoring for the Sensei challenge at JunctionX Lisbon 2026.</span>
+              </span>
+              <span className="inline-flex h-11 shrink-0 items-center gap-2 self-start rounded-xl bg-fg px-5 text-label text-bg transition-opacity group-hover:opacity-85 sm:self-center">
+                Open the repository
+                <ArrowUpRight className="size-4" aria-hidden />
+              </span>
+            </a>
+          </Section>
 
-        <Section title="Team">
-          <ul className="flex flex-wrap gap-x-10 gap-y-2 text-copy">
-            {TEAM.map((name) => (
-              <li key={name}>{name}</li>
-            ))}
-          </ul>
-        </Section>
+          <Section title="Team">
+            <ul className="flex flex-wrap gap-x-10 gap-y-2 text-copy">
+              {TEAM.map((name) => (
+                <li key={name}>{name}</li>
+              ))}
+            </ul>
+          </Section>
 
-        <footer className="pt-12">
-          <div className="mb-6 flex items-center justify-center gap-8">
-            <img src="partners/junctionx.png" alt="JunctionX Lisbon" className="h-14 w-auto" />
-            <img src="partners/sensei.png" alt="Sensei" className="h-14 w-auto" />
-          </div>
-          <p className="text-meta text-fg-muted">Built at JunctionX Lisbon 2026, for the Sensei challenge. The logos belong to their owners.</p>
-        </footer>
-      </main>
+          <footer className="pt-12">
+            <div className="mb-6 flex items-center justify-center gap-8">
+              <img src="partners/junctionx.png" alt="JunctionX Lisbon" className="h-14 w-auto" />
+              <img src="partners/sensei.png" alt="Sensei" className="h-14 w-auto" />
+            </div>
+            <p className="text-center text-meta text-fg-muted">Built at JunctionX Lisbon 2026, for the Sensei challenge. The logos belong to their owners.</p>
+          </footer>
+        </main>
+      </div>
     </div>
   )
 }

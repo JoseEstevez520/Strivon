@@ -10,6 +10,15 @@ fallbacks, format checked. Two traps found and fixed:
    send a file when that line appears.
 2. The predictor looks for the dataset under `agents/OfficialDataset/...`. If the data is elsewhere,
    point `SENSEI_DATASET` at a folder holding `Frutas e Legumes (train & test)/` and `planogram.json`.
+3. **Always set `SENSEI_DATASET`, even if the data is in the default place.** If the validation photos
+   don't come as `<camera id>/<timestamp>.jpg` (a flat folder, or folders named like `camera_6215/`), the
+   predictor can only work out each photo's camera by comparing it with our photos. That needs `SENSEI_DATASET`.
+   Without it, such a layout stops with an ERROR, which is loud, not silent.
+4. The last line tells you what to do:
+   - `OK` (exit 0): send the file.
+   - `FALLBACKS` (exit 2): some answers did not come from the model, for example a corrupt photo. Don't send it.
+   - `INCOMPLETE` (exit 3): the photo or area count doesn't match `--expect-*`, or files were skipped. Check before sending.
+   - `INVALID` (exit 1): the file failed the format check.
 
 ```bash
 python -m pip install -r agents/requirements.txt
@@ -19,11 +28,29 @@ python -m pip install -r agents/requirements.txt
 cd agents && python -I predict.py --images "PATH/TO/validation" --out submission/final.json --expect-images 26 --expect-areas 289
 ```
 
-The last line must start with `OK: 289 areas`. Then check the format once more:
+The last line must start with `OK: 289 areas`. Then check the file against the photos it must cover (this one also notices a photo that is missing as a whole; the older
+`validate_submission` check does not):
 
 ```bash
-python -c "import json,sys; sys.path.insert(0,'backend'); from sensei.pipeline import validate_submission; from sensei.planogram import load_planogram; print(validate_submission(json.load(open('agents/submission/final.json')), load_planogram()) or 'format OK')"
+python -I agents/submission/validate.py agents/submission/final.json --images "PATH/TO/validation" --planogram data/planogram.json
 ```
+
+It must say 26 images, 289 areas and 0 errors.
+
+## Option: the lab model (`lab/predict_fast.py`)
+
+The cheapest model, image only: about 0.1 s of CPU per photo, 103 MB, no GPU. Rehearsed on 11 Oct from a clean copy of main on 26 photos:
+289 areas in 1.4 s, no warnings. Full usage in `lab/PREDICT.md`.
+
+```bash
+python lab/predict_fast.py predict --images "PATH/TO/validation" --model lab/models/lane_i_ens.pkl --out out/lab.json --threads 1 --expect-images 26 --expect-areas 289 --strict
+```
+
+- `lab/models/lane_i_ens.pkl` is not in git: it holds colour histograms of crops, which come from the challenge photos. Copy the file from the
+  laptop that trained it, or rebuild it with `python lab/predict.py train --model ensemble --out lab/models/lane_i_ens.pkl` (needs `data/images`,
+  the answer key and the first-run download of the MobileNetV3 weights; rebuilding from scratch on another laptop has not been rehearsed).
+- Add `--p-stock` only to feed `combine`. A file written with it carries an extra `p_stock` key per area: send the output of `combine`, not that file.
+- Its stock can be combined with André's product check the same way as above: `python -m sensei combine --stock out/lab.json --product out/andre.json --out out/final.json`.
 
 ## Backup: our own pipeline (`backend/`)
 
