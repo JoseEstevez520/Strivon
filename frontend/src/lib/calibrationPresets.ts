@@ -1,13 +1,13 @@
-import { BIG_FAMILIES, type Calibration } from '@/lib/calibration'
+import { maxOf, modeOf, roundHalfUp, type Calibration } from '@/lib/calibration'
 
 export type PresetId = 'strict' | 'relaxed'
 
-function build(families: string[], percent: number, units: number): Calibration {
+/** Every product marked full at `share` of its slider: a share of the crate, or of its capacity in pieces. */
+function build(families: string[], share: number): Calibration {
   const out: Calibration = {}
   for (const f of families) {
-    out[f] = BIG_FAMILIES.includes(f)
-      ? { mode: 'units', threshold: units, level: 'full' }
-      : { mode: 'percent', threshold: percent, level: 'full' }
+    const top = maxOf(f)
+    out[f] = { mode: modeOf(f), threshold: top === 100 ? share * 100 : roundHalfUp(share * top), level: 'full' }
   }
   return out
 }
@@ -17,6 +17,6 @@ function build(families: string[], percent: number, units: number): Calibration 
  * strict wants the shelf well stocked, relaxed accepts a bit of stock.
  */
 export const PRESETS: Record<PresetId, (families: string[]) => Calibration> = {
-  strict: (families) => build(families, 80, 6),
-  relaxed: (families) => build(families, 40, 3),
+  strict: (families) => build(families, 0.8),
+  relaxed: (families) => build(families, 0.4),
 }

@@ -78,6 +78,10 @@ interface Strings {
   calLevels: (product: string) => string
   calUnits: (n: number) => string
   calMeaning: (amount: string, level: string) => string
+  calFollowsModel: string
+  calLines: (empty: string, full: string) => string
+  calClear: string
+  calExport: string
   gondolasHeadline: (n: number) => string
   productsHeadline: (n: number) => string
   productsToRestock: (n: number) => string
@@ -248,6 +252,10 @@ const en: Strings = {
   calLevels: (p) => `Level for ${p}`,
   calUnits: (n) => (n === 1 ? '1 unit' : `${n} units`),
   calMeaning: (a, l) => `${a} counts as ${l}`,
+  calFollowsModel: 'No marker: shows what the model says.',
+  calLines: (e, f) => `Empty up to ${e} · Full from ${f} · Half in between`,
+  calClear: 'Back to the model',
+  calExport: 'Export calib.json',
   gondolasHeadline: (n) => (n === 0 ? 'Every gondola is fine' : n === 1 ? 'One gondola needs attention' : `${n} gondolas need attention`),
   productsHeadline: (n) => (n === 1 ? 'One product' : `${n} products`),
   productsToRestock: (n) => (n === 0 ? 'Nothing to restock' : n === 1 ? 'One product to restock' : `${n} products to restock`),
@@ -435,6 +443,10 @@ const pt: Strings = {
   calLevels: (p) => `Nível de ${p}`,
   calUnits: (n) => (n === 1 ? '1 unidade' : `${n} unidades`),
   calMeaning: (a, l) => `${a} conta como ${l}`,
+  calFollowsModel: 'Sem marcador: mostra o que o modelo diz.',
+  calLines: (e, f) => `Vazio até ${e} · Cheio a partir de ${f} · A meio entre os dois`,
+  calClear: 'Voltar ao modelo',
+  calExport: 'Exportar calib.json',
   gondolasHeadline: (n) => (n === 0 ? 'Todas as gôndolas estão bem' : n === 1 ? 'Uma gôndola precisa de atenção' : `${n} gôndolas precisam de atenção`),
   productsHeadline: (n) => (n === 1 ? 'Um produto' : `${n} produtos`),
   productsToRestock: (n) => (n === 0 ? 'Nada para repor' : n === 1 ? 'Um produto para repor' : `${n} produtos para repor`),
@@ -622,6 +634,10 @@ const es: Strings = {
   calLevels: (p) => `Nivel de ${p}`,
   calUnits: (n) => (n === 1 ? '1 unidad' : `${n} unidades`),
   calMeaning: (a, l) => `${a} cuenta como ${l}`,
+  calFollowsModel: 'Sin marcador: muestra lo que dice el modelo.',
+  calLines: (e, f) => `Vacío hasta ${e} · Lleno desde ${f} · A medias entre los dos`,
+  calClear: 'Volver al modelo',
+  calExport: 'Exportar calib.json',
   gondolasHeadline: (n) => (n === 0 ? 'Todas las góndolas están bien' : n === 1 ? 'Una góndola necesita atención' : `${n} góndolas necesitan atención`),
   productsHeadline: (n) => (n === 1 ? 'Un producto' : `${n} productos`),
   productsToRestock: (n) => (n === 0 ? 'Nada que reponer' : n === 1 ? 'Un producto que reponer' : `${n} productos que reponer`),
