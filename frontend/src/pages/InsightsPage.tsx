@@ -34,9 +34,10 @@ export function InsightsPage() {
       <div className="mb-10 flex flex-wrap items-end justify-between gap-x-6 gap-y-2">
         {/* The "~" says it is an estimate, and the detail is on hover, so the page carries no standing disclaimer. */}
         <div>
-          <h1 className="text-display tabular-nums" title={t.insightsEstimate}>
+          <h1 className="text-display tabular-nums">
             {t.insightsHeadline(Math.round(stats.emptyShare * 100))}
           </h1>
+          <p className="mt-1 text-meta text-fg-muted">{t.insightsAbout}</p>
           {stats.peak && (
             <p className="mt-2 px-0.5 text-ui text-fg-secondary tabular-nums">
               {t.insightsPeak(hourOf(stats.peak.hour), Math.round(stats.peak.share * 100))}

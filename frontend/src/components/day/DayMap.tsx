@@ -44,14 +44,18 @@ export function DayMap({ rows, hours, limit = 10, linkTo }: { rows: MapRow[]; ho
             ) : (
               <span className="truncate pr-2 text-meta text-fg-secondary">{family(row.product)}</span>
             )}
-            {row.cells.map((share, i) => (
-              <span
-                key={hours[i]}
-                className="h-4 rounded-[3px]"
-                style={{ backgroundColor: tone(share) }}
-                title={share === null ? undefined : t.mapCell(family(row.product), clock(hours[i]), Math.round(share * 100))}
-              />
-            ))}
+            {/* one cell for every hour in the header, whatever the row holds, so the columns line up */}
+            {hours.map((hour, i) => {
+              const share = row.cells[i] ?? null
+              return (
+                <span
+                  key={hour}
+                  className="h-4 rounded-[3px]"
+                  style={{ backgroundColor: tone(share) }}
+                  title={share === null ? undefined : t.mapCell(family(row.product), clock(hour), Math.round(share * 100))}
+                />
+              )
+            })}
           </div>
         ))}
       </div>
