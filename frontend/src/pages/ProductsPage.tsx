@@ -1,9 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { LayoutGrid, Search } from 'lucide-react'
+import { Search } from 'lucide-react'
 import { Link, useSearchParams } from 'react-router'
 import { DayBar } from '@/components/DayBar'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
-import { PickerButton } from '@/components/PickerButton'
 import { Input } from '@/components/ui/input'
 import { useI18n } from '@/lib/i18n'
 import { useStore } from '@/lib/store'
@@ -14,6 +13,8 @@ const VALUE = { empty: 0, half: 0.5, full: 1 } as const
 
 type Status = 'all' | 'empty' | 'wrong' | 'half'
 const STATUS: Status[] = ['all', 'empty', 'wrong', 'half']
+/** The state colours used everywhere else, so a filter reads like what it filters. */
+const DOT: Partial<Record<Status, string>> = { empty: 'var(--danger)', wrong: 'var(--warning)' }
 
 /** What a task says about its product, for the filter. */
 const statusOf = (x: Task): Exclude<Status, 'all'> | 'fine' =>
@@ -124,29 +125,39 @@ export function ProductsPage() {
           />
         </div>
       </div>
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-        <div className="flex flex-wrap gap-1">
+      <div className="mb-4 flex flex-col gap-2">
+        <div className="flex flex-wrap gap-1" role="group" aria-label={t.filterState}>
           {STATUS.map((st) => (
             <button
               key={st}
               type="button"
               data-on={status === st}
+              aria-pressed={status === st}
               onClick={() => setStatus(st)}
               className="flex h-9 cursor-pointer items-center gap-1.5 rounded-lg px-3 text-ui text-fg-secondary transition-colors hover:bg-surface data-[on=true]:bg-surface data-[on=true]:text-fg"
             >
+              {DOT[st] && <span className="size-2 rounded-full" style={{ background: DOT[st] }} aria-hidden />}
               {label(st)}
               <span className="text-meta tabular-nums text-fg-muted">{withStatus(st).length}</span>
             </button>
           ))}
         </div>
-        <PickerButton
-          icon={<LayoutGrid />}
-          label={t.allGondolas}
-          value={camera}
-          onChange={setCamera}
-          className="w-44"
-          options={[{ value: 'all', label: t.allGondolas }, ...cameras(state).map((c) => ({ value: c, label: gondola(c) }))]}
-        />
+        {/* Fourteen gondolas are too many names for a list that hides, and the numbers are short: one row that scrolls on a phone. */}
+        <div className="-mx-1 flex items-center gap-1 overflow-x-auto px-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="group" aria-label={t.allGondolas}>
+          {['all', ...cameras(state)].map((c) => (
+            <button
+              key={c}
+              type="button"
+              data-on={camera === c}
+              aria-pressed={camera === c}
+              title={c === 'all' ? t.allGondolas : gondola(c)}
+              onClick={() => setCamera(c)}
+              className="h-9 shrink-0 cursor-pointer rounded-lg px-3 text-ui tabular-nums text-fg-secondary transition-colors hover:bg-surface data-[on=true]:bg-surface data-[on=true]:text-fg"
+            >
+              {c === 'all' ? t.allGondolas : (gondola(c).match(/\d+$/)?.[0] ?? gondola(c))}
+            </button>
+          ))}
+        </div>
       </div>
       <DayBar className="mb-6" />
       {shown.length === 0 ? (

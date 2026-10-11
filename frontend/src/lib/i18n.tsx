@@ -34,6 +34,7 @@ interface Strings {
   shortOf: (short: number, total: number) => string
   allGondolas: string
   all: string
+  filterState: string
   gondolaN: (n: number) => string
   loading: string
   navInsights: string
@@ -123,6 +124,7 @@ const en: Strings = {
   shortOf: (s, n) => (s === 0 ? 'All fine' : n === 1 ? 'Short' : `${s} of ${n} areas short`),
   allGondolas: 'All gondolas',
   all: 'All',
+  filterState: 'State',
   gondolaN: (n) => `Gondola ${n}`,
   loading: 'Checking the shelves…',
   navInsights: 'Insights',
@@ -228,6 +230,7 @@ const pt: Strings = {
   shortOf: (s, n) => (s === 0 ? 'Tudo bem' : n === 1 ? 'Em falta' : `${s} de ${n} áreas em falta`),
   allGondolas: 'Todas as gôndolas',
   all: 'Todos',
+  filterState: 'Estado',
   gondolaN: (n) => `Gôndola ${n}`,
   loading: 'A verificar as prateleiras…',
   navInsights: 'Análise',
@@ -333,6 +336,7 @@ const es: Strings = {
   shortOf: (s, n) => (s === 0 ? 'Todo bien' : n === 1 ? 'Con falta' : `${s} de ${n} zonas con falta`),
   allGondolas: 'Todas las góndolas',
   all: 'Todos',
+  filterState: 'Estado',
   gondolaN: (n) => `Góndola ${n}`,
   loading: 'Revisando las estanterías…',
   navInsights: 'Análisis',
