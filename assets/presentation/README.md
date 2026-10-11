@@ -15,5 +15,6 @@ otherwise.
 | `identity/` | The brand pack: logo system, slot-field patterns, posters, slide covers, social images, stickers, motion and a brand sheet. Open `identity/index.html` |
 | `slides/` | The story as an editable PowerPoint, one idea per slide |
 | `web-deck/` | A presentation as a web page: eight slides, the restock wave as a transition, clips and a QR |
+| `export/` | The web deck as a PDF, and the scripts that make PowerPoint files, pictures and an MP4 from it |
 
 The challenge's photos appear reduced in `views/`, `components/`, `pieces/` and the clips.
