@@ -5,6 +5,7 @@ import { StoreProvider } from '@/lib/store'
 import { GondolaPage } from '@/pages/GondolaPage'
 import { InsightsPage } from '@/pages/InsightsPage'
 import { ProductsPage } from '@/pages/ProductsPage'
+import { RoundPage } from '@/pages/RoundPage'
 import { TasksPage } from '@/pages/TasksPage'
 
 export default function App() {
@@ -12,6 +13,8 @@ export default function App() {
     <I18nProvider>
       <StoreProvider>
         <Routes>
+          {/* The round fills the phone screen, so it has no header or tab bar around it. */}
+          <Route path="round" element={<RoundPage />} />
           <Route element={<Layout />}>
             <Route index element={<TasksPage />} />
             <Route path="gondolas/:camera" element={<GondolaPage />} />

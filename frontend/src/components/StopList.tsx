@@ -1,7 +1,8 @@
-import { Check, ChevronRight, Undo2 } from 'lucide-react'
+import { Check, ChevronRight, Footprints, Undo2 } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router'
 import { BringList } from '@/components/BringList'
+import { PhoneCode } from '@/components/PhoneCode'
 import { Segmented } from '@/components/ui/segmented'
 import { ProductIcon } from '@/components/ProductIcon'
 import { useI18n } from '@/lib/i18n'
@@ -48,6 +49,12 @@ export function StopList({ stops, byCamera, tasks }: { stops: Suggestion[]; byCa
   const shown = all ? stops : stops.slice(0, 5)
   return (
     <aside>
+      {stops.length > 0 && (
+        <Link to="/round" className="mb-3 flex h-12 items-center justify-center gap-2 rounded-xl bg-surface text-ui font-medium transition-colors hover:bg-raised">
+          <Footprints className="size-4" aria-hidden />
+          {t.roundStart}
+        </Link>
+      )}
       <Segmented
         className="mb-3"
         label={t.goFirst}
@@ -92,6 +99,7 @@ export function StopList({ stops, byCamera, tasks }: { stops: Suggestion[]; byCa
       )}
         </>
       )}
+      <PhoneCode />
     </aside>
   )
 }
