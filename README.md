@@ -24,7 +24,7 @@
 </p>
 
 <p align="center">
-  <img src="assets/readme/photo-to-tasks.png" alt="Photos from ceiling cameras on the left, and on the right the app's first page: the plan of the store with the problems marked on each gondola, and the round list" width="100%">
+  <img src="assets/readme/photo-to-tasks.png" alt="Photos from ceiling cameras with the shelf areas marked on them, on the left, and on the right the app's first page: the plan of the store with the problems marked on each gondola, and the round list" width="100%">
 </p>
 
 <p align="center"><sub>Photos from the ceiling cameras in, a list of work out. The shelf states in this image are simulated.</sub></p>
