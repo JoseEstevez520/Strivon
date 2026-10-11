@@ -228,4 +228,4 @@ Built at JunctionX Lisbon 2026, for the Sensei challenge.
   <img src="assets/partners/sensei.png" alt="Sensei" height="56">
 </p>
 
-The JunctionX Lisbon and Sensei logos belong to their owners.
+The code is under the [MIT license](LICENSE). The challenge photos and the JunctionX Lisbon and Sensei logos are not covered by it and belong to their owners.

@@ -142,4 +142,4 @@ Feito no JunctionX Lisboa 2026, para o desafio da Sensei.
   <img src="assets/partners/sensei.png" alt="Sensei" height="56">
 </p>
 
-Os logótipos do JunctionX Lisboa e da Sensei pertencem aos seus proprietários.
+O código tem a [licença MIT](LICENSE). As fotografias do desafio e os logótipos do JunctionX Lisboa e da Sensei não estão incluídos nela e pertencem aos seus proprietários.
