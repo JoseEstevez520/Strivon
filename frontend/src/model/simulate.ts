@@ -38,6 +38,7 @@ export function simulateObservations(state: StoreState): void {
         frame[area.area_id] = {
           planogram_compliant: !misplaced,
           stock_level: stock,
+          stock_value: Math.min(1, Math.max(0, Math.round((fill * 0.9 + 0.05 + (hash(seed + k * 13) - 0.5) * 0.06) * 100) / 100)),
           observed_family: misplaced ? other : undefined,
         }
       }

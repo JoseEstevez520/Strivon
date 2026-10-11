@@ -65,3 +65,24 @@ The app is meant to read `outputs/predictions.json`:
 Today the app reads the real photos and planogram from a local folder while it is developed, and the
 stock and compliance of each area are simulated with this same shape. Connecting the real
 predictions is the next step.
+
+## Calibration
+
+People disagree on what "half" means, and it changes by product. Calibration lets each person
+say it for each product, and the app maps the model's stock to a level with that.
+
+Each product has a slider and three buttons (Empty, Half, Full). The slider is a marker for an
+amount, and the button says which level that amount is. If you put the marker on 25% and press
+Full, then a crate of oranges that is a quarter full already counts as full. The levels around
+the marker follow from it: half of that amount or more is half, less is empty.
+
+Big fruit (watermelon, melon, pineapple, pumpkin, papaya) is counted in pieces in the crate, 0 to
+7, because a percentage means little there. Everything else uses percent.
+
+Two ready-made profiles sit above the list: Strict (full only when well stocked) and Relaxed (a
+bit of stock is already fine), plus a button to go back to the default. Switching between them
+shows the same store changing.
+
+The choices are kept in the browser's localStorage under `strivon.calibration`, so they stay on
+that device and are not shared. The model output (`outputs/predictions.json`) is not touched.
+Only the step that turns `stock_value` into a level changes, and only in the app.

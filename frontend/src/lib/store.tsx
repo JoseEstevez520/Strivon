@@ -1,6 +1,10 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { loadSource, type Source } from '@/model/source'
 import type { Area } from '@/model/types'
+import { CalibrationProvider } from './calibrationStore'
+import { useCalibration } from './calibrationStore'
+import { levelFor } from './calibration'
+import type { StoreState } from '@/model/types'
 import { useI18n } from './i18n'
 import { cameras, gondolaFamilies, historyOf, tasksAt, type HistoryPoint, type Task } from './tasks'
 
@@ -60,8 +64,35 @@ export function StoreProvider({ children, limit }: { children: ReactNode; limit?
 }
 
 function LoadedStore({ source, children }: { source: Source; children: ReactNode }) {
+  const families = useMemo(() => [...new Set(Object.values(source.state.areas).map((a) => a.family))].sort(), [source])
+  return (
+    <CalibrationProvider families={families}>
+      <CalibratedStore source={source}>{children}</CalibratedStore>
+    </CalibrationProvider>
+  )
+}
+
+/** Applies the per-product calibration once, so every page reads the effective stock level. */
+function CalibratedStore({ source, children }: { source: Source; children: ReactNode }) {
   const { t, family } = useI18n()
-  const { state, photoUrl, simulated } = source
+  const { cal } = useCalibration()
+  const { photoUrl, simulated } = source
+  const state = useMemo<StoreState>(() => {
+    const observations: StoreState['observations'] = {}
+    for (const [camera, photos] of Object.entries(source.state.observations)) {
+      observations[camera] = {}
+      for (const [image, frame] of Object.entries(photos)) {
+        const out: typeof frame = {}
+        for (const [id, o] of Object.entries(frame)) {
+          const fam = source.state.areas[id]?.family
+          const c = fam ? cal[fam] : undefined
+          out[id] = o.stock_value !== undefined && c ? { ...o, stock_level: levelFor(o.stock_value, c) } : o
+        }
+        observations[camera][image] = out
+      }
+    }
+    return { ...source.state, observations }
+  }, [source, cal])
   const times = useMemo(
     () => [...new Set(Object.values(state.images).flatMap((l) => l.map((r) => r.ts)))].sort((a, b) => a - b),
     [state],

@@ -23,12 +23,23 @@ interface Strings {
   since: (time: string) => string
   areasFine: (n: number) => string
   level: Record<'empty' | 'half' | 'full', string>
+  // --- calibration presets (start)
+  calibrationPresets: { label: string; strict: string; relaxed: string; reset: string; hint: string }
+  // --- calibration presets (end)
   throughDay: string
   close: string
   allCameras: string
   navTasks: string
   navGondolas: string
   navProducts: string
+  navCalibration: string
+  calTitle: string
+  calIntro: string
+  calReset: string
+  calSlider: (product: string) => string
+  calLevels: (product: string) => string
+  calUnits: (n: number) => string
+  calMeaning: (amount: string, level: string) => string
   gondolasHeadline: (n: number) => string
   productsHeadline: (n: number) => string
   productsToRestock: (n: number) => string
@@ -138,12 +149,23 @@ interface Strings {
 
 const en: Strings = {
   level: { empty: 'Empty', half: 'Half full', full: 'Full' },
+  // --- calibration presets (start)
+  calibrationPresets: { label: 'Calibration profile', strict: 'Strict', relaxed: 'Relaxed', reset: 'Default', hint: 'Strict: a shelf is full only when well stocked. Relaxed: a bit of stock is already fine.' },
+  // --- calibration presets (end)
   throughDay: 'Through the day',
   close: 'Close',
   allCameras: 'All cameras',
   navTasks: 'Tasks',
   navGondolas: 'Gondolas',
   navProducts: 'Products',
+  navCalibration: 'Calibration',
+  calTitle: 'Calibration',
+  calIntro: 'Move the slider to an amount, then pick what that amount counts as. Orange at 25% and Full means a quarter of the crate already counts as full.',
+  calReset: 'Reset to defaults',
+  calSlider: (p) => `Amount of ${p}`,
+  calLevels: (p) => `Level for ${p}`,
+  calUnits: (n) => (n === 1 ? '1 unit' : `${n} units`),
+  calMeaning: (a, l) => `${a} counts as ${l}`,
   gondolasHeadline: (n) => (n === 0 ? 'Every gondola is fine' : n === 1 ? 'One gondola needs attention' : `${n} gondolas need attention`),
   productsHeadline: (n) => (n === 1 ? 'One product' : `${n} products`),
   productsToRestock: (n) => (n === 0 ? 'Nothing to restock' : n === 1 ? 'One product to restock' : `${n} products to restock`),
@@ -270,12 +292,23 @@ const en: Strings = {
 
 const pt: Strings = {
   level: { empty: 'Vazio', half: 'A meio', full: 'Cheio' },
+  // --- calibration presets (start)
+  calibrationPresets: { label: 'Perfil de calibração', strict: 'Rigoroso', relaxed: 'Flexível', reset: 'Predefinido', hint: 'Rigoroso: só está cheio quando bem abastecido. Flexível: um pouco de stock já chega.' },
+  // --- calibration presets (end)
   throughDay: 'Ao longo do dia',
   close: 'Fechar',
   allCameras: 'Todas as câmaras',
   navTasks: 'Tarefas',
   navGondolas: 'Gôndolas',
   navProducts: 'Produtos',
+  navCalibration: 'Calibração',
+  calTitle: 'Calibração',
+  calIntro: 'Move o seletor até uma quantidade e escolhe o que ela conta como. Laranja a 25% com Cheio quer dizer que um quarto da caixa já conta como cheio.',
+  calReset: 'Repor valores por defeito',
+  calSlider: (p) => `Quantidade de ${p}`,
+  calLevels: (p) => `Nível de ${p}`,
+  calUnits: (n) => (n === 1 ? '1 unidade' : `${n} unidades`),
+  calMeaning: (a, l) => `${a} conta como ${l}`,
   gondolasHeadline: (n) => (n === 0 ? 'Todas as gôndolas estão bem' : n === 1 ? 'Uma gôndola precisa de atenção' : `${n} gôndolas precisam de atenção`),
   productsHeadline: (n) => (n === 1 ? 'Um produto' : `${n} produtos`),
   productsToRestock: (n) => (n === 0 ? 'Nada para repor' : n === 1 ? 'Um produto para repor' : `${n} produtos para repor`),
@@ -402,12 +435,23 @@ const pt: Strings = {
 
 const es: Strings = {
   level: { empty: 'Vacío', half: 'A medias', full: 'Lleno' },
+  // --- calibration presets (start)
+  calibrationPresets: { label: 'Perfil de calibración', strict: 'Estricto', relaxed: 'Flexible', reset: 'Por defecto', hint: 'Estricto: solo está lleno si está bien surtido. Flexible: con algo de stock ya vale.' },
+  // --- calibration presets (end)
   throughDay: 'A lo largo del día',
   close: 'Cerrar',
   allCameras: 'Todas las cámaras',
   navTasks: 'Tareas',
   navGondolas: 'Góndolas',
   navProducts: 'Productos',
+  navCalibration: 'Calibración',
+  calTitle: 'Calibración',
+  calIntro: 'Mueve el control hasta una cantidad y elige qué cuenta como. Naranja al 25% con Lleno significa que un cuarto de la caja ya cuenta como lleno.',
+  calReset: 'Restablecer valores',
+  calSlider: (p) => `Cantidad de ${p}`,
+  calLevels: (p) => `Nivel de ${p}`,
+  calUnits: (n) => (n === 1 ? '1 unidad' : `${n} unidades`),
+  calMeaning: (a, l) => `${a} cuenta como ${l}`,
   gondolasHeadline: (n) => (n === 0 ? 'Todas las góndolas están bien' : n === 1 ? 'Una góndola necesita atención' : `${n} góndolas necesitan atención`),
   productsHeadline: (n) => (n === 1 ? 'Un producto' : `${n} productos`),
   productsToRestock: (n) => (n === 0 ? 'Nada que reponer' : n === 1 ? 'Un producto que reponer' : `${n} productos que reponer`),
