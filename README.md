@@ -27,7 +27,7 @@
   <img src="assets/readme/photo-to-tasks.png" alt="Photos from ceiling cameras with the shelf areas marked on them, on the left, and on the right the app's first page: the plan of the store with the problems marked on each gondola, and the round list" width="100%">
 </p>
 
-<p align="center"><sub>Photos from the ceiling cameras in, a list of work out. The shelf states in this image are simulated.</sub></p>
+<p align="center"><sub>Photos from the ceiling cameras in, a list of work out. The marks are the model's answers for the last photo of each camera.</sub></p>
 
 ## What is Strivon?
 
@@ -70,8 +70,9 @@ tasks: see [`docs/PLAN.md`](docs/PLAN.md).
   `stock_level` for every area.
 - **Score the predictions** against our own labels with the challenge's points.
 
-> **Status.** The app still shows simulated shelf states. Connecting it to the pipeline's real
-> predictions is the next step.
+> **Status.** The app shows the model's answers when it finds `outputs/predictions.json`, which
+> `agents/predict.py` writes, and simulated shelf states when it does not. The landing demo and the
+> header picture use the model's answers.
 
 ## See it
 
