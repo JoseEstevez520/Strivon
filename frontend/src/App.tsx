@@ -7,6 +7,7 @@ import { GondolaPage } from '@/pages/GondolaPage'
 import { GondolasPage } from '@/pages/GondolasPage'
 import { MapStorePage } from '@/pages/MapStorePage'
 import { ProductsPage } from '@/pages/ProductsPage'
+import { TasksLabPage } from '@/pages/TasksLabPage'
 import { TasksPage } from '@/pages/TasksPage'
 
 export default function App() {
@@ -21,6 +22,7 @@ export default function App() {
             <Route path="gondolas/:camera" element={<GondolaPage />} />
             <Route path="products" element={<ProductsPage />} />
             <Route path="insights" element={<InsightsPage />} />
+            <Route path="lab/tasks" element={<TasksLabPage />} />
           </Route>
         </Routes>
       </StoreProvider>
