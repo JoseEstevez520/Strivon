@@ -77,6 +77,7 @@ export function buildRealState(planogram: Planogram, photos: Record<string, stri
     state.images[camera] = state.images[camera].filter((r) => said[r.image])
     if (state.images[camera].length === 0) {
       delete state.images[camera]
+      for (const [id, a] of Object.entries(state.areas)) if (a.camera === camera) delete state.areas[id]
       continue
     }
     state.observations[camera] = {}

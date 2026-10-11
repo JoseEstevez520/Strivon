@@ -59,6 +59,7 @@ export function storeStats(state: StoreState): Stats {
   let last = -Infinity
 
   for (const [camera, frames] of Object.entries(state.images)) {
+    if (!frames?.length) continue
     first = Math.min(first, frames[0].ts)
     last = Math.max(last, frames[frames.length - 1].ts)
     const w = weights(frames)
@@ -136,6 +137,7 @@ function tally(state: StoreState, areas: Area[], at: number): { seen: number; em
   let empty = 0
   for (const area of areas) {
     const frames = state.images[area.camera]
+    if (!frames?.length) continue
     if (at < frames[0].ts - HOUR * 0.75 || at > frames[frames.length - 1].ts + HOUR * 0.75) continue
     const record = snapshot(state, area.camera, at)
     const obs = state.observations[area.camera][record.image]?.[area.area_id]
