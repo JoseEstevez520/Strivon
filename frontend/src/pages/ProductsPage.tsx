@@ -1,14 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Check, ChevronDown, Search, Undo2 } from 'lucide-react'
+import { Check, Search, Undo2 } from 'lucide-react'
 import { Link, useSearchParams } from 'react-router'
 import { DayBar } from '@/components/DayBar'
 import { ProductIcon } from '@/components/ProductIcon'
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { Input } from '@/components/ui/input'
 import { useI18n } from '@/lib/i18n'
 import { useStore } from '@/lib/store'
 import { ACTION, cameras, type Task } from '@/lib/tasks'
-import { clock } from '@/lib/time'
 
 const mix = (c: string, pct: number) => `color-mix(in oklab, ${c} ${pct}%, var(--raised))`
 
@@ -66,50 +64,67 @@ function Counts({ tasks }: { tasks: Task[] }) {
   )
 }
 
-/** One product summed over every area it sits in: its icon, what is wrong with it, and the gondolas on demand. */
-function ProductRow({ row, focused }: { row: Row; focused: boolean }) {
+const RANK = { empty: 0, wrong: 1, half: 2, fine: 3 } as const
+
+/** One product as a card: its icon, how stocked it is, what is wrong, and every gondola it sits in, tinted by state. */
+function ProductCard({ row, focused }: { row: Row; focused: boolean }) {
   const { t, family } = useI18n()
   const { gondola } = useStore()
-  const [open, setOpen] = useState(focused)
   const ref = useRef<HTMLLIElement>(null)
   // Arriving from a link to this product: bring it into view.
   useEffect(() => {
     if (focused) ref.current?.scrollIntoView({ block: 'center' })
   }, [focused])
   const name = family(row.product)
+  const percent = Math.round(row.fill * 100)
+  const tone = row.fill >= 0.7 ? 'var(--success)' : row.fill >= 0.35 ? 'var(--warning)' : 'var(--danger)'
+
+  // One chip per gondola, in the colour of the worst area this product has there.
+  const places = useMemo(() => {
+    const m = new Map<string, { camera: string; area: string; look: keyof typeof RANK }>()
+    for (const x of row.tasks) {
+      const look = statusOf(x)
+      const have = m.get(x.area.camera)
+      if (!have || RANK[look] < RANK[have.look]) m.set(x.area.camera, { camera: x.area.camera, area: x.area.area_id, look })
+    }
+    return [...m.values()].sort((a, b) => RANK[a.look] - RANK[b.look] || Number(a.camera) - Number(b.camera))
+  }, [row.tasks])
+  const style = {
+    empty: { background: mix('var(--danger)', 14), color: 'var(--danger)' },
+    wrong: { background: mix('var(--warning)', 26), color: 'var(--warning)' },
+    half: { background: 'var(--sunk)', color: 'var(--fg-secondary)' },
+    fine: { background: 'transparent', color: 'var(--fg-muted)' },
+  } as const
 
   return (
-    <li ref={ref} className="rounded-xl transition-colors hover:bg-surface data-[open=true]:bg-surface" data-open={open}>
-      <Collapsible open={open} onOpenChange={setOpen}>
-        <CollapsibleTrigger className="flex min-h-14 w-full cursor-pointer items-center gap-3 rounded-xl px-3 py-2 text-left">
-          <ProductIcon family={row.tasks[0]?.area.family ?? row.product} label={name} className="size-8 shrink-0 text-fg-secondary" />
-          <span className="flex min-w-0 flex-1 flex-col gap-1">
-            <span className="truncate text-label">{name}</span>
-            <Counts tasks={row.tasks} />
-          </span>
-          <ChevronDown className="size-4 shrink-0 text-fg-muted transition-transform data-[open=true]:rotate-180" data-open={open} aria-hidden />
-        </CollapsibleTrigger>
-        <CollapsibleContent>
-          <p className="px-3 pb-1 text-meta tabular-nums text-fg-muted">{t.onShelf(Math.round(row.fill * 100))}</p>
-          <ul className="px-1 pb-2">
-            {row.tasks.map((task) => (
-              <li key={task.area.area_id}>
-                <Link
-                  to={`/gondolas/${task.area.camera}?area=${task.area.area_id}`}
-                  className="flex items-baseline justify-between gap-3 rounded-md px-2 py-2 text-ui text-fg-secondary transition-colors hover:bg-raised/70"
-                >
-                  <span className="min-w-0 truncate text-fg">{gondola(task.area.camera)}</span>
-                  <span className="text-meta tabular-nums">
-                    {task.obs.planogram_compliant ? t.level[task.obs.stock_level] : t.wrongPlace(family(task.obs.observed_family ?? ''))}
-                    {' · '}
-                    {clock(task.record.ts)}
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </CollapsibleContent>
-      </Collapsible>
+    <li ref={ref} data-focus={focused} className="flex flex-col gap-3 rounded-2xl bg-raised/60 p-4 data-[focus=true]:bg-raised data-[focus=true]:ring-1 data-[focus=true]:ring-border">
+      <div className="flex items-center gap-3">
+        <ProductIcon family={row.tasks[0]?.area.family ?? row.product} label={name} className="size-9 shrink-0 text-fg-secondary" />
+        <span className="min-w-0 flex-1">
+          <span className="block truncate text-label">{name}</span>
+          <span className="block text-meta tabular-nums text-fg-muted">{t.onShelf(percent)}</span>
+        </span>
+      </div>
+      <span className="h-1.5 overflow-hidden rounded-full bg-sunk" aria-hidden>
+        <span className="block h-full rounded-full" style={{ width: `${percent}%`, backgroundColor: tone }} />
+      </span>
+      <Counts tasks={row.tasks} />
+      <ul className="mt-auto flex flex-wrap items-center gap-1 pt-1" aria-label={t.navGondolas}>
+        <li className="mr-1 text-meta text-fg-muted">{t.navGondolas}</li>
+        {places.map((p) => (
+          <li key={p.camera}>
+            <Link
+              to={`/gondolas/${p.camera}?area=${p.area}`}
+              title={gondola(p.camera)}
+              className="flex h-7 min-w-8 items-center justify-center gap-0.5 rounded-md px-1.5 text-meta font-medium tabular-nums transition-opacity hover:opacity-70"
+              style={style[p.look]}
+            >
+              {p.look === 'wrong' && <Undo2 className="size-3" aria-hidden />}
+              {gondola(p.camera).match(/\d+$/)?.[0] ?? gondola(p.camera)}
+            </Link>
+          </li>
+        ))}
+      </ul>
     </li>
   )
 }
@@ -210,9 +225,9 @@ export function ProductsPage() {
         <p className="text-ui text-fg-secondary">{t.noMatches}</p>
       ) : (
         <>
-          <ul className="flex flex-col gap-0.5">
+          <ul className="grid grid-cols-[repeat(auto-fill,minmax(16.5rem,1fr))] gap-3">
             {listed.map((r) => (
-              <ProductRow key={r.product} row={r} focused={r.product === focus} />
+              <ProductCard key={r.product} row={r} focused={r.product === focus} />
             ))}
           </ul>
           {shown.length > listed.length && (
