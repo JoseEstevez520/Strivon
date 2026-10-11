@@ -1,5 +1,30 @@
 # agents/: image-only predictor (one-pass DINOv2-S, round-2 recipe R3) + label-free mode
 
+## How to run (for graders)
+
+From the repo root, with Python 3.12 or newer (tested on Windows with Python 3.12 and 3.14, CPU only):
+
+```
+python -m pip install -r agents/requirements.txt
+python -I agents/predict.py --images <validation photo folder> --planogram <planogram.json> --out predictions.json
+```
+
+- Nothing is downloaded after the install: every weight is in this repo.
+- Always pass `--images`, `--planogram` and `--out`; their defaults point at our own folders. `--planogram` can be
+  left out only if `SENSEI_DATASET` points at the dataset folder (the one holding `Frutas e Legumes (train & test)/`
+  and `planogram.json`).
+- Photo layout:
+  - `<camera id>/<file>.jpg` (like the training set), or folder or file names holding the camera id (`camera_6215/`,
+    `6215_<timestamp>.jpg`): works as is, with the same answers with or without `SENSEI_DATASET`.
+  - A flat folder of timestamp-only names: also set `SENSEI_DATASET`, so each photo's camera is recognised by
+    comparing it with the training photos. Without it the run stops with an ERROR; it never guesses.
+- Threads: `ONEPASS_THREADS` (default 4). The answers are identical at any thread count; `ONEPASS_THREADS=1` uses
+  about 2.3 times less CPU and takes about twice as long.
+- The last line starts with `OK` (exit code 0) when everything is fine; an option that is on is named in brackets,
+  e.g. `OK (stock model mix): ...`. `FALLBACKS` (2), `INCOMPLETE` (3) or `INVALID` (1): read the WARN lines above it.
+
+## Details
+
 Reads `<camera>/<timestamp>.jpg` (or a flat folder) and writes predictions in the `annotations.json` format.
 Each photo is judged on its own pixels only. One DINOv2-S pass per planogram area gives:
 
@@ -11,7 +36,7 @@ The weights were trained on every photo of `eval/labels.json` at commit d6eeba4 
 224 px and stored in fp16; on all 181 photos that gives the same answers as fp32. By default the stock heads are the
 label-mix version, `ld6ee_mix` (`--stock-model mix`, below); `--stock-model ld6ee` runs the earlier ones.
 
-From the repo root, with `SENSEI_DATASET` set to our dataset folder:
+From the repo root, with `SENSEI_DATASET` set to the dataset folder:
 
 ```
 python -I agents/predict.py --images <photo folder> --planogram <planogram.json> --out predictions.json --expect-images 26 --expect-areas 289
