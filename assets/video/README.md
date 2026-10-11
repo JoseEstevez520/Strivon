@@ -10,7 +10,7 @@ simulated, so the clips are for showing how the chat works, not as results of th
 | `chat-bananas.mp4` | 1920×1080, 17 s | Ask how the bananas are doing, get a chart and a split, then ask where they sit |
 | `chat-bananas-vertical.mp4` | 1080×1920, 17 s | The same clip for phones and social posts |
 | `chat-restock-first.mp4` | 1920×1080, 12 s | Ask what to restock first, get the gondola to go to and the next three |
-| `demo-tasks.mp4` | 1920×1080, 14 s | The staff task list filling as the day plays, then opening two tasks to see their shelf with the area marked |
+| `demo-tasks.mp4` | 1920×1080, 14 s | The app's first page: the day plays and the plan of the store fills with what needs doing, the round list orders the stops, then a stop opens its gondola with the shelf areas marked, and back |
 | `chat-to-gondola.mp4` | 1920×1080, 17 s | Ask where the bananas are, get a chart of the day, open the card and land on the gondola with its shelf areas marked. It is the clip on the landing |
 
 The three chat clips also come as `*-alpha.webm`, with a transparent background, to
