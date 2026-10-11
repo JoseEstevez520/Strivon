@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import {
   ArrowRight,
   ArrowUpRight,
@@ -15,10 +15,6 @@ import {
   ScanSearch,
   type LucideIcon,
 } from 'lucide-react'
-import { MemoryRouter, Navigate, Route, Routes } from 'react-router'
-import { GondolaPage } from '@/pages/GondolaPage'
-import { RoundPage } from '@/pages/RoundPage'
-import { TasksPage } from '@/pages/TasksPage'
 import { LANGS, useI18n, type Lang } from '@/lib/i18n'
 import { landingText, type LandingStrings } from './landingText'
 
@@ -41,13 +37,20 @@ const GithubMark = ({ className }: { className?: string }) => (
 function ChatClip() {
   const text = useText()
   const dialog = useRef<HTMLDialogElement>(null)
+  // The large video exists only while the dialog is open, so a closed dialog does not download it.
+  const [open, setOpen] = useState(false)
   return (
     <>
       <div className="relative">
-        <video className="w-full rounded-2xl bg-bg" src="./video/chat-to-gondola.mp4" autoPlay loop muted playsInline preload="metadata" aria-label={text.clipLabel} />
+        <WhenNear height="16rem">
+          <video className="w-full rounded-2xl bg-bg" src="./video/chat-to-gondola.mp4" autoPlay loop muted playsInline preload="metadata" aria-label={text.clipLabel} />
+        </WhenNear>
         <button
           type="button"
-          onClick={() => dialog.current?.showModal()}
+          onClick={() => {
+            setOpen(true)
+            dialog.current?.showModal()
+          }}
           aria-label={text.enlarge}
           className="absolute top-3 right-3 grid size-9 cursor-pointer place-items-center rounded-full bg-surface/90 text-fg-secondary transition-colors hover:bg-sunk hover:text-fg"
         >
@@ -57,11 +60,11 @@ function ChatClip() {
       <dialog
         ref={dialog}
         onClick={(e) => e.target === dialog.current && dialog.current?.close()}
-        onClose={(e) => e.currentTarget.querySelector('video')?.pause()}
+        onClose={() => setOpen(false)}
         className="m-auto w-[min(92vw,1400px)] rounded-2xl bg-bg p-2 text-fg backdrop:bg-black/60"
       >
         <div className="relative">
-          <video className="w-full rounded-xl bg-bg" src="./video/chat-to-gondola.mp4" controls autoPlay loop muted playsInline preload="none" aria-label={text.clipLabel} />
+          {open && <video className="w-full rounded-xl bg-bg" src="./video/chat-to-gondola.mp4" controls autoPlay loop muted playsInline aria-label={text.clipLabel} />}
           <button
             type="button"
             onClick={() => dialog.current?.close()}
@@ -260,33 +263,23 @@ function Hero() {
   )
 }
 
-/**
- * The app's own first page in a window so it reads as a demo, with the plan in 2D, 3D or as real
- * photos, the round list, the day bar, and the gondola and round pages behind it. It is the app's
- * code, not a copy, so it follows the app. A memory router keeps every link inside the window, so
- * nothing on it leads away from the page. The phone code is hidden by landing.css, because on the
- * landing it would point at the landing and not at the round.
- */
-function Demo() {
-  const text = useText()
+const Demo = lazy(() => import('./DemoWindow'))
+
+/** Mounts its children only when they are about to be seen, so what is far down the page costs nothing until then. */
+function WhenNear({ children, height }: { children: React.ReactNode; height: string }) {
+  const ref = useRef<HTMLDivElement>(null)
+  // Without IntersectionObserver there is no way to know, so it is shown at once.
+  const [near, setNear] = useState(() => typeof IntersectionObserver === 'undefined')
+  useEffect(() => {
+    const el = ref.current
+    if (!el || near) return
+    const seen = new IntersectionObserver((entries) => entries.some((e) => e.isIntersecting) && setNear(true), { root: el.closest('.overflow-y-auto'), rootMargin: '600px 0px' })
+    seen.observe(el)
+    return () => seen.disconnect()
+  }, [near])
   return (
-    <div className="demo-window rounded-2xl bg-surface p-2">
-      <div className="flex h-9 items-center gap-1.5 px-3">
-        {[0, 1, 2].map((i) => (
-          <span key={i} className="size-2.5 rounded-full bg-sunk" />
-        ))}
-        <span className="ml-3 text-meta text-fg-muted">{text.demo}</span>
-      </div>
-      <div className="rounded-xl bg-bg p-4 sm:p-6">
-        <MemoryRouter>
-          <Routes>
-            <Route path="/" element={<TasksPage />} />
-            <Route path="/round" element={<RoundPage />} />
-            <Route path="/gondolas/:camera" element={<GondolaPage />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </MemoryRouter>
-      </div>
+    <div ref={ref} style={near ? undefined : { minHeight: height }}>
+      {near ? children : null}
     </div>
   )
 }
@@ -348,7 +341,11 @@ export function Landing() {
           </Section>
 
           <Section title={text.seeTitle} lead={text.seeLead}>
-            <Demo />
+            <WhenNear height="40rem">
+              <Suspense fallback={<div className="h-[40rem] rounded-2xl bg-surface" />}>
+                <Demo label={text.demo} />
+              </Suspense>
+            </WhenNear>
           </Section>
 
           <section className="grid items-center gap-8 py-12 sm:py-16 md:grid-cols-[2fr_3fr]">
