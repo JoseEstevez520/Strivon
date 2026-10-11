@@ -31,7 +31,9 @@ env vars are set explicitly.
 the timestamp. NOT ALLOWED FOR THE SUBMISSION.
 """
 import argparse
+import hashlib
 import importlib.util
+import json
 import inspect
 import math
 import os
@@ -47,7 +49,7 @@ sys.path.insert(0, str(ROOT))
 from PIL import Image, ImageFile  # noqa: E402
 
 from common import CURTAIN_PHOTOS, IMAGE_SIZE, curtain_down, list_images, load_image, load_planogram, submission  # noqa: E402
-from common.data import _curtain_refs  # noqa: E402
+from common.data import _curtain_refs, camera_drift  # noqa: E402
 from common.paths import IMAGES_DIR, PLANOGRAM_PATH  # noqa: E402
 
 # Answers used when a model is missing or fails on an area. Revisit once we have labels.
@@ -60,6 +62,7 @@ EMPTY_RULE = "model"
 # Sensei (10/10 evening): "only consider information from the image under analysis" -> single image only.
 # True (same-day context, timestamps) is for experiments and is NOT ALLOWED FOR THE SUBMISSION.
 SAME_DAY_CONTEXT = False
+DRIFT_WARN_PX = 10  # warn when a photo's view is shifted more than this against our photos of the camera
 CONTEXT_ON = "on-NOT-FOR-SUBMISSION"
 
 
@@ -214,6 +217,29 @@ class Task:
             print(f"  ... {len(self.errors) - 5} more errors")
 
 
+def label_free_checks(images, allow_overlap):
+    """--label-free: the setup must have run, and no photo being predicted may be one the baselines were built from."""
+    weights = Path(os.environ.get("LABELFREE_WEIGHTS") or ROOT / "models" / "compliance" / "deploy" / "siglip2b_vision_fp16.pt")
+    if not weights.exists():
+        sys.exit(f"ERROR label-free weights missing ({weights}): run `python -I {ROOT / 'labelfree_setup.py'} weights` "
+                 "once with internet (downloads google/siglip2-base-patch16-224, 1.5 GB), then predict offline")
+    custom = os.environ.get("LABELFREE_BASELINES")
+    if custom:
+        sources = Path(custom).with_name(Path(custom).stem + ".sources.json")
+    else:
+        sources = ROOT / "models" / "labelfree" / "deploy" / "shipped_baselines.sources.json"
+    if not sources.exists():
+        sys.exit(f"ERROR {sources} not found: can't prove the label-free baselines don't come from these photos")
+    used = {e["md5"]: e["photo"] for e in json.loads(sources.read_text(encoding="utf-8"))["photos"]}
+    overlap = [f"{r.cam}/{r.fname}" for r in images if hashlib.md5(Path(r.path).read_bytes()).hexdigest() in used]
+    if overlap and not allow_overlap:
+        sys.exit(f"ERROR {len(overlap)} photos to predict were used to build the label-free baselines (e.g. "
+                 f"{overlap[:3]}): the baselines must come from other photos. Evaluation only: --allow-baseline-overlap")
+    if overlap:
+        print(f"WARN  {len(overlap)} photos were used to build the label-free baselines; allowed for evaluation only, "
+              "NOT FOR THE SUBMISSION")
+
+
 def resources():
     """'peak RAM ... | peak VRAM ...' for this process, as far as we can tell."""
     out = []
@@ -237,7 +263,13 @@ def main():
     ap.add_argument("--stock-model", action="append",
                     help="stock model file; repeat it to average several models' probabilities "
                          "(default: models/onepass/onepass.py)")
-    ap.add_argument("--compliance-model", default=str(ROOT / "models" / "onepass" / "onepass.py"))
+    ap.add_argument("--compliance-model", help="compliance model file (default: models/onepass/onepass.py, or the "
+                                               "label-free adapter with --label-free)")
+    ap.add_argument("--label-free", action="store_true",
+                    help="zero-label mode (pitch / new-store path): SigLIP2 zero-shot product + floor-share stock; "
+                         "run `labelfree_setup.py weights` once with internet first")
+    ap.add_argument("--allow-baseline-overlap", action="store_true",
+                    help="evaluation only: predict photos the label-free baselines were built from (NOT for the submission)")
     ap.add_argument("--cams", help="only these comma-separated camera ids (for debugging)")
     ap.add_argument("--empty-rule", choices=sorted(EMPTY_RULES), default=EMPTY_RULE,
                     help="planogram_compliant for areas predicted empty (default: %(default)s)")
@@ -259,6 +291,8 @@ def main():
         os.environ.setdefault("COMPLIANCE_CASCADE_TAU", "0")  # no same-area look-up of other photos
         os.environ.setdefault("COMPLIANCE_GROUPS", "0")
     mode = f"SAME-DAY CONTEXT ({CONTEXT_ON})" if context else "single image (submission mode)"
+    if args.label_free:
+        mode = "LABEL-FREE mode (zero labels; pitch / new-store path, NOT the submission model)"
 
     t0 = time.time()
     planogram = load_planogram(args.planogram)
@@ -288,7 +322,11 @@ def main():
           + ("" if context else f" | COMPLIANCE_CASCADE_TAU={os.environ['COMPLIANCE_CASCADE_TAU']} "
                                 f"COMPLIANCE_GROUPS={os.environ['COMPLIANCE_GROUPS']}"))
 
-    stock_paths = args.stock_model or [str(ROOT / "models" / "onepass" / "onepass.py")]
+    default_model = ROOT / "models" / ("labelfree/labelfree.py" if args.label_free else "onepass/onepass.py")
+    if args.label_free:
+        label_free_checks(images, args.allow_baseline_overlap)
+    args.compliance_model = args.compliance_model or str(default_model)
+    stock_paths = args.stock_model or [str(default_model)]
     stock_mods = [load_module(p) for p in stock_paths]
     comp_mod = load_module(args.compliance_model)
     warn_name_clashes(*stock_mods, comp_mod)
@@ -324,8 +362,9 @@ def main():
                 continue
             finally:
                 ImageFile.LOAD_TRUNCATED_IMAGES = False
-        if img.size != IMAGE_SIZE:  # the planogram corners are in 1280x720 pixels
-            print(f"WARN  {rec.cam}/{rec.fname} is {img.size[0]}x{img.size[1]}, resized to {IMAGE_SIZE[0]}x{IMAGE_SIZE[1]}")
+        if img.size != IMAGE_SIZE:  # the planogram corners are in 1280x720 pixels: same as rescaling the polygons
+            print(f"WARN  {rec.cam}/{rec.fname} is {img.size[0]}x{img.size[1]}, not {IMAGE_SIZE[0]}x{IMAGE_SIZE[1]}: "
+                  "resized so the planogram polygons fit (check the photo)")
             img = img.resize(IMAGE_SIZE, Image.BILINEAR)
         try:
             down, margin = curtain_down(img, rec.cam)
@@ -334,6 +373,14 @@ def main():
             print(f"WARN  curtain look-up failed on {rec.cam}/{rec.fname}: {e!r}")
         if down:  # log only: the answers below still come from the models
             curtain_log.append((rec.cam, rec.fname, margin))
+        else:
+            try:  # warn-only: has the camera moved since our photos? (answers never depend on it)
+                d = camera_drift(img, rec.cam)
+                if d is not None and d[0] > DRIFT_WARN_PX:
+                    print(f"WARN  {rec.cam}/{rec.fname}: the view is shifted ~{d[0]:.0f} px against our photos of this "
+                          f"camera (response {d[1]:.2f}): check that the planogram polygons still sit on the crates")
+            except Exception as e:
+                print(f"WARN  drift check failed on {rec.cam}/{rec.fname}: {e!r}")
         answers = [t.predict(img, rec.cam, areas, rec.ts) for t in stocks]
         c = comp.predict(img, rec.cam, areas, rec.ts)
         covered = set()  # second layer: areas the compliance model itself sees under the curtain

@@ -1,4 +1,4 @@
-# agents/: image-only predictor (one-pass DINOv2-S, round-2 recipe R3)
+# agents/: image-only predictor (one-pass DINOv2-S, round-2 recipe R3) + label-free mode
 
 Reads `<camera>/<timestamp>.jpg` (or a flat folder) and writes predictions in the `annotations.json` format.
 Each photo is judged on its own pixels only. One DINOv2-S pass per planogram area gives:
@@ -10,7 +10,7 @@ Each photo is judged on its own pixels only. One DINOv2-S pass per planogram are
 The weights were trained on every photo of `eval/labels.json` at commit d6eeba4 (curtain photos left out). They are
 224 px and stored in fp16; on all 181 photos that gives the same answers as fp32.
 
-From the repo root:
+From the repo root, with `SENSEI_DATASET` set to our dataset folder:
 
 ```
 python -I agents/predict.py --images <photo folder> --planogram <planogram.json> --out predictions.json --expect-images 26 --expect-areas 289
@@ -26,14 +26,47 @@ and read the WARN lines:
   left out. Those are photos of no planogram camera, files that can't be read or recognised, and formats other than
   .jpg/.jpeg/.png.
 
-More details:
+On the day, check by eye that every photo was assigned to the right camera: read the "camera ... taken from" and
+"recognised as" WARN lines.
+
+How the camera is found, in order:
+
+1. a folder named like a camera (`6215/`);
+2. a folder or file name holding exactly one camera id (`camera_6215/`, `6215_photos/`, `6215_<ts>.jpg`);
+3. appearance, which needs `SENSEI_DATASET` and a clear match (score >= 0.5, margin >= 0.10 over the next camera).
+
+A photo of another size is resized to 1280x720 with a WARN. A view shifted more than 10 px against our photos of that
+camera gives a warn-only WARN. Neither check ever changes an answer.
 
 - Works offline: the backbone is built from `deploy/dinov2_small_config.json` and every weight comes from the .pt.
-- Optional: `SENSEI_DATASET=<dataset folder>` lets photos in a flat folder, or in a folder that isn't named after a
-  planogram camera, be matched to their camera by appearance (score >= 0.5). It also logs, never overrides, a
-  night-curtain look-up for cameras 6383/6386.
-- Speed: about 1.1 s per photo on a laptop CPU (4 threads), 0.08 s on an RTX 3060 Laptop GPU, 1.0 GB RAM, ~12 s
+- Speed: about 1 s per photo on a laptop CPU (4 threads), 0.08 s on an RTX 3060 Laptop GPU, 1.0 GB RAM, ~12 s
   start-up. Env vars: `ONEPASS_DEVICE=cuda`, `ONEPASS_THREADS=4`, `ONEPASS_SIZE=224`, `ONEPASS_TAG`,
   `ONEPASS_B8_HEAD=off`.
-- Needs Python 3.12+, torch, transformers (see requirements.txt), numpy, opencv-python and pillow.
-- Not included: the challenge data (planogram, photos, labels). Pass them in with the flags above.
+
+## Label-free mode (pitch / new-store path, zero labels; not the submission)
+
+`--label-free` swaps in a model that uses no labels at all:
+
+- product: SigLIP2-base zero-shot over the camera's product families, plus EMPTY;
+- stock: the share of the crate's 3x3 tiles that look like empty floor, minus a per-area baseline (candidate U6).
+
+The baseline is the area's minimum share over a set of unlabelled photos of the store, built once.
+
+```
+python -I agents/labelfree_setup.py weights        # once, WITH internet, before the day: 1.5 GB download (HF_HOME), sha256-checked
+                                                   # (--out <path>.pt writes the 186 MB weights elsewhere; then set LABELFREE_WEIGHTS=<path>)
+python -I agents/predict.py --label-free --images <photo folder> --planogram <planogram.json> --out predictions_lf.json
+python -I agents/labelfree_setup.py baselines --images <unlabelled photos of a new store> --out <store>.json   # new store
+```
+
+- The shipped baselines come from our 179 unlabelled non-curtain photos.
+- `LABELFREE_BASELINES=<store>.json` uses a new store's baselines.
+- predict refuses (ERROR) to judge any photo the baselines were built from. `--allow-baseline-overlap` lifts that for
+  evaluation only.
+- Without the weights it stops with an ERROR naming the setup command. `LABELFREE_WEIGHTS=<path>.pt` uses a copy of
+  the weights stored elsewhere, read-only.
+- Speed: ~1.3 s per photo on an RTX 3060 Laptop GPU (2.5 GB VRAM), ~22 s per photo on a laptop CPU (4 threads), because
+  every crate is cut into 9 tiles.
+
+Needs Python 3.12+, torch, transformers (see requirements.txt), numpy, opencv-python and pillow. Not included: the
+challenge data (planogram, photos, labels). Pass them in with the flags above.
