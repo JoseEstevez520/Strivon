@@ -24,10 +24,10 @@
 </p>
 
 <p align="center">
-  <img src="assets/readme/photo-to-tasks.png" alt="A ceiling-camera photo of a banana gondola with its shelf areas marked, and next to it what is wrong in that gondola: one empty banana area, three areas holding bananas where oranges belong, and two half full" width="100%">
+  <img src="assets/readme/photo-to-tasks.png" alt="Photos from ceiling cameras on the left, and on the right the app's first page: the plan of the store with the problems marked on each gondola, and the round list" width="100%">
 </p>
 
-<p align="center"><sub>One photo in, a list of work out. The shelf states in this image are simulated.</sub></p>
+<p align="center"><sub>Photos from the ceiling cameras in, a list of work out. The shelf states in this image are simulated.</sub></p>
 
 ## What is Strivon?
 

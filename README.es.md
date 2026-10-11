@@ -23,10 +23,10 @@
 </p>
 
 <p align="center">
-  <img src="assets/readme/photo-to-tasks.png" alt="Foto de una cámara de techo de una góndola de plátanos con sus zonas de estantería marcadas y, a su lado, lo que está mal en esa góndola: una zona de plátano vacía, tres zonas con plátanos donde van naranjas y dos a medias" width="100%">
+  <img src="assets/readme/photo-to-tasks.png" alt="Fotos de cámaras de techo a la izquierda y, a la derecha, la primera página de la app: el plano de la tienda con los problemas marcados en cada góndola y la lista de la ronda" width="100%">
 </p>
 
-<p align="center"><sub>Una foto entra, una lista de trabajo sale. Los estados de las estanterías en esta imagen son simulados.</sub></p>
+<p align="center"><sub>Entran fotos de las cámaras de techo, sale una lista de trabajo. Los estados de las estanterías en esta imagen son simulados.</sub></p>
 
 ## ¿Qué es Strivon?
 
