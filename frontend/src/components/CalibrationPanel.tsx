@@ -1,5 +1,5 @@
 import { ProductIcon } from '@/components/ProductIcon'
-import { defaultLines, linesFor, maxOf, modeOf } from '@/lib/calibration'
+import { defaultLines, linesFor, maxOf, modeOf, reach } from '@/lib/calibration'
 import { useCalibration } from '@/lib/calibrationStore'
 import { useI18n } from '@/lib/i18n'
 
@@ -23,6 +23,10 @@ function Row({ family: f }: { family: string }) {
   const { t, family } = useI18n()
   const { cal, setProduct, clearProduct } = useCalibration()
   const c = cal[f]
+  // Back to the model (or Reset): the slider goes back to where it starts.
+  useEffect(() => {
+    if (!c) setDraft(startOf(f))
+  }, [c, f])
   const name = family(f)
   const units = modeOf(f) === 'units'
   const max = maxOf(f)
@@ -30,6 +34,10 @@ function Row({ family: f }: { family: string }) {
   const model = defaultLines(f)
   const lines = c ? linesFor(f, c) : model
   const say = (n: number) => (units ? t.calUnits(n) : `${Math.round(n)}%`)
+  const explain = (l: typeof lines) => {
+    const r = reach(f, l)
+    return [r.empty ? t.calEmptyUpTo(say(l.emptyMax)) : t.calEmptyNever, r.full ? t.calFullFrom(say(l.fullMin)) : t.calFullNever, r.half ? t.calHalfBetween : ''].filter(Boolean).join(' · ')
+  }
   // Moving either line sets both, so the marker never contradicts itself: empty stays below full.
   const setLines = (emptyMax: number, fullMin: number) => setProduct(f, { emptyMax, fullMin, threshold: fullMin, level: 'full' })
   // Two sliders on one track: only the round handles take the pointer, so each one can be grabbed.
@@ -44,7 +52,7 @@ function Row({ family: f }: { family: string }) {
         <span className="truncate text-label">{name}</span>
       </div>
       <div className="flex items-center gap-3">
-        <div className="relative h-11 min-w-0 flex-1" role="group" aria-label={t.calLines(say(lines.emptyMax), say(lines.fullMin))}>
+        <div className="relative h-11 min-w-0 flex-1" role="group" aria-label={explain(lines)}>
           <div className="absolute inset-x-0 top-1/2 flex h-3 -translate-y-1/2 overflow-hidden rounded-full">
             <span style={{ width: pct(lines.emptyMax) }} className="bg-danger/70" title={t.segEmpty} />
             <span style={{ width: `calc(${pct(lines.fullMin)} - ${pct(lines.emptyMax)})` }} className="bg-fg-muted/50" title={t.segHalf} />
@@ -56,7 +64,7 @@ function Row({ family: f }: { family: string }) {
             max={max - 1}
             step={step}
             value={Math.min(lines.emptyMax, max - 1)}
-            aria-label={t.calEmptyUpTo(name)}
+            aria-label={t.calEmptyLabel(name)}
             onChange={(e) => setLines(Number(e.target.value), Math.max(lines.fullMin, Number(e.target.value) + step))}
             className={handles}
           />
@@ -66,18 +74,18 @@ function Row({ family: f }: { family: string }) {
             max={max}
             step={step}
             value={Math.max(lines.fullMin, 1)}
-            aria-label={t.calFullFrom(name)}
+            aria-label={t.calFullLabel(name)}
             onChange={(e) => setLines(Math.min(lines.emptyMax, Number(e.target.value) - step), Number(e.target.value))}
             className={handles}
           />
         </div>
-        <span className="w-32 shrink-0 text-right text-label tabular-nums" title={t.calLines(say(lines.emptyMax), say(lines.fullMin))}>
+        <span className="w-32 shrink-0 text-right text-label tabular-nums" title={explain(lines)}>
           {say(lines.emptyMax)} · {say(lines.fullMin)}
         </span>
       </div>
       <div className={`flex items-center justify-between gap-3 md:col-span-2 ${c ? 'min-h-11' : ''}`}>
         <span className="text-meta text-fg-muted">
-          {c ? t.calLines(say(Math.max(0, lines.emptyMax)), say(lines.fullMin)) : t.calFollowsModel}
+          {c ? explain(lines) : t.calFollowsModel}
         </span>
         {c && (
           <button

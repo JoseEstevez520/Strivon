@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo, useState, type ReactNode } from 'react'
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { FAMILIES } from '@/model/families'
 
 export type Lang = 'en' | 'pt' | 'es'
@@ -139,10 +139,16 @@ interface Strings {
   calUnits: (n: number) => string
   calMeaning: (amount: string, level: string) => string
   calFollowsModel: string
-  calLines: (empty: string, full: string) => string
+  calEmptyUpTo: (v: string) => string
+  calEmptyNever: string
+  calFullFrom: (v: string) => string
+  calFullNever: string
+  calHalfBetween: string
+  navLabel: string
+  docTitle: Record<'tasks' | 'gondola' | 'products' | 'calibration' | 'insights' | 'validate', string>
   calClear: string
-  calEmptyUpTo: (product: string) => string
-  calFullFrom: (product: string) => string
+  calEmptyLabel: (product: string) => string
+  calFullLabel: (product: string) => string
   segEmpty: string
   segHalf: string
   segFull: string
@@ -190,6 +196,7 @@ interface Strings {
   insightsPeriod: (date: string, from: string, to: string) => string
   insightsSimulatedShort: string
   insightsEstimate: string
+  insightsAbout: string
   insightsPeak: (hour: string, pct: number) => string
   worstAt: (hours: string) => string
   insightsSimulated: string
@@ -378,10 +385,17 @@ const en: Strings = {
   calUnits: (n) => (n === 1 ? '1 unit' : `${n} units`),
   calMeaning: (a, l) => `${a} counts as ${l}`,
   calFollowsModel: 'No marker: shows what the model says.',
-  calLines: (e, f) => `Empty up to ${e} · Full from ${f} · Half in between`,
+  calEmptyUpTo: (v) => `Empty up to ${v}`,
+  calEmptyNever: 'Empty: never',
+  calFullFrom: (v) => `Full from ${v}`,
+  calFullNever: 'Full: never',
+  calHalfBetween: 'Half in between',
+  navLabel: 'Pages',
+  docTitle: { tasks: 'Tasks', gondola: 'Gondola', products: 'Products', calibration: 'Calibration', insights: 'Insights', validate: 'Validation' },
+  insightsAbout: 'Based on about 13 photos per camera.',
   calClear: 'Back to the model',
-  calEmptyUpTo: (p) => `${p}: empty up to`,
-  calFullFrom: (p) => `${p}: full from`,
+  calEmptyLabel: (p) => `${p}: empty up to`,
+  calFullLabel: (p) => `${p}: full from`,
   segEmpty: 'Empty',
   segHalf: 'Half',
   segFull: 'Full',
@@ -634,10 +648,17 @@ const pt: Strings = {
   calUnits: (n) => (n === 1 ? '1 unidade' : `${n} unidades`),
   calMeaning: (a, l) => `${a} conta como ${l}`,
   calFollowsModel: 'Sem marcador: mostra o que o modelo diz.',
-  calLines: (e, f) => `Vazio até ${e} · Cheio a partir de ${f} · A meio entre os dois`,
+  calEmptyUpTo: (v) => `Vazio até ${v}`,
+  calEmptyNever: 'Vazio: nunca',
+  calFullFrom: (v) => `Cheio a partir de ${v}`,
+  calFullNever: 'Cheio: nunca',
+  calHalfBetween: 'A meio entre os dois',
+  navLabel: 'Páginas',
+  docTitle: { tasks: 'Tarefas', gondola: 'Gôndola', products: 'Produtos', calibration: 'Calibração', insights: 'Análise', validate: 'Validação' },
+  insightsAbout: 'Com base em cerca de 13 fotos por câmara.',
   calClear: 'Voltar ao modelo',
-  calEmptyUpTo: (p) => `${p}: vazio até`,
-  calFullFrom: (p) => `${p}: cheio a partir de`,
+  calEmptyLabel: (p) => `${p}: vazio até`,
+  calFullLabel: (p) => `${p}: cheio a partir de`,
   segEmpty: 'Vazio',
   segHalf: 'A meio',
   segFull: 'Cheio',
@@ -890,10 +911,17 @@ const es: Strings = {
   calUnits: (n) => (n === 1 ? '1 unidad' : `${n} unidades`),
   calMeaning: (a, l) => `${a} cuenta como ${l}`,
   calFollowsModel: 'Sin marcador: muestra lo que dice el modelo.',
-  calLines: (e, f) => `Vacío hasta ${e} · Lleno desde ${f} · A medias entre los dos`,
+  calEmptyUpTo: (v) => `Vacío hasta ${v}`,
+  calEmptyNever: 'Vacío: nunca',
+  calFullFrom: (v) => `Lleno desde ${v}`,
+  calFullNever: 'Lleno: nunca',
+  calHalfBetween: 'A medias entre los dos',
+  navLabel: 'Páginas',
+  docTitle: { tasks: 'Tareas', gondola: 'Góndola', products: 'Productos', calibration: 'Calibración', insights: 'Análisis', validate: 'Validación' },
+  insightsAbout: 'Con base en unas 13 fotos por cámara.',
   calClear: 'Volver al modelo',
-  calEmptyUpTo: (p) => `${p}: vacío hasta`,
-  calFullFrom: (p) => `${p}: lleno desde`,
+  calEmptyLabel: (p) => `${p}: vacío hasta`,
+  calFullLabel: (p) => `${p}: lleno desde`,
   segEmpty: 'Vacío',
   segHalf: 'A medias',
   segFull: 'Lleno',
@@ -1072,6 +1100,9 @@ export function I18nProvider({ children }: { children: ReactNode }) {
         }
       },
     }
+  }, [lang])
+  useEffect(() => {
+    document.documentElement.lang = lang
   }, [lang])
   return <Context.Provider value={value}>{children}</Context.Provider>
 }
