@@ -3,5 +3,8 @@
   "framework": "vite",
   "installCommand": "npm ci",
   "buildCommand": "npm run build:landing",
-  "outputDirectory": "dist-landing"
+  "outputDirectory": "dist-landing",
+  "git": {
+    "deploymentEnabled": false
+  }
 }
