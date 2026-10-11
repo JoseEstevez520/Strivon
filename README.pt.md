@@ -26,7 +26,7 @@
   <img src="assets/readme/photo-to-tasks.png" alt="Fotografias de câmaras de teto com as zonas da prateleira assinaladas, à esquerda, e à direita a primeira página da aplicação: o plano da loja com os problemas assinalados em cada gôndola e a lista da ronda" width="100%">
 </p>
 
-<p align="center"><sub>Entram fotografias das câmaras de teto, sai uma lista de trabalho. Os estados das prateleiras nesta imagem são simulados.</sub></p>
+<p align="center"><sub>Entram fotografias das câmaras de teto, sai uma lista de trabalho. As marcas são as respostas do modelo para a última fotografia de cada câmara.</sub></p>
 
 ## O que é o Strivon?
 
@@ -56,7 +56,7 @@ A aplicação agrupa as tarefas por gôndola para se poder planear uma ronda: o 
 - **Prever uma pasta de fotografias** a partir da linha de comandos: um JSON com `planogram_compliant` e `stock_level` para cada zona.
 - **Pontuar as previsões** com as nossas próprias etiquetas e os pontos do desafio.
 
-> **Estado.** A aplicação ainda mostra estados de prateleira simulados. Ligá-la às previsões reais do pipeline é o passo seguinte.
+> **Estado.** A aplicação mostra as respostas do modelo quando encontra `outputs/predictions.json`, que o `agents/predict.py` escreve, e estados de prateleira simulados quando não. A demo da landing e a imagem principal usam as respostas do modelo.
 
 ## Ver
 
