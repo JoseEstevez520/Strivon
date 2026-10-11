@@ -29,6 +29,11 @@ crate groups (COMPLIANCE_CASCADE_TAU=0, COMPLIANCE_GROUPS=0, as in the benchmark
 env vars are set explicitly.
 --same-day-context on-NOT-FOR-SUBMISSION: experiments only. The models may use our other photos of the day and
 the timestamp. NOT ALLOWED FOR THE SUBMISSION.
+
+--stock-tilt K (opt-in, off by default; supervised model only): "lower when unsure". p(full) is multiplied by K
+(0 < K <= 1) before the best-expected-points level is chosen, so "full" needs more confidence; empty vs half is
+unchanged. Off (no flag, or K = 1) gives exactly the default answers. The last line then names it:
+"OK (stock tilt k=0.7): ...".
 """
 import argparse
 import hashlib
@@ -132,13 +137,17 @@ def clean_stock(v):
         return None
 
 
-def combine_stock(answers):
+def combine_stock(answers, tilt=None):
     """Average the stock probabilities of several models (None = that model had no answer) and pick the
-    level with the best expected points; FALLBACK_STOCK if no model answered."""
+    level with the best expected points; FALLBACK_STOCK if no model answered. tilt (--stock-tilt, None = off)
+    multiplies p(full) by k first (not renormalised: that would not change the choice)."""
     ps = [p for p in answers if p is not None]
     if not ps:
         return FALLBACK_STOCK
-    return submission.best_stock({lv: sum(p.get(lv, 0.0) for p in ps) / len(ps) for lv in (0, 0.5, 1)})
+    q = {lv: sum(p.get(lv, 0.0) for p in ps) / len(ps) for lv in (0, 0.5, 1)}
+    if tilt is not None:
+        q[1] *= tilt
+    return submission.best_stock(q)
 
 
 def clean_compliant(v):
@@ -272,6 +281,9 @@ def main():
     ap.add_argument("--allow-baseline-overlap", action="store_true",
                     help="evaluation only: predict photos the label-free baselines were built from (NOT for the submission)")
     ap.add_argument("--cams", help="only these comma-separated camera ids (for debugging)")
+    ap.add_argument("--stock-tilt", type=float, metavar="K",
+                    help="opt-in, off by default: multiply p(full) by K (0 < K <= 1) before choosing the stock level, "
+                         "so 'full' needs more confidence (supervised model only)")
     ap.add_argument("--empty-rule", choices=sorted(EMPTY_RULES), default=EMPTY_RULE,
                     help="planogram_compliant for areas predicted empty (default: %(default)s)")
     ap.add_argument("--expect-images", type=int, help="warn unless exactly this many photos are found (26 on the day)")
@@ -280,6 +292,12 @@ def main():
                     help="off (default) = single image, the only setting allowed for the submission; "
                          f"{CONTEXT_ON} lets the models use our other photos of the day and the timestamp")
     args = ap.parse_args()
+    if args.stock_tilt is not None:
+        if not 0 < args.stock_tilt <= 1:
+            ap.error(f"--stock-tilt must be in (0, 1], got {args.stock_tilt}")
+        if args.label_free:
+            ap.error("--stock-tilt is for the supervised model only, not for --label-free")
+    tilt = None if args.stock_tilt in (None, 1.0) else args.stock_tilt
     empty_override = EMPTY_RULES[args.empty_rule]
     context = args.same_day_context == CONTEXT_ON
     os.environ["SENSEI_SAME_DAY_CONTEXT"] = "1" if context else "0"  # before the models are imported
@@ -294,6 +312,10 @@ def main():
     mode = f"SAME-DAY CONTEXT ({CONTEXT_ON})" if context else "single image (submission mode)"
     if args.label_free:
         mode = "LABEL-FREE mode (zero labels; pitch / new-store path, NOT the submission model)"
+    if tilt is not None:
+        mode += f" | stock tilt k={tilt:g}"
+        print(f"stock tilt k={tilt:g} (opt-in): p(full) x {tilt:g} before the best-expected-points level, so 'full' "
+              "needs more confidence")
 
     t0 = time.time()
     planogram = load_planogram(args.planogram)
@@ -400,7 +422,7 @@ def main():
             if aid in covered:  # curtain: empty + compliant, exempt from the empty rule
                 submission.put(sub, rec.cam, rec.fname, aid, True, 0)
                 continue
-            stock_value = combine_stock([ans[aid] for ans in answers])
+            stock_value = combine_stock([ans[aid] for ans in answers], tilt)
             compliant = empty_override if empty_override is not None and stock_value == 0 else c[aid]
             submission.put(sub, rec.cam, rec.fname, aid, compliant, stock_value)
         if i % 20 == 0 or i == len(images):
@@ -437,6 +459,8 @@ def main():
     if count_problems:
         print(f"!! INCOMPLETE: {'; '.join(count_problems)} (see the WARN lines above). Check before sending this file.")
     status = "INVALID" if errors else "FALLBACKS" if n_fallback else "INCOMPLETE" if count_problems else "OK"
+    if tilt is not None:
+        status += f" (stock tilt k={tilt:g})"
     print(f"{status}: {len(entries)} areas -> {args.out}"
           f"{f' ({filled} filled by safety net)' if filled else ''}  [{time.time() - t0:.0f}s]  {mode}")
     sys.exit(1 if errors else 2 if n_fallback else 3 if count_problems else 0)

@@ -29,6 +29,10 @@ and read the WARN lines:
 On the day, check by eye that every photo was assigned to the right camera: read the "camera ... taken from" and
 "recognised as" WARN lines.
 
+`--stock-tilt K` (opt-in, off by default) is a "lower when unsure" hedge: p(full) is multiplied by K (0 < K <= 1)
+before the best-expected-points level, so "full" needs more confidence. Without it (or with K = 1) the answers are
+exactly the default ones. With it, the last line starts with `OK (stock tilt k=<K>)`.
+
 How the camera is found, in order:
 
 1. a folder named like a camera (`6215/`);
