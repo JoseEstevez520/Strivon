@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 64" font-family="Inter,sans-serif" font-size="26" font-weight="500">
+<g><rect width="170" height="52" y="6" rx="26" fill="#f1dcd6"/><circle cx="30" cy="32" r="8" fill="#c4452f"/><text x="50" y="41" fill="#c4452f">Empty</text></g>
+<g transform="translate(186)"><rect width="200" height="52" y="6" rx="26" fill="#e6e4dd"/><circle cx="30" cy="32" r="8" fill="#8d8d87"/><text x="50" y="41" fill="#51554c">Half full</text></g>
+<g transform="translate(402)"><rect width="250" height="52" y="6" rx="26" fill="#f0e4cf"/><circle cx="30" cy="32" r="8" fill="#b7791f"/><text x="50" y="41" fill="#b7791f">Wrong product</text></g>
+<g transform="translate(668)"><rect width="92" height="52" y="6" rx="26" fill="#e1ece3"/><circle cx="30" cy="32" r="8" fill="#3f8a4f"/><text x="50" y="41" fill="#3f8a4f">Fine</text></g></svg>
