@@ -12,6 +12,7 @@ import { TasksLabPage } from '@/pages/TasksLabPage'
 import { TasksPage } from '@/pages/TasksPage'
 
 // The 3D page pulls in three.js, so it loads only when it is opened.
+const Tasks3DLabPage = lazy(() => import('@/pages/Tasks3DLabPage').then((m) => ({ default: m.Tasks3DLabPage })))
 const Map3DPage = lazy(() => import('@/pages/Map3DPage').then((m) => ({ default: m.Map3DPage })))
 
 export default function App() {
@@ -27,6 +28,14 @@ export default function App() {
             <Route path="products" element={<ProductsPage />} />
             <Route path="insights" element={<InsightsPage />} />
             <Route path="lab/tasks" element={<TasksLabPage />} />
+            <Route
+              path="lab/tasks-3d"
+              element={
+                <Suspense fallback={null}>
+                  <Tasks3DLabPage />
+                </Suspense>
+              }
+            />
             <Route
               path="lab/map-3d"
               element={

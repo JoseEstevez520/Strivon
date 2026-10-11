@@ -1,4 +1,4 @@
-import { OrbitControls, OrthographicCamera, RoundedBox } from '@react-three/drei'
+import { Billboard, OrbitControls, OrthographicCamera, RoundedBox } from '@react-three/drei'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
@@ -84,6 +84,27 @@ function iconTexture(family: string, look: Look, onLoad: () => void): THREE.Text
   return texture
 }
 
+/** A white icon on a transparent ground, for the disc of a pin. */
+const pinTextures = new Map<string, THREE.Texture>()
+function pinTexture(family: string, onLoad: () => void): THREE.Texture {
+  const hit = pinTextures.get(family)
+  if (hit) return hit
+  const body = ICON_BODY[FAMILY_ICON[family]] ?? ''
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="256" height="256"><g color="#ffffff" fill="#ffffff" transform="translate(1 1) scale(.94)">${body}</g></svg>`
+  const texture = new THREE.Texture()
+  texture.colorSpace = THREE.SRGBColorSpace
+  texture.anisotropy = 4
+  const img = new Image()
+  img.onload = () => {
+    texture.image = img
+    texture.needsUpdate = true
+    onLoad()
+  }
+  img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`
+  pinTextures.set(family, texture)
+  return texture
+}
+
 /** The name of a gondola, painted on the front face of its box: the number of the round or a green tick at the right. */
 function useLabel(name: string, rank: number, fine: boolean) {
   const invalidate = useThree((s) => s.invalidate)
@@ -166,10 +187,175 @@ const HEAP_COLOR: Record<Look, string> = {
   fine: '#dcd7c9',
 }
 
+/** How each family looks as a solid: a shape, its colour, and an optional second colour (stem, crown). */
+type Shape = 'ball' | 'ovoid' | 'long' | 'pear' | 'banana' | 'pineapple' | 'bunch' | 'floret' | 'leaf' | 'pepper' | 'flat'
+const PRODUCE: Record<string, [Shape, string, string?]> = {
+  banana: ['banana', '#e9c53a'], plantain: ['banana', '#c9c24a'],
+  citrus_orange: ['ball', '#ef8f2a'], lemon: ['ovoid', '#f0d83c'], lime: ['ball', '#7fb83a'],
+  watermelon: ['ovoid', '#4f9a4a', '#2f6e34'], melon: ['ball', '#d9c58a'],
+  apple_green: ['ball', '#9ccb4a', '#6b4a2a'], apple_russet: ['ball', '#b9803a', '#6b4a2a'], apple_red: ['ball', '#d23a35', '#6b4a2a'],
+  pear: ['pear', '#bcc84a'], kiwi: ['ovoid', '#8a6b3c'],
+  leafy: ['leaf', '#4fa04a'], broccoli: ['floret', '#3f8f45', '#9cc06a'], red_cabbage: ['leaf', '#8a3f78'],
+  cauliflower: ['floret', '#ece6d0', '#9cc06a'], cabbage: ['leaf', '#9cc06a'],
+  avocado: ['pear', '#3f6b3a'], pepper_green: ['pepper', '#4fa04a'], pepper_red: ['pepper', '#d23a35'],
+  eggplant: ['long', '#5a3a7a'], chayote: ['pear', '#9cc06a'], green_beans: ['long', '#5aa046'], cucumber: ['long', '#3f8f45'],
+  tomato: ['ball', '#df3b2f', '#4fa04a'], strawberry: ['pear', '#d9344a', '#4fa04a'], mango: ['ovoid', '#f0a030'],
+  grape_red: ['bunch', '#7a2f5a'], grape_white: ['bunch', '#b8cf6a'], cherry: ['bunch', '#b3202f'],
+  pineapple: ['pineapple', '#e0a830', '#4f8f3a'], pitaya: ['ovoid', '#d93a8a', '#4fa04a'], guava: ['ball', '#b9cf6a'],
+  passion_fruit: ['ball', '#7a3a6a'], papaya: ['ovoid', '#f0a040'], stone_fruit: ['ball', '#f0a070'],
+  sweet_potato: ['long', '#b0603a'], potato: ['ovoid', '#c9a46a'], ginger: ['long', '#d0b27a'], pumpkin: ['flat', '#ef8f2a', '#4f8f3a'],
+}
+const FALLBACK: [Shape, string] = ['ball', '#c9b98a']
+
+/** One piece of produce, about 0.2 across, sitting on y = 0. */
+function Piece({ shape, color, accent, grey }: { shape: Shape; color: string; accent?: string; grey?: boolean }) {
+  const m = (c: string) => <meshStandardMaterial color={grey ? tint('#9a9486', 30, c) : c} roughness={0.85} />
+  const a = accent ?? color
+  switch (shape) {
+    case 'ovoid':
+      return (
+        <mesh position={[0, 0.09, 0]} scale={[1.25, 0.9, 0.9]}>
+          <sphereGeometry args={[0.1, 14, 10]} />
+          {m(color)}
+        </mesh>
+      )
+    case 'long':
+      return (
+        <mesh position={[0, 0.06, 0]} rotation-z={Math.PI / 2}>
+          <capsuleGeometry args={[0.05, 0.16, 4, 10]} />
+          {m(color)}
+        </mesh>
+      )
+    case 'pear':
+      return (
+        <group>
+          <mesh position={[0, 0.07, 0]}>
+            <sphereGeometry args={[0.09, 14, 10]} />
+            {m(color)}
+          </mesh>
+          <mesh position={[0, 0.16, 0]}>
+            <sphereGeometry args={[0.058, 12, 8]} />
+            {m(color)}
+          </mesh>
+        </group>
+      )
+    case 'banana':
+      return (
+        <mesh position={[0, 0.07, 0]} rotation={[Math.PI / 2, 0, Math.PI * 0.1]}>
+          <torusGeometry args={[0.13, 0.036, 8, 18, Math.PI * 0.8]} />
+          {m(color)}
+        </mesh>
+      )
+    case 'pineapple':
+      return (
+        <group>
+          <mesh position={[0, 0.11, 0]} scale={[1, 1.25, 1]}>
+            <sphereGeometry args={[0.085, 14, 10]} />
+            {m(color)}
+          </mesh>
+          <mesh position={[0, 0.27, 0]}>
+            <coneGeometry args={[0.055, 0.14, 7]} />
+            {m(a)}
+          </mesh>
+        </group>
+      )
+    case 'bunch':
+      return (
+        <group>
+          {[[0, 0.05, 0], [0.07, 0.05, 0.03], [-0.07, 0.05, 0.02], [0.03, 0.05, -0.07], [-0.02, 0.12, 0.0], [0.05, 0.12, -0.02]].map((q, i) => (
+            <mesh key={i} position={q as [number, number, number]}>
+              <sphereGeometry args={[0.05, 10, 8]} />
+              {m(color)}
+            </mesh>
+          ))}
+        </group>
+      )
+    case 'floret':
+      return (
+        <group>
+          <mesh position={[0, 0.04, 0]}>
+            <cylinderGeometry args={[0.035, 0.045, 0.08, 8]} />
+            {m(a)}
+          </mesh>
+          {[[0, 0.14, 0, 0.075], [0.07, 0.11, 0.02, 0.058], [-0.065, 0.11, 0.0, 0.058], [0.0, 0.11, -0.07, 0.05]].map((q, i) => (
+            <mesh key={i} position={[q[0], q[1], q[2]]}>
+              <sphereGeometry args={[q[3], 10, 8]} />
+              {m(color)}
+            </mesh>
+          ))}
+        </group>
+      )
+    case 'leaf':
+      return (
+        <mesh position={[0, 0.06, 0]} scale={[1.2, 0.6, 1.1]}>
+          <sphereGeometry args={[0.11, 12, 8]} />
+          {m(color)}
+        </mesh>
+      )
+    case 'pepper':
+      return (
+        <group>
+          <mesh position={[0, 0.09, 0]} scale={[0.9, 1.1, 0.9]}>
+            <sphereGeometry args={[0.09, 12, 10]} />
+            {m(color)}
+          </mesh>
+          <mesh position={[0, 0.2, 0]}>
+            <cylinderGeometry args={[0.014, 0.014, 0.05, 6]} />
+            {m('#4f7a3a')}
+          </mesh>
+        </group>
+      )
+    case 'flat':
+      return (
+        <mesh position={[0, 0.07, 0]} scale={[1.15, 0.75, 1.15]}>
+          <sphereGeometry args={[0.11, 14, 10]} />
+          {m(color)}
+        </mesh>
+      )
+    default:
+      return (
+        <group>
+          <mesh position={[0, 0.09, 0]}>
+            <sphereGeometry args={[0.09, 14, 10]} />
+            {m(color)}
+          </mesh>
+          {accent && (
+            <mesh position={[0, 0.185, 0]}>
+              <cylinderGeometry args={[0.012, 0.012, 0.04, 6]} />
+              {m(accent)}
+            </mesh>
+          )}
+        </group>
+      )
+  }
+}
+
+/** A handful of one product laid in a crate: five when full, two when half. A wrong product is the same pile, washed out. */
+function Produce({ family, look, w, d, y }: { family: string; look: Look; w: number; d: number; y: number }) {
+  const [shape, color, accent] = PRODUCE[family] ?? FALLBACK
+  const spots: [number, number, number][] =
+    look === 'half'
+      ? [[0, 0, 0.4]]
+      : [[-0.24, 0.1, 0.3], [0.24, 0.1, 1.4], [0, -0.14, 2.2]]
+  return (
+    <group position={[0, y, 0]}>
+      {spots.map(([sx, sz, r], i) => (
+        <group key={i} position={[sx * w, 0, sz * d]} rotation-y={r} scale={Math.min(2.4, w / 0.45, d / 0.4)}>
+          <Piece shape={shape} color={color} accent={accent} grey={look === 'wrong'} />
+        </group>
+      ))}
+    </group>
+  )
+}
+
 /** One crate on a step: a tray with a heap of produce in it, or hollow when empty, with the product's icon above. */
-function Crate({ x, y, z, w, d, look, family }: { x: number; y: number; z: number; w: number; d: number; look: Look; family: string }) {
+function Crate({ x, y, z, w, d, look, family, odd }: { x: number; y: number; z: number; w: number; d: number; look: Look; family: string; odd: boolean }) {
   const invalidate = useThree((s) => s.invalidate)
   const map = useMemo(() => iconTexture(family, look, invalidate), [family, look, invalidate])
+  const pin = useMemo(() => (loud(look) ? pinTexture(family, invalidate) : null), [family, look, invalidate])
+  const radius = Math.min(0.26, w * 0.5)
+  const stem = odd ? 0.72 : 0.46
+  const color = look === 'wrong' ? C.warning : C.danger
   const h = 0.14
   const heap = HEAP[look]
   const icon = Math.min(w, d) * 0.8
@@ -179,20 +365,37 @@ function Crate({ x, y, z, w, d, look, family }: { x: number; y: number; z: numbe
         <meshStandardMaterial color={BODY[look]} roughness={1} />
       </RoundedBox>
       {heap > 0 ? (
-        <mesh position={[0, h, 0]} scale={[w * 0.4, heap, d * 0.4]}>
-          <sphereGeometry args={[1, 20, 12, 0, Math.PI * 2, 0, Math.PI / 2]} />
-          <meshStandardMaterial color={HEAP_COLOR[look]} roughness={1} />
-        </mesh>
+        <Produce family={family} look={look} w={w} d={d} y={h} />
       ) : (
         <mesh rotation-x={-Math.PI / 2} position={[0, h + 0.003, 0]}>
           <planeGeometry args={[w * 0.74, d * 0.74]} />
           <meshBasicMaterial color={tint(C.danger, look === 'critical' ? 30 : 16, '#bdb6a8')} />
         </mesh>
       )}
-      <mesh rotation-x={-Math.PI / 2} position={[0, h + heap + 0.01, 0]} renderOrder={5}>
-        <planeGeometry args={[icon, icon]} />
-        <meshBasicMaterial map={map} transparent toneMapped={false} />
-      </mesh>
+      {heap === 0 && (
+        <mesh rotation-x={-Math.PI / 2} position={[0, h + 0.01, 0]} renderOrder={5}>
+          <planeGeometry args={[icon, icon]} />
+          <meshBasicMaterial map={map} transparent toneMapped={false} />
+        </mesh>
+      )}
+      {pin && (
+        <group position={[0, h + heap, 0]}>
+          <mesh position={[0, stem / 2, 0]}>
+            <cylinderGeometry args={[0.022, 0.022, stem, 8]} />
+            <meshBasicMaterial color={color} />
+          </mesh>
+          <Billboard position={[0, stem + radius * 0.9, 0]}>
+            <mesh renderOrder={8}>
+              <circleGeometry args={[radius, 28]} />
+              <meshBasicMaterial color={color} toneMapped={false} />
+            </mesh>
+            <mesh position={[0, 0, 0.002]} renderOrder={9}>
+              <planeGeometry args={[radius * 1.35, radius * 1.35]} />
+              <meshBasicMaterial map={pin} transparent toneMapped={false} />
+            </mesh>
+          </Billboard>
+        </group>
+      )}
     </group>
   )
 }
@@ -215,7 +418,7 @@ function Gondola({ position, tasks, rank, name, hovered, onHover, onOpen }: Gond
   const slot = (W - 0.5) / cols
   const crateW = Math.min(slot * 0.88, 0.78)
   const crateD = Math.min(step * 0.82, 0.78)
-  const board = topY(0) + 0.95
+  const board = topY(0) + 2.2
 
   useFrame((_, dt) => {
     const g = group.current
@@ -251,7 +454,7 @@ function Gondola({ position, tasks, rank, name, hovered, onHover, onOpen }: Gond
         <RoundedBox args={[W, board, 0.14]} radius={0.05} smoothness={3} position={[0, board / 2, -D / 2 - 0.07]}>
           <meshStandardMaterial color={frame} roughness={1} />
         </RoundedBox>
-        <mesh position={[0, board - 0.42, -D / 2 + 0.004]}>
+        <mesh position={[0, board - 0.45, -D / 2 + 0.004]}>
           <planeGeometry args={[W - 0.3, (W - 0.3) / 4.2]} />
           <meshBasicMaterial map={label} transparent toneMapped={false} depthWrite={false} />
         </mesh>
@@ -266,6 +469,7 @@ function Gondola({ position, tasks, rank, name, hovered, onHover, onOpen }: Gond
               d={crateD}
               look={lookOf(x)}
               family={x.area.family}
+              odd={i % 2 === 1}
             />
           )),
         )}
@@ -323,16 +527,41 @@ const VIEWS = {
   front: [5, 21, 21],
   corner: [17, 19, 17],
 } as const
-type View = keyof typeof VIEWS
+export type View = keyof typeof VIEWS
 
 /** Fits the floor in the frame whatever the width, and starts from the chosen side. */
 function Rig({ view }: { view: View }) {
   const size = useThree((s) => s.size)
-  const zoom = Math.min(size.width / 22, size.height / 19.5)
+  const zoom = Math.min(size.width / 20.5, size.height / 18.2)
   return <OrthographicCamera makeDefault position={[...VIEWS[view]]} zoom={zoom} near={0.1} far={200} />
 }
 
-function Scene({ view, onOpen, onHoverChange }: { view: View; onOpen: (camera: string) => void; onHoverChange: (camera: string | null) => void }) {
+/** Moves the camera in on the selected gondola, and back out when nothing is selected. It only drives the camera for a moment after the selection changes, so dragging and zooming stay free. */
+function Focus({ target }: { target: [number, number] | null }) {
+  const controls = useThree((s) => s.controls) as unknown as { target: THREE.Vector3; update: () => void } | null
+  const camera = useThree((s) => s.camera) as THREE.OrthographicCamera
+  const size = useThree((s) => s.size)
+  const invalidate = useThree((s) => s.invalidate)
+  const until = useRef(0)
+  const base = Math.min(size.width / 20.5, size.height / 18.2)
+  useEffect(() => {
+    until.current = performance.now() + 1100
+    invalidate()
+  }, [target, invalidate])
+  useFrame((_, dt) => {
+    if (!controls || performance.now() > until.current) return
+    const goal = target ? new THREE.Vector3(target[0], 0.9, target[1]) : new THREE.Vector3(0, 0.5, 1)
+    const k = Math.min(1, dt * 5)
+    controls.target.lerp(goal, k)
+    camera.zoom += ((target ? base * 2.7 : base) - camera.zoom) * k
+    camera.updateProjectionMatrix()
+    controls.update()
+    invalidate()
+  })
+  return null
+}
+
+export function Scene({ view, selected = null, onOpen, onHoverChange }: { view: View; selected?: string | null; onOpen: (camera: string) => void; onHoverChange: (camera: string | null) => void }) {
   const { state, tasks, gondola } = useStore()
   const list = cameras(state)
   const ranking = useMemo(() => suggest(tasks).filter((s) => s.empty + s.wrong > 0), [tasks])
@@ -343,6 +572,11 @@ function Scene({ view, onOpen, onHoverChange }: { view: View; onOpen: (camera: s
     return m
   }, [tasks])
   const [hover, setHover] = useState<string | null>(null)
+  const spot = (n: number): [number, number] => [
+    -FLOOR_W / 2 + MARGIN + W / 2 + (n % COLS) * (W + GAP_X),
+    -FLOOR_D / 2 + MARGIN + D / 2 + 0.2 + Math.floor(n / COLS) * (D + GAP_Z),
+  ]
+  const focusAt = selected ? spot(list.indexOf(selected)) : null
 
   useEffect(() => {
     onHoverChange(hover)
@@ -355,14 +589,12 @@ function Scene({ view, onOpen, onHoverChange }: { view: View; onOpen: (camera: s
   return (
     <>
       <Rig view={view} />
+      <Focus target={focusAt} />
       <ambientLight intensity={2.2} />
       <directionalLight position={[8, 16, 10]} intensity={1.5} />
       <Room />
       {list.map((c, n) => {
-        const col = n % COLS
-        const row = Math.floor(n / COLS)
-        const x = -FLOOR_W / 2 + MARGIN + W / 2 + col * (W + GAP_X)
-        const z = -FLOOR_D / 2 + MARGIN + D / 2 + 0.2 + row * (D + GAP_Z)
+        const [x, z] = spot(n)
         return (
           <Gondola
             key={c}
@@ -395,25 +627,13 @@ function Scene({ view, onOpen, onHoverChange }: { view: View; onOpen: (camera: s
 
 /** The store as a 3D diorama. Not in the menu: /lab/map-3d. */
 export function Map3DPage() {
-  const { t } = useI18n()
+  const { t, family } = useI18n()
   const navigate = useNavigate()
   const [key, setKey] = useState(0)
   const [view, setView] = useState<View>('front')
   const [hover, setHover] = useState<string | null>(null)
+  const [selected, setSelected] = useState<string | null>(() => new URLSearchParams(window.location.hash.split('?')[1] ?? '').get('g'))
   const { tasks, gondola } = useStore()
-  const { family } = useI18n()
-  // What is wrong in the gondola pointed at, shown in a corner of the frame so it never covers the scene.
-  const summary = useMemo(() => {
-    const m = new Map<string, { key: string; family: string; look: Look; n: number }>()
-    for (const x of tasks.filter((y) => y.area.camera === hover && loud(lookOf(y)))) {
-      const look = lookOf(x) === 'wrong' ? 'wrong' : 'empty'
-      const k = `${look}:${x.area.family}`
-      const row = m.get(k) ?? { key: k, family: x.area.family, look: look as Look, n: 0 }
-      row.n += 1
-      m.set(k, row)
-    }
-    return [...m.values()].sort((a, b) => b.n - a.n)
-  }, [tasks, hover])
   const webgl = useMemo(() => {
     try {
       const c = document.createElement('canvas')
@@ -422,6 +642,28 @@ export function Map3DPage() {
       return false
     }
   }, [])
+  useEffect(() => {
+    const on = (e: KeyboardEvent) => e.key === 'Escape' && setSelected(null)
+    window.addEventListener('keydown', on)
+    return () => window.removeEventListener('keydown', on)
+  }, [])
+
+  // Everything in the gondola pointed at or picked, by product and state: what is there and what is not.
+  const shown = selected ?? hover
+  const rows = useMemo(() => {
+    const m = new Map<string, { key: string; family: string; look: Look; n: number }>()
+    for (const x of tasks.filter((y) => y.area.camera === shown)) {
+      const look = lookOf(x) === 'critical' ? 'empty' : lookOf(x)
+      const k = `${look}:${x.area.family}`
+      const row = m.get(k) ?? { key: k, family: x.area.family, look, n: 0 }
+      row.n += 1
+      m.set(k, row)
+    }
+    const order: Record<Look, number> = { critical: 0, empty: 0, wrong: 1, half: 2, fine: 3 }
+    return [...m.values()].sort((a, b) => order[a.look] - order[b.look] || b.n - a.n)
+  }, [tasks, shown])
+  const word = (l: Look) => (l === 'wrong' ? t.wrongProduct : l === 'half' ? t.level.half : l === 'fine' ? t.level.full : t.level.empty)
+
   return (
     <>
       <div className="mb-3 flex items-center justify-between gap-4">
@@ -441,37 +683,50 @@ export function Map3DPage() {
               {v === 'front' ? 'Front' : 'Corner'}
             </button>
           ))}
-        <button type="button" onClick={() => setKey(key + 1)} className="h-9 cursor-pointer rounded-lg px-3 text-ui text-fg-secondary transition-colors hover:bg-surface">
-          Reset view
-        </button>
+          <button
+            type="button"
+            onClick={() => {
+              setSelected(null)
+              setKey(key + 1)
+            }}
+            className="h-9 cursor-pointer rounded-lg px-3 text-ui text-fg-secondary transition-colors hover:bg-surface"
+          >
+            Reset view
+          </button>
         </span>
       </div>
-      <div className="relative h-[min(82dvh,52rem)] min-h-[26rem] overflow-hidden rounded-2xl" style={{ background: C.bg }}>
+      <div className="relative h-[min(84dvh,54rem)] min-h-[26rem] overflow-hidden rounded-2xl" style={{ background: C.bg }}>
         {webgl ? (
-          <Canvas key={key} flat dpr={[1, 2]} frameloop="demand" gl={{ antialias: true }}>
-            <Scene view={view} onOpen={(c) => navigate(`/gondolas/${c}`)} onHoverChange={setHover} />
+          <Canvas key={key} flat dpr={[1, 2]} frameloop="demand" gl={{ antialias: true }} onPointerMissed={() => setSelected(null)}>
+            <Scene
+              view={view}
+              selected={selected}
+              onOpen={(c) => (selected === c ? navigate(`/gondolas/${c}`) : setSelected(c))}
+              onHoverChange={setHover}
+            />
           </Canvas>
         ) : (
           <p className="grid size-full place-items-center text-ui text-fg-secondary">This browser cannot draw 3D.</p>
         )}
-        {hover && (
-          <div className="pointer-events-none absolute top-3 left-3 w-60 rounded-xl bg-raised p-3">
-            <p className="mb-2 text-label">{gondola(hover)}</p>
-            {summary.length === 0 ? (
-              <p className="text-meta text-fg-secondary">{t.plan.nothingHere}</p>
-            ) : (
-              <ul className="flex flex-col gap-1.5">
-                {summary.map((r) => (
-                  <li key={r.key} className="flex items-center gap-2 text-meta text-fg-secondary">
-                    <span className="grid size-7 shrink-0 place-items-center rounded-md" style={{ background: BODY[r.look], color: INK[r.look] }}>
-                      <ProductIcon family={r.family} label={family(r.family)} className="size-5" />
-                    </span>
-                    <span className="min-w-0 flex-1 truncate text-fg">{family(r.family)}</span>
-                    <span className="tabular-nums">×{r.n}</span>
-                    <span className="text-fg-muted">{r.look === 'wrong' ? t.wrongProduct : t.level.empty}</span>
-                  </li>
-                ))}
-              </ul>
+        {shown && (
+          <div className="absolute top-3 left-3 w-64 rounded-xl bg-raised p-3" style={{ pointerEvents: selected ? 'auto' : 'none' }}>
+            <p className="mb-2 text-label">{gondola(shown)}</p>
+            <ul className="flex flex-col gap-1.5">
+              {rows.map((r) => (
+                <li key={r.key} className="flex items-center gap-2 text-meta text-fg-secondary">
+                  <span className="grid size-7 shrink-0 place-items-center rounded-md" style={{ background: BODY[r.look], color: INK[r.look] }}>
+                    <ProductIcon family={r.family} label={family(r.family)} className="size-5" />
+                  </span>
+                  <span className="min-w-0 flex-1 truncate text-fg">{family(r.family)}</span>
+                  <span className="tabular-nums">×{r.n}</span>
+                  <span className="w-20 text-right text-fg-muted">{word(r.look)}</span>
+                </li>
+              ))}
+            </ul>
+            {selected && (
+              <button type="button" onClick={() => navigate(`/gondolas/${selected}`)} className="mt-3 h-9 w-full cursor-pointer rounded-lg bg-surface text-ui text-fg transition-colors hover:bg-sunk">
+                {gondola(selected)} →
+              </button>
             )}
           </div>
         )}
@@ -486,14 +741,14 @@ export function Map3DPage() {
           {t.level.half}
         </li>
         <li className="flex items-center gap-1.5">
-          <span className="size-3.5 rounded-[4px]" style={{ background: BODY.empty, boxShadow: 'inset 0 0 0 3px ' + BODY.empty, outline: '3px solid ' + tint(C.danger, 16, '#bdb6a8'), outlineOffset: -3 }} />
+          <span className="size-3.5 rounded-full" style={{ background: C.danger }} />
           {t.level.empty}
         </li>
         <li className="flex items-center gap-1.5">
-          <span className="size-3.5 rounded-t-full" style={{ background: HEAP_COLOR.wrong }} />
+          <span className="size-3.5 rounded-full" style={{ background: C.warning }} />
           {t.wrongProduct}
         </li>
-        <li className="ml-auto text-fg-muted">Drag to turn it, scroll to zoom, press a gondola to open it</li>
+        <li className="ml-auto text-fg-muted">Press a gondola to look closer, press it again to open it</li>
       </ul>
     </>
   )

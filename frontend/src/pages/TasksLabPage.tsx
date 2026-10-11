@@ -12,7 +12,7 @@ import { Plan } from '@/pages/MapStorePage'
 const mix = (c: string, pct: number) => `color-mix(in oklab, ${c} ${pct}%, var(--raised))`
 
 /** What to carry to a gondola: the products that are empty, with how many areas, and the ones to put back. */
-function Chips({ tasks }: { tasks: Task[] }) {
+export function Chips({ tasks }: { tasks: Task[] }) {
   const { family, t } = useI18n()
   const count = (group: Task['group']) => {
     const m = new Map<string, number>()
