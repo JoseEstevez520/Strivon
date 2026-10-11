@@ -77,41 +77,11 @@ Reproduza o dia para ver os dois mudarem e abra uma gôndola para ver a sua prat
 
 ### Pergunte e receba um ecrã
 
-<img align="right" width="55%" src="assets/video/chat-to-gondola.gif" alt="Alguém pergunta onde estão as bananas. O chat responde com um gráfico de como as prateleiras se esvaziaram ao longo do dia e um cartão. Ao abrir o cartão vê-se a fotografia da gôndola com as zonas assinaladas.">
-
 O chat não responde com um parágrafo. O modelo escreve o desenho da resposta com as peças da própria aplicação (gráficos, tabelas, tarefas, um mapa do dia, cartões com fotografia) e a aplicação desenha-o, por isso a resposta pode ser aberta e seguida até à prateleira de que fala.
 
 Precisa de uma chave de um modelo no servidor (`LLM_API_KEY` em `frontend/.env`); sem ela o chat fica escondido.
 
-<br clear="right">
-<br>
-
-Os estados das prateleiras nos dois clipes são simulados. Os vídeos em tamanho completo estão em [`assets/video`](assets/video).
-
-### Os ecrãs
-
-Capturas reais da aplicação. Clique numa para a ver em tamanho completo. Foram feitas com o dia simulado, e há mais capturas de cada parte da interface em [`assets/presentation`](assets/presentation).
-
-<p align="center">
-  <a href="assets/presentation/views/tasks-2d.png"><img src="assets/presentation/views/tasks-2d.png" alt="A primeira página com o plano da loja em 2D, a lista da ronda e a barra do dia" width="49%"></a>
-  <a href="assets/presentation/views/tasks-3d-front.png"><img src="assets/presentation/views/tasks-3d-front.png" alt="A mesma página com a loja em 3D" width="49%"></a>
-</p>
-
-<p align="center"><sub>O plano em 2D e a loja em 3D.</sub></p>
-
-<p align="center">
-  <a href="assets/presentation/views/tasks-real.png"><img src="assets/presentation/views/tasks-real.png" alt="A mesma página com a última fotografia de cada câmara" width="49%"></a>
-  <a href="assets/presentation/views/gondola-6215.png"><img src="assets/presentation/views/gondola-6215.png" alt="A página de uma gôndola: a sua fotografia com o que está mal assinalado e os problemas por palavras" width="49%"></a>
-</p>
-
-<p align="center"><sub>A última fotografia de cada câmara e uma gôndola.</sub></p>
-
-<p align="center">
-  <a href="assets/presentation/views/products.png"><img src="assets/presentation/views/products.png" alt="A página de produtos, com um cartão por produto e para onde o levar" width="49%"></a>
-  <a href="assets/presentation/views/insights.png"><img src="assets/presentation/views/insights.png" alt="A página de análise com um mapa do stock ao longo do dia e os produtos e gôndolas que mais tempo estiveram vazios" width="49%"></a>
-</p>
-
-<p align="center"><sub>Os produtos em cartões e a análise.</sub></p>
+[Ver o clipe](assets/video/chat-to-gondola.mp4). Os estados das prateleiras no clipe e no de cima são simulados. Os vídeos em tamanho completo estão em [`assets/video`](assets/video).
 
 ## Executar localmente
 
