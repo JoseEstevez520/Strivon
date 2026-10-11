@@ -191,7 +191,12 @@ function SlotsBand() {
   const cells = []
   for (let r = 0; r < size.rows; r++) {
     for (let c = 0; c < size.cols; c++) {
-      const fade = Math.pow((r + 0.5) / size.rows, 1.6)
+      const dy = (r + 0.5) / size.rows
+      const dx = (c + 0.5) / size.cols - 0.5
+      // Fewer toward the centre, where the logos and the line of text are, as the first screen keeps
+      // the slots away from its text.
+      const near = Math.max(0, Math.min(1, (Math.hypot(dx * 1.2, (dy - 0.72) * 1.5) - 0.2) / 0.3))
+      const fade = Math.pow(dy, 1.6) * near
       const shown = hash(c, r) > 0.35
       cells.push(
         <span key={`${r}-${c}`} className="rounded-[7px]" style={{ background: shown ? slotFill(hash(r, c)) : 'transparent', opacity: 0.6 * fade }} />,
@@ -354,7 +359,7 @@ export function Landing() {
               <img src="partners/junctionx.png" alt="JunctionX Lisbon" className="h-14 w-auto" />
               <img src="partners/sensei.png" alt="Sensei" className="h-14 w-auto" />
             </div>
-            <p className="text-meta text-fg-muted">Built at JunctionX Lisbon 2026, for the Sensei challenge. The logos belong to their owners.</p>
+            <p className="text-center text-meta text-fg-muted">Built at JunctionX Lisbon 2026, for the Sensei challenge. The logos belong to their owners.</p>
           </footer>
         </main>
       </div>
