@@ -31,15 +31,17 @@
 
 ## What is Strivon?
 
-In a store, nobody can look at every shelf all day. A shelf runs empty, a product ends up in the
-place of another one, and the staff find out when a customer asks. The ceiling cameras already see
-all of it. What is missing is someone to look at the photos.
+Fresh produce is the section where the state of a shelf matters most. An empty gondola is a lost
+sale, an overstocked one ends in waste, and a product in the wrong place gets the wrong price.
+Today the staff check this by walking the store.
 
-Strivon does the looking. From a camera photo and the store's planogram, it checks each shelf area:
-is it holding the product it should, and how full is it? What comes out is a list of work for the
-staff, not a report.
+A ceiling camera already sees every gondola, but loose, piled fruit with no barcode is hard for a
+computer to read, and shoppers and staff hide it with their hands. Strivon takes the photo and the
+store's planogram and checks each shelf area: is it holding the product it should, and how full is
+it? What comes out is a list of work for the staff.
 
-It was built at JunctionX Lisbon 2026 for the Sensei challenge, with photos from 14 cameras.
+It was built for the Sensei challenge at JunctionX Lisbon 2026, with a day of photos from 14
+cameras in an autonomous store in Leiria.
 
 ## How it works
 
