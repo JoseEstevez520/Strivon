@@ -51,17 +51,17 @@ into tasks.
 | Is the right product there? | yes or no | **Move back** when it is the wrong one |
 | How full is the area? | empty, half full or full | **Restock** when empty, **Later** when half full, nothing when full |
 
-A task shows the crop of the area and the time of its photo, so the person can check it at a
-glance. The challenge scores each area, so the pipeline is tuned for the points as well as for the
+The app groups the tasks by gondola so a round can be planned: the plan marks where the problems
+are, and the list says what to carry to each stop. The challenge scores each area, so the pipeline is tuned for the points as well as for the
 tasks: see [`docs/PLAN.md`](docs/PLAN.md).
 
 ## What you can do today
 
-- **See what to do now**, grouped into Restock, Move back and Later, ordered by urgency.
-- **Open a task** to see its camera photo with the shelf area marked, and **play the day** with the
-  day bar to watch the list change.
-- **Browse the store** with a map of the gondolas, a page per gondola, a products view and an
-  insights page with the share of the time that shelves were empty.
+- **See the round for the whole store**: a plan shows which gondolas need something, and a list gives the order of the stops and what to carry to each one.
+- **Open a gondola** to see its camera photo with what is wrong marked, and **play the day** with
+  the day bar to watch the plan and the list change.
+- **Look at the store** as a plan, a 3D model or the latest photo of each camera, with a products
+  view made of cards and an insights page with the share of the time that shelves were empty.
 - **Ask the store a question** and get the answer as a screen, with charts, tasks and photo
   cards. It needs a model key on the server.
 - **Predict a folder of photos** from the command line: one JSON with `planogram_compliant` and
@@ -79,12 +79,12 @@ The landing is at [strivon-landing.vercel.app](https://strivon-landing.vercel.ap
 
 ### The app for staff
 
-<img align="right" width="55%" src="assets/video/demo-tasks.gif" alt="The task list fills as the day plays: empty shelf areas, half full ones and products in the wrong place. Opening a task shows the photo of its camera with the shelf area marked.">
+<img align="right" width="55%" src="assets/video/demo-tasks.gif" alt="The plan of the store and the list of stops change as the day plays. Opening a gondola shows the photo of its camera with what is wrong marked.">
 
-Each shelf area that needs something becomes a task: restock what is empty, move back what is in
-the wrong place and check later what is half full.
+A plan of the store shows which gondolas need something, and the list beside it gives the order of
+the round and what to bring to each stop.
 
-Play the day to see the list fill, and open a task to see its shelf with the area marked.
+Play the day to watch both change, and open a gondola to see its shelf with what is wrong marked.
 
 <br clear="right">
 <br>

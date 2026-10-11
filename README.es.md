@@ -45,13 +45,13 @@ Para cada zona de estantería de una foto, el pipeline responde dos preguntas y 
 | ¿Está el producto correcto? | sí o no | **Devolver a su sitio** si es otro |
 | ¿Cuánto está de llena la zona? | vacía, a medias o llena | **Reponer** si está vacía, **Más tarde** si está a medias, nada si está llena |
 
-Cada tarea muestra el recorte de la zona y la hora de su foto, para comprobarla de un vistazo. El reto puntúa cada zona, así que el pipeline se ajusta a los puntos y también a las tareas: mira [`docs/PLAN.md`](docs/PLAN.md).
+La app agrupa las tareas por góndola para poder planificar una ronda: el plano marca dónde están los problemas y la lista dice qué llevar a cada parada. El reto puntúa cada zona, así que el pipeline se ajusta a los puntos y también a las tareas: mira [`docs/PLAN.md`](docs/PLAN.md).
 
 ## Qué puedes hacer hoy
 
-- **Ver qué hacer ahora**, agrupado en Reponer, Devolver a su sitio y Más tarde, por orden de urgencia.
-- **Abrir una tarea** para ver la foto de su cámara con la zona marcada, y **reproducir el día** con la barra para ver cómo cambia la lista.
-- **Recorrer la tienda** con un mapa de las góndolas, una página por góndola, una vista de productos y una página de análisis con la parte del tiempo que las estanterías estuvieron vacías.
+- **Ver la ronda de toda la tienda**: un plano muestra qué góndolas necesitan algo y una lista da el orden de las paradas y qué llevar a cada una.
+- **Abrir una góndola** para ver la foto de su cámara con lo que está mal marcado, y **reproducir el día** con la barra para ver cómo cambian el plano y la lista.
+- **Mirar la tienda** como un plano, un modelo 3D o la última foto de cada cámara, con una vista de productos en tarjetas y una página de análisis con la parte del tiempo que las estanterías estuvieron vacías.
 - **Preguntarle algo a la tienda** y recibir la respuesta como una pantalla, con gráficas, tareas y tarjetas con foto. Necesita una clave de un modelo en el servidor.
 - **Predecir una carpeta de fotos** desde la línea de comandos: un JSON con `planogram_compliant` y `stock_level` para cada zona.
 - **Puntuar las predicciones** con nuestras propias etiquetas y los puntos del reto.
@@ -66,11 +66,11 @@ La landing está en [strivon-landing.vercel.app](https://strivon-landing.vercel.
 
 ### La app para el personal
 
-<img align="right" width="55%" src="assets/video/demo-tasks.gif" alt="La lista de tareas se llena mientras avanza el día: zonas vacías, a medias y productos fuera de su sitio. Al abrir una tarea se ve la foto de su cámara con la zona marcada.">
+<img align="right" width="55%" src="assets/video/demo-tasks.gif" alt="El plano de la tienda y la lista de paradas cambian mientras avanza el día. Al abrir una góndola se ve la foto de su cámara con lo que está mal marcado.">
 
-Cada zona de estantería que necesita algo se convierte en una tarea: reponer lo que está vacío, devolver a su sitio lo que está mal colocado y revisar más tarde lo que está a medias.
+Un plano de la tienda muestra qué góndolas necesitan algo, y la lista de al lado da el orden de la ronda y qué llevar a cada parada.
 
-Reproduce el día para ver cómo se llena la lista, y abre una tarea para ver su estantería con la zona marcada.
+Reproduce el día para ver cómo cambian los dos, y abre una góndola para ver su estantería con lo que está mal marcado.
 
 <br clear="right">
 <br>
