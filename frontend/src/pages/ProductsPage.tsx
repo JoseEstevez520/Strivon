@@ -13,8 +13,6 @@ const VALUE = { empty: 0, half: 0.5, full: 1 } as const
 
 type Status = 'all' | 'empty' | 'wrong' | 'half'
 const STATUS: Status[] = ['all', 'empty', 'wrong', 'half']
-/** The state colours used everywhere else, so a filter reads like what it filters. */
-const DOT: Partial<Record<Status, string>> = { empty: 'var(--danger)', wrong: 'var(--warning)' }
 
 /** What a task says about its product, for the filter. */
 const statusOf = (x: Task): Exclude<Status, 'all'> | 'fine' =>
@@ -83,12 +81,18 @@ export function ProductsPage() {
   const { t, family } = useI18n()
   const { state, tasks, gondola } = useStore()
   const [query, setQuery] = useState('')
-  const [status, setStatus] = useState<Status>('all')
-  const [camera, setCamera] = useState('all')
+  // Several states or gondolas can be on at once; none on means all.
+  const [status, setStatus] = useState<Set<Exclude<Status, 'all'>>>(new Set())
+  const [camera, setCamera] = useState<Set<string>>(new Set())
+  const toggle = <T,>(set: Set<T>, v: T) => {
+    const next = new Set(set)
+    if (!next.delete(v)) next.add(v)
+    return next
+  }
   const focus = useSearchParams()[0].get('product')
 
   // The gondola narrows the areas first, so a product's figure is its stock in that gondola.
-  const inCamera = useMemo(() => (camera === 'all' ? tasks : tasks.filter((x) => x.area.camera === camera)), [tasks, camera])
+  const inCamera = useMemo(() => (camera.size === 0 ? tasks : tasks.filter((x) => camera.has(x.area.camera))), [tasks, camera])
 
   const rows = useMemo<Row[]>(() => {
     const byProduct = new Map<string, Task[]>()
@@ -106,7 +110,7 @@ export function ProductsPage() {
   const q = query.trim().toLowerCase()
   const withStatus = (st: Status) => (st === 'all' ? rows : rows.filter((r) => r.tasks.some((x) => statusOf(x) === st)))
   const named = q ? rows.filter((r) => family(r.product).toLowerCase().includes(q)) : rows
-  const shown = status === 'all' ? named : named.filter((r) => r.tasks.some((x) => statusOf(x) === status))
+  const shown = status.size === 0 ? named : named.filter((r) => r.tasks.some((x) => (status as Set<string>).has(statusOf(x))))
   const label = (st: Status) => (st === 'all' ? t.all : st === 'empty' ? t.level.empty : st === 'wrong' ? t.wrongProduct : t.level.half)
 
   return (
@@ -131,12 +135,11 @@ export function ProductsPage() {
             <button
               key={st}
               type="button"
-              data-on={status === st}
-              aria-pressed={status === st}
-              onClick={() => setStatus(st)}
+              data-on={st === 'all' ? status.size === 0 : status.has(st)}
+              aria-pressed={st === 'all' ? status.size === 0 : status.has(st)}
+              onClick={() => setStatus(st === 'all' ? new Set() : toggle(status, st))}
               className="flex h-9 cursor-pointer items-center gap-1.5 rounded-lg px-3 text-ui text-fg-secondary transition-colors hover:bg-surface data-[on=true]:bg-surface data-[on=true]:text-fg"
             >
-              {DOT[st] && <span className="size-2 rounded-full" style={{ background: DOT[st] }} aria-hidden />}
               {label(st)}
               <span className="text-meta tabular-nums text-fg-muted">{withStatus(st).length}</span>
             </button>
@@ -148,10 +151,10 @@ export function ProductsPage() {
             <button
               key={c}
               type="button"
-              data-on={camera === c}
-              aria-pressed={camera === c}
+              data-on={c === 'all' ? camera.size === 0 : camera.has(c)}
+              aria-pressed={c === 'all' ? camera.size === 0 : camera.has(c)}
               title={c === 'all' ? t.allGondolas : gondola(c)}
-              onClick={() => setCamera(c)}
+              onClick={() => setCamera(c === 'all' ? new Set() : toggle(camera, c))}
               className="h-9 shrink-0 cursor-pointer rounded-lg px-3 text-ui tabular-nums text-fg-secondary transition-colors hover:bg-surface data-[on=true]:bg-surface data-[on=true]:text-fg"
             >
               {c === 'all' ? t.allGondolas : (gondola(c).match(/\d+$/)?.[0] ?? gondola(c))}
