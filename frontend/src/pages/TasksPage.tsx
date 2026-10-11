@@ -3,6 +3,7 @@ import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { DayBar } from '@/components/DayBar'
 import { PhotoGrid } from '@/components/PhotoGrid'
+import { Segmented } from '@/components/ui/segmented'
 import { StopList } from '@/components/StopList'
 import { Plan, useLayout } from '@/components/StorePlan'
 import { useI18n } from '@/lib/i18n'
@@ -94,21 +95,13 @@ export function TasksPage() {
       <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
         <div className="order-2 xl:order-1">
           {views.length > 1 && (
-            <div className="mb-3 flex justify-end gap-1" role="group" aria-label={t.viewAs}>
-              {views.map(([m, Icon, label]) => (
-                <button
-                  key={m}
-                  type="button"
-                  data-on={shownMode === m}
-                  aria-pressed={shownMode === m}
-                  onClick={() => pick(m)}
-                  className="flex h-9 cursor-pointer items-center gap-1.5 rounded-lg px-3 text-ui text-fg-secondary transition-colors hover:bg-surface data-[on=true]:bg-surface data-[on=true]:text-fg"
-                >
-                  <Icon className="size-4" aria-hidden />
-                  {label}
-                </button>
-              ))}
-            </div>
+            <Segmented
+              className="mb-3"
+              label={t.viewAs}
+              options={views.map(([m, Icon, label]) => ({ value: m, label, icon: <Icon className="size-4" aria-hidden /> }))}
+              on={(v) => shownMode === v}
+              onPick={(v) => pick(v as Mode)}
+            />
           )}
           {three ? (
             <Suspense fallback={<div className="h-[min(84dvh,54rem)] rounded-2xl bg-sunk" />}>

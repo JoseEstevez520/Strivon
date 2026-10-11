@@ -2,6 +2,7 @@ import { Check, ChevronRight, Undo2 } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router'
 import { BringList } from '@/components/BringList'
+import { Segmented } from '@/components/ui/segmented'
 import { ProductIcon } from '@/components/ProductIcon'
 import { useI18n } from '@/lib/i18n'
 import { useStore } from '@/lib/store'
@@ -47,25 +48,16 @@ export function StopList({ stops, byCamera, tasks }: { stops: Suggestion[]; byCa
   const shown = all ? stops : stops.slice(0, 5)
   return (
     <aside>
-      <div className="mb-1 flex gap-1" role="group">
-        {(
-          [
-            ['stops', t.goFirst],
-            ['bring', t.toBring],
-          ] as const
-        ).map(([v, label]) => (
-          <button
-            key={v}
-            type="button"
-            data-on={view === v}
-            aria-pressed={view === v}
-            onClick={() => setView(v)}
-            className="h-9 cursor-pointer rounded-lg px-3 text-ui text-fg-secondary transition-colors hover:bg-surface data-[on=true]:bg-surface data-[on=true]:text-fg"
-          >
-            {label}
-          </button>
-        ))}
-      </div>
+      <Segmented
+        className="mb-3"
+        label={t.goFirst}
+        options={[
+          { value: 'stops', label: t.goFirst },
+          { value: 'bring', label: t.toBring },
+        ]}
+        on={(v) => view === v}
+        onPick={(v) => setView(v as 'stops' | 'bring')}
+      />
       {view === 'bring' ? (
         <BringList tasks={tasks} />
       ) : (

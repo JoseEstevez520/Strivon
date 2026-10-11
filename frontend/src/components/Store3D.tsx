@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
 import * as THREE from 'three'
 import { ProductIcon } from '@/components/ProductIcon'
+import { Segmented } from '@/components/ui/segmented'
 import { useI18n } from '@/lib/i18n'
 import { useStore } from '@/lib/store'
 import { suggest } from '@/lib/suggest'
@@ -652,25 +653,20 @@ export function Store3D() {
 
   return (
     <>
-      <div className="mb-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-        <span className="ml-auto flex items-center gap-1">
-          {(['front', 'corner'] as View[]).map((v) => (
-            <button
-              key={v}
-              type="button"
-              data-on={view === v}
-              onClick={() => {
-                setView(v)
-                setSelected(null)
-                setKey(key + 1)
-              }}
-              className="h-9 cursor-pointer rounded-lg px-3 text-ui text-fg-secondary transition-colors hover:bg-surface data-[on=true]:bg-surface data-[on=true]:text-fg"
-            >
-              {v === 'front' ? 'Front' : 'Corner'}
-            </button>
-          ))}
-        </span>
-      </div>
+      <Segmented
+        className="mb-3"
+        label="Camera"
+        options={[
+          { value: 'front', label: 'Front' },
+          { value: 'corner', label: 'Corner' },
+        ]}
+        on={(v) => view === v}
+        onPick={(v) => {
+          setView(v as View)
+          setSelected(null)
+          setKey(key + 1)
+        }}
+      />
       <div className="relative overflow-hidden rounded-2xl" style={{ background: C.bg }}>
         <div className="h-[58dvh] min-h-[22rem] sm:h-[min(84dvh,54rem)] sm:min-h-[26rem]">
         {webgl ? (
