@@ -123,7 +123,7 @@
   "owner": "Jose (lab)",
   "labels": "the key",
   "other_photos": "training crops only",
-  "seconds": "0.14 CPU per photo (1 thread, warm); 0.31 per photo over a batch of 28 including a 4.8 startup (torch import 3.8); i7 laptop, no GPU"
+  "seconds": "0.11 CPU per photo (1 thread, warm); 0.12 per photo over a batch of 28 including a 0.3 startup (`python lab/predict_fast.py`); i7 laptop, no GPU"
  },
  "agents_finetuned_b_same_day": {
   "approach": "Agents' pipeline, fine-tuned DINOv2-base stock (2 seeds), uses same-day photos",
@@ -210,17 +210,45 @@
   "seconds": "0.82 CPU, 0.06 GPU"
  },
  "agents_R3_s0": {
-  "approach": "Agents' FINAL model R3: one-pass DINOv2-S retrained on newer labels + block-8 stock head, seed 0",
+  "approach": "Agents' FINAL model R3, the submission's recipe (`agents/predict.py`): one-pass DINOv2-S retrained on newer labels + block-8 stock head, seed 0",
   "owner": "André (agents)",
   "labels": "eval/labels.json @1221ec3",
   "other_photos": "no",
-  "seconds": "0.74-0.82 CPU, 0.06 GPU"
+  "seconds": "2.0 CPU s per photo end to end at 1 thread (28 photos, 6.6 s start-up included; Miguel's laptop, Core Ultra 7 155H); 0.74-0.82 wall at 4 threads (André's laptop); 0.06 GPU"
  },
  "agents_R3_s1": {
-  "approach": "Agents' FINAL model R3: one-pass DINOv2-S retrained on newer labels + block-8 stock head, seed 1",
+  "approach": "Agents' FINAL model R3, the submission's recipe (`agents/predict.py`): one-pass DINOv2-S retrained on newer labels + block-8 stock head, seed 1",
   "owner": "André (agents)",
   "labels": "eval/labels.json @1221ec3",
   "other_photos": "no",
-  "seconds": "0.74-0.82 CPU, 0.06 GPU"
+  "seconds": "2.0 CPU s per photo end to end at 1 thread (28 photos, 6.6 s start-up included; Miguel's laptop, Core Ultra 7 155H); 0.74-0.82 wall at 4 threads (André's laptop); 0.06 GPU"
+ },
+ "combo_min_crate_R3": {
+  "approach": "Rule fixed in advance, not adopted: stock = the lower of the CLIP crate model and R3 (seed 0), product check from R3",
+  "owner": "Miguel (from André's and José's files)",
+  "labels": "as its parts",
+  "other_photos": "no",
+  "seconds": "about 1.7-2.2 wall (R3 0.8 + crate 0.9-1.4), from component timings"
+ },
+ "combo_avg_crate_lab_R3": {
+  "approach": "Rule fixed in advance, not adopted: stock = best expected points on the average of the CLIP crate, lab and R3 (seed 0) probabilities, product check from R3",
+  "owner": "Miguel (from André's and José's files)",
+  "labels": "as its parts",
+  "other_photos": "no",
+  "seconds": "about 1.8-2.3 wall (R3 0.8 + crate 0.9-1.4 + lab 0.12), from component timings"
+ },
+ "combo_min_crate_avg_lab_R3": {
+  "approach": "Rule fixed in advance, not adopted: stock = the lower of the CLIP crate model and the best expected points on the average of lab and R3 (seed 0), product check from R3",
+  "owner": "Miguel (from André's and José's files)",
+  "labels": "as its parts",
+  "other_photos": "no",
+  "seconds": "about 1.8-2.3 wall (R3 0.8 + crate 0.9-1.4 + lab 0.12), from component timings"
+ },
+ "agents_labelfree_U6": {
+  "approach": "Agents' LABEL-FREE line, zero labels (`agents/predict.py --label-free`, U6): SigLIP2 zero-shot product check + stock from the share of 3×3 crate tiles that look like empty floor, against a per-area baseline built from unlabelled photos (here: the forward split's training photos only)",
+  "owner": "André (agents)",
+  "labels": "none",
+  "other_photos": "no at prediction time (the per-area baseline is a one-off store calibration from other, unlabelled photos)",
+  "seconds": "~22 CPU s per photo (4 threads), 0.4-1.3 GPU (RTX 3060 laptop)"
  }
 }

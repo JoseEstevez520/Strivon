@@ -1,0 +1,4 @@
+# written by labelfree_setup.py weights (186 MB, downloaded once; never commit)
+models/compliance/deploy/siglip2b_vision_fp16.pt
+models/compliance/deploy/*.tmp
+__pycache__/

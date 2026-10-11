@@ -29,6 +29,12 @@ CORNERS = ("top_left", "top_right", "bottom_right", "bottom_left")
 OVERLAP_PAIRS = [("6383", "6386"), ("6591", "6594"), ("6371", "6376"), ("6373", "6385"), ("6462", "6468")]
 IMAGE_EXTS = (".jpg", ".jpeg", ".png")
 OTHER_IMAGE_EXTS = (".webp", ".tif", ".tiff", ".bmp", ".gif", ".heic", ".jfif")  # not read: list_images warns
+# Recognising a camera by appearance: our photos score >= 0.8 against their own camera (5th percentile, leave-one-out;
+# the 06:12 curtain photo 0.30), other cameras <= 0.33, and a screenshot, noise or a mirrored photo <= 0.38.
+MIN_ID_SCORE = 0.5
+# ... and the best camera must beat the second best by this much (our photos: smallest margin 0.148, leave-one-out),
+# so look-alike views (e.g. the 6383 and 6386 curtain walls) are never guessed.
+MIN_ID_MARGIN = 0.10
 
 
 @lru_cache(maxsize=None)
@@ -79,47 +85,90 @@ _TS = re.compile(r"\d{10}")
 
 def parse_path(path, cams):
     """(cam, ts) from .../6215/1751009590.jpg or a name like 6215_1751009590.jpg; None if absent."""
+    cam, ts, _ = camera_from_path(path, cams)
+    return cam, ts
+
+
+def camera_from_path(path, cams):
+    """(cam, ts, how): the camera from the path, nearest folder first. A folder named exactly like a planogram camera
+    wins; otherwise a folder whose digit runs contain exactly one planogram camera id ("camera_6215", "6215_photos",
+    "cam-6215"), then the file name ("6215_1751009590.jpg"). how says which part was used ("" for an exact folder,
+    None when no camera id is in the path)."""
     path = Path(path)
     m = _TS.search(path.stem)
     ts = int(m.group()) if m else None
     for part in reversed(path.parent.parts):
         if part in cams:
-            return part, ts
-    for tok in re.split(r"[^0-9]+", path.stem):
-        if tok in cams:
-            return tok, ts
-    return None, ts
+            return part, ts, ""
+    for part in reversed(path.parent.parts):
+        ids = {tok for tok in re.split(r"[^0-9]+", part) if tok in cams}
+        if len(ids) == 1:
+            return ids.pop(), ts, f"folder name '{part}'"
+    ids = {tok for tok in re.split(r"[^0-9]+", path.stem) if tok in cams}
+    if len(ids) == 1:
+        return ids.pop(), ts, f"file name '{path.name}'"
+    return None, ts, None
 
 
-def list_images(root=IMAGES_DIR, planogram_path=PLANOGRAM_PATH, identify=True):
+def list_images(root=IMAGES_DIR, planogram_path=PLANOGRAM_PATH, identify=True, skipped=None):
     """Every image under `root` as ImageRec, sorted by (cam, ts).
 
-    The camera comes from a folder (or file-name part) equal to a planogram camera id; when there
-    is none and identify=True, it is recognised by appearance with identify_camera()."""
+    The camera comes from the path (camera_from_path: a folder named like a camera, a folder or file name holding
+    exactly one camera id); when there is none and identify=True, it is recognised by appearance with
+    identify_camera(), which needs our dataset (SENSEI_DATASET). A photo whose camera can't be told (no id, no match
+    with score >= MIN_ID_SCORE, unreadable) is left out with a WARN, and so are image files in formats we don't read;
+    their paths are appended to `skipped` when a list is given. If no photo at all can be placed, it raises
+    ValueError with what to do."""
     cams = set(load_planogram(planogram_path))
-    recs, skipped = [], []
+    recs, unread, told = [], [], set()
+    skipped = [] if skipped is None else skipped
     for p in sorted(Path(root).rglob("*")):
         if p.name.startswith("._") or "__MACOSX" in p.parts:
             continue
         if p.suffix.lower() in OTHER_IMAGE_EXTS:
-            skipped.append(p.name)
+            unread.append(p.name)
             continue
         if p.suffix.lower() not in IMAGE_EXTS:
             continue
-        cam, ts = parse_path(p, cams)
+        cam, ts, how = camera_from_path(p, cams)
+        if how and how.startswith("folder") and how not in told:  # once per folder
+            told.add(how)
+            print(f"WARN  camera {cam} taken from the {how}")
+        elif how and how.startswith("file") and "file" not in told:
+            told.add("file")
+            print(f"WARN  cameras taken from the file names (e.g. {p.name} -> {cam})")
         if cam is None and identify:
             try:
-                cam, _ = identify_camera(p, cams)
+                cam, score, gap = identify_camera(p, cams, margin=True)
             except Exception as e:  # unreadable file: its camera (so its areas) can't be known
-                print(f"WARN  {p}: can't read it to recognise the camera ({e!r}); skipped")
+                print(f"WARN  {p}: can't read it to recognise the camera ({e!r}); NOT predicted")
+                skipped.append(str(p))
                 continue
+            if cam is not None and score < MIN_ID_SCORE:
+                print(f"WARN  {p}: looks like no planogram camera (best {cam}, score {score:.2f} < {MIN_ID_SCORE}); "
+                      "NOT predicted")
+                skipped.append(str(p))
+                continue
+            if cam is not None and gap < MIN_ID_MARGIN:
+                print(f"WARN  {p}: looks like {cam} but another camera is almost as close (margin {gap:.2f} < "
+                      f"{MIN_ID_MARGIN}); not guessed, put it in a <camera>/ folder. NOT predicted")
+                skipped.append(str(p))
+                continue
+            if cam is not None:
+                print(f"WARN  {p}: camera not in the path, recognised as {cam} by appearance (score {score:.2f}, "
+                      f"margin {gap:.2f})")
         if cam is None:
-            raise ValueError(f"can't tell which camera took {p}: put the photos in <camera>/ folders or name them "
-                             "<camera>_<timestamp>.jpg, or set SENSEI_DATASET to our dataset folder so the camera can "
-                             "be recognised by appearance")
+            print(f"WARN  {p}: no camera id in the path and no recognition (set SENSEI_DATASET); NOT predicted")
+            skipped.append(str(p))
+            continue
         recs.append(ImageRec(cam, ts if ts is not None else 0, p))
-    if skipped:
-        print(f"WARN  {len(skipped)} image files in a format we don't read, NOT predicted: {skipped[:10]}")
+    if unread:
+        print(f"WARN  {len(unread)} image files in a format we don't read, NOT predicted: {unread[:10]}")
+        skipped += unread
+    if not recs and skipped:
+        raise ValueError(f"no photo under {root} could be placed on a camera: put the photos in <camera>/ folders "
+                         "(e.g. 6215/ or camera_6215/) or name them <camera>_<timestamp>.jpg, or set SENSEI_DATASET "
+                         "to our dataset folder so cameras can be recognised by appearance")
     return sorted(recs)
 
 
@@ -190,13 +239,38 @@ def curtain_down(img, cam):
     return margin > 0, margin
 
 
-def identify_camera(img, cams=None):
+def identify_camera(img, cams=None, margin=False):
     """(cam, correlation) of the dataset camera that best matches an image (path or PIL); (None, 0.0) without the
-    dataset. cams: only consider these camera ids."""
+    dataset. cams: only consider these camera ids. margin=True returns (cam, correlation, best minus second best)."""
     t = _thumb(img)
     scores = {cam: float((refs * t).sum(axis=(1, 2)).max()) for cam, refs in _camera_refs().items()
               if cams is None or cam in cams}
     if not scores:
-        return None, 0.0
+        return (None, 0.0, 0.0) if margin else (None, 0.0)
+    ranked = sorted(scores.values(), reverse=True)
     cam = max(scores, key=scores.get)
-    return cam, scores[cam]
+    gap = ranked[0] - ranked[1] if len(ranked) > 1 else ranked[0]
+    return (cam, scores[cam], gap) if margin else (cam, scores[cam])
+
+
+@lru_cache(maxsize=None)
+def _drift_ref(cam):
+    """Gradient map (360x640) of our newest photo of `cam`, or None without the dataset."""
+    files = sorted((IMAGES_DIR / cam).glob("*.jpg")) if (IMAGES_DIR / cam).is_dir() else []
+    return _grad(Image.open(files[-1]).convert("L").resize((640, 360), Image.BILINEAR)) if files else None
+
+
+def _grad(g):
+    g = np.asarray(g, dtype=np.float32)
+    return np.hypot(cv2.Sobel(g, cv2.CV_32F, 1, 0), cv2.Sobel(g, cv2.CV_32F, 0, 1))
+
+
+def camera_drift(img, cam):
+    """(shift in px at 1280x720, response) of a photo against our newest photo of the same camera, by phase
+    correlation of gradient maps; None without the dataset. Warn-only: answers never depend on it."""
+    ref = _drift_ref(str(cam))
+    if ref is None:
+        return None
+    cur = _grad(img.convert("L").resize((640, 360), Image.BILINEAR))
+    (dx, dy), resp = cv2.phaseCorrelate(ref, cur, cv2.createHanningWindow((640, 360), cv2.CV_32F))
+    return 2 * float(np.hypot(dx, dy)), float(resp)

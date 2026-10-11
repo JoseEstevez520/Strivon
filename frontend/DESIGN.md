@@ -373,8 +373,9 @@ separate panel. Pressing it again, or Escape, closes it.
 
 Scrollbars are quiet ones, set as `scrollbar-subtle` in `src/index.css`: a
 line of 6 px with no track and no arrows. It is invisible at rest and drawn faintly only while the
-pointer is over what scrolls, a step darker on the line itself. It was made always visible once and
-asked back to this: it should show only when you go there. They apply to the content area, which scrolls under the header, and to the camera panel. The browser's own bars are
+area scrolls or the pointer is over the bar itself, a step darker on the line. It was made always
+visible once and asked back to this, and then it showed whenever the pointer rested anywhere over
+the content, which was still too much: it should show only when you go to it or scroll. They apply to the content area, which scrolls under the header, and to the camera panel. The browser's own bars are
 wide and grey and fought with the flat style. The space for the page bar stays reserved so
 nothing shifts when it appears.
 
@@ -384,6 +385,11 @@ Colour changes take 150 ms and the open picker fades. A task opens and closes wi
 animation (200 ms in, 150 ms out) and its chevron turns. That is the only layout animation, and
 it is kept to one row at a time. No blur, no scaling and no glass. Closing is always a little
 faster than opening. With reduced motion, everything is instant.
+
+The chat follows the same rules. The box grows from the button on a soft curve (320 ms open, 240 ms
+closed) and what is inside resizes with it on the same curve, so enlarging it never makes the
+content jump. A new message rises 4 px while it fades in, the answer fades in where the dots were,
+and the jump-to-bottom button fades instead of popping.
 
 ## Performance
 
@@ -620,6 +626,18 @@ a collapsing block by hand once, and Base UI and shadcn already had it.
   caveat that the frontline-worker advice comes from company blogs: Nielsen's heuristics (recognise
   rather than remember, prevent errors), WCAG 1.4.1 (colour is never the only signal), target sizes
   (44 to 48 px for touch, 24 px as the legal floor in WCAG 2.5.8), and one main action per screen.
+- 2026-10-11. Pressing a gondola on the map opens its own page instead of a side panel or a sheet.
+  The map then takes the whole width and has one job, to show where the problems are. The gondola
+  page has the other job: the camera photo with what is empty or misplaced marked on it, and the
+  problems in plain words, one line for each product with how many areas and since when ("Orange
+  x3, empty since 18:22"), grouped as empty, wrong product and half full. Hovering a line lights its
+  area on the photo. There is still nothing to press to mark a task.
+- 2026-10-11. The side panel of Tasks was cut down with what we learned on the map. It held a photo,
+  a name, a products line, three counts with words, a line of since when and a card with a tile for
+  every area, then three more gondolas with their own photo, products and counts. Now "Go first" is
+  the photo, the name, since when it has been empty and one tile for each thing that is wrong, and
+  "Then" is three lines with a number, a name and how many things are wrong. Fine and half full
+  areas are not drawn, the counts and the products line are gone, and the small photos are gone.
 
 ## Roadmap
 
@@ -664,3 +682,41 @@ what we decide into the sections above and the decisions log.
 - The list changes height as the day plays, and the browser clamps the page scroll when it gets
   shorter. A minimum height for the list column may be needed.
 - A products view, with stock summed per product.
+
+## Store plan (lab, `/lab/map-store`)
+
+Superseded by "First page: plan, list and 3D" below, which keeps the plan but drops the detail panel and the department sign.
+
+A passive live view. The cameras and the model already detect what is empty or misplaced, and the next hourly photo clears a warning by itself, so the screen never asks the employee to mark anything: no Done, no No stock, no counters. The detail panel is plain information per problem: product, where on the shelf, the state and since when.
+
+From 1024 px it is a top-down plan in HTML and CSS: walls, a door with a mat and an awning, a hanging department sign, aisle lanes with arrows and names, and gondolas as furniture with hanging name signs. A grey dotted line shows the walk. Below that the same gondola block sits in a compact grid in walking order (four columns, two on a phone) and the first gondola spans two columns and carries what to bring, so no second card repeats it. The first gondola is marked by tone, a larger neutral number and the card above the plan, never by black.
+
+Every state has a shape as well as a colour: empty a dashed tile with "!", wrong product a return arrow, half full a filled lower half. Fine areas are plain white tiles with no badge; a green check appears once, on a gondola with nothing to fix. Pure red is kept for a product gone from half the store or more. Sizes are small on purpose (20 px icons, 32 px tiles, 14 px names, nothing under 12 px), because nothing here is pressed except the gondola blocks, which are at least 44 px tall.
+
+## First page: plan, list and 3D
+
+Tasks is one screen. The plan says where, the list says what to carry. The Map and Gondolas tabs are gone (their routes redirect here) because the plan and the gondola tiles said the same thing twice.
+
+The plan is the flat one by default. It is the quickest to read for someone in a hurry, it reflows to two columns on a phone, and it shows only what needs doing. On a phone the list comes first, then the plan.
+
+From 1280 px a 2D / 3D button swaps the plan for a 3D store. The choice is remembered in the browser, and `/#/?view=3d` opens it directly for a demo. The 3D code and three.js load only when the button is pressed. Below 1280 px there is no button: at phone width the whole store is too small to tell the fruit apart, and a two-step tap-to-zoom costs more than the flat plan does.
+
+What we settled on for the 3D, so it is not argued again:
+- Shelves rise like stairs toward the back, so every crate shows from above. A tall back wall hid the row behind it, so the wall is only high enough to carry the name.
+- Each product is a small solid of its own (about a dozen shapes, coloured by family), not an icon on a tile. An empty crate shows a faint red ghost of what should be there, a half crate holds one piece, a wrong product is the same fruit washed out.
+- Empty and wrong crates carry a pin with the product icon above them. The pin is the only thing that asks for attention; fine gondolas get a check, as in 2D.
+- Pressing a gondola moves the camera in and lists each product with its count and state; pressing it again opens its page. Escape or pressing the floor goes back. There is no reset button, since those cover it.
+- Pointing at a gondola must not cover the scene, so its details sit in a fixed corner card.
+
+The button has a third view, Real: the latest photo of every gondola in a grid, with the marks drawn on each photo, problems first in the order of the round and the fine ones after with the check. Pressing a photo opens the gondola. It shows the shelf as it is, which the plan and the 3D store only stand for, so it is the view for checking a doubt rather than for starting the round.
+
+Only the views that can work are offered. A phone gets 2D and Real, since 3D needs room; a build with no photo source gets no Real. The marks on a small photo are scaled up (about twice) so they stay readable, and they sit in the corner of each area so the product under them stays in view. Two columns on a phone, three on a laptop, four on a wide screen; the photos load as they near the screen.
+
+## The round, for the phone
+
+A worker carries it. It is `/#/round`, outside the header and the tab bar, one step per screen: first what to load from the back room, then one gondola per step, then the end. Type is large (the names are 16 px, the gondola 28), the buttons are at the bottom where the thumb is and 56 px tall, and the screen stays on while it is open. Each thing to carry shows a crop of the real photo of the spot it is for, so someone who does not know the gondola finds the place.
+
+"Previous" and "Next" only move the view. Nothing is marked as done: the next hourly photo clears what was fixed, and the position is remembered in the browser only so a reload does not lose the place.
+
+The order is by need and then by gondola number, as an approximation of the walk, because the floor positions are not known. It is a reasonable order and the page does not claim it is the shortest path. A product standing in the wrong place is matched with the gondola that has its place in the planogram, so the round says "take to Gondola 5" where it is found and lists it as a drop in Gondola 5; with no place in the planogram it says to take it back to the back room. The first screen of Tasks has a "Start the round" button and, on a wide screen, a code to open it on a phone.
+

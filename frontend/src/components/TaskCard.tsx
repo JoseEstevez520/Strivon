@@ -34,7 +34,7 @@ export function TaskCard({ card, selected, gondola, where, historyOf, onSelect, 
   const second = many
     ? t.areasCount(card.tasks.length)
     : card.group === 'moveBack'
-      ? [t.wrongPlace(family(first.obs.observed_family ?? '')), place].filter(Boolean).join(' · ')
+      ? [(first.obs.observed_family ? t.wrongPlace(family(first.obs.observed_family)) : t.wrongProduct), place].filter(Boolean).join(' · ')
       : place
   const since = clock(first.since)
 

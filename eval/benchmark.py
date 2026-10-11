@@ -3,7 +3,8 @@
 Usage:
     python eval/benchmark.py folds                   # the fold of every photo
     python eval/benchmark.py score predictions.json  # points table and a leaderboard row
-    python eval/benchmark.py forward predictions.json  # score on the forward split (each camera's last 2 photos)
+    python eval/benchmark.py forward predictions.json  # score on the forward split (each camera's last 2 photos):
+                                                       # labels_v1, the current labels and the areas both agree on
 
 In Python, with eval/ on the path:
     from benchmark import train_test
@@ -53,9 +54,32 @@ def last_photos():
     return set(last.items())
 
 
-def tally(preds, photos=None):
+def forward_keys():
+    """The forward test scored three ways, on labels_v1's areas:
+
+    - "labels_v1": the frozen key.
+    - "current": the same areas valued by eval/labels.json. Since labels_v1 was frozen, 32 of the 302 forward stock
+      labels changed, most of them in André's review of the evening photos where his model disagreed with the labels
+      (PR #61, #75), so this key leans towards his models.
+    - "unchanged": only the areas where both keys agree (269), the comparison that no review touched.
+    """
+    cur = json.loads((HERE / "labels.json").read_text(encoding="utf-8"))
+    same = lambda a, b: a["stock_level"] == b["stock_level"] and bool(a["planogram_compliant"]) == bool(b["planogram_compliant"])
+    current, unchanged = {}, {}
+    for c, i in forward_train_test()[1]:
+        for a, v in KEY.get(c, {}).get(i, {}).items():
+            n = cur.get(c, {}).get(i, {}).get(a)
+            if n is None:
+                continue
+            current.setdefault(c, {}).setdefault(i, {})[a] = n
+            if same(v, n):
+                unchanged.setdefault(c, {}).setdefault(i, {})[a] = v
+    return {"labels_v1": KEY, "current": current, "unchanged": unchanged}
+
+
+def tally(preds, photos=None, key=None):
     t = {"areas": 0, "ident_ok": 0, "ident_wrong": 0, "stock_ok": 0, "below": 0, "above": 0, "missing": 0}
-    for cam, imgs in KEY.items():
+    for cam, imgs in (KEY if key is None else key).items():
         for img, areas in imgs.items():
             if photos is not None and (cam, img) not in photos:
                 continue
@@ -102,10 +126,12 @@ if __name__ == "__main__":
         print("\n".join(f"{photo} {f}" for photo, f in sorted(FOLDS.items())))
     elif len(sys.argv) == 3 and sys.argv[1] == "forward":
         _, test = forward_train_test()
-        t = tally(json.loads(Path(sys.argv[2]).read_text(encoding="utf-8")), set(test))
-        print(f"Forward split ({t['areas']} areas): {t['total']:+d} / {t['max']}, {t['total'] / t['areas']:+.3f} per area, "
-              f"about {round(t['total'] / t['areas'] * 289):+d} / 578. Identification {t['ident']:+d}, stock {t['stock']:+d} "
-              f"(below {t['below']}, above {t['above']}, missing {t['missing']}).")
+        preds = json.loads(Path(sys.argv[2]).read_text(encoding="utf-8"))
+        for name, key in forward_keys().items():
+            t = tally(preds, set(test), key)
+            print(f"Forward split, {name} ({t['areas']} areas): {t['total']:+d} / {t['max']}, {t['total'] / t['areas']:+.3f} per area, "
+                  f"about {round(t['total'] / t['areas'] * 289):+d} / 578. Identification {t['ident']:+d}, stock {t['stock']:+d} "
+                  f"(below {t['below']}, above {t['above']}, missing {t['missing']}).")
     elif len(sys.argv) == 3 and sys.argv[1] == "score":
         report(json.loads(Path(sys.argv[2]).read_text(encoding="utf-8")))
     else:

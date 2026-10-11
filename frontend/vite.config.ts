@@ -8,7 +8,8 @@ import { defineConfig, loadEnv, type Plugin } from 'vite'
  * Development only: serves the challenge photos and the planogram from a folder outside the
  * repo, read-only, so the screen can show real shelves. The data is never part of the build and
  * never committed. Point STRIVON_DATA_DIR at the folder that holds `planogram.json` and
- * `images/<camera>/<timestamp>.jpg`.
+ * `images/<camera>/<timestamp>.jpg`. The model's answers come from `STRIVON_PREDICTIONS`, by default
+ * `../outputs/predictions.json` next to the data folder.
  */
 export function localData(): Plugin {
   const dir = process.env.STRIVON_DATA_DIR ?? path.resolve(import.meta.dirname, '../data')
@@ -20,7 +21,12 @@ export function localData(): Plugin {
         const url = new URL(req.url ?? '/', 'http://local')
         const photo = url.pathname.match(/^\/images\/(\d+)\/(\d+\.jpg)$/)
         try {
-          if (url.pathname === '/index.json') {
+          if (url.pathname === '/predictions.json') {
+            // What the model says about every area of every photo. Optional: without it the app simulates.
+            const file = process.env.STRIVON_PREDICTIONS ?? path.resolve(dir, '../outputs/predictions.json')
+            res.setHeader('content-type', 'application/json')
+            res.end(fs.readFileSync(file))
+          } else if (url.pathname === '/index.json') {
             const planogram = JSON.parse(fs.readFileSync(path.join(dir, 'planogram.json'), 'utf8'))
             const images: Record<string, string[]> = {}
             for (const camera of fs.readdirSync(path.join(dir, 'images'))) {

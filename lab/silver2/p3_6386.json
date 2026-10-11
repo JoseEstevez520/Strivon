@@ -1,0 +1,408 @@
+{
+ "6386": {
+  "1751001156.jpg": {
+   "1": {
+    "skip": true
+   },
+   "2": {
+    "skip": true
+   },
+   "3": {
+    "skip": true
+   },
+   "4": {
+    "skip": true
+   },
+   "5": {
+    "skip": true
+   },
+   "6": {
+    "skip": true
+   }
+  },
+  "1751005249.jpg": {
+   "1": {
+    "stock_level": "full",
+    "planogram_compliant": true,
+    "conf": 3
+   },
+   "2": {
+    "stock_level": "full",
+    "planogram_compliant": true,
+    "conf": 2
+   },
+   "3": {
+    "stock_level": "full",
+    "planogram_compliant": true,
+    "conf": 3
+   },
+   "4": {
+    "stock_level": "half",
+    "planogram_compliant": true,
+    "conf": 2
+   },
+   "5": {
+    "stock_level": "full",
+    "planogram_compliant": true,
+    "conf": 3
+   },
+   "6": {
+    "stock_level": "half",
+    "planogram_compliant": true,
+    "conf": 2
+   }
+  },
+  "1751009346.jpg": {
+   "1": {
+    "stock_level": "full",
+    "planogram_compliant": true,
+    "conf": 3
+   },
+   "2": {
+    "stock_level": "full",
+    "planogram_compliant": true,
+    "conf": 2
+   },
+   "3": {
+    "stock_level": "full",
+    "planogram_compliant": true,
+    "conf": 3
+   },
+   "4": {
+    "stock_level": "half",
+    "planogram_compliant": true,
+    "conf": 2
+   },
+   "5": {
+    "stock_level": "full",
+    "planogram_compliant": true,
+    "conf": 3
+   },
+   "6": {
+    "stock_level": "half",
+    "planogram_compliant": true,
+    "conf": 2
+   }
+  },
+  "1751013440.jpg": {
+   "1": {
+    "stock_level": "full",
+    "planogram_compliant": true,
+    "conf": 3
+   },
+   "2": {
+    "stock_level": "full",
+    "planogram_compliant": true,
+    "conf": 3
+   },
+   "3": {
+    "stock_level": "full",
+    "planogram_compliant": true,
+    "conf": 3
+   },
+   "4": {
+    "stock_level": "full",
+    "planogram_compliant": true,
+    "conf": 3
+   },
+   "5": {
+    "stock_level": "full",
+    "planogram_compliant": true,
+    "conf": 3
+   },
+   "6": {
+    "stock_level": "full",
+    "planogram_compliant": true,
+    "conf": 3
+   }
+  },
+  "1751017235.jpg": {
+   "1": {
+    "stock_level": "full",
+    "planogram_compliant": true,
+    "conf": 3
+   },
+   "2": {
+    "stock_level": "full",
+    "planogram_compliant": true,
+    "conf": 3
+   },
+   "3": {
+    "stock_level": "full",
+    "planogram_compliant": true,
+    "conf": 3
+   },
+   "4": {
+    "stock_level": "full",
+    "planogram_compliant": true,
+    "conf": 3
+   },
+   "5": {
+    "stock_level": "full",
+    "planogram_compliant": true,
+    "conf": 3
+   },
+   "6": {
+    "stock_level": "full",
+    "planogram_compliant": true,
+    "conf": 3
+   }
+  },
+  "1751021024.jpg": {
+   "1": {
+    "stock_level": "full",
+    "planogram_compliant": true,
+    "conf": 3
+   },
+   "2": {
+    "stock_level": "full",
+    "planogram_compliant": true,
+    "conf": 3
+   },
+   "3": {
+    "stock_level": "full",
+    "planogram_compliant": true,
+    "conf": 3
+   },
+   "4": {
+    "stock_level": "full",
+    "planogram_compliant": true,
+    "conf": 3
+   },
+   "5": {
+    "stock_level": "full",
+    "planogram_compliant": true,
+    "conf": 3
+   },
+   "6": {
+    "stock_level": "full",
+    "planogram_compliant": true,
+    "conf": 3
+   }
+  },
+  "1751024835.jpg": {
+   "1": {
+    "stock_level": "full",
+    "planogram_compliant": true,
+    "conf": 3
+   },
+   "2": {
+    "stock_level": "full",
+    "planogram_compliant": true,
+    "conf": 3
+   },
+   "3": {
+    "stock_level": "full",
+    "planogram_compliant": true,
+    "conf": 3
+   },
+   "4": {
+    "stock_level": "full",
+    "planogram_compliant": true,
+    "conf": 3
+   },
+   "5": {
+    "stock_level": "half",
+    "planogram_compliant": true,
+    "conf": 2
+   },
+   "6": {
+    "stock_level": "full",
+    "planogram_compliant": true,
+    "conf": 3
+   }
+  },
+  "1751028928.jpg": {
+   "1": {
+    "stock_level": "full",
+    "planogram_compliant": true,
+    "conf": 3
+   },
+   "2": {
+    "stock_level": "full",
+    "planogram_compliant": true,
+    "conf": 3
+   },
+   "3": {
+    "stock_level": "half",
+    "planogram_compliant": true,
+    "conf": 1
+   },
+   "4": {
+    "stock_level": "full",
+    "planogram_compliant": true,
+    "conf": 3
+   },
+   "5": {
+    "stock_level": "half",
+    "planogram_compliant": true,
+    "conf": 2
+   },
+   "6": {
+    "stock_level": "full",
+    "planogram_compliant": true,
+    "conf": 3
+   }
+  },
+  "1751032558.jpg": {
+   "1": {
+    "stock_level": "full",
+    "planogram_compliant": true,
+    "conf": 3
+   },
+   "2": {
+    "stock_level": "full",
+    "planogram_compliant": true,
+    "conf": 3
+   },
+   "3": {
+    "stock_level": "half",
+    "planogram_compliant": true,
+    "conf": 1
+   },
+   "4": {
+    "stock_level": "full",
+    "planogram_compliant": true,
+    "conf": 3
+   },
+   "5": {
+    "stock_level": "half",
+    "planogram_compliant": true,
+    "conf": 2
+   },
+   "6": {
+    "stock_level": "full",
+    "planogram_compliant": true,
+    "conf": 3
+   }
+  },
+  "1751036676.jpg": {
+   "1": {
+    "stock_level": "full",
+    "planogram_compliant": true,
+    "conf": 3
+   },
+   "2": {
+    "stock_level": "full",
+    "planogram_compliant": true,
+    "conf": 3
+   },
+   "3": {
+    "stock_level": "half",
+    "planogram_compliant": true,
+    "conf": 1
+   },
+   "4": {
+    "stock_level": "full",
+    "planogram_compliant": true,
+    "conf": 3
+   },
+   "5": {
+    "stock_level": "half",
+    "planogram_compliant": true,
+    "conf": 2
+   },
+   "6": {
+    "stock_level": "full",
+    "planogram_compliant": true,
+    "conf": 3
+   }
+  },
+  "1751040333.jpg": {
+   "1": {
+    "stock_level": "half",
+    "planogram_compliant": true,
+    "conf": 3
+   },
+   "2": {
+    "stock_level": "full",
+    "planogram_compliant": true,
+    "conf": 3
+   },
+   "3": {
+    "stock_level": "half",
+    "planogram_compliant": true,
+    "conf": 1
+   },
+   "4": {
+    "stock_level": "full",
+    "planogram_compliant": true,
+    "conf": 3
+   },
+   "5": {
+    "stock_level": "half",
+    "planogram_compliant": true,
+    "conf": 2
+   },
+   "6": {
+    "stock_level": "full",
+    "planogram_compliant": true,
+    "conf": 3
+   }
+  },
+  "1751044440.jpg": {
+   "1": {
+    "stock_level": "half",
+    "planogram_compliant": true,
+    "conf": 2
+   },
+   "2": {
+    "stock_level": "full",
+    "planogram_compliant": true,
+    "conf": 3
+   },
+   "3": {
+    "stock_level": "half",
+    "planogram_compliant": true,
+    "conf": 1
+   },
+   "4": {
+    "stock_level": "half",
+    "planogram_compliant": true,
+    "conf": 2
+   },
+   "5": {
+    "stock_level": "half",
+    "planogram_compliant": true,
+    "conf": 1
+   },
+   "6": {
+    "stock_level": "full",
+    "planogram_compliant": true,
+    "conf": 3
+   }
+  },
+  "1751048137.jpg": {
+   "1": {
+    "stock_level": "empty",
+    "planogram_compliant": true,
+    "conf": 1
+   },
+   "2": {
+    "stock_level": "full",
+    "planogram_compliant": true,
+    "conf": 3
+   },
+   "3": {
+    "stock_level": "half",
+    "planogram_compliant": true,
+    "conf": 1
+   },
+   "4": {
+    "stock_level": "half",
+    "planogram_compliant": true,
+    "conf": 2
+   },
+   "5": {
+    "stock_level": "empty",
+    "planogram_compliant": true,
+    "conf": 3
+   },
+   "6": {
+    "stock_level": "full",
+    "planogram_compliant": true,
+    "conf": 3
+   }
+  }
+ }
+}

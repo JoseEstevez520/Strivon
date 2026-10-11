@@ -149,8 +149,9 @@
 }
 
 /*
- * A scrollbar that stays out of the way: a line of 6px with no track and no arrows, unseen at rest
- * and drawn faintly while the pointer is over what scrolls, a step darker on the line itself. Chromium and Safari draw it from the `::-webkit-scrollbar` parts and ignore
+ * A scrollbar that stays out of the way: a line of 6px with no track and no arrows, unseen at rest.
+ * It is drawn faintly only while the page scrolls (`data-scrolling`, set by `lib/scrollbars.ts`) or
+ * while the pointer is over the bar itself, a step darker on the line. Chromium and Safari draw it from the `::-webkit-scrollbar` parts and ignore
  * them as soon as a standard property is set, so `scrollbar-width` and `scrollbar-color` go to
  * Firefox only.
  */
@@ -177,19 +178,18 @@
     border-radius: 9999px;
     background: transparent padding-box;
   }
-  &:hover::-webkit-scrollbar-thumb,
-  &:focus-within::-webkit-scrollbar-thumb {
+  &[data-scrolling]::-webkit-scrollbar-thumb {
     background-color: var(--scrollbar-thumb);
   }
-  &::-webkit-scrollbar-thumb:hover {
+  &::-webkit-scrollbar-thumb:hover,
+  &::-webkit-scrollbar-thumb:active {
     background-color: color-mix(in oklab, var(--fg) 45%, transparent);
   }
 
   @supports (-moz-appearance: none) {
     scrollbar-width: thin;
     scrollbar-color: transparent transparent;
-    &:hover,
-    &:focus-within {
+    &[data-scrolling] {
       scrollbar-color: var(--scrollbar-thumb) transparent;
     }
   }

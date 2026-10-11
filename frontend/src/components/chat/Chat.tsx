@@ -151,12 +151,16 @@ export function Chat() {
                 data-source={m.role === 'assistant' ? m.text : undefined}
                 // The last answer is at least a screen tall, so a short one still lets the question reach the top.
                 style={i === messages.length - 1 && m.role === 'assistant' ? { minHeight: Math.max(0, viewHeight - 130) } : undefined}
-                className={m.role === 'user' ? 'ml-auto max-w-[85%] rounded-xl bg-surface px-3 py-2 text-ui' : 'flex flex-col gap-3 px-1'}
+                className={`animate-in duration-200 fade-in slide-in-from-bottom-1 motion-reduce:animate-none ${
+                  m.role === 'user' ? 'ml-auto max-w-[85%] rounded-xl bg-surface px-3 py-2 text-ui' : 'flex flex-col gap-3 px-1'
+                }`}
               >
                 {m.role === 'user' ? (
                   m.text
                 ) : m.text ? (
-                  <Renderer response={m.text} library={library} isStreaming={m.id === streaming} />
+                  <div className="animate-in duration-200 fade-in motion-reduce:animate-none">
+                    <Renderer response={m.text} library={library} isStreaming={m.id === streaming} />
+                  </div>
                 ) : (
                   <Thinking />
                 )}
@@ -164,7 +168,7 @@ export function Chat() {
             ))}
           </ol>
         ) : (
-          <ul className="flex flex-col">
+          <ul className="flex animate-in flex-col duration-300 fade-in motion-reduce:animate-none">
             {t.suggestions.map((s) => (
               <li key={s}>
                 <button
@@ -183,19 +187,21 @@ export function Chat() {
         )}
       </div>
 
-      {away && (
-        <button
-          type="button"
-          aria-label={t.latest}
-          onClick={toBottom}
-          className="absolute bottom-20 left-1/2 z-10 grid size-8 -translate-x-1/2 cursor-pointer place-items-center rounded-full bg-fg text-bg transition-opacity hover:opacity-85"
-        >
-          <ArrowDown className="size-4" />
-        </button>
-      )}
+      <button
+        type="button"
+        aria-label={t.latest}
+        onClick={toBottom}
+        tabIndex={away ? 0 : -1}
+        aria-hidden={!away}
+        className={`absolute bottom-20 left-1/2 z-10 grid size-8 -translate-x-1/2 cursor-pointer place-items-center rounded-full bg-fg text-bg transition-[opacity,translate] duration-200 ease-out hover:opacity-85 motion-reduce:transition-none ${
+          away ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-1 opacity-0'
+        }`}
+      >
+        <ArrowDown className="size-4" />
+      </button>
 
       {dictation.error && (
-        <p role="status" className="px-4 pb-1 text-meta text-fg-secondary sm:px-6">
+        <p role="status" className="animate-in px-4 pb-1 text-meta text-fg-secondary duration-200 fade-in motion-reduce:animate-none sm:px-6">
           {dictation.error === 'denied' ? t.micDenied : dictation.error === 'missing' ? t.micMissing : t.voiceFailed}
         </p>
       )}

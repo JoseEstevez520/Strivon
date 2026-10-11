@@ -19,6 +19,7 @@ interface Strings {
   empty: string
   half: string
   wrongPlace: (seen: string) => string
+  inPlaceOf: (expected: string) => string
   since: (time: string) => string
   areasFine: (n: number) => string
   level: Record<'empty' | 'half' | 'full', string>
@@ -30,15 +31,40 @@ interface Strings {
   navProducts: string
   gondolasHeadline: (n: number) => string
   productsHeadline: (n: number) => string
+  productsToRestock: (n: number) => string
+  showFine: (n: number) => string
+  onShelf: (percent: number) => string
+  bringTo: string
+  putBackIn: string
   searchProducts: string
   shortOf: (short: number, total: number) => string
   allGondolas: string
+  all: string
+  filterState: string
   gondolaN: (n: number) => string
   loading: string
   navInsights: string
   navMap: string
+  viewAs: string
   planHeadline: (n: number) => string
   goFirst: string
+  toBring: string
+  roundStart: string
+  roundStop: (n: number, total: number) => string
+  roundLoad: string
+  roundLoadNote: string
+  leaveHere: string
+  pickUp: string
+  takeTo: (gondola: string) => string
+  takeBack: string
+  fromGondola: (gondola: string) => string
+  previous: string
+  next: string
+  roundDone: string
+  roundDoneNote: string
+  openOnPhone: string
+  bringFromBack: string
+  putBackHeading: string
   thenGo: string
   bring: string
   emptySince: (time: string) => string
@@ -87,6 +113,25 @@ interface Strings {
   withProduct: (names: string) => string
   noMatches: string
   areasCount: (n: number) => string
+  plan: {
+    title: string
+    department: string
+    anotherMoment: string
+    hideMoment: string
+    entrance: string
+    aisle: (n: number) => string
+    stop: (n: number) => string
+    show: (name: string) => string
+    fine: string
+    nothingHere: string
+    fineCount: (n: number) => string
+    allFine: string
+    otherAreas: string
+    nothingToDo: string
+    areaLabel: (name: string, state: string) => string
+    moreItems: (n: number) => string
+    spot: (top: boolean, n: number) => string
+  }
 }
 
 const en: Strings = {
@@ -99,15 +144,40 @@ const en: Strings = {
   navProducts: 'Products',
   gondolasHeadline: (n) => (n === 0 ? 'Every gondola is fine' : n === 1 ? 'One gondola needs attention' : `${n} gondolas need attention`),
   productsHeadline: (n) => (n === 1 ? 'One product' : `${n} products`),
+  productsToRestock: (n) => (n === 0 ? 'Nothing to restock' : n === 1 ? 'One product to restock' : `${n} products to restock`),
+  showFine: (n) => `Show ${n} fine`,
+  onShelf: (p) => `${p}% on the shelves`,
+  bringTo: 'Bring to',
+  putBackIn: 'Put back in',
   searchProducts: 'Search products',
   shortOf: (s, n) => (s === 0 ? 'All fine' : n === 1 ? 'Short' : `${s} of ${n} areas short`),
   allGondolas: 'All gondolas',
+  all: 'All',
+  filterState: 'State',
   gondolaN: (n) => `Gondola ${n}`,
   loading: 'Checking the shelves…',
   navInsights: 'Insights',
   navMap: 'Map',
+  viewAs: 'View',
   planHeadline: (n) => (n === 0 ? 'Every gondola is fine' : n === 1 ? '1 gondola needs attention' : `${n} gondolas need attention`),
   goFirst: 'Go first',
+  toBring: 'To bring',
+  roundStart: 'Start the round',
+  roundStop: (n, total) => `Stop ${n} of ${total}`,
+  roundLoad: 'Load up',
+  roundLoadNote: 'Take this from the back room before you go',
+  leaveHere: 'Leave here',
+  pickUp: 'Pick up here',
+  takeTo: (g) => `Take to ${g}`,
+  takeBack: 'Take back to the back room',
+  fromGondola: (g) => `from ${g}`,
+  previous: 'Previous',
+  next: 'Next',
+  roundDone: 'That is the round',
+  roundDoneNote: 'New photos arrive every hour and update the list.',
+  openOnPhone: 'Open on your phone',
+  bringFromBack: 'Bring from the back',
+  putBackHeading: 'Put back in its place',
   thenGo: 'Then',
   bring: 'Bring',
   emptySince: (time) => `Empty since ${time}`,
@@ -155,7 +225,26 @@ const en: Strings = {
   showFewer: 'Show fewer',
   withProduct: (x) => `with ${x}`,
   noMatches: 'Nothing matches',
-  areasCount: (n) => `${n} areas`,
+  areasCount: (n) => (n === 1 ? '1 area' : `${n} areas`),
+  plan: {
+    title: 'Store map',
+    department: 'Fruit and vegetables',
+    anotherMoment: 'See another moment',
+    hideMoment: 'Back to now',
+    entrance: 'Entrance',
+    aisle: (n) => `Aisle ${n}`,
+    stop: (n) => `Stop ${n}`,
+    show: (name) => `Show ${name}`,
+    fine: 'Fine',
+    nothingHere: 'Nothing to fix here',
+    fineCount: (n) => `${n} fine`,
+    allFine: 'All fine',
+    otherAreas: 'The rest of the shelf',
+    nothingToDo: 'Every gondola is fine',
+    areaLabel: (name, state) => `${name}, ${state}`,
+    moreItems: (n) => `+${n}`,
+    spot: (top, n) => `${top ? 'Top' : 'Bottom'} shelf, ${n} from the left`,
+  },
   headline: (n) => (n === 0 ? 'Nothing to do right now' : n === 1 ? 'One thing to do now' : `${n} things to do now`),
   photoFrom: (t) => `Photos up to ${t}`,
   camera: 'Camera',
@@ -170,6 +259,7 @@ const en: Strings = {
   empty: 'Empty',
   half: 'Half full',
   wrongPlace: (seen) => `Looks like ${seen}`,
+  inPlaceOf: (x) => `in the place of ${x}`,
   since: (t) => `since ${t}`,
   areasFine: (n) => `${n} areas`,
 }
@@ -184,15 +274,40 @@ const pt: Strings = {
   navProducts: 'Produtos',
   gondolasHeadline: (n) => (n === 0 ? 'Todas as gôndolas estão bem' : n === 1 ? 'Uma gôndola precisa de atenção' : `${n} gôndolas precisam de atenção`),
   productsHeadline: (n) => (n === 1 ? 'Um produto' : `${n} produtos`),
+  productsToRestock: (n) => (n === 0 ? 'Nada para repor' : n === 1 ? 'Um produto para repor' : `${n} produtos para repor`),
+  showFine: (n) => `Mostrar ${n} em ordem`,
+  onShelf: (p) => `${p}% nas prateleiras`,
+  bringTo: 'Levar para',
+  putBackIn: 'Devolver em',
   searchProducts: 'Procurar produtos',
   shortOf: (s, n) => (s === 0 ? 'Tudo bem' : n === 1 ? 'Em falta' : `${s} de ${n} áreas em falta`),
   allGondolas: 'Todas as gôndolas',
+  all: 'Todos',
+  filterState: 'Estado',
   gondolaN: (n) => `Gôndola ${n}`,
   loading: 'A verificar as prateleiras…',
   navInsights: 'Análise',
   navMap: 'Mapa',
+  viewAs: 'Vista',
   planHeadline: (n) => (n === 0 ? 'Todas as gôndolas estão bem' : n === 1 ? '1 gôndola precisa de atenção' : `${n} gôndolas precisam de atenção`),
   goFirst: 'Vai primeiro',
+  toBring: 'Para trazer',
+  roundStart: 'Começar a ronda',
+  roundStop: (n, total) => `Paragem ${n} de ${total}`,
+  roundLoad: 'Carregar',
+  roundLoadNote: 'Leve isto do armazém antes de sair',
+  leaveHere: 'Deixar aqui',
+  pickUp: 'Recolher aqui',
+  takeTo: (g) => `Levar para ${g}`,
+  takeBack: 'Devolver ao armazém',
+  fromGondola: (g) => `de ${g}`,
+  previous: 'Anterior',
+  next: 'Seguinte',
+  roundDone: 'A ronda está feita',
+  roundDoneNote: 'Chegam fotos novas todas as horas e a lista atualiza.',
+  openOnPhone: 'Abrir no telemóvel',
+  bringFromBack: 'Trazer do armazém',
+  putBackHeading: 'Devolver ao seu lugar',
   thenGo: 'Depois',
   bring: 'Levar',
   emptySince: (time) => `Vazio desde as ${time}`,
@@ -240,7 +355,26 @@ const pt: Strings = {
   showFewer: 'Mostrar menos',
   withProduct: (x) => `com ${x}`,
   noMatches: 'Nada encontrado',
-  areasCount: (n) => `${n} áreas`,
+  areasCount: (n) => (n === 1 ? "1 área" : `${n} áreas`),
+  plan: {
+    title: 'Mapa da loja',
+    department: 'Frutas e legumes',
+    anotherMoment: 'Ver outro momento',
+    hideMoment: 'Voltar a agora',
+    entrance: 'Entrada',
+    aisle: (n) => `Corredor ${n}`,
+    stop: (n) => `Paragem ${n}`,
+    show: (name) => `Mostrar ${name}`,
+    fine: 'Bem',
+    nothingHere: 'Nada a corrigir aqui',
+    fineCount: (n) => `${n} bem`,
+    allFine: 'Tudo bem',
+    otherAreas: 'O resto da prateleira',
+    nothingToDo: 'Todas as gôndolas estão bem',
+    areaLabel: (name, state) => `${name}, ${state}`,
+    moreItems: (n) => `+${n}`,
+    spot: (top, n) => `${top ? 'Prateleira de cima' : 'Prateleira de baixo'}, ${n} a contar da esquerda`,
+  },
   headline: (n) => (n === 0 ? 'Nada a fazer agora' : n === 1 ? 'Uma coisa a fazer agora' : `${n} coisas a fazer agora`),
   photoFrom: (t) => `Fotos até às ${t}`,
   camera: 'Câmara',
@@ -255,6 +389,7 @@ const pt: Strings = {
   empty: 'Vazio',
   half: 'A meio',
   wrongPlace: (seen) => `Parece ${seen}`,
+  inPlaceOf: (x) => `no lugar de ${x}`,
   since: (t) => `desde as ${t}`,
   areasFine: (n) => `${n} áreas`,
 }
@@ -269,15 +404,40 @@ const es: Strings = {
   navProducts: 'Productos',
   gondolasHeadline: (n) => (n === 0 ? 'Todas las góndolas están bien' : n === 1 ? 'Una góndola necesita atención' : `${n} góndolas necesitan atención`),
   productsHeadline: (n) => (n === 1 ? 'Un producto' : `${n} productos`),
+  productsToRestock: (n) => (n === 0 ? 'Nada que reponer' : n === 1 ? 'Un producto que reponer' : `${n} productos que reponer`),
+  showFine: (n) => `Mostrar ${n} en orden`,
+  onShelf: (p) => `${p}% en las estanterías`,
+  bringTo: 'Llevar a',
+  putBackIn: 'Devolver en',
   searchProducts: 'Buscar productos',
   shortOf: (s, n) => (s === 0 ? 'Todo bien' : n === 1 ? 'Con falta' : `${s} de ${n} zonas con falta`),
   allGondolas: 'Todas las góndolas',
+  all: 'Todos',
+  filterState: 'Estado',
   gondolaN: (n) => `Góndola ${n}`,
   loading: 'Revisando las estanterías…',
   navInsights: 'Análisis',
   navMap: 'Mapa',
+  viewAs: 'Vista',
   planHeadline: (n) => (n === 0 ? 'Todas las góndolas están bien' : n === 1 ? '1 góndola necesita atención' : `${n} góndolas necesitan atención`),
   goFirst: 'Ve primero',
+  toBring: 'Para traer',
+  roundStart: 'Empezar la ronda',
+  roundStop: (n, total) => `Parada ${n} de ${total}`,
+  roundLoad: 'Cargar',
+  roundLoadNote: 'Coge esto del almacén antes de salir',
+  leaveHere: 'Dejar aquí',
+  pickUp: 'Recoger aquí',
+  takeTo: (g) => `Llevar a ${g}`,
+  takeBack: 'Devolver al almacén',
+  fromGondola: (g) => `de ${g}`,
+  previous: 'Anterior',
+  next: 'Siguiente',
+  roundDone: 'La ronda está hecha',
+  roundDoneNote: 'Cada hora llegan fotos nuevas y la lista se actualiza.',
+  openOnPhone: 'Abrir en el móvil',
+  bringFromBack: 'Traer del almacén',
+  putBackHeading: 'Devolver a su sitio',
   thenGo: 'Después',
   bring: 'Llevar',
   emptySince: (time) => `Vacío desde las ${time}`,
@@ -325,7 +485,26 @@ const es: Strings = {
   showFewer: 'Mostrar menos',
   withProduct: (x) => `con ${x}`,
   noMatches: 'Sin resultados',
-  areasCount: (n) => `${n} zonas`,
+  areasCount: (n) => (n === 1 ? '1 zona' : `${n} zonas`),
+  plan: {
+    title: 'Mapa de la tienda',
+    department: 'Frutas y verduras',
+    anotherMoment: 'Ver otro momento',
+    hideMoment: 'Volver a ahora',
+    entrance: 'Entrada',
+    aisle: (n) => `Pasillo ${n}`,
+    stop: (n) => `Parada ${n}`,
+    show: (name) => `Mostrar ${name}`,
+    fine: 'Bien',
+    nothingHere: 'Nada que corregir aquí',
+    fineCount: (n) => `${n} bien`,
+    allFine: 'Todo bien',
+    otherAreas: 'El resto del estante',
+    nothingToDo: 'Todas las góndolas están bien',
+    areaLabel: (name, state) => `${name}, ${state}`,
+    moreItems: (n) => `+${n}`,
+    spot: (top, n) => `${top ? 'Estante de arriba' : 'Estante de abajo'}, ${n} desde la izquierda`,
+  },
   headline: (n) => (n === 0 ? 'Nada que hacer ahora' : n === 1 ? 'Una cosa que hacer ahora' : `${n} cosas que hacer ahora`),
   photoFrom: (t) => `Fotos hasta las ${t}`,
   camera: 'Cámara',
@@ -340,6 +519,7 @@ const es: Strings = {
   empty: 'Vacío',
   half: 'A medias',
   wrongPlace: (seen) => `Parece ${seen}`,
+  inPlaceOf: (x) => `en lugar de ${x}`,
   since: (t) => `desde las ${t}`,
   areasFine: (n) => `${n} zonas`,
 }
@@ -355,14 +535,26 @@ interface I18n {
 
 const Context = createContext<I18n | null>(null)
 
+/** The language of the browser: the first of its languages that is Portuguese or Spanish, else English. */
+function browserLang(): Lang {
+  const asked = typeof navigator === 'undefined' ? [] : (navigator.languages?.length ? navigator.languages : [navigator.language])
+  for (const l of asked) {
+    const code = (l ?? '').toLowerCase()
+    if (code.startsWith('pt')) return 'pt'
+    if (code.startsWith('es')) return 'es'
+    if (code.startsWith('en')) return 'en'
+  }
+  return 'en'
+}
+
 const read = (): Lang => {
   try {
     const v = localStorage.getItem('strivon.lang')
     if (v === 'en' || v === 'pt' || v === 'es') return v
   } catch {
-    // private mode: fall back to English
+    // private mode: follow the browser
   }
-  return 'en'
+  return browserLang()
 }
 
 export function I18nProvider({ children }: { children: ReactNode }) {

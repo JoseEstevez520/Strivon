@@ -69,16 +69,19 @@ export function ChatBubble() {
   return (
     <div ref={root} style={size} className="fixed right-4 bottom-20 z-40 md:right-6 md:bottom-6">
       <div
-        className={`absolute right-0 bottom-0 overflow-hidden transition-[width,height,border-radius,background-color] duration-300 ease-out motion-reduce:transition-none ${
-          open ? 'h-(--h) w-(--w) rounded-2xl bg-raised' : 'h-12 w-12 rounded-3xl bg-fg'
+        className={`absolute right-0 bottom-0 overflow-hidden transition-[width,height,border-radius,background-color] ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none ${
+          open ? 'h-(--h) w-(--w) rounded-2xl bg-raised duration-[320ms]' : 'h-12 w-12 rounded-3xl bg-fg duration-[240ms]'
         }`}
       >
         <div
           role="dialog"
           aria-label={t.askTitle}
           inert={!open}
-          className={`absolute right-0 bottom-0 flex h-(--h) w-(--w) flex-col transition-opacity ease-out motion-reduce:transition-none ${
-            open ? 'opacity-100 delay-150 duration-200' : 'pointer-events-none opacity-0 duration-100'
+          // It resizes with the box, on the same curve, so enlarging never snaps what is inside.
+          className={`absolute right-0 bottom-0 flex h-(--h) w-(--w) flex-col motion-reduce:[transition:none] ${
+            open
+              ? 'opacity-100 [transition:opacity_200ms_ease-out_150ms,width_320ms_cubic-bezier(0.32,0.72,0,1),height_320ms_cubic-bezier(0.32,0.72,0,1)]'
+              : 'pointer-events-none opacity-0 [transition:opacity_100ms_ease-out,width_240ms_cubic-bezier(0.32,0.72,0,1),height_240ms_cubic-bezier(0.32,0.72,0,1)]'
           }`}
         >
           <div className="absolute top-2 right-2 z-10 flex gap-1">
