@@ -1,15 +1,23 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Search } from 'lucide-react'
+import { LayoutGrid, Search } from 'lucide-react'
 import { Link, useSearchParams } from 'react-router'
 import { DayBar } from '@/components/DayBar'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
+import { PickerButton } from '@/components/PickerButton'
 import { Input } from '@/components/ui/input'
 import { useI18n } from '@/lib/i18n'
 import { useStore } from '@/lib/store'
-import { ACTION, type Task } from '@/lib/tasks'
+import { ACTION, cameras, type Task } from '@/lib/tasks'
 import { clock } from '@/lib/time'
 
 const VALUE = { empty: 0, half: 0.5, full: 1 } as const
+
+type Status = 'all' | 'empty' | 'wrong' | 'half'
+const STATUS: Status[] = ['all', 'empty', 'wrong', 'half']
+
+/** What a task says about its product, for the filter. */
+const statusOf = (x: Task): Exclude<Status, 'all'> | 'fine' =>
+  !x.obs.planogram_compliant ? 'wrong' : x.obs.stock_level === 'empty' ? 'empty' : x.obs.stock_level === 'half' ? 'half' : 'fine'
 
 interface Row {
   product: string
@@ -72,13 +80,18 @@ function ProductRow({ row, focused }: { row: Row; focused: boolean }) {
 /** Stock per product across the store, the ones running out first. */
 export function ProductsPage() {
   const { t, family } = useI18n()
-  const { tasks } = useStore()
+  const { state, tasks, gondola } = useStore()
   const [query, setQuery] = useState('')
+  const [status, setStatus] = useState<Status>('all')
+  const [camera, setCamera] = useState('all')
   const focus = useSearchParams()[0].get('product')
+
+  // The gondola narrows the areas first, so a product's figure is its stock in that gondola.
+  const inCamera = useMemo(() => (camera === 'all' ? tasks : tasks.filter((x) => x.area.camera === camera)), [tasks, camera])
 
   const rows = useMemo<Row[]>(() => {
     const byProduct = new Map<string, Task[]>()
-    for (const task of tasks) byProduct.set(task.area.product_id, [...(byProduct.get(task.area.product_id) ?? []), task])
+    for (const task of inCamera) byProduct.set(task.area.product_id, [...(byProduct.get(task.area.product_id) ?? []), task])
     return [...byProduct.entries()]
       .map(([product, list]) => ({
         product,
@@ -87,10 +100,13 @@ export function ProductsPage() {
         short: list.filter((x) => ACTION.includes(x.group)).length,
       }))
       .sort((a, b) => a.fill - b.fill || b.short - a.short)
-  }, [tasks])
+  }, [inCamera])
 
   const q = query.trim().toLowerCase()
-  const shown = q ? rows.filter((r) => family(r.product).toLowerCase().includes(q)) : rows
+  const withStatus = (st: Status) => (st === 'all' ? rows : rows.filter((r) => r.tasks.some((x) => statusOf(x) === st)))
+  const named = q ? rows.filter((r) => family(r.product).toLowerCase().includes(q)) : rows
+  const shown = status === 'all' ? named : named.filter((r) => r.tasks.some((x) => statusOf(x) === status))
+  const label = (st: Status) => (st === 'all' ? t.all : st === 'empty' ? t.level.empty : st === 'wrong' ? t.wrongProduct : t.level.half)
 
   return (
     <>
@@ -107,6 +123,30 @@ export function ProductsPage() {
             className="pl-9"
           />
         </div>
+      </div>
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+        <div className="flex flex-wrap gap-1">
+          {STATUS.map((st) => (
+            <button
+              key={st}
+              type="button"
+              data-on={status === st}
+              onClick={() => setStatus(st)}
+              className="flex h-9 cursor-pointer items-center gap-1.5 rounded-lg px-3 text-ui text-fg-secondary transition-colors hover:bg-surface data-[on=true]:bg-surface data-[on=true]:text-fg"
+            >
+              {label(st)}
+              <span className="text-meta tabular-nums text-fg-muted">{withStatus(st).length}</span>
+            </button>
+          ))}
+        </div>
+        <PickerButton
+          icon={<LayoutGrid />}
+          label={t.allGondolas}
+          value={camera}
+          onChange={setCamera}
+          className="w-44"
+          options={[{ value: 'all', label: t.allGondolas }, ...cameras(state).map((c) => ({ value: c, label: gondola(c) }))]}
+        />
       </div>
       <DayBar className="mb-6" />
       {shown.length === 0 ? (
