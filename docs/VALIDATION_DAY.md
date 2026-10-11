@@ -49,6 +49,8 @@ folder name, plus `planogram.json`).
 
 Only if André chose a stock tilt at 09:00 (off by default): add `--stock-tilt K` to the predict command, e.g. `--stock-tilt 0.7`. It multiplies p(full) by K (0 < K <= 1) before the expected-points choice, so "full" needs more confidence, and the last line then starts with `OK (stock tilt k=0.7): 289 areas`. Only full answers can change, to half or (if 4·p_empty > 3·p_half) to empty; the product answers stay the same unless `--empty-rule` is also changed from its default.
 
+Only if André chose the mix model at 09:00 (off by default): add `--stock-model mix` to the predict command. It runs R3 retrained with stock labels mixed 0.75 ours + 0.25 Sensei-wording AI passes (`lab/silver2`), at the same cost; its weights and its own block-8 head are picked together, and the product head stays on our labels. It can't be combined with `--stock-tilt` (never validated together: predict.py stops with an error). The last line then starts with `OK (stock model mix): 289 areas`.
+
 The last line must start with `OK: 289 areas`. Then check the file against the photos it must cover (this one also notices a photo that is missing as a whole; the older
 `validate_submission` check does not):
 

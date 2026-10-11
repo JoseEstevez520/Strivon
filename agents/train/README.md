@@ -71,11 +71,11 @@ python -I agents/train/train_r3.py forward --labels labels_1d7b2ff.json --mix-si
 ```
 
 With the flag, deploy writes the block-8 head as `models/onepass/deploy/stockb8_<tag>.npz`, so it can't overwrite the
-shipped `stockb8.npz`. To predict with the mix model, set BOTH `ONEPASS_TAG=<tag>` and
-`ONEPASS_B8_HEAD=agents/models/onepass/deploy/stockb8_<tag>.npz`. With the tag alone, predict.py averages the mix
-model with the shipped block-8 head (trained on our labels only), a pairing nobody validated.
-`python agents/predict.py --stock-model mix` sets both (-d1); it refuses `--stock-tilt` below 1, a combination
-that was never validated.
+shipped `stockb8.npz`. The supported way to predict with the mix model is `python -I agents/predict.py --stock-model
+mix ...`: it sets `ONEPASS_TAG=ld6ee_mix` and `ONEPASS_B8_HEAD=agents/models/onepass/deploy/stockb8_ld6ee_mix.npz`
+together, and refuses `--stock-tilt` below 1, a combination that was never validated. With `ONEPASS_TAG=<tag>` alone,
+`models/onepass/onepass.py` now picks `stockb8_<tag>.npz` when that file exists, otherwise `stockb8.npz`, so the mix
+model is no longer paired with the shipped block-8 head by accident.
 
 What it buys (stock points, mean of 2 seeds, against the same recipe on our labels; tables in eval/benchmark/preds_forward/hedge/README.md and docs/BOARD.md):
 on the 5 benchmark folds (1947 areas), -51.5 on our labels and +89.8 on the mean of N1 and N2 (+85 where they

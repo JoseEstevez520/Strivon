@@ -36,6 +36,10 @@ unchanged. Off (no flag, or K = 1) gives exactly the default answers. The last l
 "OK (stock tilt k=0.7): ...".
 --p-stock-out PATH (checks only, off by default): also writes the answers plus each area's averaged p_stock (before
 the tilt) to PATH, e.g. to check the tilt or feed `sensei combine`. --out is unchanged; never send PATH.
+--stock-model mix (opt-in, off by default = ld6ee; supervised model only): R3 retrained with -38's label mix (stock
+heads on 0.75 x our label + 0.125 x each Sensei-wording AI pass, lab/silver2; product head on our labels). Its weights
+tag and its own block-8 stock head are set together (ONEPASS_TAG, ONEPASS_B8_HEAD). Not with --stock-tilt (that
+combination was never validated). The last line then names it: "OK (stock model mix): ...".
 """
 import argparse
 import hashlib
@@ -71,6 +75,10 @@ EMPTY_RULE = "model"
 SAME_DAY_CONTEXT = False
 DRIFT_WARN_PX = 10  # warn when a photo's view is shifted more than this against our photos of the camera
 CONTEXT_ON = "on-NOT-FOR-SUBMISSION"
+# --stock-model presets: (one-pass weights tag in models/stock_4e/deploy/, its block-8 stock head), set together for the
+# one-pass adapter, which gives both answers in one pass. ld6ee = the default (what the adapter loads without env).
+STOCK_PRESETS = {"ld6ee": ("ld6ee", "models/onepass/deploy/stockb8.npz"),
+                 "mix": ("ld6ee_mix", "models/onepass/deploy/stockb8_ld6ee_mix.npz")}
 
 
 def load_module(path):
@@ -280,7 +288,8 @@ def main():
     ap.add_argument("--out", default=str(ROOT / "submission" / "output.json"))
     ap.add_argument("--stock-model", action="append",
                     help="stock model file; repeat it to average several models' probabilities "
-                         "(default: models/onepass/onepass.py)")
+                         "(default: models/onepass/onepass.py), or a preset of the one-pass model: "
+                         "'mix' = R3 retrained with -38's label mix, 0.75 ours + 0.25 AI passes (opt-in; default ld6ee)")
     ap.add_argument("--compliance-model", help="compliance model file (default: models/onepass/onepass.py, or the "
                                                "label-free adapter with --label-free)")
     ap.add_argument("--label-free", action="store_true",
@@ -312,6 +321,25 @@ def main():
     tilt = None if args.stock_tilt in (None, 1.0) else args.stock_tilt
     if args.p_stock_out and Path(args.p_stock_out).resolve() == Path(args.out).resolve():
         ap.error("--p-stock-out must be another file than --out")
+    preset = None  # --stock-model mix / ld6ee: weights tag + block-8 head of the one-pass model, set together
+    if args.stock_model and any(m in STOCK_PRESETS for m in args.stock_model):
+        if len(args.stock_model) > 1:
+            ap.error(f"--stock-model {'/'.join(STOCK_PRESETS)} can't be combined with other --stock-model values")
+        if args.label_free:
+            ap.error("--stock-model presets are for the supervised model only, not for --label-free")
+        preset, args.stock_model = args.stock_model[0], None
+        tag, head = STOCK_PRESETS[preset]
+        stem = ROOT / "models" / "stock_4e" / "deploy" / f"onepass_s{os.environ.get('ONEPASS_SIZE', '224')}_{tag}"
+        missing = [str(f) for f in (Path(f"{stem}.pt"), Path(f"{stem}.json"), Path(f"{stem}_product.npz"), ROOT / head)
+                   if not f.exists()]
+        if missing:
+            sys.exit(f"ERROR --stock-model {preset}: missing {', '.join(missing)}")
+        for k, v in (("ONEPASS_TAG", tag), ("ONEPASS_B8_HEAD", str(ROOT / head))):
+            if os.environ.get(k, v) != v:
+                print(f"WARN  --stock-model {preset} replaces {k}={os.environ[k]} with {v}")
+            os.environ[k] = v  # read by models/onepass/onepass.py when the model is built
+    if preset not in (None, "ld6ee") and tilt is not None:
+        ap.error(f"--stock-model {preset} with --stock-tilt was never validated: use one or the other")
     empty_override = EMPTY_RULES[args.empty_rule]
     context = args.same_day_context == CONTEXT_ON
     os.environ["SENSEI_SAME_DAY_CONTEXT"] = "1" if context else "0"  # before the models are imported
@@ -326,6 +354,10 @@ def main():
     mode = f"SAME-DAY CONTEXT ({CONTEXT_ON})" if context else "single image (submission mode)"
     if args.label_free:
         mode = "LABEL-FREE mode (zero labels; pitch / new-store path, NOT the submission model)"
+    if preset not in (None, "ld6ee"):
+        mode += f" | stock model {preset}"
+        print(f"stock model {preset} (opt-in): one-pass weights {STOCK_PRESETS[preset][0]} + block-8 head "
+              f"{STOCK_PRESETS[preset][1]}; both answers come from this model")
     if tilt is not None:
         mode += f" | stock tilt k={tilt:g}"
         print(f"stock tilt k={tilt:g} (opt-in): p(full) x {tilt:g} before the best-expected-points level, so 'full' "
@@ -484,8 +516,10 @@ def main():
     if count_problems:
         print(f"!! INCOMPLETE: {'; '.join(count_problems)} (see the WARN lines above). Check before sending this file.")
     status = "INVALID" if errors else "FALLBACKS" if n_fallback else "INCOMPLETE" if count_problems else "OK"
-    if tilt is not None:
-        status += f" (stock tilt k={tilt:g})"
+    notes = ([f"stock model {preset}"] if preset not in (None, "ld6ee") else []) + (
+        [f"stock tilt k={tilt:g}"] if tilt is not None else [])
+    if notes:
+        status += f" ({', '.join(notes)})"
     print(f"{status}: {len(entries)} areas -> {args.out}"
           f"{f' ({filled} filled by safety net)' if filled else ''}  [{time.time() - t0:.0f}s]  {mode}")
     sys.exit(1 if errors else 2 if n_fallback else 3 if count_problems else 0)
