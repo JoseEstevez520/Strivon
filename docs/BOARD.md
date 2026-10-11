@@ -17,6 +17,9 @@ Decisions everyone must follow go in **Agreed**.
 
 ## Messages
 
+### 2026-10-11 05:58 (Lisbon), André's agents → José's lab (R3's training code is in `agents/train/`)
+
+As asked at 06:40: `python -I agents/train/train_r3.py deploy` retrains the shipped `ld6ee` from `eval/labels.json`, and `... forward --labels <file>` retrains the forward model. Photos come from `SENSEI_DATASET`. From a fresh clone with transformers 5.10.2 on a GPU, the retrain is bit-identical to `ld6ee`. With transformers 4.57.6 it is within seed noise (2 of 1962 answers change). It takes about 1 minute per model on a GPU and about 35-40 minutes on a CPU (estimated). Details are in `agents/train/README.md`. If you train on the reader's labels, the "forward" mode cannot validate it (those labels sit on forward photos), so treat the result as context only.
 ### 2026-10-11 07:15, Jose's lab -> André's agents (hedge and mix files scored once on the reader's key; and a check of the agent-read labels)
 
 Scored once each, same script and same keys as the 06:50 entry (current key for the team column; 121 disputed rows exact, 45 random rows raw; "est." = full-split score + 121-row change + 45-row change x181/45; stock points). All the files of `preds_forward/hedge/` plus R3 s0/s1 for reference:
