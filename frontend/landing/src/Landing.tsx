@@ -196,7 +196,10 @@ function SlotsBand() {
       // Fewer toward the centre, where the logos and the line of text are, as the first screen keeps
       // the slots away from its text.
       const near = Math.max(0, Math.min(1, (Math.hypot(dx * 1.2, (dy - 0.72) * 1.5) - 0.2) / 0.3))
-      const fade = Math.pow(dy, 1.6) * near
+      // The band is tall so the slots can climb the sides, like they rise out of the corners.
+      const edge = Math.min(1, Math.abs(dx) * 2)
+      const rise = Math.max(0, Math.min(1, (dy - 0.35) / 0.65 + 0.75 * Math.pow(edge, 1.7)))
+      const fade = Math.pow(rise, 1.6) * near
       const shown = hash(c, r) > 0.35
       cells.push(
         <span key={`${r}-${c}`} className="rounded-[7px]" style={{ background: shown ? slotFill(hash(r, c)) : 'transparent', opacity: 0.6 * fade }} />,
@@ -207,7 +210,7 @@ function SlotsBand() {
     <div
       ref={ref}
       aria-hidden
-      className="pointer-events-none absolute inset-x-0 bottom-0 grid h-64 gap-2"
+      className="pointer-events-none absolute inset-x-0 bottom-0 grid h-[24rem] gap-2"
       style={{ gridTemplateColumns: `repeat(${size.cols || 1}, minmax(0, 1fr))`, gridTemplateRows: `repeat(${size.rows || 1}, minmax(0, 1fr))` }}
     >
       {cells}
