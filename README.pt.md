@@ -23,7 +23,7 @@
 </p>
 
 <p align="center">
-  <img src="assets/readme/photo-to-tasks.png" alt="Fotografias de câmaras de teto com as zonas da prateleira assinaladas, à esquerda, e à direita a loja em 3D com os problemas assinalados em cada gôndola e as três primeiras paragens da ronda" width="100%">
+  <img src="assets/readme/photo-to-tasks.png" alt="Três fotografias de câmaras de teto com as zonas da prateleira assinaladas, à esquerda, e à direita a loja em 3D com os problemas assinalados em cada gôndola e as três primeiras paragens da ronda" width="100%">
 </p>
 
 <p align="center"><sub>Entram fotografias das câmaras de teto, sai uma lista de trabalho. As marcas são as respostas do modelo para a última fotografia de cada câmara.</sub></p>
@@ -84,7 +84,7 @@ O chat responde com um ecrã. O modelo escreve o desenho da resposta com as peç
 
 Precisa de uma chave de um modelo no servidor (`LLM_API_KEY` em `frontend/.env`); sem ela o chat fica escondido.
 
-[Ver o clipe](assets/video/chat-to-gondola.mp4). Os estados das prateleiras no clipe e no de cima são simulados. Os vídeos em tamanho completo estão em [`assets/video`](assets/video).
+[Ver o clipe](assets/video/chat-to-gondola.mp4). Os estados das prateleiras neste clipe são simulados; o ciclo em 3D de cima mostra as respostas do modelo. Os vídeos em tamanho completo estão em [`assets/video`](assets/video).
 
 ## Executar localmente
 
