@@ -28,6 +28,8 @@
 
 <p align="center"><sub>Entram fotografias das câmaras de teto, sai uma lista de trabalho. As marcas são as respostas do modelo para a última fotografia de cada câmara.</sub></p>
 
+<p align="center"><a href="assets/video/strivon-opening-1080p.mp4"><strong>Ver a abertura de 10 segundos</strong></a> · MP4, 1080p, com som e legendas</p>
+
 ## O que é o Strivon?
 
 A fruta e os legumes são a secção onde o estado de uma prateleira mais importa. Uma gôndola vazia é uma venda perdida, uma com excesso acaba em desperdício e um produto fora do lugar é cobrado ao preço errado. Hoje, a equipa verifica isto percorrendo a loja.
