@@ -70,7 +70,7 @@ La landing está en [strivon-landing.vercel.app](https://strivon-landing.vercel.
 
 ### La app para el personal
 
-<img align="right" width="55%" src="assets/presentation/video/3d/store-3d.gif" alt="La tienda en 3D girando despacio: cada góndola con sus productos y los problemas marcados">
+<img align="right" width="55%" src="assets/presentation/views/gondola-6215.png" alt="La página de una góndola: la foto de su cámara con las zonas de estantería marcadas en rojo, ámbar y verde, y los problemas en palabras">
 
 Un plano de la tienda muestra qué góndolas necesitan algo, y la lista de al lado da el orden de la ronda y qué llevar a cada parada.
 
@@ -80,11 +80,15 @@ Reproduce el día para ver cómo cambian los dos, y abre una góndola para ver s
 
 ### Pregunta y recibe una pantalla
 
+<img align="right" width="55%" src="assets/video/chat-to-gondola.gif" alt="Alguien pregunta dónde están los plátanos. El chat responde con una gráfica de cómo se vaciaron las estanterías durante el día y una tarjeta. Al abrir la tarjeta se ve la foto de la góndola con sus zonas marcadas.">
+
 El chat responde con una pantalla. El modelo escribe el diseño de la respuesta con las piezas de la propia app (gráficas, tablas, tareas, un mapa del día, tarjetas con foto) y la app lo dibuja, así que la respuesta se puede abrir y seguir hasta la estantería de la que habla.
 
 Necesita una clave de un modelo en el servidor (`LLM_API_KEY` en `frontend/.env`); sin ella el chat se oculta.
 
-[Ver el clip](assets/video/chat-to-gondola.mp4). Los estados de las estanterías en este clip son simulados; el bucle en 3D de arriba muestra las respuestas del modelo. Los vídeos en tamaño completo están en [`assets/video`](assets/video).
+Los estados de las estanterías en el clip son datos de ejemplo. El [clip completo](assets/video/chat-to-gondola.mp4) y más están en [`assets/video`](assets/video).
+
+<br clear="right">
 
 ## Ejecutarlo en local
 

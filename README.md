@@ -87,7 +87,7 @@ The landing is at [strivon-landing.vercel.app](https://strivon-landing.vercel.ap
 
 ### The app for staff
 
-<img align="right" width="55%" src="assets/presentation/video/3d/store-3d.gif" alt="The store in 3D, turning slowly: every gondola with its products and the problems marked on it">
+<img align="right" width="55%" src="assets/presentation/views/gondola-6215.png" alt="The page of one gondola: its camera photo with the shelf areas marked in red, amber and green, and the problems in plain words">
 
 Open the first page and the plan of the store shows which gondolas need something. The list beside
 it gives the order of the round and what to bring to each stop. Press a gondola to see its shelf
@@ -97,12 +97,16 @@ with what is wrong marked, or play the day to watch both change.
 
 ### Ask, and get a screen
 
+<img align="right" width="55%" src="assets/video/chat-to-gondola.gif" alt="Someone asks where the bananas are. The chat answers with a chart of how the shelves emptied through the day and a card. Opening the card shows the gondola's photo with its shelf areas marked.">
+
 The chat answers with a screen. The model writes the layout of the answer out of the app's own
 parts (charts, tables, tasks, a map of the day, photo cards) and the app draws it, so you can open
 the answer and follow it to the shelf it talks about. It needs a model key on the server
 (`LLM_API_KEY` in `frontend/.env`); without one the chat is hidden.
 
-[Watch the clip](assets/video/chat-to-gondola.mp4). The shelf states in this clip are simulated; the 3D loop above shows the model's answers. Full-size clips are in [`assets/video`](assets/video).
+The shelf states in the clip are sample data. The [full clip](assets/video/chat-to-gondola.mp4) and more are in [`assets/video`](assets/video).
+
+<br clear="right">
 
 ## Run it locally
 
