@@ -12,7 +12,7 @@ function Row({ name, c, strong }: { name: string; c: StockCounts; strong?: boole
       <td className={num}>{c.empty}</td>
       <td className={num}>{c.half}</td>
       <td className={num}>{c.full}</td>
-      <td className={num}>{c.not_compliant}</td>
+      <td className={num}>{c.non_compliant}</td>
     </tr>
   )
 }
@@ -20,9 +20,9 @@ function Row({ name, c, strong }: { name: string; c: StockCounts; strong?: boole
 export function SummaryTable({ summary }: { summary: ValidationSummary }) {
   const { t } = useI18n()
   return (
-    <div className="grid gap-2">
+    <div className="grid min-w-0 gap-2">
       <h3 className="text-label text-fg">{t.validate.perCamera}</h3>
-      <div className="overflow-x-auto rounded-lg border border-line bg-raised">
+      <div className="max-w-full overflow-x-auto rounded-lg border border-line bg-raised">
         <table className="w-full min-w-[22rem] text-ui">
           <thead>
             <tr className="text-fg-secondary">

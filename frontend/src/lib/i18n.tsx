@@ -117,6 +117,23 @@ interface Strings {
     notCompliant: string
     download: string
     downloadLocked: string
+    calTitle: string
+    auto: string
+    areasAuto: (n: number, official: number) => string
+    restarted: string
+    calOptIn: string
+    calHint: string
+    calUse: string
+    calUpload: string
+    calClear: string
+    calSummary: (n: number) => string
+    calEmpty: string
+    calBadFile: (why: string) => string
+    calMissing: string
+    calibrated: string
+    notCalibrated: string
+    calibratedNote: (n: number) => string
+    downloadCalibrated: string
   }
   // --- validation day (end)
   throughDay: string
@@ -363,6 +380,23 @@ const en: Strings = {
     notCompliant: 'Not compliant',
     download: 'Download final.json',
     downloadLocked: 'Only available when the verdict is OK and the validator passed.',
+    auto: 'auto',
+    areasAuto: (n, official) => `${n} areas expected from these photos (the official set has ${official}).`,
+    restarted: 'The backend restarted, run again.',
+    calTitle: 'Calibrate this set with the store calibration',
+    calOptIn: 'Off by default. When on, the run uses the store thresholds for empty, half and full.',
+    calHint: 'Not combined with other stock options.',
+    calUse: 'Use my calibration',
+    calUpload: 'Upload calib.json',
+    calClear: 'Remove',
+    calSummary: (n) => `${n} ${n === 1 ? 'product' : 'products'} calibrated; the rest keep the model's answer.`,
+    calEmpty: 'Nobody has marked a product yet, so the run would equal the plain one.',
+    calBadFile: (why) => `The calibration was not accepted. ${why}`,
+    calMissing: 'Add a calibration first, or switch this off.',
+    calibrated: 'Calibrated',
+    notCalibrated: 'Not calibrated',
+    calibratedNote: (n) => `This result used the store calibration (${n} products).`,
+    downloadCalibrated: 'Download final_calibrated.json',
   },
   // --- validation day (end)
   throughDay: 'Through the day',
@@ -626,6 +660,23 @@ const pt: Strings = {
     notCompliant: 'Fora do planograma',
     download: 'Descarregar final.json',
     downloadLocked: 'Só disponível quando o veredito é OK e o validador passou.',
+    auto: 'auto',
+    areasAuto: (n, official) => `${n} áreas esperadas a partir destas fotos (o conjunto oficial tem ${official}).`,
+    restarted: 'O backend reiniciou, execute de novo.',
+    calTitle: 'Calibrar este conjunto com a calibração da loja',
+    calOptIn: 'Desligado por defeito. Ligado, a execução usa os limiares da loja para vazio, meio e cheio.',
+    calHint: 'Não se combina com outras opções de stock.',
+    calUse: 'Usar a minha calibração',
+    calUpload: 'Carregar calib.json',
+    calClear: 'Remover',
+    calSummary: (n) => `${n} ${n === 1 ? 'produto calibrado' : 'produtos calibrados'}; os restantes mantêm a resposta do modelo.`,
+    calEmpty: 'Ainda ninguém marcou um produto, por isso a execução seria igual à normal.',
+    calBadFile: (why) => `A calibração não foi aceite. ${why}`,
+    calMissing: 'Adicione primeiro uma calibração, ou desligue esta opção.',
+    calibrated: 'Calibrado',
+    notCalibrated: 'Não calibrado',
+    calibratedNote: (n) => `Este resultado usou a calibração da loja (${n} produtos).`,
+    downloadCalibrated: 'Descarregar final_calibrated.json',
   },
   // --- validation day (end)
   throughDay: 'Ao longo do dia',
@@ -889,6 +940,23 @@ const es: Strings = {
     notCompliant: 'Fuera del planograma',
     download: 'Descargar final.json',
     downloadLocked: 'Solo disponible cuando el veredicto es OK y el validador pasó.',
+    auto: 'auto',
+    areasAuto: (n, official) => `${n} áreas esperadas a partir de estas fotos (el conjunto oficial tiene ${official}).`,
+    restarted: 'El backend se reinició, ejecuta de nuevo.',
+    calTitle: 'Calibrar este conjunto con la calibración de la tienda',
+    calOptIn: 'Desactivado por defecto. Activado, la ejecución usa los umbrales de la tienda para vacío, medio y lleno.',
+    calHint: 'No se combina con otras opciones de stock.',
+    calUse: 'Usar mi calibración',
+    calUpload: 'Subir calib.json',
+    calClear: 'Quitar',
+    calSummary: (n) => `${n} ${n === 1 ? 'producto calibrado' : 'productos calibrados'}; el resto mantiene la respuesta del modelo.`,
+    calEmpty: 'Nadie ha marcado un producto todavía, así que la ejecución sería igual a la normal.',
+    calBadFile: (why) => `No se aceptó la calibración. ${why}`,
+    calMissing: 'Añade primero una calibración, o desactiva esta opción.',
+    calibrated: 'Calibrado',
+    notCalibrated: 'Sin calibrar',
+    calibratedNote: (n) => `Este resultado usó la calibración de la tienda (${n} productos).`,
+    downloadCalibrated: 'Descargar final_calibrated.json',
   },
   // --- validation day (end)
   throughDay: 'A lo largo del día',

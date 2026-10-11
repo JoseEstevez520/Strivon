@@ -15,7 +15,7 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath
 
-from fastapi import APIRouter, File, HTTPException, UploadFile
+from fastapi import APIRouter, File, HTTPException, Request, UploadFile
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
@@ -36,13 +36,15 @@ router = APIRouter(prefix="/api/validation")
 _lock = threading.Lock()
 _s: dict = {"state": "idle", "session": None, "photos": 0, "log": [], "verdict": None,
             "last_line": None, "validator": None, "exit_code": None, "seconds": None,
-            "cameras": [], "layout": None, "expect_images": None, "expect_areas": None}
+            "cameras": [], "layout": None, "expect_images": None, "expect_areas": None,
+            "calib_used": False, "auto_areas": None}
 
 
 class RunBody(BaseModel):
     expect_images: int = 26
-    expect_areas: int = 289
+    expect_areas: int | None = None   # None: worked out from the uploaded photos
     stock_mode: str | None = None
+    use_calibration: bool = False
 
 
 def _clean_parts(name: str) -> list[str]:
@@ -67,8 +69,12 @@ def _target(name: str) -> tuple[str | None, str]:
 
 def _snapshot(with_log: bool = True) -> dict:
     with _lock:
-        d = {k: v for k, v in _s.items() if k not in ("cameras", "layout", "expect_images", "expect_areas")}
+        d = {k: v for k, v in _s.items()
+             if k not in ("cameras", "layout", "expect_images", "expect_areas", "calib_used", "auto_areas")}
         d["log"] = list(_s["log"][-300:]) if with_log else []
+        stored = _calib_products(SESSIONS / _s["session"] / "calib.json") if _s["session"] else 0
+        d["expected_areas"] = _s["auto_areas"]
+        d["calibration"] = {"used": bool(_s["calib_used"]), "products": stored}
         return d
 
 
@@ -84,7 +90,8 @@ def _new_session() -> Path:
     (sess / "photos").mkdir(parents=True)
     with _lock:
         _s.update(state="idle", session=stamp, photos=0, log=[], verdict=None, last_line=None,
-                  validator=None, exit_code=None, seconds=None, cameras=[], layout=None)
+                  validator=None, exit_code=None, seconds=None, cameras=[], layout=None, calib_used=False,
+                  auto_areas=None)
     return sess
 
 
@@ -128,10 +135,28 @@ async def upload(files: list[UploadFile] = File(...), append: int = 0):
     flat = any(p.parent == photos for p in all_files)
     layout = "flat" if flat or not cams else "camera_folders"
     with _lock:
-        _s.update(state="uploaded", photos=len(all_files), cameras=cams, layout=layout)
+        auto = _expected_areas(all_files, photos)
+        _s.update(state="uploaded", photos=len(all_files), cameras=cams, layout=layout, auto_areas=auto)
         out = {"session": _s["session"], "count": len(all_files),
-               "cameras": [CAMERA_ID.search(c).group(1) for c in cams], "layout": layout}
+               "cameras": [CAMERA_ID.search(c).group(1) for c in cams], "layout": layout,
+               "expected_areas": auto}
     return out
+
+
+def _expected_areas(files: list[Path], photos: Path) -> int | None:
+    """Planogram areas of the cameras of these photos, one count per photo. Flat uploads cannot be placed by
+    name, so only the official 26-photo set gets its known 289; anything else is left to the caller."""
+    try:
+        cams = json.loads(PLANOGRAM.read_text(encoding="utf-8"))["Frutas e Legumes"]["cameras"]
+    except (OSError, ValueError, KeyError):
+        return None
+    total = 0
+    for p in files:
+        m = CAMERA_ID.search(p.parent.name) if p.parent != photos else None
+        if not m or m.group(1) not in cams:
+            return 289 if len(files) == 26 else None
+        total += len(cams[m.group(1)]["products"])
+    return total
 
 
 def _dataset_dir(sess: Path) -> Path:
@@ -154,7 +179,8 @@ def _stream(cmd: list[str], env: dict) -> int:
     return p.wait()
 
 
-def _job(sess: Path, expect_images: int, expect_areas: int, stock_mode: str | None) -> None:
+def _job(sess: Path, expect_images: int, expect_areas: int, stock_mode: str | None,
+         use_calibration: bool = False) -> None:
     t0 = time.time()
     photos, final = sess / "photos", sess / "final.json"
     try:
@@ -166,6 +192,8 @@ def _job(sess: Path, expect_images: int, expect_areas: int, stock_mode: str | No
                "--expect-images", str(expect_images), "--expect-areas", str(expect_areas)]
         if stock_mode:
             cmd += ["--stock-model", stock_mode]
+        if use_calibration:
+            cmd += ["--calibration", str(sess / "calib.json"), "--fill-out", str(sess / "fill.json")]
         code = _stream(cmd, env)
         with _lock:
             last = next((l for l in reversed(_s["log"]) if l.strip()), "")
@@ -204,17 +232,93 @@ def run(body: RunBody | None = None):
     body = body or RunBody()
     if body.stock_mode is not None and not re.fullmatch(r"[A-Za-z0-9_.-]{1,40}", body.stock_mode):
         raise HTTPException(400, "bad stock_mode")
+    if body.use_calibration and body.stock_mode:
+        raise HTTPException(400, "calibration cannot be combined with stock_mode")
     with _lock:
         if _s["state"] == "running":
             raise HTTPException(409, "a run is already in progress")
         if not _s["session"] or not _s["photos"]:
             raise HTTPException(409, "upload photos first")
         sess = SESSIONS / _s["session"]
+        expect_areas = body.expect_areas or _s["auto_areas"] or 289
+        if body.use_calibration and not (sess / "calib.json").is_file():
+            raise HTTPException(400, "use_calibration is set but no calibration is stored: send one first")
         _s.update(state="running", log=[], verdict=None, last_line=None, validator=None, exit_code=None,
-                  seconds=None, expect_images=body.expect_images, expect_areas=body.expect_areas)
-    threading.Thread(target=_job, args=(sess, body.expect_images, body.expect_areas, body.stock_mode),
-                     daemon=True).start()
+                  seconds=None, expect_images=body.expect_images, expect_areas=expect_areas,
+                  calib_used=body.use_calibration)
+    threading.Thread(target=_job, args=(sess, body.expect_images, expect_areas, body.stock_mode,
+                                        body.use_calibration), daemon=True).start()
     return {"ok": True, "session": sess.name}
+
+
+# --- optional store calibration (the app's calib.json, version 1) ---------------------------
+
+MAX_CALIB_BYTES = 512 * 1024
+
+
+def _calib_products(f: Path) -> int:
+    try:
+        return len(json.loads(f.read_text(encoding="utf-8"))["products"])
+    except (OSError, ValueError, KeyError, TypeError):
+        return 0
+
+
+def _num(v) -> bool:
+    return isinstance(v, (int, float)) and not isinstance(v, bool) and v == v and abs(v) != float("inf")
+
+
+def _check_calib(raw) -> None:
+    """Shape check only; agents/predict.py has the final say (conflicting lines are refused there)."""
+    def bad(msg: str):
+        raise HTTPException(400, f"bad calibration: {msg}")
+    if not isinstance(raw, dict) or raw.get("version") != 1 or not isinstance(raw.get("products"), dict):
+        bad('expected {"version": 1, "products": {...}}')
+    if len(raw["products"]) > 2000:
+        bad("too many products")
+    for pid, r in raw["products"].items():
+        if not isinstance(pid, str) or not pid or len(pid) > 80 or not isinstance(r, dict):
+            bad(f"product {pid!r}: needs a string id and an object")
+        unit, cap = r.get("unit"), r.get("capacity")
+        if unit not in ("percent", "count"):
+            bad(f"product {pid}: unit must be 'percent' or 'count'")
+        if unit == "count" and not (isinstance(cap, int) and not isinstance(cap, bool) and 1 <= cap <= 1000):
+            bad(f"product {pid}: a count product needs an integer capacity >= 1")
+        top = 100.0 if unit == "percent" else float(cap)
+        pts = r.get("points") or []
+        if not isinstance(pts, list) or len(pts) > 50:
+            bad(f"product {pid}: points must be a short list")
+        for p in pts:
+            if not isinstance(p, dict) or p.get("level") not in ("empty", "half", "full") \
+                    or not _num(p.get("value")) or not 0 <= p["value"] <= top:
+                bad(f"product {pid}: bad point (value in [0, {top:g}], level empty/half/full)")
+        for key in ("empty_max", "full_min"):
+            v = r.get(key)
+            if v is not None and not (_num(v) and 0 <= v <= top):
+                bad(f"product {pid}: {key} must be null or a number in [0, {top:g}]")
+
+
+@router.post("/calibration")
+async def put_calibration(request: Request):
+    if _s["state"] == "running":
+        raise HTTPException(409, "a run is in progress")
+    raw_bytes = await request.body()
+    if len(raw_bytes) > MAX_CALIB_BYTES:
+        raise HTTPException(413, "calibration file is too large")
+    try:
+        raw = json.loads(raw_bytes.decode("utf-8"))
+    except ValueError:
+        raise HTTPException(400, "bad calibration: not valid JSON") from None
+    _check_calib(raw)
+    (_current() / "calib.json").write_text(json.dumps(raw, indent=1), encoding="utf-8")
+    return {"ok": True, "products": len(raw["products"])}
+
+
+@router.delete("/calibration")
+def delete_calibration():
+    if _s["state"] == "running":
+        raise HTTPException(409, "a run is in progress")
+    (_current() / "calib.json").unlink(missing_ok=True)
+    return {"ok": True, "products": 0}
 
 
 @router.get("/status")

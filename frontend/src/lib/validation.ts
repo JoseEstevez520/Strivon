@@ -8,6 +8,7 @@ export interface UploadResult {
   count: number
   cameras: string[]
   layout: 'camera_folders' | 'flat'
+  expected_areas: number | null
 }
 
 export interface ValidatorResult {
@@ -27,13 +28,15 @@ export interface ValidationStatus {
   validator: ValidatorResult | null
   exit_code: number | null
   seconds: number | null
+  expected_areas?: number | null
+  calibration?: { used: boolean; products: number }
 }
 
 export interface StockCounts {
   empty: number
   half: number
   full: number
-  not_compliant: number
+  non_compliant: number
 }
 
 export interface ValidationSummary {
@@ -87,7 +90,7 @@ export async function uploadPhotos(files: PickedFile[], append = false): Promise
   return res.json()
 }
 
-export async function startRun(opts: { expect_images: number; expect_areas: number; stock_mode?: string }) {
+export async function startRun(opts: { expect_images: number; expect_areas?: number; stock_mode?: string; use_calibration?: boolean }) {
   await call('/api/validation/run', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -101,6 +104,20 @@ export async function getStatus(): Promise<ValidationStatus> {
 
 export async function getSummary(): Promise<ValidationSummary> {
   return (await call('/api/validation/summary')).json()
+}
+
+/** Stores the calib.json (version 1) for the current session; the run only uses it when asked. */
+export async function putCalibration(file: unknown): Promise<{ products: number }> {
+  const res = await call('/api/validation/calibration', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(file),
+  })
+  return res.json()
+}
+
+export async function deleteCalibration(): Promise<void> {
+  await call('/api/validation/calibration', { method: 'DELETE' })
 }
 
 export const RESULT_URL = '/api/validation/result'
