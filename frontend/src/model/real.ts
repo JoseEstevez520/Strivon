@@ -21,7 +21,7 @@ export interface Planogram {
 }
 
 /** What the pipeline writes: camera, then photo, then area. Other fields of an area are ignored. */
-export type Predictions = Record<string, Record<string, Record<string, { planogram_compliant: boolean; stock_level: Level }>>>
+export type Predictions = Record<string, Record<string, Record<string, { planogram_compliant: boolean; stock_level: Level; stock_value?: number }>>>
 
 /**
  * The real cameras, photos and shelf areas, read from the planogram and the photo names (which
@@ -69,7 +69,7 @@ export function buildRealState(planogram: Planogram, photos: Record<string, stri
     for (const { image } of state.images[camera]) {
       const frame: Record<string, Observation> = {}
       for (const [area, o] of Object.entries(said[image])) {
-        if (state.areas[area]) frame[area] = { planogram_compliant: o.planogram_compliant, stock_level: o.stock_level }
+        if (state.areas[area]) frame[area] = { planogram_compliant: o.planogram_compliant, stock_level: o.stock_level, stock_value: o.stock_value }
       }
       state.observations[camera][image] = frame
     }

@@ -15,6 +15,8 @@ export interface Observation {
   planogram_compliant: boolean
   stock_level: Level
   observed_family?: string
+  /** How full the area is, 0 to 1, when the pipeline says so. The app turns it into a level per product. */
+  stock_value?: number
 }
 
 export interface ImageRecord {
