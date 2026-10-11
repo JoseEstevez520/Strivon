@@ -320,18 +320,20 @@ function Piece({ shape, color, accent, grey, ghost }: { shape: Shape; color: str
   }
 }
 
-/** A handful of one product laid in a crate: five when full, two when half. A wrong product is the same pile, washed out. */
+/** One product laid in a crate, counted so the state reads without a legend: four when full, two when half, none when empty (one faint ghost says what is missing). A wrong product is the full pile, washed out. */
 function Produce({ family, look, w, d, y }: { family: string; look: Look; w: number; d: number; y: number }) {
   const [shape, color, accent] = PRODUCE[family] ?? FALLBACK
   const gone = look === 'empty' || look === 'critical'
   const spots: [number, number, number][] =
-    look === 'half'
+    gone
       ? [[0, 0, 0.4]]
-      : [[-0.24, 0.1, 0.3], [0.24, 0.1, 1.4], [0, -0.14, 2.2]]
+      : look === 'half'
+        ? [[-0.22, 0, 0.4], [0.22, 0, 1.9]]
+        : [[-0.24, -0.2, 0.3], [0.24, -0.2, 1.4], [-0.24, 0.2, 2.2], [0.24, 0.2, 3.1]]
   return (
     <group position={[0, y, 0]}>
       {spots.map(([sx, sz, r], i) => (
-        <group key={i} position={[sx * w, 0, sz * d]} rotation-y={r} scale={Math.min(2.4, w / 0.45, d / 0.4)}>
+        <group key={i} position={[sx * w, 0, sz * d]} rotation-y={r} scale={Math.min(2.4, w / 0.45, d / 0.4) * (gone ? 1 : 0.85)}>
           <Piece shape={shape} color={color} accent={accent} grey={look === 'wrong'} ghost={gone} />
         </group>
       ))}

@@ -30,6 +30,11 @@ interface Strings {
   navProducts: string
   gondolasHeadline: (n: number) => string
   productsHeadline: (n: number) => string
+  productsToRestock: (n: number) => string
+  showFine: (n: number) => string
+  onShelf: (percent: number) => string
+  bringTo: string
+  putBackIn: string
   searchProducts: string
   shortOf: (short: number, total: number) => string
   allGondolas: string
@@ -121,6 +126,11 @@ const en: Strings = {
   navProducts: 'Products',
   gondolasHeadline: (n) => (n === 0 ? 'Every gondola is fine' : n === 1 ? 'One gondola needs attention' : `${n} gondolas need attention`),
   productsHeadline: (n) => (n === 1 ? 'One product' : `${n} products`),
+  productsToRestock: (n) => (n === 0 ? 'Nothing to restock' : n === 1 ? 'One product to restock' : `${n} products to restock`),
+  showFine: (n) => `Show ${n} fine`,
+  onShelf: (p) => `${p}% on the shelves`,
+  bringTo: 'Bring to',
+  putBackIn: 'Put back in',
   searchProducts: 'Search products',
   shortOf: (s, n) => (s === 0 ? 'All fine' : n === 1 ? 'Short' : `${s} of ${n} areas short`),
   allGondolas: 'All gondolas',
@@ -180,7 +190,7 @@ const en: Strings = {
   showFewer: 'Show fewer',
   withProduct: (x) => `with ${x}`,
   noMatches: 'Nothing matches',
-  areasCount: (n) => `${n} areas`,
+  areasCount: (n) => (n === 1 ? '1 area' : `${n} areas`),
   plan: {
     title: 'Store map',
     department: 'Fruit and vegetables',
@@ -228,6 +238,11 @@ const pt: Strings = {
   navProducts: 'Produtos',
   gondolasHeadline: (n) => (n === 0 ? 'Todas as gôndolas estão bem' : n === 1 ? 'Uma gôndola precisa de atenção' : `${n} gôndolas precisam de atenção`),
   productsHeadline: (n) => (n === 1 ? 'Um produto' : `${n} produtos`),
+  productsToRestock: (n) => (n === 0 ? 'Nada para repor' : n === 1 ? 'Um produto para repor' : `${n} produtos para repor`),
+  showFine: (n) => `Mostrar ${n} em ordem`,
+  onShelf: (p) => `${p}% nas prateleiras`,
+  bringTo: 'Levar para',
+  putBackIn: 'Devolver em',
   searchProducts: 'Procurar produtos',
   shortOf: (s, n) => (s === 0 ? 'Tudo bem' : n === 1 ? 'Em falta' : `${s} de ${n} áreas em falta`),
   allGondolas: 'Todas as gôndolas',
@@ -287,7 +302,7 @@ const pt: Strings = {
   showFewer: 'Mostrar menos',
   withProduct: (x) => `com ${x}`,
   noMatches: 'Nada encontrado',
-  areasCount: (n) => `${n} áreas`,
+  areasCount: (n) => (n === 1 ? "1 área" : `${n} áreas`),
   plan: {
     title: 'Mapa da loja',
     department: 'Frutas e legumes',
@@ -335,6 +350,11 @@ const es: Strings = {
   navProducts: 'Productos',
   gondolasHeadline: (n) => (n === 0 ? 'Todas las góndolas están bien' : n === 1 ? 'Una góndola necesita atención' : `${n} góndolas necesitan atención`),
   productsHeadline: (n) => (n === 1 ? 'Un producto' : `${n} productos`),
+  productsToRestock: (n) => (n === 0 ? 'Nada que reponer' : n === 1 ? 'Un producto que reponer' : `${n} productos que reponer`),
+  showFine: (n) => `Mostrar ${n} en orden`,
+  onShelf: (p) => `${p}% en las estanterías`,
+  bringTo: 'Llevar a',
+  putBackIn: 'Devolver en',
   searchProducts: 'Buscar productos',
   shortOf: (s, n) => (s === 0 ? 'Todo bien' : n === 1 ? 'Con falta' : `${s} de ${n} zonas con falta`),
   allGondolas: 'Todas las góndolas',
@@ -394,7 +414,7 @@ const es: Strings = {
   showFewer: 'Mostrar menos',
   withProduct: (x) => `con ${x}`,
   noMatches: 'Sin resultados',
-  areasCount: (n) => `${n} zonas`,
+  areasCount: (n) => (n === 1 ? '1 zona' : `${n} zonas`),
   plan: {
     title: 'Mapa de la tienda',
     department: 'Frutas y verduras',
