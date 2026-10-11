@@ -3209,9 +3209,9 @@
     "stock_value": 1.0
    },
    "6383_7": {
-    "planogram_compliant": true,
-    "stock_level": "full",
-    "stock_value": 1.0
+    "planogram_compliant": false,
+    "stock_level": "empty",
+    "stock_value": 0.0
    },
    "6383_8": {
     "planogram_compliant": true,
@@ -3256,7 +3256,7 @@
     "stock_value": 1.0
    },
    "6383_7": {
-    "planogram_compliant": true,
+    "planogram_compliant": false,
     "stock_level": "empty",
     "stock_value": 0.0
    },
@@ -8319,8 +8319,8 @@
    },
    "6491_5": {
     "planogram_compliant": true,
-    "stock_level": "empty",
-    "stock_value": 0.0
+    "stock_level": "half",
+    "stock_value": 0.5
    },
    "6491_6": {
     "planogram_compliant": true,
