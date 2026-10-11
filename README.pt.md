@@ -72,7 +72,7 @@ Um plano da loja mostra que gôndolas precisam de algo, e a lista ao lado dá a 
 
 Reproduza o dia para ver os dois mudarem e abra uma gôndola para ver a sua prateleira com o que está mal assinalado.
 
-### Pergunte e receba um ecrã
+### UI generativa
 
 O chat responde com um ecrã. O modelo escreve o desenho da resposta com as peças da própria aplicação (gráficos, tabelas, tarefas, um mapa do dia, cartões com fotografia) e a aplicação desenha-o, por isso a resposta pode ser aberta e seguida até à prateleira de que fala.
 

@@ -72,7 +72,7 @@ Un plano de la tienda muestra qué góndolas necesitan algo, y la lista de al la
 
 Reproduce el día para ver cómo cambian los dos, y abre una góndola para ver su estantería con lo que está mal marcado.
 
-### Pregunta y recibe una pantalla
+### UI generativa
 
 El chat responde con una pantalla. El modelo escribe el diseño de la respuesta con las piezas de la propia app (gráficas, tablas, tareas, un mapa del día, tarjetas con foto) y la app lo dibuja, así que la respuesta se puede abrir y seguir hasta la estantería de la que habla.
 

@@ -89,7 +89,7 @@ Open the first page and the plan of the store shows which gondolas need somethin
 it gives the order of the round and what to bring to each stop. Press a gondola to see its shelf
 with what is wrong marked, or play the day to watch both change.
 
-### Ask, and get a screen
+### Generative UI
 
 The chat answers with a screen. The model writes the layout of the answer out of the app's own
 parts (charts, tables, tasks, a map of the day, photo cards) and the app draws it, so you can open
