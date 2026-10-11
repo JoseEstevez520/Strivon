@@ -61,7 +61,7 @@ const en: LandingStrings = {
   seeTitle: 'See it',
   seeLead: 'The app, shortened. The plan shows where the problems are and the list gives the order of the round. Move through the day, or press a gondola to see its shelf.',
   demo: 'Demo',
-  askTitle: 'Ask, and get a screen',
+  askTitle: 'Generative UI',
   askText:
     'You can ask the store a question in plain words. The answer is not a paragraph: the chat builds the screen that answers it, with a chart of the day and a card that opens the shelf.',
   clipLabel:
@@ -103,7 +103,7 @@ const pt: LandingStrings = {
   seeTitle: 'Ver',
   seeLead: 'A aplicação, em versão curta. O plano mostra onde estão os problemas e a lista dá a ordem da ronda. Percorra o dia ou carregue numa gôndola para ver a sua prateleira.',
   demo: 'Demonstração',
-  askTitle: 'Pergunte e receba um ecrã',
+  askTitle: 'UI generativa',
   askText:
     'Pode fazer uma pergunta à loja por palavras suas. A resposta não é um parágrafo: o chat constrói o ecrã que a responde, com um gráfico do dia e um cartão que abre a prateleira.',
   clipLabel:
@@ -145,7 +145,7 @@ const es: LandingStrings = {
   seeTitle: 'Verlo',
   seeLead: 'La aplicación, en versión corta. El plano muestra dónde están los problemas y la lista da el orden de la ronda. Recorre el día o pulsa una góndola para ver su estantería.',
   demo: 'Demostración',
-  askTitle: 'Pregunta y recibe una pantalla',
+  askTitle: 'UI generativa',
   askText:
     'Puedes preguntarle a la tienda con tus palabras. La respuesta no es un párrafo: el chat construye la pantalla que la responde, con una gráfica del día y una tarjeta que abre la estantería.',
   clipLabel:
