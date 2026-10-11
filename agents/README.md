@@ -75,6 +75,14 @@ passes in `lab/silver2`; the product head stays on our labels. Its weights
 by hand, predict.py leaves them alone). It can't be combined with `--stock-tilt` (never validated together), and the
 last line starts with `OK (stock model mix)`. `--stock-model ld6ee` gives the model before it.
 
+**Store strictness** (Sensei's suggestion: stores differ on what "empty" means). `--stock-mode NAME` weights the
+averaged stock probabilities before the best-expected-points level: p(empty) x E and p(full) x F. `sensei` (the
+default, E = F = 1) gives the validated answers byte for byte; `empty-only-when-bare` (E = 0.4) says empty only when
+nothing is left; `empty-at-a-few` (E = 2.5) also calls a crate with a few units empty; `strict-full` (F = 0.5) says
+full only when it really is. `--empty-weight E` / `--full-weight F` set them by hand. It works with both stock models.
+The presets are not scored claims: the run prints a WARN and the last line names the mode, e.g.
+`OK (stock model mix, mode empty-at-a-few)`.
+
 How the camera is found, in order:
 
 1. a folder named like a camera (`6215/`);
