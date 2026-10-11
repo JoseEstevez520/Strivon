@@ -8,6 +8,7 @@ import { InsightsPage } from '@/pages/InsightsPage'
 import { ProductsPage } from '@/pages/ProductsPage'
 import { RoundPage } from '@/pages/RoundPage'
 import { TasksPage } from '@/pages/TasksPage'
+import { ValidatePage } from '@/pages/ValidatePage'
 
 export default function App() {
   return (
@@ -22,6 +23,8 @@ export default function App() {
             <Route path="products" element={<ProductsPage />} />
             <Route path="calibration" element={<CalibrationPage />} />
             <Route path="insights" element={<InsightsPage />} />
+            {/* staff tool for the validation day, reachable by URL only */}
+            <Route path="validate" element={<ValidatePage />} />
             {/* the plan and the list of gondolas now live on the first page */}
             <Route path="map" element={<Navigate to="/" replace />} />
             <Route path="gondolas" element={<Navigate to="/" replace />} />
