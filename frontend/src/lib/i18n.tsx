@@ -74,6 +74,7 @@ interface Strings {
   insightsEstimate: string
   insightsSimulated: string
   mapTitle: string
+  gondolaMapTitle: string
   mapCell: (product: string, hour: string, pct: number) => string
   mapLess: string
   mapMore: string
@@ -187,6 +188,7 @@ const en: Strings = {
   insightsEstimate: 'Estimated from about 13 photos per camera.',
   insightsSimulated: 'Provisional: the stock states are simulated.',
   mapTitle: 'Stock over time',
+  gondolaMapTitle: 'Gondolas by hour',
   mapCell: (p, hour, pct) => `${p}, ${hour}: ${pct}% of its areas empty`,
   mapLess: 'None',
   mapMore: 'All empty',
@@ -317,6 +319,7 @@ const pt: Strings = {
   insightsEstimate: 'Estimado com cerca de 13 fotos por câmara.',
   insightsSimulated: 'Provisório: os estados de stock são simulados.',
   mapTitle: 'Stock ao longo do tempo',
+  gondolaMapTitle: 'Gôndolas por hora',
   mapCell: (p, hour, pct) => `${p}, ${hour}: ${pct}% das áreas vazias`,
   mapLess: 'Nenhuma',
   mapMore: 'Todas vazias',
@@ -447,6 +450,7 @@ const es: Strings = {
   insightsEstimate: 'Estimado con unas 13 fotos por cámara.',
   insightsSimulated: 'Provisional: los estados de stock están simulados.',
   mapTitle: 'Stock a lo largo del tiempo',
+  gondolaMapTitle: 'Góndolas por hora',
   mapCell: (p, hour, pct) => `${p}, ${hour}: ${pct}% de sus zonas vacías`,
   mapLess: 'Ninguna',
   mapMore: 'Todas vacías',

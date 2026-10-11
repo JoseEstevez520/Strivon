@@ -14,7 +14,7 @@ const Heading = ({ children }: { children: React.ReactNode }) => (
 /** How the store is doing, for whoever runs it: one number, when it happened and where it hurts. */
 export function InsightsPage() {
   const { t, lang, family } = useI18n()
-  const { state, gondolaFull: gondola, simulated } = useStore()
+  const { state, gondola: gondolaName, gondolaFull: gondola, simulated } = useStore()
   const stats = useMemo(() => storeStats(state), [state])
 
   // What the photos cover is written from the data, so the page never claims a period it does not have.
@@ -35,8 +35,15 @@ export function InsightsPage() {
       </div>
 
       <section className="mb-10">
-        <Heading>{t.mapTitle}</Heading>
-        <DayMap rows={stats.map} hours={stats.hours} />
+        <Heading>{t.gondolaMapTitle}</Heading>
+        <DayMap
+          rows={stats.gondolaMap}
+          hours={stats.hours}
+          limit={stats.gondolaMap.length}
+          label={gondolaName}
+          title={t.gondolaMapTitle}
+          linkTo={(camera) => `/gondolas/${camera}`}
+        />
       </section>
 
       <div className="mb-10 grid grid-cols-[minmax(0,1fr)] gap-x-10 gap-y-8 lg:grid-cols-2">

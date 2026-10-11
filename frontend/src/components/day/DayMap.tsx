@@ -14,17 +14,33 @@ function tone(share: number | null): string {
 }
 
 /**
- * Products as rows and hours as columns, one red hue for how much of a product was empty. A cell
+ * Products (or any rows with a name) as rows and hours as columns, one red hue for how much of a product was empty. A cell
  * with no camera looking at it stays blank. The most affected products show first and the rest fold.
  */
-export function DayMap({ rows, hours, limit = 10, linkTo }: { rows: MapRow[]; hours: number[]; limit?: number; linkTo?: (product: string) => string }) {
+export function DayMap({
+  rows,
+  hours,
+  limit = 10,
+  linkTo,
+  label,
+  title,
+}: {
+  rows: MapRow[]
+  hours: number[]
+  limit?: number
+  linkTo?: (product: string) => string
+  /** The name of a row, when the rows are not products (for example gondolas). Products by default. */
+  label?: (key: string) => string
+  title?: string
+}) {
   const { t, family } = useI18n()
+  const name = label ?? family
   const [all, setAll] = useState(false)
   const shown = all ? rows : rows.slice(0, limit)
   const columns = `minmax(5.5rem,9rem) repeat(${hours.length}, minmax(0, 1fr))`
 
   return (
-    <div role="group" aria-label={t.mapTitle}>
+    <div role="group" aria-label={title ?? t.mapTitle}>
       <div className="grid items-end gap-x-[3px] pb-1.5" style={{ gridTemplateColumns: columns }}>
         <span />
         {hours.map((h, i) => (
@@ -39,17 +55,17 @@ export function DayMap({ rows, hours, limit = 10, linkTo }: { rows: MapRow[]; ho
           <div key={row.product} className="grid items-center gap-x-[3px]" style={{ gridTemplateColumns: columns }}>
             {linkTo ? (
               <Link to={linkTo(row.product)} className="truncate pr-2 text-meta text-fg-secondary transition-colors hover:text-fg">
-                {family(row.product)}
+                {name(row.product)}
               </Link>
             ) : (
-              <span className="truncate pr-2 text-meta text-fg-secondary">{family(row.product)}</span>
+              <span className="truncate pr-2 text-meta text-fg-secondary">{name(row.product)}</span>
             )}
             {row.cells.map((share, i) => (
               <span
                 key={hours[i]}
                 className="h-4 rounded-[3px]"
                 style={{ backgroundColor: tone(share) }}
-                title={share === null ? undefined : t.mapCell(family(row.product), clock(hours[i]), Math.round(share * 100))}
+                title={share === null ? undefined : t.mapCell(name(row.product), clock(hours[i]), Math.round(share * 100))}
               />
             ))}
           </div>

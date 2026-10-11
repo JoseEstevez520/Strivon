@@ -20,6 +20,8 @@ export interface Stats {
   /** The start of each hour column, in unix seconds. */
   hours: number[]
   map: MapRow[]
+  /** The same map with a gondola in each row, in the order of the cameras. `product` holds the camera. */
+  gondolaMap: MapRow[]
   byGondola: { camera: string; share: number }[]
 }
 
@@ -87,12 +89,21 @@ export function storeStats(state: StoreState): Stats {
     return { product, share: time ? (emptyByProduct[product] ?? 0) / time : 0, cells }
   })
 
+  const gondolaMap: MapRow[] = Object.keys(state.images)
+    .sort()
+    .map((camera) => {
+      const own = areas.filter((a) => a.camera === camera)
+      const time = timeByCamera[camera] ?? 0
+      return { product: camera, share: time ? (emptyByCamera[camera] ?? 0) / time : 0, cells: hours.map((hour) => cell(state, own, hour + HOUR / 2)) }
+    })
+
   return {
     emptyShare: timeTotal ? emptyTotal / timeTotal : 0,
     period: { from: first, to: last },
     compliance: weighed ? compliant / weighed : 1,
     hours,
     map: map.sort((a, b) => b.share - a.share),
+    gondolaMap,
     byGondola: Object.keys(timeByCamera)
       .map((camera) => ({ camera, share: (emptyByCamera[camera] ?? 0) / timeByCamera[camera] }))
       .sort((a, b) => b.share - a.share),
