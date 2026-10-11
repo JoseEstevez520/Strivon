@@ -23,10 +23,6 @@ function Row({ family: f }: { family: string }) {
   const { t, family } = useI18n()
   const { cal, setProduct, clearProduct } = useCalibration()
   const c = cal[f]
-  // Back to the model (or Reset): the slider goes back to where it starts.
-  useEffect(() => {
-    if (!c) setDraft(startOf(f))
-  }, [c, f])
   const name = family(f)
   const units = modeOf(f) === 'units'
   const max = maxOf(f)
