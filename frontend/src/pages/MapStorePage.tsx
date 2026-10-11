@@ -24,7 +24,7 @@ type Look = 'critical' | 'empty' | 'wrong' | 'half' | 'fine'
 const mix = (c: string, pct: number, base = 'var(--raised)') => `color-mix(in oklab, ${c} ${pct}%, ${base})`
 const WALL = mix('var(--fg)', 20, 'var(--bg)')
 const FLOOR = 'var(--sunk)'
-const isProblem = (x: Task) => x.group === 'restock' || x.group === 'moveBack'
+export const isProblem = (x: Task) => x.group === 'restock' || x.group === 'moveBack'
 
 /** Pure red is for what is really critical: a product that is gone from half the store or more. */
 function lookOf(x: Task): Look {
@@ -50,7 +50,7 @@ const TILE_INK: Record<Look, string> = {
 }
 
 /** One shelf area: its product on a tint. Empty has a "!" badge, wrong a return arrow, half full a filled lower half, fine nothing extra. */
-function AreaTile({ task, large = false }: { task: Task; large?: boolean }) {
+export function AreaTile({ task, large = false }: { task: Task; large?: boolean }) {
   const { family, t } = useI18n()
   const look = lookOf(task)
   const name = family(task.area.family)
@@ -85,7 +85,7 @@ function AreaTile({ task, large = false }: { task: Task; large?: boolean }) {
 }
 
 /** The areas as they sit on the shelf: the upper half first, each half from left to right. */
-function shelfOrder(tasks: Task[]): Task[] {
+export function shelfOrder(tasks: Task[]): Task[] {
   const cy = (x: Task) => x.area.quad.reduce((s, p) => s + p[1], 0) / 4
   const cx = (x: Task) => x.area.quad.reduce((s, p) => s + p[0], 0) / 4
   const byY = [...tasks].sort((a, b) => cy(a) - cy(b))

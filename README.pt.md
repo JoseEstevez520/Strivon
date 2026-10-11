@@ -1,0 +1,145 @@
+<p align="center">
+  <img src="assets/logo.svg" alt="Strivon" width="104">
+</p>
+
+<h1 align="center">Strivon</h1>
+
+<p align="center">
+  <strong>O Strivon transforma as fotografias das câmaras de teto das prateleiras de fruta e legumes numa lista de trabalho para os funcionários da loja: o que repor e o que devolver ao seu lugar.</strong>
+</p>
+
+<p align="center">
+  Para uma loja com câmaras de teto e um planograma das prateleiras.
+</p>
+
+<p align="center">
+  <a href="https://strivon-landing.vercel.app"><img src="https://img.shields.io/badge/Site-strivon--landing.vercel.app-c4452f?style=flat-square&logo=googlechrome&logoColor=white" alt="Strivon"></a>
+  <a href="docs/APP.md"><img src="https://img.shields.io/badge/Docs-Ler-1d1d1d?style=flat-square&logo=readthedocs&logoColor=white" alt="Docs"></a>
+</p>
+
+<p align="center">
+  <a href="#executar-localmente">Executar localmente</a> ·
+  <a href="README.md">English</a> · <a href="README.es.md">Español</a>
+</p>
+
+<p align="center">
+  <img src="assets/readme/photo-to-tasks.png" alt="Fotografia de uma câmara de teto de uma gôndola de bananas com as zonas da prateleira assinaladas e, ao lado, a lista de tarefas que os funcionários recebem: três zonas para repor e duas para rever mais tarde" width="100%">
+</p>
+
+<p align="center"><sub>Entra uma fotografia, sai uma lista de trabalho. Os estados das prateleiras nesta imagem são simulados.</sub></p>
+
+## O que é o Strivon?
+
+Numa loja, ninguém consegue olhar para todas as prateleiras o dia inteiro. Uma esvazia-se, um produto vai parar ao lugar de outro e os funcionários só se apercebem quando um cliente pergunta. As câmaras de teto já veem tudo. Falta alguém que olhe para as fotografias.
+
+O Strivon olha por elas. A partir de uma fotografia da câmara e do planograma da loja, verifica cada zona da prateleira: tem o produto que deve ter e quão cheia está? O resultado é uma lista de trabalho para os funcionários, não um relatório.
+
+Foi criado no JunctionX Lisboa 2026 para o desafio da Sensei, com fotografias de 14 câmaras.
+
+## Como funciona
+
+Para cada zona de prateleira numa fotografia, o pipeline responde a duas perguntas e a aplicação transforma as respostas em tarefas.
+
+| Pergunta | Resposta | Tarefa para os funcionários |
+|---|---|---|
+| Está lá o produto certo? | sim ou não | **Devolver ao lugar** se for outro |
+| Quão cheia está a zona? | vazia, a meio ou cheia | **Repor** se estiver vazia, **Mais tarde** se estiver a meio, nada se estiver cheia |
+
+Cada tarefa mostra o recorte da zona e a hora da sua fotografia, para se poder confirmar num relance. O desafio pontua cada zona, por isso o pipeline é afinado para os pontos e também para as tarefas: ver [`docs/PLAN.md`](docs/PLAN.md).
+
+## O que pode fazer hoje
+
+- **Ver o que fazer agora**, agrupado em Repor, Devolver ao lugar e Mais tarde, por ordem de urgência.
+- **Abrir uma tarefa** para ver a fotografia da sua câmara com a zona assinalada, e **reproduzir o dia** com a barra para ver a lista mudar.
+- **Percorrer a loja** com um mapa das gôndolas, uma página por gôndola, uma vista de produtos e uma página de análise com a parte do tempo em que as prateleiras estiveram vazias.
+- **Fazer uma pergunta à loja** e receber a resposta como um ecrã, com gráficos, tarefas e cartões com fotografia. Precisa de uma chave de um modelo no servidor.
+- **Prever uma pasta de fotografias** a partir da linha de comandos: um JSON com `planogram_compliant` e `stock_level` para cada zona.
+- **Pontuar as previsões** com as nossas próprias etiquetas e os pontos do desafio.
+
+> **Estado.** A aplicação ainda mostra estados de prateleira simulados. Ligá-la às previsões reais do pipeline é o passo seguinte.
+
+## Ver
+
+A landing page está em [strivon-landing.vercel.app](https://strivon-landing.vercel.app).
+
+<br>
+
+### A aplicação para os funcionários
+
+<img align="right" width="55%" src="assets/video/demo-tasks.gif" alt="A lista de tarefas enche-se à medida que o dia avança: zonas vazias, a meio e produtos fora do lugar. Ao abrir uma tarefa vê-se a fotografia da sua câmara com a zona assinalada.">
+
+Cada zona de prateleira que precisa de algo torna-se uma tarefa: repor o que está vazio, devolver ao lugar o que está mal colocado e rever mais tarde o que está a meio.
+
+Reproduza o dia para ver a lista a encher-se e abra uma tarefa para ver a sua prateleira com a zona assinalada.
+
+<br clear="right">
+<br>
+
+### Pergunte e receba um ecrã
+
+<img align="right" width="55%" src="assets/video/chat-to-gondola.gif" alt="Alguém pergunta onde estão as bananas. O chat responde com um gráfico de como as prateleiras se esvaziaram ao longo do dia e um cartão. Ao abrir o cartão vê-se a fotografia da gôndola com as zonas assinaladas.">
+
+O chat não responde com um parágrafo. O modelo escreve o desenho da resposta com as peças da própria aplicação (gráficos, tabelas, tarefas, um mapa do dia, cartões com fotografia) e a aplicação desenha-o, por isso a resposta pode ser aberta e seguida até à prateleira de que fala.
+
+Precisa de uma chave de um modelo no servidor (`LLM_API_KEY` em `frontend/.env`); sem ela o chat fica escondido.
+
+<br clear="right">
+<br>
+
+Os estados das prateleiras nos dois clipes são simulados. Os vídeos em tamanho completo estão em [`assets/video`](assets/video).
+
+## Executar localmente
+
+A aplicação, com Node 20 ou superior:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Com os dados do desafio em `data/`, mostra as fotografias e as zonas reais. Sem eles, desenha prateleiras inventadas.
+
+O pipeline, a partir de `backend/`. Acrescente `--no-clip` para dispensar o PyTorch e usar só as características clássicas:
+
+```bash
+python -m pip install -r requirements.txt
+python -m sensei predict
+python -m sensei score
+```
+
+Por defeito, `predict` lê `data/images` e escreve `outputs/predictions.json`, e `score` confere esse ficheiro com `eval/labels.json`.
+
+Os passos do dia da entrega estão em [`docs/VALIDATION_DAY.md`](docs/VALIDATION_DAY.md).
+
+## Documentação
+
+- [`docs/APP.md`](docs/APP.md): o que a aplicação mostra e os dados que lê.
+- [`frontend/DESIGN.md`](frontend/DESIGN.md): como se vê a interface e o motivo de cada decisão.
+- [`docs/PLAN.md`](docs/PLAN.md): como o desafio é pontuado e o plano para pontuar bem.
+- [`docs/SENSEI_INFO.md`](docs/SENSEI_INFO.md): o que a Sensei nos disse, incluindo o que significam vazio, a meio e cheio.
+- [`docs/VALIDATION_DAY.md`](docs/VALIDATION_DAY.md): como gerar a entrega.
+- [`LEADERBOARD.md`](LEADERBOARD.md): como cada abordagem é pontuada e os resultados.
+- [`CONTRIBUTING.md`](CONTRIBUTING.md): ramos, commits e idioma.
+
+## Resultados
+
+Todas as abordagens são pontuadas da mesma forma no benchmark da equipa. As regras e as tabelas estão em [LEADERBOARD.md](LEADERBOARD.md) e no [README em inglês](README.md#results).
+
+## Código anterior
+
+Escrito durante o hackathon, exceto:
+
+- `frontend/src/model/catalog.ts` porta as regras de famílias de produto de `backend/sensei/catalog.py`.
+- A interface usa React, Vite, Tailwind CSS, shadcn/ui, Base UI, OpenUI, Lucide e
+  country-flag-icons, todos MIT. As versões estão em `frontend/package.json`.
+
+Feito no JunctionX Lisboa 2026, para o desafio da Sensei.
+
+<p align="center">
+  <img src="assets/partners/junctionx.png" alt="JunctionX Lisbon" height="56">
+  &nbsp;&nbsp;&nbsp;
+  <img src="assets/partners/sensei.png" alt="Sensei" height="56">
+</p>
+
+Os logótipos do JunctionX Lisboa e da Sensei pertencem aos seus proprietários.

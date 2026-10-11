@@ -535,6 +535,12 @@ a collapsing block by hand once, and Base UI and shadcn already had it.
   problems in plain words, one line for each product with how many areas and since when ("Orange
   x3, empty since 18:22"), grouped as empty, wrong product and half full. Hovering a line lights its
   area on the photo. There is still nothing to press to mark a task.
+- 2026-10-11. The side panel of Tasks was cut down with what we learned on the map. It held a photo,
+  a name, a products line, three counts with words, a line of since when and a card with a tile for
+  every area, then three more gondolas with their own photo, products and counts. Now "Go first" is
+  the photo, the name, since when it has been empty and one tile for each thing that is wrong, and
+  "Then" is three lines with a number, a name and how many things are wrong. Fine and half full
+  areas are not drawn, the counts and the products line are gone, and the small photos are gone.
 
 ## Roadmap
 
