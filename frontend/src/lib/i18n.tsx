@@ -30,6 +30,9 @@ interface Strings {
   navProducts: string
   gondolasHeadline: (n: number) => string
   productsHeadline: (n: number) => string
+  productsToRestock: (n: number) => string
+  showFine: (n: number) => string
+  onShelf: (percent: number) => string
   searchProducts: string
   shortOf: (short: number, total: number) => string
   allGondolas: string
@@ -120,6 +123,9 @@ const en: Strings = {
   navProducts: 'Products',
   gondolasHeadline: (n) => (n === 0 ? 'Every gondola is fine' : n === 1 ? 'One gondola needs attention' : `${n} gondolas need attention`),
   productsHeadline: (n) => (n === 1 ? 'One product' : `${n} products`),
+  productsToRestock: (n) => (n === 0 ? 'Nothing to restock' : n === 1 ? 'One product to restock' : `${n} products to restock`),
+  showFine: (n) => `Show ${n} fine`,
+  onShelf: (p) => `${p}% on the shelves`,
   searchProducts: 'Search products',
   shortOf: (s, n) => (s === 0 ? 'All fine' : n === 1 ? 'Short' : `${s} of ${n} areas short`),
   allGondolas: 'All gondolas',
@@ -226,6 +232,9 @@ const pt: Strings = {
   navProducts: 'Produtos',
   gondolasHeadline: (n) => (n === 0 ? 'Todas as gôndolas estão bem' : n === 1 ? 'Uma gôndola precisa de atenção' : `${n} gôndolas precisam de atenção`),
   productsHeadline: (n) => (n === 1 ? 'Um produto' : `${n} produtos`),
+  productsToRestock: (n) => (n === 0 ? 'Nada para repor' : n === 1 ? 'Um produto para repor' : `${n} produtos para repor`),
+  showFine: (n) => `Mostrar ${n} em ordem`,
+  onShelf: (p) => `${p}% nas prateleiras`,
   searchProducts: 'Procurar produtos',
   shortOf: (s, n) => (s === 0 ? 'Tudo bem' : n === 1 ? 'Em falta' : `${s} de ${n} áreas em falta`),
   allGondolas: 'Todas as gôndolas',
@@ -332,6 +341,9 @@ const es: Strings = {
   navProducts: 'Productos',
   gondolasHeadline: (n) => (n === 0 ? 'Todas las góndolas están bien' : n === 1 ? 'Una góndola necesita atención' : `${n} góndolas necesitan atención`),
   productsHeadline: (n) => (n === 1 ? 'Un producto' : `${n} productos`),
+  productsToRestock: (n) => (n === 0 ? 'Nada que reponer' : n === 1 ? 'Un producto que reponer' : `${n} productos que reponer`),
+  showFine: (n) => `Mostrar ${n} en orden`,
+  onShelf: (p) => `${p}% en las estanterías`,
   searchProducts: 'Buscar productos',
   shortOf: (s, n) => (s === 0 ? 'Todo bien' : n === 1 ? 'Con falta' : `${s} de ${n} zonas con falta`),
   allGondolas: 'Todas las góndolas',

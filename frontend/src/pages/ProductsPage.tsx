@@ -1,13 +1,16 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Search } from 'lucide-react'
+import { Check, ChevronDown, Search, Undo2 } from 'lucide-react'
 import { Link, useSearchParams } from 'react-router'
 import { DayBar } from '@/components/DayBar'
+import { ProductIcon } from '@/components/ProductIcon'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { Input } from '@/components/ui/input'
 import { useI18n } from '@/lib/i18n'
 import { useStore } from '@/lib/store'
 import { ACTION, cameras, type Task } from '@/lib/tasks'
 import { clock } from '@/lib/time'
+
+const mix = (c: string, pct: number) => `color-mix(in oklab, ${c} ${pct}%, var(--raised))`
 
 const VALUE = { empty: 0, half: 0.5, full: 1 } as const
 
@@ -26,7 +29,44 @@ interface Row {
   short: number
 }
 
-/** The state of a product summed over every area it sits in. */
+/** What a product's areas are doing, as small tinted counts. Fine ones say so quietly. */
+function Counts({ tasks }: { tasks: Task[] }) {
+  const { t } = useI18n()
+  const n = (st: string) => tasks.filter((x) => statusOf(x) === st).length
+  const empty = n('empty')
+  const wrong = n('wrong')
+  const half = n('half')
+  const chip = 'flex h-6 items-center gap-1 rounded-md px-2 text-meta font-medium tabular-nums'
+  if (empty + wrong + half === 0) {
+    return (
+      <span className="flex items-center gap-1 text-meta text-fg-muted">
+        <Check className="size-3.5" strokeWidth={3} aria-hidden />
+        {t.level.full}
+      </span>
+    )
+  }
+  return (
+    <span className="flex flex-wrap gap-1.5">
+      {empty > 0 && (
+        <span className={chip} style={{ background: mix('var(--danger)', 14), color: 'var(--danger)' }}>
+          ×{empty} {t.level.empty}
+        </span>
+      )}
+      {wrong > 0 && (
+        <span className={chip} style={{ background: mix('var(--warning)', 26), color: 'var(--warning)' }}>
+          <Undo2 className="size-3" aria-hidden />×{wrong} {t.wrongProduct}
+        </span>
+      )}
+      {half > 0 && (
+        <span className={`${chip} text-fg-secondary`} style={{ background: 'var(--sunk)' }}>
+          ×{half} {t.level.half}
+        </span>
+      )}
+    </span>
+  )
+}
+
+/** One product summed over every area it sits in: its icon, what is wrong with it, and the gondolas on demand. */
 function ProductRow({ row, focused }: { row: Row; focused: boolean }) {
   const { t, family } = useI18n()
   const { gondola } = useStore()
@@ -36,31 +76,29 @@ function ProductRow({ row, focused }: { row: Row; focused: boolean }) {
   useEffect(() => {
     if (focused) ref.current?.scrollIntoView({ block: 'center' })
   }, [focused])
-  const percent = Math.round(row.fill * 100)
-  const tone = row.fill >= 0.7 ? 'var(--success)' : row.fill >= 0.35 ? 'var(--warning)' : 'var(--danger)'
+  const name = family(row.product)
 
   return (
-    <li ref={ref} className="rounded-lg transition-colors hover:bg-surface data-[open=true]:bg-surface" data-open={open}>
+    <li ref={ref} className="rounded-xl transition-colors hover:bg-surface data-[open=true]:bg-surface" data-open={open}>
       <Collapsible open={open} onOpenChange={setOpen}>
-        <CollapsibleTrigger className="grid w-full cursor-pointer grid-cols-[1fr_auto] items-center gap-x-4 gap-y-1.5 rounded-lg px-3 py-2.5 text-left sm:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)_3rem]">
-          <span>
-            <span className="block text-label">{family(row.product)}</span>
-            <span className="block text-meta text-fg-secondary">{t.shortOf(row.short, row.tasks.length)}</span>
+        <CollapsibleTrigger className="flex min-h-14 w-full cursor-pointer items-center gap-3 rounded-xl px-3 py-2 text-left">
+          <ProductIcon family={row.tasks[0]?.area.family ?? row.product} label={name} className="size-8 shrink-0 text-fg-secondary" />
+          <span className="flex min-w-0 flex-1 flex-col gap-1">
+            <span className="truncate text-label">{name}</span>
+            <Counts tasks={row.tasks} />
           </span>
-          <span className="order-3 col-span-2 h-1.5 overflow-hidden rounded-full bg-sunk sm:order-none sm:col-span-1" aria-hidden>
-            <span className="block h-full rounded-full" style={{ width: `${percent}%`, backgroundColor: tone }} />
-          </span>
-          <span className="text-right text-meta tabular-nums text-fg-secondary">{percent}%</span>
+          <ChevronDown className="size-4 shrink-0 text-fg-muted transition-transform data-[open=true]:rotate-180" data-open={open} aria-hidden />
         </CollapsibleTrigger>
         <CollapsibleContent>
+          <p className="px-3 pb-1 text-meta tabular-nums text-fg-muted">{t.onShelf(Math.round(row.fill * 100))}</p>
           <ul className="px-1 pb-2">
             {row.tasks.map((task) => (
               <li key={task.area.area_id}>
                 <Link
                   to={`/gondolas/${task.area.camera}?area=${task.area.area_id}`}
-                  className="flex items-baseline justify-between gap-3 rounded-md px-2 py-1.5 text-ui text-fg-secondary transition-colors hover:bg-raised/70"
+                  className="flex items-baseline justify-between gap-3 rounded-md px-2 py-2 text-ui text-fg-secondary transition-colors hover:bg-raised/70"
                 >
-                  <span className="min-w-0 truncate">{gondola(task.area.camera)}</span>
+                  <span className="min-w-0 truncate text-fg">{gondola(task.area.camera)}</span>
                   <span className="text-meta tabular-nums">
                     {task.obs.planogram_compliant ? t.level[task.obs.stock_level] : t.wrongPlace(family(task.obs.observed_family ?? ''))}
                     {' · '}
@@ -89,6 +127,7 @@ export function ProductsPage() {
     if (!next.delete(v)) next.add(v)
     return next
   }
+  const [fine, setFine] = useState(false)
   const focus = useSearchParams()[0].get('product')
 
   // The gondola narrows the areas first, so a product's figure is its stock in that gondola.
@@ -111,12 +150,16 @@ export function ProductsPage() {
   const withStatus = (st: Status) => (st === 'all' ? rows : rows.filter((r) => r.tasks.some((x) => statusOf(x) === st)))
   const named = q ? rows.filter((r) => family(r.product).toLowerCase().includes(q)) : rows
   const shown = status.size === 0 ? named : named.filter((r) => r.tasks.some((x) => (status as Set<string>).has(statusOf(x))))
+  // With no filter and no search, the products with nothing to do wait behind one line.
+  const quiet = (r: Row) => r.tasks.every((x) => statusOf(x) === 'fine')
+  const fold = status.size === 0 && q === '' && !fine
+  const listed = fold ? shown.filter((r) => !quiet(r) || r.product === focus) : shown
   const label = (st: Status) => (st === 'all' ? t.all : st === 'empty' ? t.level.empty : st === 'wrong' ? t.wrongProduct : t.level.half)
 
   return (
     <>
       <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
-        <h1 className="text-display">{t.productsHeadline(rows.length)}</h1>
+        <h1 className="text-display">{t.productsToRestock(rows.filter((r) => r.short > 0).length)}</h1>
         <div className="relative w-full sm:w-64">
           <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-fg-muted" />
           <Input
@@ -166,11 +209,18 @@ export function ProductsPage() {
       {shown.length === 0 ? (
         <p className="text-ui text-fg-secondary">{t.noMatches}</p>
       ) : (
-        <ul className="flex flex-col">
-          {shown.map((r) => (
-            <ProductRow key={r.product} row={r} focused={r.product === focus} />
-          ))}
-        </ul>
+        <>
+          <ul className="flex flex-col gap-0.5">
+            {listed.map((r) => (
+              <ProductRow key={r.product} row={r} focused={r.product === focus} />
+            ))}
+          </ul>
+          {shown.length > listed.length && (
+            <button type="button" onClick={() => setFine(true)} className="mt-3 h-10 w-full cursor-pointer rounded-xl text-ui text-fg-secondary transition-colors hover:bg-surface">
+              {t.showFine(shown.length - listed.length)}
+            </button>
+          )}
+        </>
       )}
     </>
   )
