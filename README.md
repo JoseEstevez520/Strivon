@@ -31,19 +31,23 @@
 
 ## What is Strivon?
 
-Fresh produce is the section where the state of a shelf matters most. An empty gondola is a lost
-sale, an overstocked one ends in waste, and a product in the wrong place gets the wrong price.
-Today the staff check this by walking the store.
+Fresh produce is where the state of a shelf matters most. An empty gondola is a lost sale, an
+overstocked one ends in waste, and a product in the wrong place gets the wrong price. Today the
+staff check this by walking the store.
 
 A ceiling camera already sees every gondola, but loose, piled fruit with no barcode is hard for a
 computer to read, and shoppers and staff hide it with their hands. Strivon takes the photo and the
-store's planogram and checks each shelf area: is it holding the product it should, and how full is
+store's planogram and checks each shelf area: does it hold the product it should, and how full is
 it? What comes out is a list of work for the staff.
 
 It was built for the Sensei challenge at JunctionX Lisbon 2026, with a day of photos from 14
 cameras in an autonomous store in Leiria.
 
 ## How it works
+
+<p align="center">
+  <img src="assets/presentation/graphics/diagrams/pipeline-en.png" alt="From a camera photo and the store planogram, each shelf area is checked with two questions, and the answers become tasks for the staff that show up in the plan, the round and the chat" width="100%">
+</p>
 
 For every shelf area in a photo, the pipeline answers two questions, and the app turns the answers
 into tasks.
@@ -53,22 +57,23 @@ into tasks.
 | Is the right product there? | yes or no | **Move back** when it is the wrong one |
 | How full is the area? | empty, half full or full | **Restock** when empty, **Later** when half full, nothing when full |
 
-The app groups the tasks by gondola so a round can be planned: the plan marks where the problems
-are, and the list says what to carry to each stop. The challenge scores each area, so the pipeline is tuned for the points as well as for the
-tasks: see [`docs/PLAN.md`](docs/PLAN.md).
+The tasks are grouped by gondola so a round can be planned: the plan marks where the problems are,
+and the list says what to carry to each stop. The challenge scores every area, so the pipeline is
+tuned for those points as well as for the tasks. The scoring is in [`docs/PLAN.md`](docs/PLAN.md).
 
 ## What you can do today
 
-- **See the round for the whole store**: a plan shows which gondolas need something, and a list gives the order of the stops and what to carry to each one.
+- **See the round for the whole store.** A plan shows which gondolas need something, and a list
+  gives the order of the stops and what to carry to each one.
 - **Open a gondola** to see its camera photo with what is wrong marked, and **play the day** with
   the day bar to watch the plan and the list change.
-- **Look at the store** as a plan, a 3D model or the latest photo of each camera, with a products
-  view made of cards and an insights page with the share of the time that shelves were empty.
-- **Ask the store a question** and get the answer as a screen, with charts, tasks and photo
-  cards. It needs a model key on the server.
+- **Look at the store** as a plan, a 3D model or the latest photo of each camera. A products page
+  has a card for each product, and an insights page shows how much of the time shelves were empty.
+- **Ask the store a question** and get the answer as a screen, with charts, tasks and photo cards.
+  It needs a model key on the server.
 - **Predict a folder of photos** from the command line: one JSON with `planogram_compliant` and
   `stock_level` for every area.
-- **Score the predictions** against our own labels with the challenge's points.
+- **Score the predictions** against our labels with the challenge's points.
 
 > **Status.** The app shows the model's answers when it finds `outputs/predictions.json`, which
 > `agents/predict.py` writes, and simulated shelf states when it does not. The landing demo and the
@@ -84,23 +89,21 @@ The landing is at [strivon-landing.vercel.app](https://strivon-landing.vercel.ap
 
 <img align="right" width="55%" src="assets/presentation/video/3d/store-3d.gif" alt="The store in 3D, turning slowly: every gondola with its products and the problems marked on it">
 
-A plan of the store shows which gondolas need something, and the list beside it gives the order of
-the round and what to bring to each stop.
-
-Play the day to watch both change, and open a gondola to see its shelf with what is wrong marked.
+Open the first page and the plan of the store shows which gondolas need something. The list beside
+it gives the order of the round and what to bring to each stop. Press a gondola to see its shelf
+with what is wrong marked, or play the day to watch both change.
 
 <br clear="right">
 
 ### Ask, and get a screen
 
-The chat does not answer with a paragraph. The model writes the layout of the answer out of the
-app's own parts (charts, tables, tasks, a map of the day, photo cards) and the app draws it, so an
-answer can be opened and followed to the shelf it talks about.
+The chat answers with a screen. The model writes the layout of the answer out of the app's own
+parts (charts, tables, tasks, a map of the day, photo cards) and the app draws it, so you can open
+the answer and follow it to the shelf it talks about. It needs a model key on the server
+(`LLM_API_KEY` in `frontend/.env`); without one the chat is hidden.
 
-It needs a model key on the server (`LLM_API_KEY` in `frontend/.env`); without one the chat is
-hidden.
-
-[Watch the clip](assets/video/chat-to-gondola.mp4). The shelf states in the clip and in the one above are simulated. Full-size clips are in [`assets/video`](assets/video).
+[Watch the clip](assets/video/chat-to-gondola.mp4). The shelf states in the clip and in the one
+above are simulated. Full-size clips are in [`assets/video`](assets/video).
 
 ## Run it locally
 
@@ -140,8 +143,13 @@ The steps for the day of the submission are in [`docs/VALIDATION_DAY.md`](docs/V
 
 ## Results
 
-Every approach scored the same way on the team benchmark. The rules are in
-[LEADERBOARD.md](LEADERBOARD.md). Refresh the tables with `python eval/leaderboard.py`.
+<p align="center">
+  <img src="assets/presentation/graphics/charts/results-top-approaches.png" alt="Bar chart of the ten best approaches on the team benchmark, from 3,399 to 3,327 points out of 3,858, against 1,554 for always answering right product and full" width="85%">
+</p>
+
+Every approach is scored the same way on the team benchmark. The rules are in
+[LEADERBOARD.md](LEADERBOARD.md), and `python eval/leaderboard.py` refreshes the tables below. The
+chart is a snapshot of the top ten, so it ages when the leaderboard changes.
 
 <details>
 <summary>Leaderboard</summary>
