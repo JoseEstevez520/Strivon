@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input'
 import { useI18n } from '@/lib/i18n'
 import { useStore } from '@/lib/store'
 import { ACTION, cameras, type Task } from '@/lib/tasks'
+import { clock } from '@/lib/time'
 
 const mix = (c: string, pct: number) => `color-mix(in oklab, ${c} ${pct}%, var(--raised))`
 
@@ -27,46 +28,34 @@ interface Row {
   short: number
 }
 
-/** What a product's areas are doing, as small tinted counts. Fine ones say so quietly. */
-function Counts({ tasks }: { tasks: Task[] }) {
+
+/** One area of a product as a small square, with the same shape per state as the shelves: "!" empty, an arrow for a wrong product, half filled, plain when fine. */
+function Cell({ task }: { task: Task }) {
   const { t } = useI18n()
-  const n = (st: string) => tasks.filter((x) => statusOf(x) === st).length
-  const empty = n('empty')
-  const wrong = n('wrong')
-  const half = n('half')
-  const chip = 'flex h-6 items-center gap-1 rounded-md px-2 text-meta font-medium tabular-nums'
-  if (empty + wrong + half === 0) {
-    return (
-      <span className="flex items-center gap-1 text-meta text-fg-muted">
-        <Check className="size-3.5" strokeWidth={3} aria-hidden />
-        {t.level.full}
-      </span>
-    )
-  }
+  const { gondola } = useStore()
+  const look = statusOf(task)
+  const word = look === 'empty' ? t.level.empty : look === 'wrong' ? t.wrongProduct : look === 'half' ? t.level.half : t.level.full
+  const bg = look === 'empty' ? mix('var(--danger)', 22) : look === 'wrong' ? mix('var(--warning)', 30) : 'var(--raised)'
   return (
-    <span className="flex flex-wrap gap-1.5">
-      {empty > 0 && (
-        <span className={chip} style={{ background: mix('var(--danger)', 14), color: 'var(--danger)' }}>
-          ×{empty} {t.level.empty}
-        </span>
-      )}
-      {wrong > 0 && (
-        <span className={chip} style={{ background: mix('var(--warning)', 26), color: 'var(--warning)' }}>
-          <Undo2 className="size-3" aria-hidden />×{wrong} {t.wrongProduct}
-        </span>
-      )}
-      {half > 0 && (
-        <span className={`${chip} text-fg-secondary`} style={{ background: 'var(--sunk)' }}>
-          ×{half} {t.level.half}
-        </span>
-      )}
-    </span>
+    <Link
+      to={`/gondolas/${task.area.camera}?area=${task.area.area_id}`}
+      title={`${gondola(task.area.camera)} · ${word}`}
+      aria-label={`${gondola(task.area.camera)} · ${word}`}
+      className="relative grid size-5 place-items-center overflow-hidden rounded-[5px] transition-opacity hover:opacity-70"
+      style={{ background: bg, color: look === 'empty' ? 'var(--danger)' : 'var(--warning)' }}
+    >
+      {look === 'half' && <span className="absolute inset-x-0 bottom-0 h-1/2" style={{ background: mix('var(--fg)', 13) }} />}
+      {look === 'empty' && <span className="text-[11px] leading-none font-bold">!</span>}
+      {look === 'wrong' && <Undo2 className="size-3" strokeWidth={3} aria-hidden />}
+    </Link>
   )
 }
 
-const RANK = { empty: 0, wrong: 1, half: 2, fine: 3 } as const
-
-/** One product as a card: its icon, how stocked it is, what is wrong, and every gondola it sits in, tinted by state. */
+/**
+ * One product as a card with four fixed places, so every card has the same shape: who it is, one
+ * square per area in the state it is in, what to do and where, and since when. A line appears only
+ * when it has news.
+ */
 function ProductCard({ row, focused }: { row: Row; focused: boolean }) {
   const { t, family } = useI18n()
   const { gondola } = useStore()
@@ -76,55 +65,64 @@ function ProductCard({ row, focused }: { row: Row; focused: boolean }) {
     if (focused) ref.current?.scrollIntoView({ block: 'center' })
   }, [focused])
   const name = family(row.product)
-  const percent = Math.round(row.fill * 100)
-  const tone = row.fill >= 0.7 ? 'var(--success)' : row.fill >= 0.35 ? 'var(--warning)' : 'var(--danger)'
-
-  // One chip per gondola, in the colour of the worst area this product has there.
-  const places = useMemo(() => {
-    const m = new Map<string, { camera: string; area: string; look: keyof typeof RANK }>()
-    for (const x of row.tasks) {
-      const look = statusOf(x)
-      const have = m.get(x.area.camera)
-      if (!have || RANK[look] < RANK[have.look]) m.set(x.area.camera, { camera: x.area.camera, area: x.area.area_id, look })
-    }
-    return [...m.values()].sort((a, b) => RANK[a.look] - RANK[b.look] || Number(a.camera) - Number(b.camera))
-  }, [row.tasks])
-  const style = {
-    empty: { background: mix('var(--danger)', 14), color: 'var(--danger)' },
-    wrong: { background: mix('var(--warning)', 26), color: 'var(--warning)' },
-    half: { background: 'var(--sunk)', color: 'var(--fg-secondary)' },
-    fine: { background: 'transparent', color: 'var(--fg-muted)' },
-  } as const
+  const cells = useMemo(
+    () => [...row.tasks].sort((a, b) => Number(a.area.camera) - Number(b.area.camera) || a.area.index - b.area.index),
+    [row.tasks],
+  )
+  const where = (st: 'empty' | 'wrong') => [...new Set(cells.filter((x) => statusOf(x) === st).map((x) => x.area.camera))].map((c) => gondola(c).match(/\d+$/)?.[0] ?? c)
+  const bring = where('empty')
+  const back = where('wrong')
+  const since = Math.min(...cells.filter((x) => statusOf(x) === 'empty' && x.since !== null).map((x) => x.since as number))
+  const chip = (c: string, bg: string) => (
+    <span key={c} className="grid h-6 min-w-6 place-items-center rounded-md px-1.5 text-meta font-medium tabular-nums text-fg-secondary" style={{ background: bg }}>
+      {c}
+    </span>
+  )
 
   return (
-    <li ref={ref} data-focus={focused} className="flex flex-col gap-3 rounded-2xl bg-raised/60 p-4 data-[focus=true]:bg-raised data-[focus=true]:ring-1 data-[focus=true]:ring-border">
+    <li
+      ref={ref}
+      data-focus={focused}
+      title={t.onShelf(Math.round(row.fill * 100))}
+      className="flex flex-col gap-3 rounded-2xl bg-surface p-4 transition-colors hover:bg-raised data-[focus=true]:bg-raised"
+    >
       <div className="flex items-center gap-3">
-        <ProductIcon family={row.tasks[0]?.area.family ?? row.product} label={name} className="size-9 shrink-0 text-fg-secondary" />
+        <ProductIcon family={cells[0]?.area.family ?? row.product} label={name} className="size-8 shrink-0 text-fg-secondary" />
         <span className="min-w-0 flex-1">
           <span className="block truncate text-label">{name}</span>
-          <span className="block text-meta tabular-nums text-fg-muted">{t.onShelf(percent)}</span>
+          <span className="block text-meta tabular-nums text-fg-secondary">{t.areasCount(cells.length)}</span>
         </span>
       </div>
-      <span className="h-1.5 overflow-hidden rounded-full bg-sunk" aria-hidden>
-        <span className="block h-full rounded-full" style={{ width: `${percent}%`, backgroundColor: tone }} />
-      </span>
-      <Counts tasks={row.tasks} />
-      <ul className="mt-auto flex flex-wrap items-center gap-1 pt-1" aria-label={t.navGondolas}>
-        <li className="mr-1 text-meta text-fg-muted">{t.navGondolas}</li>
-        {places.map((p) => (
-          <li key={p.camera}>
-            <Link
-              to={`/gondolas/${p.camera}?area=${p.area}`}
-              title={gondola(p.camera)}
-              className="flex h-7 min-w-8 items-center justify-center gap-0.5 rounded-md px-1.5 text-meta font-medium tabular-nums transition-opacity hover:opacity-70"
-              style={style[p.look]}
-            >
-              {p.look === 'wrong' && <Undo2 className="size-3" aria-hidden />}
-              {gondola(p.camera).match(/\d+$/)?.[0] ?? gondola(p.camera)}
-            </Link>
-          </li>
+      <div className="flex min-h-5 flex-wrap gap-1">
+        {cells.map((x) => (
+          <Cell key={x.area.area_id} task={x} />
         ))}
-      </ul>
+      </div>
+      <div className="mt-auto flex flex-col gap-1.5 pt-1">
+        {bring.length + back.length === 0 ? (
+          <span className="flex h-6 items-center gap-1.5 text-meta text-fg-secondary">
+            <Check className="size-4" style={{ color: 'var(--success)' }} strokeWidth={3} aria-hidden />
+            {t.shortOf(0, cells.length)}
+          </span>
+        ) : (
+          <>
+            {bring.length > 0 && (
+              <span className="flex flex-wrap items-center gap-1 text-meta text-fg-secondary">
+                <span className="mr-1">{t.bringTo}</span>
+                {bring.map((c) => chip(c, mix('var(--danger)', 16)))}
+              </span>
+            )}
+            {back.length > 0 && (
+              <span className="flex flex-wrap items-center gap-1 text-meta text-fg-secondary">
+                <Undo2 className="size-3.5" style={{ color: 'var(--warning)' }} strokeWidth={3} aria-hidden />
+                <span className="mr-1">{t.putBackIn}</span>
+                {back.map((c) => chip(c, mix('var(--warning)', 26)))}
+              </span>
+            )}
+          </>
+        )}
+        {Number.isFinite(since) && <span className="text-meta tabular-nums text-fg-muted">{t.emptySince(clock(since))}</span>}
+      </div>
     </li>
   )
 }
@@ -225,7 +223,7 @@ export function ProductsPage() {
         <p className="text-ui text-fg-secondary">{t.noMatches}</p>
       ) : (
         <>
-          <ul className="grid grid-cols-[repeat(auto-fill,minmax(16.5rem,1fr))] gap-3">
+          <ul className="grid grid-cols-[repeat(auto-fill,minmax(16.5rem,1fr))] gap-4">
             {listed.map((r) => (
               <ProductCard key={r.product} row={r} focused={r.product === focus} />
             ))}
