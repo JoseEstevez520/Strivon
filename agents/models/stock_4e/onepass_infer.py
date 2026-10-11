@@ -10,6 +10,7 @@ built from deploy/dinov2_small_config.json, and every weight comes from the .pt 
 usage (check): py -I models/stock_4e/onepass_infer.py [SIZE] [TAG] [B8_STOCK.npz] -> newest photo of two cameras + timing
 """
 import json
+import os
 import pathlib
 import sys
 
@@ -41,6 +42,13 @@ class OnePass:
         self.head.load_state_dict({"weight": sd["head.weight"], "bias": sd["head.bias"]})
         self.dev = device
         self.bb.to(device).eval()
+        q_from = os.environ.get("ONEPASS_INT8_FROM", "")
+        if q_from and device == "cpu":   # int8 weights for blocks >= q_from (0-based): about 20% less CPU at 6,
+            from torch.ao.quantization import default_dynamic_qconfig, quantize_dynamic   # 1 of 304 forward answers moved
+            k = int(q_from)
+            spec = {n: default_dynamic_qconfig for n, mod in self.bb.named_modules()
+                    if isinstance(mod, torch.nn.Linear) and n.startswith("encoder.layer.") and int(n.split(".")[2]) >= k}
+            self.bb = quantize_dynamic(self.bb, spec, dtype=torch.qint8)
         self.head.to(device).eval()
         p = np.load(str(stem) + "_product.npz")
         self.mu, self.sd, self.coef, self.b = p["mu"], p["sd"], p["coef"], p["intercept"]
