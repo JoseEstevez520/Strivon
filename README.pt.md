@@ -38,6 +38,10 @@ Foi criado no JunctionX Lisboa 2026 para o desafio da Sensei, com um dia de foto
 
 ## Como funciona
 
+<p align="center">
+  <img src="assets/presentation/graphics/diagrams/pipeline-en.png" alt="De uma fotografia de câmara e do planograma da loja a uma lista de trabalho: cada zona da prateleira é verificada com duas perguntas e as respostas tornam-se tarefas que aparecem no plano, na ronda e no chat (diagrama em inglês)" width="100%">
+</p>
+
 Para cada zona de prateleira numa fotografia, o pipeline responde a duas perguntas e a aplicação transforma as respostas em tarefas.
 
 | Pergunta | Resposta | Tarefa para os funcionários |
@@ -76,7 +80,7 @@ Reproduza o dia para ver os dois mudarem e abra uma gôndola para ver a sua prat
 
 ### Pergunte e receba um ecrã
 
-O chat não responde com um parágrafo. O modelo escreve o desenho da resposta com as peças da própria aplicação (gráficos, tabelas, tarefas, um mapa do dia, cartões com fotografia) e a aplicação desenha-o, por isso a resposta pode ser aberta e seguida até à prateleira de que fala.
+O chat responde com um ecrã. O modelo escreve o desenho da resposta com as peças da própria aplicação (gráficos, tabelas, tarefas, um mapa do dia, cartões com fotografia) e a aplicação desenha-o, por isso a resposta pode ser aberta e seguida até à prateleira de que fala.
 
 Precisa de uma chave de um modelo no servidor (`LLM_API_KEY` em `frontend/.env`); sem ela o chat fica escondido.
 
@@ -117,6 +121,10 @@ Os passos do dia da entrega estão em [`docs/VALIDATION_DAY.md`](docs/VALIDATION
 - [`CONTRIBUTING.md`](CONTRIBUTING.md): ramos, commits e idioma.
 
 ## Resultados
+
+<p align="center">
+  <img src="assets/presentation/graphics/charts/results-top-approaches.png" alt="Gráfico de barras das dez melhores abordagens no benchmark da equipa, de 3399 a 3327 pontos em 3858, contra 1554 de responder sempre produto certo e cheio (gráfico em inglês)" width="85%">
+</p>
 
 Todas as abordagens são pontuadas da mesma forma no benchmark da equipa. As regras e as tabelas estão em [LEADERBOARD.md](LEADERBOARD.md) e no [README em inglês](README.md#results).
 

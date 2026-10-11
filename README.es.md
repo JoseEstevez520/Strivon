@@ -38,6 +38,10 @@ Se creó en JunctionX Lisboa 2026 para el reto de Sensei, con un día de fotos d
 
 ## Cómo funciona
 
+<p align="center">
+  <img src="assets/presentation/graphics/diagrams/pipeline-es.png" alt="De una foto de cámara y el planograma de la tienda a una lista de trabajo: cada zona de estantería se comprueba con dos preguntas y las respuestas se convierten en tareas que aparecen en el plano, la ronda y el chat" width="100%">
+</p>
+
 Para cada zona de estantería de una foto, el pipeline responde dos preguntas y la app convierte las respuestas en tareas.
 
 | Pregunta | Respuesta | Tarea para el personal |
@@ -76,7 +80,7 @@ Reproduce el día para ver cómo cambian los dos, y abre una góndola para ver s
 
 ### Pregunta y recibe una pantalla
 
-El chat no responde con un párrafo. El modelo escribe el diseño de la respuesta con las piezas de la propia app (gráficas, tablas, tareas, un mapa del día, tarjetas con foto) y la app lo dibuja, así que la respuesta se puede abrir y seguir hasta la estantería de la que habla.
+El chat responde con una pantalla. El modelo escribe el diseño de la respuesta con las piezas de la propia app (gráficas, tablas, tareas, un mapa del día, tarjetas con foto) y la app lo dibuja, así que la respuesta se puede abrir y seguir hasta la estantería de la que habla.
 
 Necesita una clave de un modelo en el servidor (`LLM_API_KEY` en `frontend/.env`); sin ella el chat se oculta.
 
@@ -117,6 +121,10 @@ Los pasos del día de la entrega están en [`docs/VALIDATION_DAY.md`](docs/VALID
 - [`CONTRIBUTING.md`](CONTRIBUTING.md): ramas, commits e idioma.
 
 ## Resultados
+
+<p align="center">
+  <img src="assets/presentation/graphics/charts/results-top-approaches.png" alt="Gráfico de barras de los diez mejores enfoques del benchmark del equipo, de 3.399 a 3.327 puntos sobre 3.858, frente a 1.554 de responder siempre producto correcto y lleno" width="85%">
+</p>
 
 Todos los enfoques se puntúan igual con el benchmark del equipo. Las reglas y las tablas están en [LEADERBOARD.md](LEADERBOARD.md) y en el [README en inglés](README.md#results).
 
