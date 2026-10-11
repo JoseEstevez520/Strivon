@@ -118,14 +118,6 @@ Os passos do dia da entrega estão em [`docs/VALIDATION_DAY.md`](docs/VALIDATION
 - [`LEADERBOARD.md`](LEADERBOARD.md): como cada abordagem é pontuada e os resultados.
 - [`CONTRIBUTING.md`](CONTRIBUTING.md): ramos, commits e idioma.
 
-## Resultados
-
-<p align="center">
-  <img src="assets/presentation/graphics/charts/results-top-approaches.png" alt="Gráfico de barras das dez melhores abordagens no benchmark da equipa, de 3399 a 3327 pontos em 3858, contra 1554 de responder sempre produto certo e cheio (gráfico em inglês)" width="85%">
-</p>
-
-Todas as abordagens são pontuadas da mesma forma no benchmark da equipa. As regras e as tabelas estão em [LEADERBOARD.md](LEADERBOARD.md) e no [README em inglês](README.md#results).
-
 ## Código anterior
 
 Escrito durante o hackathon, exceto:

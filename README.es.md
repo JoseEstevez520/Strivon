@@ -118,14 +118,6 @@ Los pasos del día de la entrega están en [`docs/VALIDATION_DAY.md`](docs/VALID
 - [`LEADERBOARD.md`](LEADERBOARD.md): cómo se puntúa cada enfoque, y los resultados.
 - [`CONTRIBUTING.md`](CONTRIBUTING.md): ramas, commits e idioma.
 
-## Resultados
-
-<p align="center">
-  <img src="assets/presentation/graphics/charts/results-top-approaches.png" alt="Gráfico de barras de los diez mejores enfoques del benchmark del equipo, de 3.399 a 3.327 puntos sobre 3.858, frente a 1.554 de responder siempre producto correcto y lleno" width="85%">
-</p>
-
-Todos los enfoques se puntúan igual con el benchmark del equipo. Las reglas y las tablas están en [LEADERBOARD.md](LEADERBOARD.md) y en el [README en inglés](README.md#results).
-
 ## Código previo
 
 Escrito durante el hackathon, salvo:
