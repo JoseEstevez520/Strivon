@@ -19,6 +19,8 @@ export interface Move {
   /** The gondola it belongs in, or null when the planogram has no place for it. */
   to: string | null
   task: Task
+  /** True when the pipeline said the place holds the wrong product but not which one. */
+  unknown?: boolean
 }
 
 export interface Stop {
@@ -67,6 +69,10 @@ export function buildRound(tasks: Task[]): Round {
   }
   for (const x of tasks) {
     if (x.group === 'restock') add(stopOf(x.area.camera).leave, x.area.family, x)
+    if (x.group === 'moveBack' && !x.obs.observed_family) {
+      // The place holds the wrong product and the pipeline did not say which: it can only be taken away.
+      stopOf(x.area.camera).pick.push({ family: x.area.family, from: x.area.camera, to: null, task: x, unknown: true })
+    }
     if (x.group === 'moveBack' && x.obs.observed_family) {
       const family = x.obs.observed_family
       const to = nearest(family, x.area.camera)

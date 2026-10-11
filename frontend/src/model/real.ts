@@ -1,6 +1,6 @@
 import { familyOf } from './catalog'
 import { simulateObservations } from './simulate'
-import type { StoreState } from './types'
+import type { Level, Observation, StoreState } from './types'
 
 type Corner = [number, number]
 
@@ -20,11 +20,16 @@ export interface Planogram {
   }
 }
 
+/** What the pipeline writes: camera, then photo, then area. Other fields of an area are ignored. */
+export type Predictions = Record<string, Record<string, Record<string, { planogram_compliant: boolean; stock_level: Level }>>>
+
 /**
  * The real cameras, photos and shelf areas, read from the planogram and the photo names (which
- * are their Unix timestamps). What the pipeline says about each area is simulated for now.
+ * are their Unix timestamps). What the pipeline says about each area comes from `predictions` when
+ * there are any, and is simulated otherwise. A photo the predictions do not cover is left out, so
+ * nothing on screen mixes real and invented states.
  */
-export function buildRealState(planogram: Planogram, photos: Record<string, string[]>): StoreState {
+export function buildRealState(planogram: Planogram, photos: Record<string, string[]>, predictions?: Predictions): StoreState {
   const state: StoreState = { images: {}, areas: {}, observations: {} }
 
   for (const [camera, entry] of Object.entries(planogram['Frutas e Legumes'].cameras)) {
@@ -49,6 +54,25 @@ export function buildRealState(planogram: Planogram, photos: Record<string, stri
     }
   }
 
-  simulateObservations(state)
+  if (!predictions) {
+    simulateObservations(state)
+    return state
+  }
+  for (const camera of Object.keys(state.images)) {
+    const said = predictions[camera] ?? {}
+    state.images[camera] = state.images[camera].filter((r) => said[r.image])
+    if (state.images[camera].length === 0) {
+      delete state.images[camera]
+      continue
+    }
+    state.observations[camera] = {}
+    for (const { image } of state.images[camera]) {
+      const frame: Record<string, Observation> = {}
+      for (const [area, o] of Object.entries(said[image])) {
+        if (state.areas[area]) frame[area] = { planogram_compliant: o.planogram_compliant, stock_level: o.stock_level }
+      }
+      state.observations[camera][image] = frame
+    }
+  }
   return state
 }

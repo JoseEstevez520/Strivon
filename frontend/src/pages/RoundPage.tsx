@@ -93,8 +93,8 @@ export function RoundPage() {
     <Row
       key={`${m.family}${m.task.area.area_id}`}
       lead={<AreaCrop area={m.task.area} image={m.task.record.image} size={64} />}
-      name={family(m.family)}
-      line={m.to ? t.takeTo(gondola(m.to)) : t.takeBack}
+      name={m.unknown ? t.wrongProduct : family(m.family)}
+      line={m.unknown ? t.inPlaceOf(family(m.family)) : m.to ? t.takeTo(gondola(m.to)) : t.takeBack}
     />
   )
 

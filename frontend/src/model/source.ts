@@ -1,5 +1,5 @@
 import { buildMockState } from './mock'
-import { buildRealState, type Planogram } from './real'
+import { buildRealState, type Planogram, type Predictions } from './real'
 import type { StoreState } from './types'
 
 export interface Source {
@@ -19,10 +19,18 @@ export async function loadSource(): Promise<Source> {
     const res = await fetch('/local-data/index.json')
     if (res.ok) {
       const data = (await res.json()) as { planogram: Planogram; images: Record<string, string[]> }
+      // The model's answers, when they have been made; the states are simulated without them.
+      let predictions: Predictions | undefined
+      try {
+        const said = await fetch('/local-data/predictions.json')
+        if (said.ok) predictions = (await said.json()) as Predictions
+      } catch {
+        // no predictions yet
+      }
       return {
-        state: buildRealState(data.planogram, data.images),
+        state: buildRealState(data.planogram, data.images, predictions),
         photoUrl: (camera, image) => `/local-data/images/${camera}/${image}`,
-        simulated: true,
+        simulated: !predictions,
       }
     }
   } catch {

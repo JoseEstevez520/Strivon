@@ -19,6 +19,7 @@ interface Strings {
   empty: string
   half: string
   wrongPlace: (seen: string) => string
+  inPlaceOf: (expected: string) => string
   since: (time: string) => string
   areasFine: (n: number) => string
   level: Record<'empty' | 'half' | 'full', string>
@@ -258,6 +259,7 @@ const en: Strings = {
   empty: 'Empty',
   half: 'Half full',
   wrongPlace: (seen) => `Looks like ${seen}`,
+  inPlaceOf: (x) => `in the place of ${x}`,
   since: (t) => `since ${t}`,
   areasFine: (n) => `${n} areas`,
 }
@@ -387,6 +389,7 @@ const pt: Strings = {
   empty: 'Vazio',
   half: 'A meio',
   wrongPlace: (seen) => `Parece ${seen}`,
+  inPlaceOf: (x) => `no lugar de ${x}`,
   since: (t) => `desde as ${t}`,
   areasFine: (n) => `${n} áreas`,
 }
@@ -516,6 +519,7 @@ const es: Strings = {
   empty: 'Vacío',
   half: 'A medias',
   wrongPlace: (seen) => `Parece ${seen}`,
+  inPlaceOf: (x) => `en lugar de ${x}`,
   since: (t) => `desde las ${t}`,
   areasFine: (n) => `${n} zonas`,
 }
