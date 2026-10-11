@@ -3,8 +3,8 @@
 Usage: python eval/leaderboard.py
 
 Each predictions file needs a row in eval/benchmark/preds/meta.json (approach, owner, labels,
-other photos, seconds per photo). The table goes between the LEADERBOARD markers in both
-LEADERBOARD.md and README.md, best total first.
+other photos, seconds per photo). The table goes between the LEADERBOARD markers in
+LEADERBOARD.md, best total first.
 """
 import json
 import re
@@ -49,7 +49,7 @@ for rank, (_, m, t, last, name) in enumerate(rows, 1):
                  f"{t['total'] / t['areas']:+.3f} | {last['total'] / last['areas']:+.3f} | {m.get('seconds', '')} |")
 table = "\n".join(lines)
 
-for doc in (ROOT / "LEADERBOARD.md", ROOT / "README.md"):
+for doc in (ROOT / "LEADERBOARD.md",):
     s = doc.read_text(encoding="utf-8")
     if START in s:
         s = re.sub(re.escape(START) + ".*?" + re.escape(END), START + "\n" + table + "\n" + END, s, flags=re.S)
@@ -90,7 +90,7 @@ if B.FORWARD is not None and PF.exists():
                   f"{round(u['total'] / u['areas'] * 289):+d} | {u['ident']:+d} | {u['stock']:+d} | {u['below']} | {u['above']} | "
                   f"{t['labels_v1']['total']:+d} | {t['current']['total']:+d} | {m.get('seconds', '')} |")
     ftable = "\n".join(fl)
-    for doc in (ROOT / "LEADERBOARD.md", ROOT / "README.md"):
+    for doc in (ROOT / "LEADERBOARD.md",):
         s2 = doc.read_text(encoding="utf-8")
         if FSTART in s2:
             s2 = re.sub(re.escape(FSTART) + ".*?" + re.escape(FEND), FSTART + "\n" + ftable + "\n" + FEND, s2, flags=re.S)
