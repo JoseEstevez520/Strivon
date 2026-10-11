@@ -60,6 +60,9 @@ npm run build:landing    # build it into dist-landing/
 It is hosted on Vercel. Create the project with `frontend` as the root directory; `vercel.json`
 sets the build command and the output folder.
 
+Deployments from Git are off (`git.deploymentEnabled` is `false` in `vercel.json`), so a push does not deploy.
+Deploy by hand from `frontend/` with `npx vercel deploy` for a preview or `npx vercel deploy --prod` for production.
+
 ## The chat model
 
 The Insights chat asks a model through `/api/chat`, which the Vite server relays to any
