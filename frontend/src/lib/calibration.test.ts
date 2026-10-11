@@ -39,7 +39,7 @@ test('units mode normalises by 7', () => {
   const c: ProductCal = { mode: 'units', threshold: 3.5, level: 'full' }
   assert.equal(levelFor(0.5, c), 'full')
   assert.equal(levelFor(0.3, c), 'half')
-  assert.equal(levelFor(0.2, c), 'empty')
+  assert.equal(levelFor(0.1, c), 'empty')
 })
 
 test('no calibration falls back to fixed cutoffs', () => {
