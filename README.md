@@ -24,7 +24,7 @@
 </p>
 
 <p align="center">
-  <img src="assets/readme/photo-to-tasks.png" alt="Three ceiling-camera photos with the shelf areas marked, on the left, and on the right a small store in 3D with four gondolas and the problems marked on each one" width="100%">
+  <img src="assets/readme/photo-to-tasks.png" alt="Three ceiling-camera photos with the shelf areas marked, on the left, and on the right a small store in 3D with four gondolas and the list of stops of the round, with what is wrong in each" width="100%">
 </p>
 
 <p align="center"><sub>Photos from the ceiling cameras in, a list of work out. The marks are the model's answers for the last photo of each camera.</sub></p>

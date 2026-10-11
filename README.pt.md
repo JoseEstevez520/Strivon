@@ -23,7 +23,7 @@
 </p>
 
 <p align="center">
-  <img src="assets/readme/photo-to-tasks.png" alt="Três fotografias de câmaras de teto com as zonas da prateleira assinaladas, à esquerda, e à direita uma loja pequena em 3D com quatro gôndolas e os problemas assinalados em cada uma" width="100%">
+  <img src="assets/readme/photo-to-tasks.png" alt="Três fotografias de câmaras de teto com as zonas da prateleira assinaladas, à esquerda, e à direita uma loja pequena em 3D com quatro gôndolas e a lista de paragens da ronda, com o que está mal em cada uma" width="100%">
 </p>
 
 <p align="center"><sub>Entram fotografias das câmaras de teto, sai uma lista de trabalho. As marcas são as respostas do modelo para a última fotografia de cada câmara.</sub></p>
