@@ -10,7 +10,10 @@ App for the Sensei challenge (JunctionX Lisbon 2026). From the ceiling cameras, 
 
 The dataset is not in the repository (it belongs to the challenge). Unzip the official archive so you end up with `data/planogram.json` and `data/images/<camera>/<timestamp>.jpg`.
 
+Run the commands from `backend/` (the files are in the repo root's `data/`; the output goes to `outputs/`).
+
 ```bash
+cd backend
 python -m pip install -r requirements.txt
 ```
 
@@ -72,18 +75,18 @@ image ──► rectified crop per area (homography; areas with negative coordin
       ──► DECISION: argmax of expected points (+1/−2/−3 matrix)
 ```
 
-Code: `sensei/` (pipeline) and `app/` (FastAPI server and a frontend with no build step).
+Code: `backend/sensei/` (pipeline) and `backend/app/` (FastAPI server and a frontend with no build step).
 
 | File | Contents |
 |---|---|
-| `sensei/catalog.py` | Portuguese name → family, English description, packaged or loose, short name |
-| `sensei/geometry.py` | Quadrilateral rectification, clipping |
-| `sensei/extract.py` | Image discovery, features, cache |
-| `sensei/models.py` | Label-free model (stock and compliance) |
-| `sensei/decision.py` | Decision with asymmetric costs |
-| `sensei/scoring.py` | Scorer with the official rules |
-| `sensei/calibrate.py` | Optional calibration with annotations |
-| `sensei/vlm.py` | Optional Claude teacher |
+| `backend/sensei/catalog.py` | Portuguese name → family, English description, packaged or loose, short name |
+| `backend/sensei/geometry.py` | Quadrilateral rectification, clipping |
+| `backend/sensei/extract.py` | Image discovery, features, cache |
+| `backend/sensei/models.py` | Label-free model (stock and compliance) |
+| `backend/sensei/decision.py` | Decision with asymmetric costs |
+| `backend/sensei/scoring.py` | Scorer with the official rules |
+| `backend/sensei/calibrate.py` | Optional calibration with annotations |
+| `backend/sensei/vlm.py` | Optional Claude teacher |
 
 ## Known limitations (seen in the training images)
 
