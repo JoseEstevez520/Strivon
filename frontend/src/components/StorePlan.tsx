@@ -1,12 +1,9 @@
-import { Check, ChevronsUp, Clock, Footprints, Undo2 } from 'lucide-react'
+import { Check, ChevronsUp, Undo2 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
-import { useNavigate } from 'react-router'
-import { DayBar } from '@/components/DayBar'
 import { ProductIcon } from '@/components/ProductIcon'
 import { useI18n } from '@/lib/i18n'
 import { useStore } from '@/lib/store'
-import { suggest } from '@/lib/suggest'
-import { cameras, type Task } from '@/lib/tasks'
+import type { Task } from '@/lib/tasks'
 import { clock } from '@/lib/time'
 
 /*
@@ -166,7 +163,7 @@ export function GondolaBlock({
 }
 
 /** Columns for the width: the plan from 1024 with five (four while the panel is narrow), then four, then two. */
-function useLayout() {
+export function useLayout() {
   const calc = () => {
     const w = typeof window === 'undefined' ? 1280 : window.innerWidth
     return { plan: w >= 1024, cols: w >= 1280 ? 5 : w >= 640 ? 4 : 2 }
@@ -178,107 +175,6 @@ function useLayout() {
     return () => window.removeEventListener('resize', on)
   }, [])
   return v
-}
-
-export function MapStorePage() {
-  const { state, tasks, gondola, gondolaWhat, times, setIndex } = useStore()
-  const { t, family } = useI18n()
-  const { plan, cols } = useLayout()
-  const list = cameras(state)
-  const navigate = useNavigate()
-  const [moment, setMoment] = useState(false)
-
-  const byCamera = useMemo(() => {
-    const m: Record<string, Task[]> = {}
-    for (const x of tasks) (m[x.area.camera] ??= []).push(x)
-    return m
-  }, [tasks])
-  const ranking = useMemo(() => suggest(tasks), [tasks])
-  const order = useMemo(() => ranking.map((s) => s.camera), [ranking])
-  const rankOf = (c: string) => (order.indexOf(c) >= 0 && order.indexOf(c) < 3 ? order.indexOf(c) + 1 : 0)
-  const shown = plan ? list : [...order, ...list.filter((c) => !order.includes(c))]
-
-  // Pressing a gondola opens its own page: the photo, and what is wrong in it.
-  const choose = (c: string) => navigate(`/gondolas/${c}`)
-  const first = order[0]
-  const bringOf = (c: string) => [...new Set((byCamera[c] ?? []).filter(isProblem).map((x) => x.area.family))]
-  const sinceOf = (c: string) => ranking.find((s) => s.camera === c)?.emptySince ?? null
-
-  return (
-    <>
-      <div className="mb-3 flex items-center justify-between gap-x-4">
-        <h1 className="text-title">{t.plan.title}</h1>
-        <button
-          type="button"
-          onClick={() => {
-            if (moment) setIndex(times.length - 1)
-            setMoment(!moment)
-          }}
-          className="flex h-9 cursor-pointer items-center gap-2 rounded-lg px-2.5 text-ui text-fg-secondary transition-colors hover:bg-surface"
-        >
-          <Clock className="size-4" />
-          {moment ? t.plan.hideMoment : t.plan.anotherMoment}
-        </button>
-      </div>
-      {moment && <DayBar className="mb-3" />}
-
-      {plan && (
-        <section className="mb-3 flex items-center gap-x-5 gap-y-2 rounded-xl bg-raised px-4 py-2.5">
-          {first ? (
-            <>
-              <span className="min-w-0">
-                <span className="block text-meta text-fg-muted">{t.goFirst}</span>
-                <span className="block text-copy leading-tight font-semibold">{gondola(first)}</span>
-              </span>
-              <span className="hidden min-w-0 text-ui text-fg-secondary xl:block">{gondolaWhat(first)}</span>
-              <span className="flex flex-1 items-center gap-1.5">
-                <span className="text-meta text-fg-muted">{t.bring}</span>
-                {bringOf(first)
-                  .slice(0, 6)
-                  .map((f) => (
-                    <span key={f} title={family(f)} className="grid size-8 place-items-center rounded-md" style={{ background: mix('var(--danger)', 14), color: 'var(--danger)' }}>
-                      <ProductIcon family={f} label={family(f)} className="size-5" />
-                    </span>
-                  ))}
-                {sinceOf(first) != null && <span className="ml-1 text-ui text-fg-secondary">{t.emptySince(clock(sinceOf(first)))}</span>}
-              </span>
-              <button
-                type="button"
-                onClick={() => choose(first)}
-                className="flex h-11 shrink-0 cursor-pointer items-center gap-2 rounded-lg bg-sunk px-4 text-ui font-semibold transition-colors hover:bg-surface"
-              >
-                <Footprints className="size-4" />
-                {t.plan.show(gondola(first))}
-              </button>
-            </>
-          ) : (
-            <p className="flex items-center gap-2 text-copy">
-              <Check className="size-5" style={{ color: 'var(--success)' }} strokeWidth={3} />
-              {t.plan.nothingToDo}
-            </p>
-          )}
-        </section>
-      )}
-
-      {plan ? (
-        <Plan list={shown} cols={cols} byCamera={byCamera} rankOf={rankOf} choose={choose} />
-      ) : (
-        <div className="grid gap-2 rounded-2xl p-2" style={{ background: FLOOR, gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}>
-          {shown.map((c) => (
-            <GondolaBlock
-              key={c}
-              camera={c}
-              tasks={byCamera[c] ?? []}
-              rank={rankOf(c)}
-              wide={rankOf(c) === 1}
-              extra={rankOf(c) === 1 ? { bring: bringOf(c), since: sinceOf(c) } : undefined}
-              onPick={() => choose(c)}
-            />
-          ))}
-        </div>
-      )}
-    </>
-  )
 }
 
 /** Walls, the department name, rows of gondolas with a flat aisle band after each, and an opening for the door. Flat tones only. */

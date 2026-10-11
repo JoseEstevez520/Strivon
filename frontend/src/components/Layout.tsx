@@ -1,4 +1,4 @@
-import { Apple, ChartNoAxesColumn, Globe, LayoutGrid, ListChecks, Map as MapIcon, type LucideIcon } from 'lucide-react'
+import { Apple, ChartNoAxesColumn, Globe, ListChecks, type LucideIcon } from 'lucide-react'
 import { ES, GB, PT } from 'country-flag-icons/react/3x2'
 import { useEffect, useRef, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router'
@@ -17,13 +17,11 @@ interface Page {
   to: string
   end?: boolean
   icon: LucideIcon
-  label: 'navTasks' | 'navMap' | 'navGondolas' | 'navProducts' | 'navInsights'
+  label: 'navTasks' | 'navProducts' | 'navInsights'
 }
 
 const PAGES: Page[] = [
   { to: '/', end: true, icon: ListChecks, label: 'navTasks' },
-  { to: '/map', icon: MapIcon, label: 'navMap' },
-  { to: '/gondolas', icon: LayoutGrid, label: 'navGondolas' },
   { to: '/products', icon: Apple, label: 'navProducts' },
   { to: '/insights', icon: ChartNoAxesColumn, label: 'navInsights' },
 ]

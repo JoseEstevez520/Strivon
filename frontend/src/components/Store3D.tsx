@@ -55,35 +55,6 @@ const BODY: Record<Look, string> = {
 const INK: Record<Look, string> = { critical: C.danger, empty: tint(C.danger, 85, C.fg), wrong: C.warning, half: '#8d8c85', fine: '#a9a8a1' }
 const loud = (l: Look) => l === 'critical' || l === 'empty' || l === 'wrong'
 
-/** The icon of a product with its warning badge, drawn once as a texture and reused. */
-const textures = new Map<string, THREE.Texture>()
-function iconTexture(family: string, look: Look, onLoad: () => void): THREE.Texture {
-  const key = `${family}:${look}`
-  const hit = textures.get(key)
-  if (hit) return hit
-  const body = ICON_BODY[FAMILY_ICON[family]] ?? ''
-  const ink = INK[look]
-  const badge =
-    look === 'half' || look === 'fine'
-      ? ''
-      : look === 'wrong'
-      ? `<circle cx="26" cy="6" r="5.5" fill="${C.warning}"/><path d="M23.5 6h5M23.5 6l2-2M23.5 6l2 2" stroke="#fff" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`
-      : `<circle cx="26" cy="6" r="5.5" fill="${C.danger}"/><rect x="25.2" y="2.6" width="1.6" height="4.2" rx=".8" fill="#fff"/><circle cx="26" cy="8.9" r="1" fill="#fff"/>`
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="256" height="256"><g color="${ink}" fill="${ink}" transform="translate(1.6 2.4) scale(.95)">${body}</g>${badge}</svg>`
-  const texture = new THREE.Texture()
-  texture.colorSpace = THREE.SRGBColorSpace
-  texture.anisotropy = 4
-  const img = new Image()
-  img.onload = () => {
-    texture.image = img
-    texture.needsUpdate = true
-    onLoad()
-  }
-  img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`
-  textures.set(key, texture)
-  return texture
-}
-
 /** A white icon on a transparent ground, for the disc of a pin. */
 const pinTextures = new Map<string, THREE.Texture>()
 function pinTexture(family: string, onLoad: () => void): THREE.Texture {
@@ -209,8 +180,13 @@ const PRODUCE: Record<string, [Shape, string, string?]> = {
 const FALLBACK: [Shape, string] = ['ball', '#c9b98a']
 
 /** One piece of produce, about 0.2 across, sitting on y = 0. */
-function Piece({ shape, color, accent, grey }: { shape: Shape; color: string; accent?: string; grey?: boolean }) {
-  const m = (c: string) => <meshStandardMaterial color={grey ? tint('#9a9486', 30, c) : c} roughness={0.85} />
+function Piece({ shape, color, accent, grey, ghost }: { shape: Shape; color: string; accent?: string; grey?: boolean; ghost?: boolean }) {
+  const m = (c: string) =>
+    ghost ? (
+      <meshStandardMaterial color={tint(C.danger, 55, c)} roughness={1} transparent opacity={0.32} depthWrite={false} />
+    ) : (
+      <meshStandardMaterial color={grey ? tint('#9a9486', 30, c) : c} roughness={0.85} />
+    )
   const a = accent ?? color
   switch (shape) {
     case 'ovoid':
@@ -347,6 +323,7 @@ function Piece({ shape, color, accent, grey }: { shape: Shape; color: string; ac
 /** A handful of one product laid in a crate: five when full, two when half. A wrong product is the same pile, washed out. */
 function Produce({ family, look, w, d, y }: { family: string; look: Look; w: number; d: number; y: number }) {
   const [shape, color, accent] = PRODUCE[family] ?? FALLBACK
+  const gone = look === 'empty' || look === 'critical'
   const spots: [number, number, number][] =
     look === 'half'
       ? [[0, 0, 0.4]]
@@ -355,7 +332,7 @@ function Produce({ family, look, w, d, y }: { family: string; look: Look; w: num
     <group position={[0, y, 0]}>
       {spots.map(([sx, sz, r], i) => (
         <group key={i} position={[sx * w, 0, sz * d]} rotation-y={r} scale={Math.min(2.4, w / 0.45, d / 0.4)}>
-          <Piece shape={shape} color={color} accent={accent} grey={look === 'wrong'} />
+          <Piece shape={shape} color={color} accent={accent} grey={look === 'wrong'} ghost={gone} />
         </group>
       ))}
     </group>
@@ -365,33 +342,24 @@ function Produce({ family, look, w, d, y }: { family: string; look: Look; w: num
 /** One crate on a step: a tray with a heap of produce in it, or hollow when empty, with the product's icon above. */
 function Crate({ x, y, z, w, d, look, family, odd }: { x: number; y: number; z: number; w: number; d: number; look: Look; family: string; odd: boolean }) {
   const invalidate = useThree((s) => s.invalidate)
-  const map = useMemo(() => iconTexture(family, look, invalidate), [family, look, invalidate])
   const pin = useMemo(() => (loud(look) ? pinTexture(family, invalidate) : null), [family, look, invalidate])
   const radius = Math.min(0.26, w * 0.5)
   const stem = odd ? 0.6 : 0.4
   const color = look === 'wrong' ? C.warning : C.danger
   const h = 0.14
   const heap = HEAP[look]
-  const icon = Math.min(w, d) * 0.8
   return (
     <group position={[x, y, z]}>
       <RoundedBox args={[w, h, d]} radius={0.05} smoothness={3} position={[0, h / 2, 0]}>
         <meshStandardMaterial color={BODY[look]} roughness={1} />
       </RoundedBox>
-      {heap > 0 ? (
-        <Produce family={family} look={look} w={w} d={d} y={h} />
-      ) : (
+      {heap === 0 && (
         <mesh rotation-x={-Math.PI / 2} position={[0, h + 0.003, 0]}>
           <planeGeometry args={[w * 0.74, d * 0.74]} />
           <meshBasicMaterial color={tint(C.danger, look === 'critical' ? 30 : 16, '#bdb6a8')} />
         </mesh>
       )}
-      {heap === 0 && (
-        <mesh rotation-x={-Math.PI / 2} position={[0, h + 0.01, 0]} renderOrder={5}>
-          <planeGeometry args={[icon, icon]} />
-          <meshBasicMaterial map={map} transparent toneMapped={false} />
-        </mesh>
-      )}
+      <Produce family={family} look={look} w={w} d={d} y={h} />
       {pin && (
         <group position={[0, h + heap, 0]}>
           <mesh position={[0, stem / 2, 0]}>
@@ -546,7 +514,7 @@ export type View = keyof typeof VIEWS
 /** Fits the floor in the frame whatever the width, and starts from the chosen side. */
 function Rig({ view }: { view: View }) {
   const size = useThree((s) => s.size)
-  const zoom = Math.min(size.width / 21, size.height / 19.4)
+  const zoom = Math.min(size.width / 25, size.height / 19.4)
   return <OrthographicCamera makeDefault position={[...VIEWS[view]]} zoom={zoom} near={0.1} far={200} />
 }
 
@@ -557,7 +525,7 @@ function Focus({ target }: { target: [number, number] | null }) {
   const size = useThree((s) => s.size)
   const invalidate = useThree((s) => s.invalidate)
   const until = useRef(0)
-  const base = Math.min(size.width / 21, size.height / 19.4)
+  const base = Math.min(size.width / 25, size.height / 19.4)
   useEffect(() => {
     until.current = performance.now() + 1100
     invalidate()
@@ -642,7 +610,7 @@ export function Scene({ view, selected = null, onOpen, onHoverChange }: { view: 
 }
 
 /** The store as a 3D diorama. Not in the menu: /lab/map-3d. */
-export function Map3DPage() {
+export function Store3D() {
   const { t, family } = useI18n()
   const navigate = useNavigate()
   const [key, setKey] = useState(0)
@@ -683,8 +651,7 @@ export function Map3DPage() {
   return (
     <>
       <div className="mb-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-        <h1 className="text-title">{t.plan.title} · 3D</h1>
-        <span className="flex items-center gap-1">
+        <span className="ml-auto flex items-center gap-1">
           {(['front', 'corner'] as View[]).map((v) => (
             <button
               key={v}
@@ -692,6 +659,7 @@ export function Map3DPage() {
               data-on={view === v}
               onClick={() => {
                 setView(v)
+                setSelected(null)
                 setKey(key + 1)
               }}
               className="h-9 cursor-pointer rounded-lg px-3 text-ui text-fg-secondary transition-colors hover:bg-surface data-[on=true]:bg-surface data-[on=true]:text-fg"
@@ -699,16 +667,6 @@ export function Map3DPage() {
               {v === 'front' ? 'Front' : 'Corner'}
             </button>
           ))}
-          <button
-            type="button"
-            onClick={() => {
-              setSelected(null)
-              setKey(key + 1)
-            }}
-            className="h-9 cursor-pointer rounded-lg px-3 text-ui text-fg-secondary transition-colors hover:bg-surface"
-          >
-            Reset view
-          </button>
         </span>
       </div>
       <div className="relative overflow-hidden rounded-2xl" style={{ background: C.bg }}>
