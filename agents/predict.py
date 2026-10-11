@@ -46,6 +46,17 @@ averaged p_stock before the best-expected-points level, p(empty) x E and p(full)
 the validated answers, byte for byte. "empty-only-when-bare" = 0.4, 1; "empty-at-a-few" = 2.5, 1; "strict-full" = 1,
 0.5. --empty-weight / --full-weight set E / F by hand. Works with both stock models; not a scored claim, so it warns
 and the last line names it: "OK (stock model mix, mode empty-at-a-few): ...".
+--fill-out PATH (opt-in): a separate file {cam: {img: {area: {"fill_pct": x, "units": y or null}}}} with the fill
+estimate fill% = 100 (0.5 p_half + p_full) from the averaged p_stock (before any weights); units only for "count"
+products of a calibration, round(fill% / 100 x capacity). The submission file never changes.
+--calibration FILE (opt-in; the app's calib.json, version 1): per planogram product_id, the store's own thresholds on
+that fill estimate: empty if fill <= empty_max, full if fill >= full_min, else half (count products compare units).
+empty_max / full_min come from the file, else from its points (highest labelled empty / lowest labelled full), else
+30 % / 74 % (-38's global fit; count: round(0.30 x capacity) / round(0.74 x capacity)); with only full points
+empty_max = round(full_min x 30 / 74), with only empty points full_min = min(cap, round(empty_max x 74 / 30)) (e.g.
+"25 % = full" alone gives empty <= 10 %); rounding and units are floor(x + 0.5).
+Other products keep the best-expected-points level. A conflicting product (empty_max >= full_min) is refused. Not with
+--stock-mode, --stock-tilt or --label-free. The last line names it: "OK (stock model mix, calibration calib.json)".
 """
 import argparse
 import hashlib
@@ -180,6 +191,79 @@ def combine_stock(answers, tilt=None, weights=None):
         q[0] *= weights[0]
         q[1] *= weights[1]
     return submission.best_stock(q)
+
+
+def load_calibration(path):
+    """{product_id: {"unit", "capacity", "empty_max", "full_min"}} from the app's calib.json (contract version 1).
+    Thresholds: the file's empty_max / full_min, else the highest point labelled empty / the lowest labelled full, else
+    30 % / 74 % (-38's global fit, which reproduces the default answers almost exactly; count products: round(0.30 x
+    capacity) / round(0.74 x capacity)); with only full points empty_max = round(full_min x 30 / 74), with only empty
+    points full_min = min(cap, round(empty_max x 74 / 30)); round = floor(x + 0.5). Only two given thresholds can
+    conflict (refused). Raises ValueError on a malformed or conflicting file."""
+    raw = json.loads(Path(path).read_text(encoding="utf-8"))
+    if not isinstance(raw, dict) or raw.get("version") != 1 or not isinstance(raw.get("products"), dict):
+        raise ValueError('expected {"version": 1, "products": {...}}')
+
+    def number(v):
+        return isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(v)
+    out = {}
+    for pid, r in raw["products"].items():
+        unit, cap = r.get("unit"), r.get("capacity")
+        if unit not in ("percent", "count"):
+            raise ValueError(f"product {pid}: unit must be 'percent' or 'count'")
+        if unit == "count" and not (isinstance(cap, int) and not isinstance(cap, bool) and cap >= 1):
+            raise ValueError(f"product {pid}: a count product needs an integer capacity >= 1")
+        top = 100.0 if unit == "percent" else float(cap)
+        pts = r.get("points") or []
+        for p in pts:
+            if not isinstance(p, dict) or p.get("level") not in ("empty", "half", "full") or not number(p.get("value")) \
+                    or not 0 <= p["value"] <= top:
+                raise ValueError(f"product {pid}: bad point {p!r} (value in [0, {top:g}], level empty/half/full)")
+        th, given = {}, {}
+        for key, level, pick in (("empty_max", "empty", max), ("full_min", "full", min)):
+            v = r.get(key)
+            if v is not None and not (number(v) and 0 <= v <= top):
+                raise ValueError(f"product {pid}: {key} must be null or a number in [0, {top:g}]")
+            vals = [float(p["value"]) for p in pts if p["level"] == level]
+            given[key] = float(v) if v is not None else pick(vals) if vals else None
+        if None not in given.values() and given["empty_max"] >= given["full_min"]:
+            raise ValueError(f"product {pid}: empty_max {given['empty_max']:g} >= full_min {given['full_min']:g} "
+                             "(conflicting)")
+        def half_up(x):   # like the page's Math.round
+            return float(math.floor(x + 0.5))
+        e, f = given["empty_max"], given["full_min"]   # the contract's rule (-3d / -33, 11 Oct)
+        if e is None and f is None:   # -38's global fit: 30 / 74 (count: round(0.30 cap) / round(0.74 cap))
+            e, f = (30.0, 74.0) if unit == "percent" else (half_up(0.30 * top), half_up(0.74 * top))
+            if f <= e:   # capacity 2: 1 / 1 would leave no half band, so full needs one more unit
+                f = min(top, e + 1)
+        elif e is None:   # only full points: empty_max = round(full_min x 30 / 74)
+            e = half_up(f * 30.0 / 74.0)
+        elif f is None:   # only empty points: full_min = min(cap, round(empty_max x 74 / 30))
+            f = min(top, half_up(e * 74.0 / 30.0))
+        th["empty_max"], th["full_min"] = e, f
+        if not th["empty_max"] < th["full_min"] or th["empty_max"] < 0 or th["full_min"] > top:
+            raise ValueError(f"product {pid}: no valid thresholds (empty_max {th['empty_max']:g}, full_min "
+                             f"{th['full_min']:g} on 0..{top:g})")
+        for p in pts:
+            if p["level"] == "half" and not th["empty_max"] < p["value"] < th["full_min"]:
+                print(f"WARN  calibration product {pid}: the half point at {p['value']:g} lies outside "
+                      f"({th['empty_max']:g}, {th['full_min']:g}), so that fill is not answered half")
+        out[str(pid)] = dict(unit=unit, capacity=cap if unit == "count" else None, **th)
+    return out
+
+
+def fill_estimate(q, rule=None):
+    """(fill %, units) from the averaged p_stock q: fill % = 100 (0.5 p_half + p_full); units only for a count
+    product, round(fill % / 100 x capacity), halves rounded up."""
+    fill = 100.0 * (0.5 * q[0.5] + q[1])
+    units = math.floor(fill / 100.0 * rule["capacity"] + 0.5) if rule and rule["unit"] == "count" else None
+    return fill, units
+
+
+def calibrated_level(fill, units, rule):
+    """The store's own level: empty if fill <= empty_max, full if fill >= full_min, else half (count: whole units)."""
+    x = units if rule["unit"] == "count" else fill
+    return 0 if x <= rule["empty_max"] else 1 if x >= rule["full_min"] else 0.5
 
 
 def clean_compliant(v):
@@ -324,6 +408,12 @@ def main():
                          "2.5 / 1; strict-full = 1 / 0.5")
     ap.add_argument("--empty-weight", type=float, metavar="E", help="multiply p(empty) by E (overrides --stock-mode's E)")
     ap.add_argument("--full-weight", type=float, metavar="F", help="multiply p(full) by F (overrides --stock-mode's F)")
+    ap.add_argument("--calibration", metavar="FILE",
+                    help="opt-in: the app's calib.json (version 1): per product, the store's own fill thresholds for "
+                         "empty / full; other products keep the default level")
+    ap.add_argument("--fill-out", metavar="PATH",
+                    help="opt-in: also write PATH = per area {fill_pct, units} (fill%% = 100 (0.5 p_half + p_full)); "
+                         "--out is unchanged")
     ap.add_argument("--p-stock-out", metavar="PATH",
                     help="checks only, off by default: also write PATH = the same answers plus p_stock [p_empty, p_half, "
                          "p_full] per area (the averaged probabilities, before any --stock-tilt; null where no model "
@@ -354,6 +444,17 @@ def main():
     mode_name = next((n for n, w in STOCK_MODES.items() if w == (E, F)), f"E={E:g} F={F:g}")
     if args.p_stock_out and Path(args.p_stock_out).resolve() == Path(args.out).resolve():
         ap.error("--p-stock-out must be another file than --out")
+    if args.fill_out and Path(args.fill_out).resolve() == Path(args.out).resolve():
+        ap.error("--fill-out must be another file than --out")
+    calib = None   # --calibration: {product_id: thresholds}
+    if args.calibration:
+        if weights is not None or tilt is not None or args.label_free:
+            ap.error("--calibration can't be combined with --stock-mode / --empty-weight / --full-weight, --stock-tilt "
+                     "or --label-free (for now)")
+        try:
+            calib = load_calibration(args.calibration)
+        except (OSError, ValueError, AttributeError) as e:
+            ap.error(f"--calibration {args.calibration}: {e}")
     preset = None  # --stock-model mix / ld6ee: weights tag + block-8 head of the one-pass model, set together
     if args.stock_model and any(m in STOCK_PRESETS for m in args.stock_model):
         if len(args.stock_model) > 1:
@@ -406,6 +507,14 @@ def main():
 
     t0 = time.time()
     planogram = load_planogram(args.planogram)
+    if calib is not None:
+        mode += f" | calibration {Path(args.calibration).name}"
+        known = {str(a.get("product_id")) for areas in planogram.values() for a in areas}
+        print(f"WARN  calibration {Path(args.calibration).name}: the store's own fill thresholds decide the stock level "
+              f"of {sum(p in known for p in calib)} products (answers differ from the validated default): "
+              + "; ".join(f"{p} {r['unit']} empty <= {r['empty_max']:g}, full >= {r['full_min']:g}" for p, r in calib.items()))
+        for p in sorted(set(calib) - known):
+            print(f"WARN  calibration product {p} is not in the planogram: ignored")
     skipped = []  # photos found but not predicted (unknown camera, unreadable, unsupported format)
     try:
         images = list_images(args.images, args.planogram, skipped=skipped)
@@ -455,6 +564,8 @@ def main():
 
     sub = {}
     p_rows = {} if args.p_stock_out else None  # (cam, fname, area_id) -> averaged p_stock, for --p-stock-out
+    fill_rows = {} if args.fill_out else None  # (cam, fname, area_id) -> {fill_pct, units}, for --fill-out
+    cal_moves = Counter()  # (default level, calibrated level) per calibrated area
     curtains, curtain_log, unreadable = [], [], []
     for i, rec in enumerate(images, 1):
         areas = planogram[rec.cam]
@@ -514,7 +625,19 @@ def main():
             if p_rows is not None:
                 q = average_stock([ans[aid] for ans in answers])
                 p_rows[(str(rec.cam), rec.fname, aid)] = None if q is None else [q[0], q[0.5], q[1]]
-            compliant = empty_override if empty_override is not None and stock_value == 0 else c[aid]
+            model_value = stock_value   # the empty rule below keeps using it: a calibration never changes compliance
+            if calib is not None or fill_rows is not None:   # fill estimate; the store's own thresholds
+                q = average_stock([ans[aid] for ans in answers])
+                rule = calib.get(str(a.get("product_id"))) if calib else None
+                fill, units = fill_estimate(q, rule) if q is not None else (None, None)
+                if rule is not None and fill is not None:
+                    level = calibrated_level(fill, units, rule)
+                    cal_moves[(stock_value, level)] += 1
+                    stock_value = level
+                if fill_rows is not None:
+                    fill_rows[(str(rec.cam), rec.fname, aid)] = {"fill_pct": None if fill is None else round(fill, 1),
+                                                                 "units": units}
+            compliant = empty_override if empty_override is not None and model_value == 0 else c[aid]
             submission.put(sub, rec.cam, rec.fname, aid, compliant, stock_value)
         if i % 20 == 0 or i == len(images):
             print(f"  {i}/{len(images)} images  ({time.time() - t0:.0f}s)")
@@ -529,6 +652,17 @@ def main():
         Path(args.p_stock_out).write_text(json.dumps(rows, indent=1), encoding="utf-8")
         print(f"p_stock next to each answer -> {args.p_stock_out} ({sum(v is not None for v in p_rows.values())} "
               "areas; for checks only, never send this file)")
+    if fill_rows is not None:
+        rows = {cam: {f: {aid: fill_rows.get((cam, f, aid), {"fill_pct": None, "units": None}) for aid in areas}
+                      for f, areas in imgs.items()} for cam, imgs in sub.items()}
+        Path(args.fill_out).parent.mkdir(parents=True, exist_ok=True)
+        Path(args.fill_out).write_text(json.dumps(rows, indent=1), encoding="utf-8")
+        print(f"fill estimate per area -> {args.fill_out} (fill% = 100 (0.5 p_half + p_full); not the submission file)")
+    if calib is not None:
+        names = {0: "empty", 0.5: "half", 1: "full"}
+        changed = {f"{names[a]}->{names[b]}": n for (a, b), n in sorted(cal_moves.items()) if a != b}
+        print(f"calibration: {sum(cal_moves.values())} areas decided by the store's thresholds, "
+              f"{sum(changed.values())} differ from the default level {changed}")
 
     for t in (*stocks, comp):
         t.report()
@@ -558,7 +692,8 @@ def main():
         print(f"!! INCOMPLETE: {'; '.join(count_problems)} (see the WARN lines above). Check before sending this file.")
     status = "INVALID" if errors else "FALLBACKS" if n_fallback else "INCOMPLETE" if count_problems else "OK"
     notes = ([f"stock model {preset}"] if preset not in (None, "ld6ee") else []) + (
-        [f"mode {mode_name}"] if weights is not None else []) + ([f"stock tilt k={tilt:g}"] if tilt is not None else [])
+        [f"mode {mode_name}"] if weights is not None else []) + ([f"stock tilt k={tilt:g}"] if tilt is not None else []) + (
+        [f"calibration {Path(args.calibration).name}"] if calib is not None else [])
     if notes:
         status += f" ({', '.join(notes)})"
     print(f"{status}: {len(entries)} areas -> {args.out}"

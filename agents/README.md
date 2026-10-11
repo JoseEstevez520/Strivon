@@ -83,6 +83,33 @@ full only when it really is. `--empty-weight E` / `--full-weight F` set them by 
 The presets are not scored claims: the run prints a WARN and the last line names the mode, e.g.
 `OK (stock model mix, mode empty-at-a-few)`.
 
+## Calibration (app)
+
+"Empty" depends on the product and the person: one melon left may be empty for one store and half for another. The
+app's calibration panel lets each user set, per product, a fill level (a % slider, or a 0-7 count for big items like
+melons) and press full / half / empty. It writes `calib.json`; `--calibration calib.json` makes the predictor follow it.
+
+- Fill estimate per area: fill % = 100 x (0.5 x p_half + p_full), from the same averaged stock probabilities the
+  default decision uses. `--fill-out fill.json` writes it next to the normal output, as
+  `{camera: {image: {area: {"fill_pct": x, "units": y or null}}}}`; units only for count products,
+  round(fill % / 100 x capacity). The submission file never changes.
+- Contract (version 1):
+  `{"version": 1, "products": {"<product_id>": {"unit": "percent" | "count", "capacity": 7, "points": [{"value": 25,
+  "level": "full"}, ...], "empty_max": n | null, "full_min": n | null}}}`. Product ids are the planogram's.
+- Per area, the slot's planogram product decides: empty if fill <= empty_max, full if fill >= full_min, else half
+  (count products compare whole units). empty_max / full_min come from the file, else from its points (the highest
+  point labelled empty, the lowest labelled full), else 30 % / 74 % (-38's global fit, which reproduces the default
+  answers almost exactly; count: round(0.30 x capacity) / round(0.74 x capacity)); with only full points empty_max =
+  round(full_min x 30 / 74), with only empty points full_min = min(cap, round(empty_max x 74 / 30)), cap = 100 or the
+  capacity, so "25 % = full" alone gives empty <= 10 %. Rounding is floor(x + 0.5). Units are floor(fill % / 100 x
+  capacity + 0.5). A product whose empty_max >= full_min is refused; a half point outside (empty_max, full_min) gets a
+  WARN; a product id not in the planogram gets a WARN and is ignored. Products not in the file keep the default
+  answers. Night-curtain and fallback areas are never calibrated (fill_pct is null there), and compliance never
+  changes.
+- The run prints a WARN with each product's thresholds and how many answers it changed; the last line names it, e.g.
+  `OK (stock model mix, calibration calib.json)`. For now it can't be combined with `--stock-mode`, `--stock-tilt` or
+  `--label-free`. Without `--calibration` the answers are exactly the default ones.
+
 How the camera is found, in order:
 
 1. a folder named like a camera (`6215/`);
