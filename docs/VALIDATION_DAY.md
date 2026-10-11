@@ -45,7 +45,7 @@ $env:SENSEI_DATASET = "PATH\TO\dataset"; $env:ONEPASS_THREADS = "1"; python -I a
 On Miguel's laptop `PATH/TO/dataset` is `outputs/dataset` (a link to `data/images` under the official
 folder name, plus `planogram.json`).
 
-Only if André chose a stock tilt at 09:00 (off by default): add `--stock-tilt K` to the predict command, e.g. `--stock-tilt 0.7`. It multiplies p(full) by K (0 < K <= 1) before the expected-points choice, so "full" needs more confidence, and the last line then starts with `OK (stock tilt k=0.7): 289 areas`.
+Only if André chose a stock tilt at 09:00 (off by default): add `--stock-tilt K` to the predict command, e.g. `--stock-tilt 0.7`. It multiplies p(full) by K (0 < K <= 1) before the expected-points choice, so "full" needs more confidence, and the last line then starts with `OK (stock tilt k=0.7): 289 areas`. Only full answers can change, to half or (if 4·p_empty > 3·p_half) to empty; the product answers stay the same unless `--empty-rule` is also changed from its default.
 
 The last line must start with `OK: 289 areas`. Then check the file against the photos it must cover (this one also notices a photo that is missing as a whole; the older
 `validate_submission` check does not):
