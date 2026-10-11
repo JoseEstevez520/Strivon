@@ -11,3 +11,6 @@ __pycache__/
 models/
 preds5/
 preds6/
+
+# hand-off folder for the team: pages with embedded photos, trained weights
+handoff/

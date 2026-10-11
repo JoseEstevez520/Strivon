@@ -15,6 +15,7 @@ What is different from predict.py (the arithmetic of every decision is the same;
   * The "other families" bank of the planogram-family check is concatenated once per (camera, family) and cached.
 """
 import os
+import re
 import sys
 import time
 
@@ -60,7 +61,12 @@ NB, BS, NF = 8, 12, 68
 E01_MEMBERS = ["h01d", "r01b", "cnn"]
 
 
+FULL_WEIGHT = 1.0  # --full-weight: p(full) is multiplied by this before the expected-points decision (1.0 = unchanged)
+
+
 def decide(probs):
+    if FULL_WEIGHT != 1.0:
+        probs = probs * np.array([1.0, 1.0, FULL_WEIGHT])
     return LEVELS[int(np.argmax(POINTS @ probs))]
 
 
@@ -638,6 +644,8 @@ class Fast:
 
 
 def predict(a):
+    global FULL_WEIGHT
+    FULL_WEIGHT = float(a.full_weight)
     model = _Unpickler(open(a.model, "rb")).load()
     geo = model["geo"]
     if not model["version"].startswith("lane_i_ens"):
@@ -647,31 +655,72 @@ def predict(a):
     T_LOAD = time.perf_counter()
     if not os.path.isdir(a.images):
         die(f"no such folder {a.images}")
-    jobs = []
-    for cam in sorted(os.listdir(a.images)):
-        d = os.path.join(a.images, cam)
-        if not os.path.isdir(d):
+    def warn(m):
+        print(f"predict.py: WARNING: {m}", file=sys.stderr)
+
+    def resolve_cam(parts):
+        """Camera of a folder: the innermost folder name that is a planogram camera, else the only 4-digit id inside a name."""
+        for name in reversed(parts):
+            if cam_areas(pq, name):
+                return name
+        for name in reversed(parts):
+            ids = {m for m in re.findall(r"\d{4}", name) if cam_areas(pq, m)}
+            if len(ids) == 1:
+                return ids.pop()
+        return None
+
+    jobs, seen, geo_ok, skipped = [], set(), set(), []
+    for dirpath, dirnames, files in os.walk(a.images):
+        dirnames[:] = sorted(x for x in dirnames if not x.startswith(".") and x != "__MACOSX")
+        rel = os.path.relpath(dirpath, a.images)
+        parts = [] if rel == "." else rel.split(os.sep)
+        files = sorted(f for f in files if not f.startswith("."))  # .DS_Store, macOS ._x.jpg
+        imgs = [f for f in files if f.lower().endswith((".jpg", ".jpeg", ".png"))]
+        other = [f for f in files if f.lower().endswith((".bmp", ".tif", ".tiff", ".webp"))]
+        for f in other:
+            skipped.append(f"{rel}/{f}: image format not read, only .jpg .jpeg .png")
+        if not imgs:
             continue
+        cam = resolve_cam(parts)
+        if cam is None:
+            for f in imgs:
+                skipped.append(f"{rel}/{f}: cannot tell the camera from the folder name (use <camera id>/<photo>.jpg)")
+            continue
+        if parts and parts[-1] != cam:
+            warn(f"folder {rel} read as camera {cam}")
         aids = cam_areas(pq, cam)
-        if not aids:
-            die(f"camera {cam} has no areas in {a.planogram}")
-        for aid in aids:
-            if aid not in geo["quads"] or aid not in geo["a2c"] or not np.allclose(geo["quads"][aid], pq[aid]):
-                die(f"area {aid} of the planogram is not in the model geometry (or its quad changed); retrain")
-        for f in sorted(os.listdir(d)):
-            if f.lower().endswith((".jpg", ".jpeg")):
-                jobs.append((cam, f, aids))
+        if cam not in geo_ok:
+            for aid in aids:
+                if aid not in geo["quads"] or aid not in geo["a2c"] or not np.allclose(geo["quads"][aid], pq[aid]):
+                    die(f"area {aid} of the planogram is not in the model geometry (or its quad changed); retrain")
+            geo_ok.add(cam)
+        for f in imgs:
+            if (cam, f) in seen:
+                skipped.append(f"{rel}/{f}: a photo with this name is already read for camera {cam}")
+                continue
+            seen.add((cam, f))
+            jobs.append((cam, f, aids, os.path.join(dirpath, f)))
+    for m in skipped:
+        warn(f"skipped {m}")
     if not jobs:
-        die(f"no JPEG photos under {a.images}/<camera>/")
-    out, timing, feats = {}, [], {}
-    for cam, img, aids in jobs:
+        die(f"no photos under {a.images}/<camera>/ (.jpg, .jpeg or .png)")
+    out, timing, feats, fallbacks = {}, [], {}, []
+    for cam, img, aids, path in jobs:
         t = Timer()
         with t("decode"):
-            im = cv2.imread(os.path.join(a.images, cam, img))
+            im = cv2.imread(path)
         if im is None:
-            die(f"cannot read image {cam}/{img}")
+            warn(f"cannot read image {cam}/{img}: answering compliant and full for its {len(aids)} areas")
+            fallbacks.append(f"{cam}/{img}: unreadable image, fallback answers")
+            out.setdefault(cam, {})[img] = {aid: dict(planogram_compliant=True, stock_level="full", stock_value=VAL["full"]) for aid in aids}
+            if a.p_stock:
+                for aid in aids:
+                    out[cam][img][aid]["p_stock"] = [0.0, 0.0, 1.0]
+            continue
         if im.shape != tuple(model["image_shape"]):
-            die(f"{cam}/{img} is {im.shape}, the planogram coordinates are for {tuple(model['image_shape'])}")
+            warn(f"{cam}/{img} is {im.shape}, the planogram coordinates are for {tuple(model['image_shape'])}: resized")
+            h, w = model["image_shape"][:2]
+            im = cv2.resize(im, (w, h), interpolation=cv2.INTER_AREA)
         lv, ok, Pr, Pm, fin = rt.predict_photo(im, cam, aids, t)
         if not fin:
             die(f"NaN in the features of {cam}/{img}")
@@ -692,7 +741,7 @@ def predict(a):
                 die(f"{cam}/{img}: missing areas {sorted(need - set(areas))}")
     json.dump(out, open(a.out, "w"), indent=1)
     n_img = sum(len(v) for v in out.values()); n_area = sum(len(x) for v in out.values() for x in v.values())
-    bad = []
+    bad = list(skipped) + list(fallbacks)
     if a.expect_images is not None and n_img != a.expect_images:
         bad.append(f"found {n_img} photos, expected {a.expect_images}")
     if a.expect_areas is not None and n_area != a.expect_areas:
@@ -727,6 +776,8 @@ def main():
     pr.add_argument("--expect-areas", type=int, help="warn if the number of areas predicted differs (289 on validation day)")
     pr.add_argument("--strict", action="store_true", help="exit with code 3 after writing the file when an --expect check fails")
     pr.add_argument("--p-stock", action="store_true", help="also write p_stock = [p_empty, p_half, p_full] for every area")
+    pr.add_argument("--full-weight", type=float, default=1.0, help="multiply p(full) by this before choosing the level (default 1.0, no change; "
+                    "0.5 answers a lower level when unsure: about -3 points per 289 areas under the team labels, about +30 under a stricter reading; p_stock is not changed)")
     a = ap.parse_args()
     predict(a)
 
