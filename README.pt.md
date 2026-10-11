@@ -45,13 +45,13 @@ Para cada zona de prateleira numa fotografia, o pipeline responde a duas pergunt
 | Está lá o produto certo? | sim ou não | **Devolver ao lugar** se for outro |
 | Quão cheia está a zona? | vazia, a meio ou cheia | **Repor** se estiver vazia, **Mais tarde** se estiver a meio, nada se estiver cheia |
 
-Cada tarefa mostra o recorte da zona e a hora da sua fotografia, para se poder confirmar num relance. O desafio pontua cada zona, por isso o pipeline é afinado para os pontos e também para as tarefas: ver [`docs/PLAN.md`](docs/PLAN.md).
+A aplicação agrupa as tarefas por gôndola para se poder planear uma ronda: o plano assinala onde estão os problemas e a lista diz o que levar a cada paragem. O desafio pontua cada zona, por isso o pipeline é afinado para os pontos e também para as tarefas: ver [`docs/PLAN.md`](docs/PLAN.md).
 
 ## O que pode fazer hoje
 
-- **Ver o que fazer agora**, agrupado em Repor, Devolver ao lugar e Mais tarde, por ordem de urgência.
-- **Abrir uma tarefa** para ver a fotografia da sua câmara com a zona assinalada, e **reproduzir o dia** com a barra para ver a lista mudar.
-- **Percorrer a loja** com um mapa das gôndolas, uma página por gôndola, uma vista de produtos e uma página de análise com a parte do tempo em que as prateleiras estiveram vazias.
+- **Ver a ronda de toda a loja**: um plano mostra que gôndolas precisam de algo e uma lista dá a ordem das paragens e o que levar a cada uma.
+- **Abrir uma gôndola** para ver a fotografia da sua câmara com o que está mal assinalado, e **reproduzir o dia** com a barra para ver o plano e a lista mudarem.
+- **Olhar para a loja** como um plano, um modelo 3D ou a última fotografia de cada câmara, com uma vista de produtos em cartões e uma página de análise com a parte do tempo em que as prateleiras estiveram vazias.
 - **Fazer uma pergunta à loja** e receber a resposta como um ecrã, com gráficos, tarefas e cartões com fotografia. Precisa de uma chave de um modelo no servidor.
 - **Prever uma pasta de fotografias** a partir da linha de comandos: um JSON com `planogram_compliant` e `stock_level` para cada zona.
 - **Pontuar as previsões** com as nossas próprias etiquetas e os pontos do desafio.
@@ -66,11 +66,11 @@ A landing page está em [strivon-landing.vercel.app](https://strivon-landing.ver
 
 ### A aplicação para os funcionários
 
-<img align="right" width="55%" src="assets/video/demo-tasks.gif" alt="A lista de tarefas enche-se à medida que o dia avança: zonas vazias, a meio e produtos fora do lugar. Ao abrir uma tarefa vê-se a fotografia da sua câmara com a zona assinalada.">
+<img align="right" width="55%" src="assets/video/demo-tasks.gif" alt="O plano da loja e a lista de paragens mudam à medida que o dia avança. Ao abrir uma gôndola vê-se a fotografia da sua câmara com o que está mal assinalado.">
 
-Cada zona de prateleira que precisa de algo torna-se uma tarefa: repor o que está vazio, devolver ao lugar o que está mal colocado e rever mais tarde o que está a meio.
+Um plano da loja mostra que gôndolas precisam de algo, e a lista ao lado dá a ordem da ronda e o que levar a cada paragem.
 
-Reproduza o dia para ver a lista a encher-se e abra uma tarefa para ver a sua prateleira com a zona assinalada.
+Reproduza o dia para ver os dois mudarem e abra uma gôndola para ver a sua prateleira com o que está mal assinalado.
 
 <br clear="right">
 <br>
