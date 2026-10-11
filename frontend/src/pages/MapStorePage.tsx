@@ -1,5 +1,6 @@
-import { Check, ChevronsUp, Clock, Footprints, Undo2, X } from 'lucide-react'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { Check, ChevronsUp, Clock, Footprints, Undo2 } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
+import { useNavigate } from 'react-router'
 import { DayBar } from '@/components/DayBar'
 import { ProductIcon } from '@/components/ProductIcon'
 import { useI18n } from '@/lib/i18n'
@@ -97,20 +98,16 @@ function GondolaBlock({
   camera,
   tasks,
   rank,
-  selected,
   wide,
   extra,
   onPick,
-  setRef,
 }: {
   camera: string
   tasks: Task[]
   rank: number
-  selected: boolean
   wide: boolean
   extra?: { bring: string[]; since: number | null }
   onPick: () => void
-  setRef: (el: HTMLElement | null) => void
 }) {
   const { gondola, gondolaWhat } = useStore()
   const { t, family } = useI18n()
@@ -130,13 +127,11 @@ function GondolaBlock({
   )
   return (
     <button
-      ref={setRef}
       type="button"
       onClick={onPick}
-      aria-pressed={selected}
       aria-label={`${gondola(camera)}, ${gondolaWhat(camera)}`}
-      className={`relative z-10 flex h-full min-h-40 min-w-0 cursor-pointer flex-col gap-2 rounded-xl p-2.5 text-left ${wide ? 'col-span-full sm:col-span-2' : ''}`}
-      style={{ background: empty + wrong === 0 ? mix('var(--success)', selected ? 20 : 14) : selected ? 'var(--raised)' : mix('var(--raised)', 62, 'var(--bg)') }}
+      className={`relative z-10 flex h-full min-h-40 min-w-0 cursor-pointer flex-col gap-2 rounded-xl p-2.5 text-left transition-colors hover:bg-raised ${wide ? 'col-span-full sm:col-span-2' : ''}`}
+      style={{ background: empty + wrong === 0 ? mix('var(--success)', 14) : mix('var(--raised)', 62, 'var(--bg)') }}
     >
       <span className="flex h-8 items-center gap-2">
         {number}
@@ -170,73 +165,6 @@ function GondolaBlock({
   )
 }
 
-/** What is wrong in a gondola, in plain information. Nothing to press: the next photo updates it. */
-function Detail({ camera, onClose }: { camera: string; onClose?: () => void }) {
-  const { gondola, gondolaWhat, tasks } = useStore()
-  const { t, family } = useI18n()
-  const own = shelfOrder(tasks.filter((x) => x.area.camera === camera))
-  const half = Math.ceil(own.length / 2)
-  const problems = own.filter(isProblem)
-  const rest = own.filter((x) => !isProblem(x))
-  return (
-    <div className="flex flex-col gap-3">
-      <div className="flex items-start justify-between gap-3">
-        <span>
-          <span className="block text-title">{gondola(camera)}</span>
-          <span className="block text-ui text-fg-secondary">{gondolaWhat(camera)}</span>
-        </span>
-        {onClose && (
-          <button type="button" onClick={onClose} aria-label={t.close} className="grid size-11 shrink-0 cursor-pointer place-items-center rounded-xl bg-raised transition-colors hover:bg-sunk">
-            <X className="size-5" />
-          </button>
-        )}
-      </div>
-
-      {problems.length === 0 ? (
-        <p className="flex items-center gap-2 rounded-xl bg-raised p-3 text-ui">
-          <Check className="size-4" style={{ color: 'var(--success)' }} strokeWidth={3} />
-          {t.plan.nothingHere}
-        </p>
-      ) : (
-        <ul className="flex flex-col gap-2">
-          {problems.map((x) => {
-            const i = own.indexOf(x)
-            const top = i < half
-            const seen = x.obs.observed_family
-            return (
-              <li key={x.area.area_id} className="flex items-center gap-3 rounded-xl bg-raised p-2.5">
-                <AreaTile task={x} large />
-                <span className="min-w-0">
-                  <span className="block text-ui leading-tight font-medium">{family(x.area.family)}</span>
-                  <span className="block text-meta text-fg-muted">{t.plan.spot(top, (top ? i : i - half) + 1)}</span>
-                  <span className="block text-meta text-fg-secondary">
-                    {x.group === 'restock' ? (x.since != null ? t.emptySince(clock(x.since)) : t.level.empty) : t.wrongProduct}
-                    {x.group === 'moveBack' && seen ? ` · ${t.wrongPlace(family(seen))}` : ''}
-                  </span>
-                </span>
-              </li>
-            )
-          })}
-        </ul>
-      )}
-
-      {rest.length > 0 && (
-        <div>
-          <p className="mb-2 text-meta text-fg-muted">{t.plan.otherAreas}</p>
-          <ul className="grid gap-x-2 gap-y-2" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(3.5rem, 1fr))' }}>
-            {rest.map((x) => (
-              <li key={x.area.area_id} className="flex flex-col items-center gap-0.5 text-center">
-                <AreaTile task={x} large />
-                <span className="text-meta leading-tight text-fg-secondary">{family(x.area.family)}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-    </div>
-  )
-}
-
 /** Columns for the width: the plan from 1024 with five (four while the panel is narrow), then four, then two. */
 function useLayout() {
   const calc = () => {
@@ -257,8 +185,7 @@ export function MapStorePage() {
   const { t, family } = useI18n()
   const { plan, cols } = useLayout()
   const list = cameras(state)
-  const [picked, setPicked] = useState<string | null>(null)
-  const [sheet, setSheet] = useState(false)
+  const navigate = useNavigate()
   const [moment, setMoment] = useState(false)
 
   const byCamera = useMemo(() => {
@@ -268,15 +195,11 @@ export function MapStorePage() {
   }, [tasks])
   const ranking = useMemo(() => suggest(tasks), [tasks])
   const order = useMemo(() => ranking.map((s) => s.camera), [ranking])
-  const pick = picked && list.includes(picked) ? picked : (order[0] ?? list[0])
   const rankOf = (c: string) => (order.indexOf(c) >= 0 && order.indexOf(c) < 3 ? order.indexOf(c) + 1 : 0)
   const shown = plan ? list : [...order, ...list.filter((c) => !order.includes(c))]
 
-  const els = useRef<Record<string, HTMLElement | null>>({})
-  const choose = (c: string) => {
-    setPicked(c)
-    if (!plan) setSheet(true)
-  }
+  // Pressing a gondola opens its own page: the photo, and what is wrong in it.
+  const choose = (c: string) => navigate(`/gondolas/${c}`)
   const first = order[0]
   const bringOf = (c: string) => [...new Set((byCamera[c] ?? []).filter(isProblem).map((x) => x.area.family))]
   const sinceOf = (c: string) => ranking.find((s) => s.camera === c)?.emptySince ?? null
@@ -321,10 +244,7 @@ export function MapStorePage() {
               </span>
               <button
                 type="button"
-                onClick={() => {
-                  choose(first)
-                  els.current[first]?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-                }}
+                onClick={() => choose(first)}
                 className="flex h-11 shrink-0 cursor-pointer items-center gap-2 rounded-lg bg-sunk px-4 text-ui font-semibold transition-colors hover:bg-surface"
               >
                 <Footprints className="size-4" />
@@ -340,39 +260,21 @@ export function MapStorePage() {
         </section>
       )}
 
-      <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-3 lg:grid-cols-[minmax(0,1fr)_19rem]">
-        {plan ? (
-          <Plan list={shown} cols={cols} byCamera={byCamera} rankOf={rankOf} pick={pick} choose={choose} els={els} />
-        ) : (
-          <div>
-            <div className="grid gap-2 rounded-2xl p-2" style={{ background: FLOOR, gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}>
-              {shown.map((c) => (
-                <GondolaBlock
-                  key={c}
-                  camera={c}
-                  tasks={byCamera[c] ?? []}
-                  rank={rankOf(c)}
-                  selected={sheet && c === pick}
-                  wide={rankOf(c) === 1}
-                  extra={rankOf(c) === 1 ? { bring: bringOf(c), since: sinceOf(c) } : undefined}
-                  onPick={() => choose(c)}
-                  setRef={(el) => (els.current[c] = el)}
-                />
-              ))}
-            </div>
-          </div>
-        )}
-
-        {plan && (
-          <aside className="sticky top-3 max-h-[calc(100dvh-5.5rem)] overflow-y-auto rounded-2xl bg-surface p-3 scrollbar-subtle">
-            <Detail camera={pick} />
-          </aside>
-        )}
-      </div>
-
-      {!plan && sheet && (
-        <div role="dialog" aria-label={gondola(pick)} className="fixed inset-x-0 bottom-16 z-40 mx-auto max-h-[75dvh] max-w-xl overflow-y-auto rounded-t-3xl bg-surface p-3 pb-5 md:bottom-0">
-          <Detail camera={pick} onClose={() => setSheet(false)} />
+      {plan ? (
+        <Plan list={shown} cols={cols} byCamera={byCamera} rankOf={rankOf} choose={choose} />
+      ) : (
+        <div className="grid gap-2 rounded-2xl p-2" style={{ background: FLOOR, gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}>
+          {shown.map((c) => (
+            <GondolaBlock
+              key={c}
+              camera={c}
+              tasks={byCamera[c] ?? []}
+              rank={rankOf(c)}
+              wide={rankOf(c) === 1}
+              extra={rankOf(c) === 1 ? { bring: bringOf(c), since: sinceOf(c) } : undefined}
+              onPick={() => choose(c)}
+            />
+          ))}
         </div>
       )}
     </>
@@ -385,17 +287,13 @@ function Plan({
   cols,
   byCamera,
   rankOf,
-  pick,
   choose,
-  els,
 }: {
   list: string[]
   cols: number
   byCamera: Record<string, Task[]>
   rankOf: (c: string) => number
-  pick: string
   choose: (c: string) => void
-  els: React.MutableRefObject<Record<string, HTMLElement | null>>
 }) {
   const rows = useMemo(() => Array.from({ length: Math.ceil(list.length / cols) }, (_, r) => list.slice(r * cols, r * cols + cols)), [list, cols])
   return (
@@ -411,10 +309,8 @@ function Plan({
                     camera={c}
                     tasks={byCamera[c] ?? []}
                     rank={rankOf(c)}
-                    selected={c === pick}
                     wide={false}
                     onPick={() => choose(c)}
-                    setRef={(el) => (els.current[c] = el)}
                   />
                 ))}
               </div>

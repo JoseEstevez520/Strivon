@@ -529,6 +529,13 @@ a collapsing block by hand once, and Base UI and shadcn already had it.
   its text and callout parts and never the figures of a chart. Escape ends a recording before
   it closes the box. Failures are one short line that clears itself, not a dialog.
 
+- 2026-10-11. Pressing a gondola on the map opens its own page instead of a side panel or a sheet.
+  The map then takes the whole width and has one job, to show where the problems are. The gondola
+  page has the other job: the camera photo with what is empty or misplaced marked on it, and the
+  problems in plain words, one line for each product with how many areas and since when ("Orange
+  x3, empty since 18:22"), grouped as empty, wrong product and half full. Hovering a line lights its
+  area on the photo. There is still nothing to press to mark a task.
+
 ## Roadmap
 
 What we want to build next on the interface, in no fixed order. When one of these starts, move
