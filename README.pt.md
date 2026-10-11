@@ -23,7 +23,7 @@
 </p>
 
 <p align="center">
-  <img src="assets/readme/photo-to-tasks.png" alt="Fotografia de uma câmara de teto de uma gôndola de bananas com as zonas da prateleira assinaladas e, ao lado, a lista de tarefas que os funcionários recebem: três zonas para repor e duas para rever mais tarde" width="100%">
+  <img src="assets/readme/photo-to-tasks.png" alt="Fotografia de uma câmara de teto de uma gôndola de bananas com as zonas da prateleira assinaladas e, ao lado, a ronda da aplicação: as gôndolas a que ir primeiro e o que está mal em cada uma" width="100%">
 </p>
 
 <p align="center"><sub>Entra uma fotografia, sai uma lista de trabalho. Os estados das prateleiras nesta imagem são simulados.</sub></p>
@@ -66,14 +66,13 @@ A landing page está em [strivon-landing.vercel.app](https://strivon-landing.ver
 
 ### A aplicação para os funcionários
 
-<img align="right" width="55%" src="assets/video/demo-tasks.gif" alt="O plano da loja e a lista de paragens mudam à medida que o dia avança. Ao abrir uma gôndola vê-se a fotografia da sua câmara com o que está mal assinalado.">
+<img align="right" width="55%" src="assets/presentation/video/3d/store-3d.gif" alt="A loja em 3D a rodar devagar: cada gôndola com os seus produtos e os problemas assinalados">
 
 Um plano da loja mostra que gôndolas precisam de algo, e a lista ao lado dá a ordem da ronda e o que levar a cada paragem.
 
 Reproduza o dia para ver os dois mudarem e abra uma gôndola para ver a sua prateleira com o que está mal assinalado.
 
 <br clear="right">
-<br>
 
 ### Pergunte e receba um ecrã
 
