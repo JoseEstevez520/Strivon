@@ -41,6 +41,11 @@ the tilt) to PATH, e.g. to check the tilt or feed `sensei combine`. --out is unc
 weights tag and its own block-8 stock head are set together (ONEPASS_TAG, ONEPASS_B8_HEAD), unless those env vars are
 set by hand. --stock-model ld6ee runs the model before it. Not with --stock-tilt (that combination was never
 validated): the tilt needs --stock-model ld6ee. The last line names the model: "OK (stock model mix): ...".
+--stock-mode NAME (store strictness, opt-in; Sensei's suggestion: stores differ on what "empty" means): weights on the
+averaged p_stock before the best-expected-points level, p(empty) x E and p(full) x F. "sensei" (default) = 1, 1:
+the validated answers, byte for byte. "empty-only-when-bare" = 0.4, 1; "empty-at-a-few" = 2.5, 1; "strict-full" = 1,
+0.5. --empty-weight / --full-weight set E / F by hand. Works with both stock models; not a scored claim, so it warns
+and the last line names it: "OK (stock model mix, mode empty-at-a-few): ...".
 """
 import argparse
 import hashlib
@@ -83,6 +88,9 @@ STOCK_PRESETS = {"ld6ee": ("ld6ee", "models/onepass/deploy/stockb8.npz"),
 # The preset the plain command runs (no --stock-model preset, no --label-free, ONEPASS_TAG / ONEPASS_B8_HEAD unset):
 # André's choice of 11 Oct. --stock-model ld6ee gives the model before it.
 DEFAULT_STOCK_MODEL = "mix"
+# --stock-mode presets (store strictness): (E, F) = weights on p(empty) and p(full) before best_stock.
+STOCK_MODES = {"sensei": (1.0, 1.0), "empty-only-when-bare": (0.4, 1.0), "empty-at-a-few": (2.5, 1.0),
+               "strict-full": (1.0, 0.5)}
 
 
 def load_module(path):
@@ -158,15 +166,19 @@ def average_stock(answers):
     return {lv: sum(p.get(lv, 0.0) for p in ps) / len(ps) for lv in (0, 0.5, 1)} if ps else None
 
 
-def combine_stock(answers, tilt=None):
+def combine_stock(answers, tilt=None, weights=None):
     """Average the stock probabilities of several models (None = that model had no answer) and pick the
     level with the best expected points; FALLBACK_STOCK if no model answered. tilt (--stock-tilt, None = off)
-    multiplies p(full) by k first (not renormalised: that would not change the choice)."""
+    multiplies p(full) by k first (not renormalised: that would not change the choice); weights (--stock-mode,
+    None = off) = (E, F) multiply p(empty) and p(full)."""
     q = average_stock(answers)
     if q is None:
         return FALLBACK_STOCK
     if tilt is not None:
         q[1] *= tilt
+    if weights is not None:
+        q[0] *= weights[0]
+        q[1] *= weights[1]
     return submission.best_stock(q)
 
 
@@ -306,6 +318,12 @@ def main():
     ap.add_argument("--stock-tilt", type=float, metavar="K",
                     help="opt-in, off by default: multiply p(full) by K (0 < K <= 1) before choosing the stock level, "
                          "so 'full' needs more confidence (supervised model only)")
+    ap.add_argument("--stock-mode", choices=list(STOCK_MODES), default="sensei",
+                    help="store strictness (opt-in): weights on p(empty) / p(full) before choosing the stock level. "
+                         "sensei (default) = the validated answers; empty-only-when-bare = 0.4 / 1; empty-at-a-few = "
+                         "2.5 / 1; strict-full = 1 / 0.5")
+    ap.add_argument("--empty-weight", type=float, metavar="E", help="multiply p(empty) by E (overrides --stock-mode's E)")
+    ap.add_argument("--full-weight", type=float, metavar="F", help="multiply p(full) by F (overrides --stock-mode's F)")
     ap.add_argument("--p-stock-out", metavar="PATH",
                     help="checks only, off by default: also write PATH = the same answers plus p_stock [p_empty, p_half, "
                          "p_full] per area (the averaged probabilities, before any --stock-tilt; null where no model "
@@ -324,6 +342,16 @@ def main():
         if args.label_free:
             ap.error("--stock-tilt is for the supervised model only, not for --label-free")
     tilt = None if args.stock_tilt in (None, 1.0) else args.stock_tilt
+    E, F = STOCK_MODES[args.stock_mode]   # store strictness: weights on p(empty), p(full)
+    E = E if args.empty_weight is None else args.empty_weight
+    F = F if args.full_weight is None else args.full_weight
+    for name, v in (("--empty-weight", E), ("--full-weight", F)):
+        if not 0 < v <= 10:
+            ap.error(f"{name} must be in (0, 10], got {v}")
+    weights = None if (E, F) == (1.0, 1.0) else (E, F)
+    if weights is not None and args.label_free:
+        ap.error("--stock-mode / --empty-weight / --full-weight are for the supervised model only, not for --label-free")
+    mode_name = next((n for n, w in STOCK_MODES.items() if w == (E, F)), f"E={E:g} F={F:g}")
     if args.p_stock_out and Path(args.p_stock_out).resolve() == Path(args.out).resolve():
         ap.error("--p-stock-out must be another file than --out")
     preset = None  # --stock-model mix / ld6ee: weights tag + block-8 head of the one-pass model, set together
@@ -367,6 +395,10 @@ def main():
         mode += f" | stock model {preset}"
         print(f"stock model {preset}{' (the default)' if preset == DEFAULT_STOCK_MODEL else ''}: one-pass weights "
               f"{STOCK_PRESETS[preset][0]} + block-8 head {STOCK_PRESETS[preset][1]}; both answers come from this model")
+    if weights is not None:
+        mode += f" | mode {mode_name}"
+        print(f"WARN  store-strictness preset: answers differ from the validated default (mode {mode_name}: p(empty) x "
+              f"{E:g}, p(full) x {F:g} before the best-expected-points level)")
     if tilt is not None:
         mode += f" | stock tilt k={tilt:g}"
         print(f"stock tilt k={tilt:g} (opt-in): p(full) x {tilt:g} before the best-expected-points level, so 'full' "
@@ -478,7 +510,7 @@ def main():
             if aid in covered:  # curtain: empty + compliant, exempt from the empty rule
                 submission.put(sub, rec.cam, rec.fname, aid, True, 0)
                 continue
-            stock_value = combine_stock([ans[aid] for ans in answers], tilt)
+            stock_value = combine_stock([ans[aid] for ans in answers], tilt, weights)
             if p_rows is not None:
                 q = average_stock([ans[aid] for ans in answers])
                 p_rows[(str(rec.cam), rec.fname, aid)] = None if q is None else [q[0], q[0.5], q[1]]
@@ -526,7 +558,7 @@ def main():
         print(f"!! INCOMPLETE: {'; '.join(count_problems)} (see the WARN lines above). Check before sending this file.")
     status = "INVALID" if errors else "FALLBACKS" if n_fallback else "INCOMPLETE" if count_problems else "OK"
     notes = ([f"stock model {preset}"] if preset not in (None, "ld6ee") else []) + (
-        [f"stock tilt k={tilt:g}"] if tilt is not None else [])
+        [f"mode {mode_name}"] if weights is not None else []) + ([f"stock tilt k={tilt:g}"] if tilt is not None else [])
     if notes:
         status += f" ({', '.join(notes)})"
     print(f"{status}: {len(entries)} areas -> {args.out}"
