@@ -9,6 +9,9 @@ export interface Area {
   quad: [number, number][]
   family: string
   product_id: string
+  /** The planogram's own product id and name, when the areas come from the real planogram. */
+  catalog_id?: string
+  product_name?: string
 }
 
 export interface Observation {

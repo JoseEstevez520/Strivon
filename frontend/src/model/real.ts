@@ -20,15 +20,20 @@ export interface Planogram {
   }
 }
 
-/** What the pipeline writes: camera, then photo, then area. Other fields of an area are ignored. */
-/** The finest fill the pipeline gives: the raw fill, else the expected value of p_stock, else the plain value. */
-function fillOf(o: { stock_value?: number; fill_raw?: number; p_stock?: number[] }): number | undefined {
-  if (o.fill_raw !== undefined) return o.fill_raw
-  if (o.p_stock?.length === 3) return o.p_stock[1] * 0.5 + o.p_stock[2]
-  return o.stock_value
+/**
+ * The finest fill the pipeline gives: the raw fill, else the expected value of p_stock, else the plain value or level.
+ * `predict.py --p-stock-out` writes p_stock null where the model gave no answer (a curtain, a fallback): no fill there.
+ */
+function fillOf(o: { stock_level?: Level; stock_value?: number; fill_raw?: number; p_stock?: number[] | null }): number | undefined {
+  if (typeof o.fill_raw === 'number') return o.fill_raw
+  if (Array.isArray(o.p_stock) && o.p_stock.length === 3) return o.p_stock[1] * 0.5 + o.p_stock[2]
+  if (o.p_stock === null) return undefined
+  if (typeof o.stock_value === 'number') return o.stock_value
+  return o.stock_level === undefined ? undefined : { empty: 0, half: 0.5, full: 1 }[o.stock_level]
 }
 
-export type Predictions = Record<string, Record<string, Record<string, { planogram_compliant: boolean; stock_level: Level; stock_value?: number; fill_raw?: number; p_stock?: number[] }>>>
+/** What the pipeline writes: camera, then photo, then area. Other fields of an area are ignored. */
+export type Predictions = Record<string, Record<string, Record<string, { planogram_compliant: boolean; stock_level: Level; stock_value?: number; fill_raw?: number; p_stock?: number[] | null }>>>
 
 /**
  * The real cameras, photos and shelf areas, read from the planogram and the photo names (which
@@ -57,6 +62,8 @@ export function buildRealState(planogram: Planogram, photos: Record<string, stri
         // Cards and the products page show the family name, so they group by family. Two catalogue
         // ids of one family (two kinds of red apple) are one product on screen.
         product_id: familyOf(p.product_name),
+        catalog_id: p.product_id,
+        product_name: p.product_name,
       }
     }
   }

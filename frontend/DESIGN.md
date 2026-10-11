@@ -720,3 +720,7 @@ A worker carries it. It is `/#/round`, outside the header and the tab bar, one s
 
 The order is by need and then by gondola number, as an approximation of the walk, because the floor positions are not known. It is a reasonable order and the page does not claim it is the shortest path. A product standing in the wrong place is matched with the gondola that has its place in the planogram, so the round says "take to Gondola 5" where it is found and lists it as a drop in Gondola 5; with no place in the planogram it says to take it back to the back room. The first screen of Tasks has a "Start the round" button and, on a wide screen, a code to open it on a phone.
 
+
+## Calibration page
+
+A product nobody has marked says so in one quiet line ("No marker: shows what the model says") and has no level pressed, so the page never suggests a choice the model did not make. Once a level is pressed, the same line spells out what follows ("Empty up to 10% · Full from 25% · Half in between"), because a marker moves two lines and the person should not have to guess the second one. "Back to the model" on the row undoes one product; the reset at the bottom undoes all. Big fruit and cabbages count pieces up to their own crate's capacity, not a fixed 0 to 7.

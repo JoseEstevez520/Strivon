@@ -4,72 +4,122 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import {
   levelFor,
-  defaultCalibration,
+  linesFor,
+  amountOf,
+  calibrate,
+  toCalibFile,
   loadCalibration,
   saveCalibration,
   BIG_FAMILIES,
+  CAPACITY,
   type ProductCal,
 } from './calibration.ts'
 
 const pct = (threshold: number, level: ProductCal['level']): ProductCal => ({ mode: 'percent', threshold, level })
+const units = (threshold: number, level: ProductCal['level']): ProductCal => ({ mode: 'units', threshold, level })
 
 test('orange: 25% marked as full', () => {
   const c = pct(25, 'full')
-  assert.equal(levelFor(0.25, c), 'full')
-  assert.equal(levelFor(0.1, c), 'half')
-  assert.equal(levelFor(0.05, c), 'empty')
-  assert.equal(levelFor(1, c), 'full')
+  assert.deepEqual(linesFor('citrus_orange', c), { emptyMax: 10, fullMin: 25 })
+  assert.equal(levelFor(0.25, 'citrus_orange', c), 'full')
+  assert.equal(levelFor(1, 'citrus_orange', c), 'full')
+  assert.equal(levelFor(0.11, 'citrus_orange', c), 'half')
+  assert.equal(levelFor(0.1, 'citrus_orange', c), 'empty')
 })
 
-test('same marker as half', () => {
+test('same marker as half: 25% is no longer empty, full stays at the model line', () => {
   const c = pct(25, 'half')
-  assert.equal(levelFor(0.05, c), 'empty')
-  assert.equal(levelFor(0.25, c), 'half')
-  assert.equal(levelFor(0.7, c), 'full')
+  assert.deepEqual(linesFor('citrus_orange', c), { emptyMax: 24, fullMin: 74 })
+  assert.equal(levelFor(0.24, 'citrus_orange', c), 'empty')
+  assert.equal(levelFor(0.25, 'citrus_orange', c), 'half')
+  assert.equal(levelFor(0.74, 'citrus_orange', c), 'full')
 })
 
 test('same marker as empty', () => {
   const c = pct(25, 'empty')
-  assert.equal(levelFor(0.25, c), 'empty')
-  assert.equal(levelFor(0.5, c), 'half')
-  assert.equal(levelFor(0.7, c), 'full')
+  assert.deepEqual(linesFor('citrus_orange', c), { emptyMax: 25, fullMin: 62 })
+  assert.equal(levelFor(0.25, 'citrus_orange', c), 'empty')
+  assert.equal(levelFor(0.3, 'citrus_orange', c), 'half')
+  assert.equal(levelFor(0.62, 'citrus_orange', c), 'full')
 })
 
-test('units mode normalises by 7', () => {
-  const c: ProductCal = { mode: 'units', threshold: 3.5, level: 'full' }
-  assert.equal(levelFor(0.5, c), 'full')
-  assert.equal(levelFor(0.3, c), 'half')
-  assert.equal(levelFor(0.1, c), 'empty')
+test('a half marker inside the model lines keeps them', () => {
+  assert.deepEqual(linesFor('banana', pct(50, 'half')), { emptyMax: 30, fullMin: 74 })
 })
 
-test('no calibration falls back to fixed cutoffs', () => {
-  assert.equal(levelFor(0.1, undefined), 'empty')
-  assert.equal(levelFor(0.5, undefined), 'half')
-  assert.equal(levelFor(0.9, undefined), 'full')
+test('big fruit is counted in pieces of its own crate', () => {
+  assert.ok(BIG_FAMILIES.includes('melon') && BIG_FAMILIES.includes('cauliflower'))
+  assert.equal(CAPACITY.melon, 3)
+  assert.equal(amountOf(0.5, 'melon'), 2) // 1.5 pieces rounds up
+  assert.equal(amountOf(0.4, 'melon'), 1)
+  const c = units(2, 'full')
+  assert.deepEqual(linesFor('melon', c), { emptyMax: 1, fullMin: 2 })
+  assert.equal(levelFor(0.5, 'melon', c), 'full')
+  assert.equal(levelFor(0.4, 'melon', c), 'empty')
+  // one melon left marked as half: one piece is not empty any more
+  assert.deepEqual(linesFor('melon', units(1, 'half')), { emptyMax: 0, fullMin: 2 })
+  assert.equal(levelFor(0.3, 'melon', units(1, 'half')), 'half')
 })
 
-test('edge thresholds do not crash', () => {
+test('edge markers never contradict themselves or crash', () => {
   for (const level of ['empty', 'half', 'full'] as const) {
     for (const t of [0, 100, -5, 250, NaN]) {
+      const { emptyMax, fullMin } = linesFor('banana', pct(t, level))
+      assert.ok(emptyMax < fullMin)
       for (const f of [0, 0.5, 1, -1, 2, NaN]) {
-        assert.ok(['empty', 'half', 'full'].includes(levelFor(f, pct(t, level))))
+        assert.ok(['empty', 'half', 'full'].includes(levelFor(f, 'banana', pct(t, level))))
       }
     }
   }
-  assert.equal(levelFor(0, pct(0, 'full')), 'full')
-  assert.equal(levelFor(1, pct(100, 'empty')), 'empty')
-  assert.equal(levelFor(1, pct(100, 'half')), 'full')
+  assert.equal(levelFor(0, 'banana', pct(0, 'full')), 'full')
+  assert.equal(levelFor(1, 'banana', pct(100, 'empty')), 'empty')
 })
 
-test('defaultCalibration picks units for big families', () => {
-  const d = defaultCalibration(['melon', 'banana'])
-  assert.ok(BIG_FAMILIES.includes('melon'))
-  assert.deepEqual(d.melon, { mode: 'units', threshold: 4, level: 'half' })
-  assert.deepEqual(d.banana, { mode: 'percent', threshold: 50, level: 'half' })
+const state = () => ({
+  images: { '6215': [{ image: '1.jpg', ts: 1 }] },
+  areas: {
+    '6215_1': { area_id: '6215_1', camera: '6215', index: 1, quad: [], family: 'citrus_orange', product_id: 'citrus_orange', catalog_id: '111', product_name: 'LARANJA KG' },
+    '6215_2': { area_id: '6215_2', camera: '6215', index: 2, quad: [], family: 'banana', product_id: 'banana', catalog_id: '222', product_name: 'BANANA KG' },
+    '6215_3': { area_id: '6215_3', camera: '6215', index: 3, quad: [], family: 'melon', product_id: 'melon', catalog_id: '333', product_name: 'MELAO KG' },
+  },
+  observations: {
+    '6215': {
+      '1.jpg': {
+        '6215_1': { planogram_compliant: true, stock_level: 'empty', stock_value: 0.2 },
+        '6215_2': { planogram_compliant: true, stock_level: 'half', stock_value: 0.5 },
+        '6215_3': { planogram_compliant: false, stock_level: 'empty' },
+      },
+    },
+  },
+})
+
+test('without markers the app shows exactly what the model said', () => {
+  const s = state()
+  assert.equal(calibrate(s, {}), s)
+})
+
+test('a marker changes only its own product, and only where there is a fill', () => {
+  const s = calibrate(state(), { citrus_orange: pct(15, 'full'), melon: units(1, 'full') })
+  const frame = s.observations['6215']['1.jpg']
+  assert.equal(frame['6215_1'].stock_level, 'full') // 20% of oranges, marked full from 15%
+  assert.equal(frame['6215_2'].stock_level, 'half') // banana has no marker
+  assert.equal(frame['6215_3'].stock_level, 'empty') // no fill for this area: the model's level stays
+  assert.equal(frame['6215_3'].planogram_compliant, false)
+})
+
+test('export writes the lines per catalogue product', () => {
+  const f = toCalibFile({ citrus_orange: pct(25, 'full'), melon: units(2, 'full') }, state().areas)
+  assert.equal(f.version, 1)
+  assert.deepEqual(Object.keys(f.products).sort(), ['111', '333'])
+  assert.deepEqual(f.products['111'], {
+    name: 'LARANJA KG', unit: 'percent', capacity: null, points: [{ value: 25, level: 'full' }], empty_max: 10, full_min: 25,
+  })
+  assert.equal(f.products['333'].unit, 'count')
+  assert.equal(f.products['333'].capacity, 3)
+  assert.deepEqual([f.products['333'].empty_max, f.products['333'].full_min], [1, 2])
 })
 
 test('load/save without localStorage', () => {
-
   const saved = (globalThis as any).localStorage
   delete (globalThis as any).localStorage
   assert.deepEqual(loadCalibration(), {})
@@ -77,16 +127,18 @@ test('load/save without localStorage', () => {
   if (saved) (globalThis as any).localStorage = saved
 })
 
-test('load/save round trip and bad JSON', () => {
+test('load/save round trip, bad JSON and bad entries', () => {
   const store = new Map<string, string>()
   ;(globalThis as any).localStorage = {
     getItem: (k: string) => store.get(k) ?? null,
     setItem: (k: string, v: string) => void store.set(k, v),
   }
-  const c = { melon: { mode: 'units', threshold: 2, level: 'full' } as ProductCal }
+  const c = { melon: units(2, 'full') }
   saveCalibration(c)
   assert.deepEqual(loadCalibration(), c)
-  store.set('strivon.calibration', '{nope')
+  store.set('strivon.calibration.v2', JSON.stringify({ melon: units(2, 'full'), kiwi: { threshold: 'x', level: 'full' } }))
+  assert.deepEqual(loadCalibration(), c)
+  store.set('strivon.calibration.v2', '{nope')
   assert.deepEqual(loadCalibration(), {})
   delete (globalThis as any).localStorage
 })
