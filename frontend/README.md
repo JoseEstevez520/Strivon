@@ -57,8 +57,14 @@ npm run dev:landing      # serve it
 npm run build:landing    # build it into dist-landing/
 ```
 
-It is hosted on Vercel. Create the project with `frontend` as the root directory; `vercel.json`
-sets the build command and the output folder.
+It is hosted on Vercel, in the project `strivon`, connected to this repository with `frontend` as the
+root directory; `vercel.json` sets the build command and the output folder. Every merge to `main`
+deploys to https://strivon-landing.vercel.app, and every pull request gets a preview link, so there
+is nothing to deploy by hand.
+
+The build has no challenge photos or predictions: those are read only by the dev server, so the demo
+on the deployed landing shows simulated shelves. To deploy by hand, run `vercel` from the repository
+root, not from `frontend`, since the project already points at that folder.
 
 ## The chat model
 
