@@ -24,7 +24,7 @@
 </p>
 
 <p align="center">
-  <img src="assets/readme/photo-to-tasks.png" alt="A ceiling-camera photo of a banana gondola with its shelf areas marked, and next to it the app's round: the gondolas to go to first and what is wrong in each" width="100%">
+  <img src="assets/readme/photo-to-tasks.png" alt="A ceiling-camera photo of a banana gondola with its shelf areas marked, and next to it what is wrong in that gondola: one empty banana area, three areas holding bananas where oranges belong, and two half full" width="100%">
 </p>
 
 <p align="center"><sub>One photo in, a list of work out. The shelf states in this image are simulated.</sub></p>

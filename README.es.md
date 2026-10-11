@@ -23,7 +23,7 @@
 </p>
 
 <p align="center">
-  <img src="assets/readme/photo-to-tasks.png" alt="Foto de una cámara de techo de una góndola de plátanos con sus zonas de estantería marcadas y, a su lado, la ronda de la app: las góndolas a las que ir primero y qué está mal en cada una" width="100%">
+  <img src="assets/readme/photo-to-tasks.png" alt="Foto de una cámara de techo de una góndola de plátanos con sus zonas de estantería marcadas y, a su lado, lo que está mal en esa góndola: una zona de plátano vacía, tres zonas con plátanos donde van naranjas y dos a medias" width="100%">
 </p>
 
 <p align="center"><sub>Una foto entra, una lista de trabajo sale. Los estados de las estanterías en esta imagen son simulados.</sub></p>

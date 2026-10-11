@@ -23,7 +23,7 @@
 </p>
 
 <p align="center">
-  <img src="assets/readme/photo-to-tasks.png" alt="Fotografia de uma câmara de teto de uma gôndola de bananas com as zonas da prateleira assinaladas e, ao lado, a ronda da aplicação: as gôndolas a que ir primeiro e o que está mal em cada uma" width="100%">
+  <img src="assets/readme/photo-to-tasks.png" alt="Fotografia de uma câmara de teto de uma gôndola de bananas com as zonas da prateleira assinaladas e, ao lado, o que está mal nessa gôndola: uma zona de banana vazia, três zonas com bananas onde deviam estar laranjas e duas a meio" width="100%">
 </p>
 
 <p align="center"><sub>Entra uma fotografia, sai uma lista de trabalho. Os estados das prateleiras nesta imagem são simulados.</sub></p>
