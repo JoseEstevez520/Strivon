@@ -292,8 +292,9 @@ separate panel. Pressing it again, or Escape, closes it.
 
 Scrollbars are quiet ones, set as `scrollbar-subtle` in `src/index.css`: a
 line of 6 px with no track and no arrows. It is invisible at rest and drawn faintly only while the
-pointer is over what scrolls, a step darker on the line itself. It was made always visible once and
-asked back to this: it should show only when you go there. They apply to the content area, which scrolls under the header, and to the camera panel. The browser's own bars are
+area scrolls or the pointer is over the bar itself, a step darker on the line. It was made always
+visible once and asked back to this, and then it showed whenever the pointer rested anywhere over
+the content, which was still too much: it should show only when you go to it or scroll. They apply to the content area, which scrolls under the header, and to the camera panel. The browser's own bars are
 wide and grey and fought with the flat style. The space for the page bar stays reserved so
 nothing shifts when it appears.
 
@@ -303,6 +304,11 @@ Colour changes take 150 ms and the open picker fades. A task opens and closes wi
 animation (200 ms in, 150 ms out) and its chevron turns. That is the only layout animation, and
 it is kept to one row at a time. No blur, no scaling and no glass. Closing is always a little
 faster than opening. With reduced motion, everything is instant.
+
+The chat follows the same rules. The box grows from the button on a soft curve (320 ms open, 240 ms
+closed) and what is inside resizes with it on the same curve, so enlarging it never makes the
+content jump. A new message rises 4 px while it fades in, the answer fades in where the dots were,
+and the jump-to-bottom button fades instead of popping.
 
 ## Performance
 
