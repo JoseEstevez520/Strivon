@@ -4,6 +4,7 @@ import { Link, useSearchParams } from 'react-router'
 import { DayBar } from '@/components/DayBar'
 import { ProductIcon } from '@/components/ProductIcon'
 import { Input } from '@/components/ui/input'
+import { Segmented } from '@/components/ui/segmented'
 import { useI18n } from '@/lib/i18n'
 import { useStore } from '@/lib/store'
 import { ACTION, cameras, type Task } from '@/lib/tasks'
@@ -197,37 +198,25 @@ export function ProductsPage() {
         </div>
       </div>
       <div className="mb-4 flex flex-col gap-2">
-        <div className="flex flex-wrap gap-1" role="group" aria-label={t.filterState}>
-          {STATUS.map((st) => (
-            <button
-              key={st}
-              type="button"
-              data-on={st === 'all' ? status.size === 0 : status.has(st)}
-              aria-pressed={st === 'all' ? status.size === 0 : status.has(st)}
-              onClick={() => setStatus(st === 'all' ? new Set() : toggle(status, st))}
-              className="flex h-9 cursor-pointer items-center gap-1.5 rounded-lg px-3 text-ui text-fg-secondary transition-colors hover:bg-surface data-[on=true]:bg-surface data-[on=true]:text-fg"
-            >
-              {label(st)}
-              <span className="text-meta tabular-nums text-fg-muted">{withStatus(st).length}</span>
-            </button>
-          ))}
-        </div>
-        {/* Fourteen gondolas are too many names for a list that hides, and the numbers are short: one row that scrolls on a phone. */}
-        <div className="-mx-1 flex items-center gap-1 overflow-x-auto px-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="group" aria-label={t.allGondolas}>
-          {['all', ...cameras(state)].map((c) => (
-            <button
-              key={c}
-              type="button"
-              data-on={c === 'all' ? camera.size === 0 : camera.has(c)}
-              aria-pressed={c === 'all' ? camera.size === 0 : camera.has(c)}
-              title={c === 'all' ? t.allGondolas : gondola(c)}
-              onClick={() => setCamera(c === 'all' ? new Set() : toggle(camera, c))}
-              className="h-9 shrink-0 cursor-pointer rounded-lg px-3 text-ui tabular-nums text-fg-secondary transition-colors hover:bg-surface data-[on=true]:bg-surface data-[on=true]:text-fg"
-            >
-              {c === 'all' ? t.allGondolas : (gondola(c).match(/\d+$/)?.[0] ?? gondola(c))}
-            </button>
-          ))}
-        </div>
+        <Segmented
+          wrap
+          label={t.filterState}
+          options={STATUS.map((st) => ({ value: st, label: label(st), hint: withStatus(st).length }))}
+          on={(v) => (v === 'all' ? status.size === 0 : status.has(v as Exclude<Status, 'all'>))}
+          onPick={(v) => setStatus(v === 'all' ? new Set() : toggle(status, v as Exclude<Status, 'all'>))}
+        />
+        {/* Fourteen gondolas are too many names for a list that hides, and the numbers are short: one row that fills the width, and scrolls on a phone. */}
+        <Segmented
+          scroll
+          label={t.allGondolas}
+          options={['all', ...cameras(state)].map((c) => ({
+            value: c,
+            label: c === 'all' ? t.allGondolas : (gondola(c).match(/\d+$/)?.[0] ?? gondola(c)),
+            title: c === 'all' ? t.allGondolas : gondola(c),
+          }))}
+          on={(v) => (v === 'all' ? camera.size === 0 : camera.has(v))}
+          onPick={(v) => setCamera(v === 'all' ? new Set() : toggle(camera, v))}
+        />
       </div>
       <DayBar className="mb-6" />
       {shown.length === 0 ? (
