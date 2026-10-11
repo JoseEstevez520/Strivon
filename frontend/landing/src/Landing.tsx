@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   ArrowRight,
   ArrowUpRight,
@@ -15,7 +15,12 @@ import {
   ScanSearch,
   type LucideIcon,
 } from 'lucide-react'
-import { TaskBoard } from '@/components/TaskBoard'
+import { MemoryRouter } from 'react-router'
+import { DayBar } from '@/components/DayBar'
+import { StopList } from '@/components/StopList'
+import { Plan } from '@/components/StorePlan'
+import { suggest } from '@/lib/suggest'
+import { cameras, type Task } from '@/lib/tasks'
 import { useStore } from '@/lib/store'
 
 const STEPS: [LucideIcon, string, string][] = [
@@ -25,9 +30,9 @@ const STEPS: [LucideIcon, string, string][] = [
 ]
 
 const TODAY: [LucideIcon, string, string][] = [
-  [ListChecks, 'One list for the whole store', 'Grouped by what to do: restock, move back, leave alone. The product that has been gone the longest comes first.'],
-  [LayoutGrid, 'Every gondola with its photo', 'Each camera with what it needs, and the shelf areas drawn on the photo so the proof is in view.'],
-  [Apple, 'Stock by product', 'A product’s stock summed over every shelf area it sits on, whatever the gondola.'],
+  [ListChecks, 'A round for the whole store', 'A plan shows which gondolas need something, and the list gives the order of the round and what to carry to each stop.'],
+  [LayoutGrid, 'Every gondola, in 2D, 3D or real', 'The store as a plan, a 3D model or the latest photo of each camera, with the shelf areas drawn on it so the proof is in view.'],
+  [Apple, 'Products as cards', 'Each product with its stock over every shelf area it sits on, where to bring it or put it back, and since when.'],
   [Play, 'The day, replayed', 'Move through the photos of the day and watch each area change, or open a card to see its day as a strip.'],
   [ChartNoAxesColumn, 'How the store is doing', 'How much of the time shelves were empty, when and where, marked as an estimate because photos come an hour apart.'],
   [Languages, 'English, Portuguese and Spanish', 'The whole app, in the language of whoever is on shift.'],
@@ -244,12 +249,24 @@ function Hero() {
 }
 
 /**
- * The app's own task board, shortened, in a window so it reads as a demo. It works as in the app
- * (open a task to see its day and its shelf, move through the day), but only a few tasks and four
- * gondolas are shown and nothing on it leads away from the page.
+ * The app's first page, shortened, in a window so it reads as a demo: the plan of the store on the
+ * left and the round on the right, with the day bar above. It works as in the app (move through the
+ * day and the plan and the list follow), but only eight gondolas are shown, and a memory router
+ * keeps every link inside the page, so nothing on it leads away.
  */
 function Demo() {
-  const { tasks } = useStore()
+  const { state, tasks } = useStore()
+  const stops = useMemo(() => suggest(tasks).filter((s) => s.empty + s.wrong > 0), [tasks])
+  const byCamera = useMemo(() => {
+    const m: Record<string, Task[]> = {}
+    for (const x of tasks) (m[x.area.camera] ??= []).push(x)
+    return m
+  }, [tasks])
+  const rankOf = (c: string) => {
+    const i = stops.findIndex((x) => x.camera === c)
+    return i >= 0 && i < 3 ? i + 1 : 0
+  }
+  const list = cameras(state).slice(0, 8)
   return (
     <div className="rounded-2xl bg-surface p-2">
       <div className="flex h-9 items-center gap-1.5 px-3">
@@ -259,7 +276,13 @@ function Demo() {
         <span className="ml-3 text-meta text-fg-muted">Demo</span>
       </div>
       <div className="rounded-xl bg-bg p-4 sm:p-6">
-        <TaskBoard tasks={tasks} compact />
+        <MemoryRouter>
+          <DayBar className="mb-6" />
+          <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
+            <Plan list={list} cols={4} byCamera={byCamera} rankOf={rankOf} choose={() => {}} />
+            <StopList stops={stops.filter((x) => list.includes(x.camera))} byCamera={byCamera} tasks={tasks} />
+          </div>
+        </MemoryRouter>
       </div>
     </div>
   )
@@ -316,7 +339,7 @@ export function Landing() {
             </ul>
           </Section>
 
-          <Section title="See it" lead="The app, shortened. Open a task to see its day and its shelf, or move through the day.">
+          <Section title="See it" lead="The app, shortened. The plan shows where the problems are and the list gives the order of the round. Move through the day and both follow.">
             <Demo />
           </Section>
 
