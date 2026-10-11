@@ -1,6 +1,6 @@
 {
- "candidate": "U2",
- "grid": 4,
+ "candidate": "U6",
+ "grid": 3,
  "t_empty": 0.85,
  "t_half": 0.3,
  "siglip": "google/siglip2-base-patch16-224 (vision, fp16)",

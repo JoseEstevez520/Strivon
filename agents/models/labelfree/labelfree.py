@@ -9,7 +9,8 @@ loads this file once per role, so the model and the answers for the current phot
 Baselines: env LABELFREE_BASELINES = a .json written by labelfree_setup.py (next to it, <name>.sources.json lists the
 photos it was built from); default = -4e's shipped models/compliance/deploy/labelfree_baselines.json (built from our
 179 unlabelled non-curtain photos; sources listed in models/labelfree/deploy/shipped_baselines.sources.json).
-If the 186 MB vision weights ship as shards (siglip2b_vision_fp16.part*.pt), they are merged once on first use.
+Vision weights: models/compliance/deploy/siglip2b_vision_fp16.pt, written by `labelfree_setup.py weights` (not in git),
+or env LABELFREE_WEIGHTS = another copy of that file (read-only use, nothing is written).
 Env: LABELFREE_DEVICE (cpu or cuda, default cpu), LABELFREE_THREADS (default 4).
 """
 import hashlib
@@ -36,28 +37,24 @@ def baselines_files():
     return DEPLOY / "labelfree_baselines.json", HERE / "deploy" / "shipped_baselines.sources.json"
 
 
-def _merge_shards():
-    """Rebuild deploy/siglip2b_vision_fp16.pt from its <100 MB shards (GitHub's file limit), once."""
-    import torch
-    full = DEPLOY / "siglip2b_vision_fp16.pt"
-    parts = sorted(DEPLOY.glob("siglip2b_vision_fp16.part*.pt"))
-    if full.exists() or not parts:
-        return
-    sd = {}
-    for p in parts:
-        sd.update(torch.load(str(p), map_location="cpu"))
-    tmp = full.with_suffix(".tmp")
-    torch.save(sd, str(tmp))
-    tmp.replace(full)
-    print(f"WARN  merged {len(parts)} weight shards into {full.name} (first label-free run)")
+def weights_file():
+    return Path(os.environ.get("LABELFREE_WEIGHTS") or DEPLOY / "siglip2b_vision_fp16.pt")
 
 
 def _model():
     if _S.model is None:
-        _merge_shards()
+        import torch
         from labelfree_infer import LabelFree
-        _S.model = LabelFree(device=os.environ.get("LABELFREE_DEVICE", "cpu"),
-                             threads=int(os.environ.get("LABELFREE_THREADS", "4")))
+        real, w = torch.load, weights_file()
+
+        def load(f, *args, **kw):  # LabelFree reads deploy/siglip2b_vision_fp16.pt; LABELFREE_WEIGHTS points elsewhere
+            return real(str(w) if str(f).endswith("siglip2b_vision_fp16.pt") else f, *args, **kw)
+        torch.load = load
+        try:
+            _S.model = LabelFree(device=os.environ.get("LABELFREE_DEVICE", "cpu"),
+                                 threads=int(os.environ.get("LABELFREE_THREADS", "4")))
+        finally:
+            torch.load = real
         b, _ = baselines_files()
         _S.model.base = json.loads(b.read_text(encoding="utf-8"))
     return _S.model

@@ -1,9 +1,10 @@
 """One-time setup of the label-free mode (`predict.py --label-free`). Never reads labels. Owner: -d1.
 
-    python -I labelfree_setup.py weights
+    python -I labelfree_setup.py weights [--out <path>.pt]
         Downloads google/siglip2-base-patch16-224 (public, ungated; pinned revision, 1.5 GB, honours HF_HOME) ONCE,
-        checks its sha256, and writes the fp16 vision tower to models/compliance/deploy/siglip2b_vision_fp16.pt
-        (not in git). Needs internet once, before the day; afterwards everything runs offline.
+        checks its sha256, and writes the fp16 vision tower (186 MB) to models/compliance/deploy/siglip2b_vision_fp16.pt
+        (not in git), or to --out; then run with LABELFREE_WEIGHTS=<that path>. Needs internet once, before the day;
+        afterwards everything runs offline.
 
     python -I labelfree_setup.py baselines --images <folder of UNLABELLED photos> --out <baselines.json> [--planogram P]
         The "store calibration": for every planogram area, the minimum share of crate tiles that look like empty floor
@@ -37,7 +38,7 @@ def sha256(path, chunk=1 << 20):
     return h.hexdigest()
 
 
-def weights():
+def weights(out=WEIGHTS):
     import torch
     import transformers
     from huggingface_hub import hf_hub_download
@@ -54,19 +55,22 @@ def weights():
     cfg = DEPLOY / "siglip2b_vision_config.json"
     if not cfg.exists():
         vm.config.to_json_file(str(cfg))
-    DEPLOY.mkdir(parents=True, exist_ok=True)
-    tmp = WEIGHTS.with_suffix(".tmp")
+    out = Path(out)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    tmp = out.with_suffix(".tmp")
     torch.save({k: v.half() for k, v in vm.state_dict().items()}, str(tmp))
-    tmp.replace(WEIGHTS)
-    print(f"wrote {WEIGHTS} ({WEIGHTS.stat().st_size / 1e6:.0f} MB); label-free mode ready (offline from now on)")
+    tmp.replace(out)
+    hint = "" if out.resolve() == WEIGHTS.resolve() else f" (run predict/baselines with LABELFREE_WEIGHTS={out})"
+    print(f"wrote {out} ({out.stat().st_size / 1e6:.0f} MB); label-free mode ready, offline from now on{hint}")
 
 
 def baselines(images_dir, out, planogram):
     from common import curtain_down, list_images, load_image, load_planogram
     sys.path.insert(0, str(ROOT / "models" / "labelfree"))
-    if not WEIGHTS.exists():
-        sys.exit(f"ERROR the label-free weights are missing: run `python -I {Path(__file__).resolve()} weights` once (internet)")
     import labelfree as LF
+    if not LF.weights_file().exists():
+        sys.exit(f"ERROR the label-free weights are missing ({LF.weights_file()}): run "
+                 f"`python -I {Path(__file__).resolve()} weights` once (internet), or set LABELFREE_WEIGHTS")
     pg = load_planogram(planogram)
     model = LF._model()
     model.base = {}                       # raw floor shares: no baseline subtracted
@@ -94,14 +98,15 @@ def main():
     from common.paths import PLANOGRAM_PATH
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
-    sub.add_parser("weights")
+    w = sub.add_parser("weights")
+    w.add_argument("--out", default=str(WEIGHTS))
     b = sub.add_parser("baselines")
     b.add_argument("--images", required=True)
     b.add_argument("--out", required=True)
     b.add_argument("--planogram", default=str(PLANOGRAM_PATH))
     a = ap.parse_args()
     if a.cmd == "weights":
-        weights()
+        weights(a.out)
     else:
         baselines(a.images, a.out, a.planogram)
 

@@ -219,7 +219,7 @@ class Task:
 
 def label_free_checks(images, allow_overlap):
     """--label-free: the setup must have run, and no photo being predicted may be one the baselines were built from."""
-    weights = ROOT / "models" / "compliance" / "deploy" / "siglip2b_vision_fp16.pt"
+    weights = Path(os.environ.get("LABELFREE_WEIGHTS") or ROOT / "models" / "compliance" / "deploy" / "siglip2b_vision_fp16.pt")
     if not weights.exists():
         sys.exit(f"ERROR label-free weights missing ({weights}): run `python -I {ROOT / 'labelfree_setup.py'} weights` "
                  "once with internet (downloads google/siglip2-base-patch16-224, 1.5 GB), then predict offline")
