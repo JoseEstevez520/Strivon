@@ -190,17 +190,20 @@ Answer key `labels_v1`: 1929 areas, maximum 3858 points. "≈ /578" scales the t
 <summary>Forward split, closest to the hidden set</summary>
 
 <!-- FORWARD:START -->
-Forward split: trained without each camera's last 2 photos, tested on them (302 areas). Files in `eval/benchmark/preds_forward/`, scored with `python eval/benchmark.py forward <file>`.
+Forward split: trained without each camera's last 2 photos, tested on them (302 areas). Since `labels_v1` was frozen, 33 of these areas changed in `eval/labels.json`, most of them in André's review of the evening photos where his model disagreed with the labels (PR #61, #75). So `labels_v1` is stale there and the current labels lean towards his models. The table is sorted by the 269 areas where both keys agree, which no review touched. Files in `eval/benchmark/preds_forward/`, scored with `python eval/benchmark.py forward <file>` (all three keys).
 
-| # | Approach | Identification | Stock | Below | Above | Total / max | Per area | ≈ / 578 | Seconds per photo |
-|---:|---|---:|---:|---:|---:|---:|---:|---:|---|
-| 1 | Combined: stock = the lower of Miguel's CLIP crate model and José's lab ensemble, product check from the CLIP crate model (`combo_min_crate_lab`) | +302 | +150 | 24 | 20 | +452 / 604 | +1.497 | +433 | about 1.1-1.5 CPU (0.9-1.4 + 0.14) |
-| 2 | Agents' FINAL model R3: one-pass DINOv2-S retrained on newer labels + block-8 stock head, seed 0 (`agents_R3_s0`) | +299 | +151 | 17 | 25 | +450 / 604 | +1.490 | +431 | 0.74-0.82 CPU, 0.06 GPU |
-| 3 | Agents' FINAL model R3: one-pass DINOv2-S retrained on newer labels + block-8 stock head, seed 1 (`agents_R3_s1`) | +299 | +142 | 16 | 28 | +441 / 604 | +1.460 | +422 | 0.74-0.82 CPU, 0.06 GPU |
-| 4 | Agents' one-pass DINOv2-S, round-1 pick, seed 1 (`agents_R0_shipped_s1`) | +299 | +139 | 13 | 31 | +438 / 604 | +1.450 | +419 | 0.82 CPU, 0.06 GPU |
-| 5 | Single image: CLIP ViT-B-32 on the hand-drawn crate + colour + area id, logistic regression (`single_crate`) | +302 | +135 | 21 | 26 | +437 / 604 | +1.447 | +418 | 0.9-1.4 s, 2-8 CPU threads (laptop), no GPU |
-| 6 | Agents' one-pass DINOv2-S, round-1 pick, seed 0 (`agents_R0_shipped_s0`) | +299 | +136 | 26 | 22 | +435 / 604 | +1.440 | +416 | 0.82 CPU, 0.06 GPU |
-| 7 | Single image, no CLIP: weighted average of three lab stock models (pixel features, slot references, a small fine-tuned MobileNetV3) + product check against a bank of training crops, colours balanced per crop (the shipped model, `python lab/predict.py`) (`lab_image_only_ensemble`) | +299 | +124 | 14 | 34 | +423 / 604 | +1.401 | +405 | 0.11 CPU per photo (1 thread, warm); 0.12 per photo over a batch of 28 including a 0.3 startup (`python lab/predict_fast.py`); i7 laptop, no GPU |
+| # | Approach | Unchanged areas: total / max | Per area | ≈ / 578 | Identification | Stock | Below | Above | `labels_v1`: total / 604 | Current labels: total / 604 | Seconds per photo |
+|---:|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| 1 | Agents' FINAL model R3, the submission's recipe (`agents/predict.py`): one-pass DINOv2-S retrained on newer labels + block-8 stock head, seed 0 (`agents_R3_s0`) | +494 / 538 | +1.836 | +531 | +269 | +225 | 4 | 8 | +450 | +539 | 2.0 CPU s per photo end to end at 1 thread (28 photos, 6.6 s start-up included; Miguel's laptop, Core Ultra 7 155H); 0.74-0.82 wall at 4 threads (André's laptop); 0.06 GPU |
+| 2 | Agents' FINAL model R3, the submission's recipe (`agents/predict.py`): one-pass DINOv2-S retrained on newer labels + block-8 stock head, seed 1 (`agents_R3_s1`) | +483 / 538 | +1.796 | +519 | +269 | +214 | 5 | 10 | +441 | +524 | 2.0 CPU s per photo end to end at 1 thread (28 photos, 6.6 s start-up included; Miguel's laptop, Core Ultra 7 155H); 0.74-0.82 wall at 4 threads (André's laptop); 0.06 GPU |
+| 3 | Rule fixed in advance, not adopted: stock = best expected points on the average of the CLIP crate, lab and R3 (seed 0) probabilities, product check from R3 (`combo_avg_crate_lab_R3`) | +481 / 538 | +1.788 | +517 | +269 | +212 | 3 | 12 | +452 | +507 | about 1.8-2.3 wall (R3 0.8 + crate 0.9-1.4 + lab 0.12), from component timings |
+| 4 | Rule fixed in advance, not adopted: stock = the lower of the CLIP crate model and R3 (seed 0), product check from R3 (`combo_min_crate_R3`) | +476 / 538 | +1.770 | +511 | +269 | +207 | 14 | 5 | +456 | +507 | about 1.7-2.2 wall (R3 0.8 + crate 0.9-1.4), from component timings |
+| 5 | Rule fixed in advance, not adopted: stock = the lower of the CLIP crate model and the best expected points on the average of lab and R3 (seed 0), product check from R3 (`combo_min_crate_avg_lab_R3`) | +469 / 538 | +1.743 | +504 | +269 | +200 | 15 | 6 | +458 | +488 | about 1.8-2.3 wall (R3 0.8 + crate 0.9-1.4 + lab 0.12), from component timings |
+| 6 | Agents' one-pass DINOv2-S, round-1 pick, seed 0 (`agents_R0_shipped_s0`) | +464 / 538 | +1.725 | +498 | +269 | +195 | 14 | 8 | +435 | +500 | 0.82 CPU, 0.06 GPU |
+| 7 | Agents' one-pass DINOv2-S, round-1 pick, seed 1 (`agents_R0_shipped_s1`) | +464 / 538 | +1.725 | +498 | +269 | +195 | 6 | 14 | +438 | +489 | 0.82 CPU, 0.06 GPU |
+| 8 | Combined: stock = the lower of Miguel's CLIP crate model and José's lab ensemble, product check from the CLIP crate model (`combo_min_crate_lab`) | +458 / 538 | +1.703 | +492 | +269 | +189 | 16 | 8 | +452 | +472 | about 1.1-1.5 CPU (0.9-1.4 + 0.14) |
+| 9 | Single image, no CLIP: weighted average of three lab stock models (pixel features, slot references, a small fine-tuned MobileNetV3) + product check against a bank of training crops, colours balanced per crop (the shipped model, `python lab/predict.py`) (`lab_image_only_ensemble`) | +453 / 538 | +1.684 | +487 | +266 | +187 | 6 | 16 | +423 | +481 | 0.11 CPU per photo (1 thread, warm); 0.12 per photo over a batch of 28 including a 0.3 startup (`python lab/predict_fast.py`); i7 laptop, no GPU |
+| 10 | Single image: CLIP ViT-B-32 on the hand-drawn crate + colour + area id, logistic regression (`single_crate`) | +447 / 538 | +1.662 | +480 | +269 | +178 | 13 | 13 | +437 | +457 | 0.9-1.4 s, 2-8 CPU threads (laptop), no GPU |
 <!-- FORWARD:END -->
 
 </details>
