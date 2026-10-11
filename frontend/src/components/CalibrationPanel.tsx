@@ -32,6 +32,9 @@ function Row({ family: f }: { family: string }) {
   const say = (n: number) => (units ? t.calUnits(n) : `${Math.round(n)}%`)
   // Moving either line sets both, so the marker never contradicts itself: empty stays below full.
   const setLines = (emptyMax: number, fullMin: number) => setProduct(f, { emptyMax, fullMin, threshold: fullMin, level: 'full' })
+  // Two sliders on one track: only the round handles take the pointer, so each one can be grabbed.
+  const handles =
+    'pointer-events-none absolute inset-0 h-11 w-full cursor-pointer appearance-none bg-transparent [&::-webkit-slider-runnable-track]:bg-transparent [&::-moz-range-track]:bg-transparent [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:size-5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-bg [&::-webkit-slider-thumb]:bg-fg [&::-webkit-slider-thumb]:shadow [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:size-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-bg [&::-moz-range-thumb]:bg-fg'
   const pct = (n: number) => `${(Math.min(max, Math.max(0, n)) / max) * 100}%`
 
   return (
@@ -40,14 +43,13 @@ function Row({ family: f }: { family: string }) {
         <ProductIcon family={f} label={name} className="size-8 shrink-0" />
         <span className="truncate text-label">{name}</span>
       </div>
-      <div className="grid gap-1 md:col-span-2">
-        <div className="flex h-3 overflow-hidden rounded-full text-[0px]" role="img" aria-label={t.calLines(say(lines.emptyMax), say(lines.fullMin))}>
-          <span style={{ width: pct(lines.emptyMax) }} className="bg-danger/70" title={t.segEmpty} />
-          <span style={{ width: `calc(${pct(lines.fullMin)} - ${pct(lines.emptyMax)})` }} className="bg-fg-muted/50" title={t.segHalf} />
-          <span className="flex-1 bg-success/60" title={t.segFull} />
-        </div>
-        <label className="flex items-center gap-3 text-meta text-fg-muted">
-          <span className="w-28 shrink-0">{t.segEmpty}</span>
+      <div className="flex items-center gap-3">
+        <div className="relative h-11 min-w-0 flex-1" role="group" aria-label={t.calLines(say(lines.emptyMax), say(lines.fullMin))}>
+          <div className="absolute inset-x-0 top-1/2 flex h-3 -translate-y-1/2 overflow-hidden rounded-full">
+            <span style={{ width: pct(lines.emptyMax) }} className="bg-danger/70" title={t.segEmpty} />
+            <span style={{ width: `calc(${pct(lines.fullMin)} - ${pct(lines.emptyMax)})` }} className="bg-fg-muted/50" title={t.segHalf} />
+            <span className="flex-1 bg-success/60" title={t.segFull} />
+          </div>
           <input
             type="range"
             min={0}
@@ -56,12 +58,8 @@ function Row({ family: f }: { family: string }) {
             value={Math.min(lines.emptyMax, max - 1)}
             aria-label={t.calEmptyUpTo(name)}
             onChange={(e) => setLines(Number(e.target.value), Math.max(lines.fullMin, Number(e.target.value) + step))}
-            className="h-11 min-w-0 flex-1 cursor-pointer accent-fg"
+            className={handles}
           />
-          <span className="w-20 shrink-0 text-right text-label text-fg tabular-nums">{say(lines.emptyMax)}</span>
-        </label>
-        <label className="flex items-center gap-3 text-meta text-fg-muted">
-          <span className="w-28 shrink-0">{t.segFull}</span>
           <input
             type="range"
             min={1}
@@ -70,10 +68,12 @@ function Row({ family: f }: { family: string }) {
             value={Math.max(lines.fullMin, 1)}
             aria-label={t.calFullFrom(name)}
             onChange={(e) => setLines(Math.min(lines.emptyMax, Number(e.target.value) - step), Number(e.target.value))}
-            className="h-11 min-w-0 flex-1 cursor-pointer accent-fg"
+            className={handles}
           />
-          <span className="w-20 shrink-0 text-right text-label text-fg tabular-nums">{say(lines.fullMin)}</span>
-        </label>
+        </div>
+        <span className="w-32 shrink-0 text-right text-label tabular-nums" title={t.calLines(say(lines.emptyMax), say(lines.fullMin))}>
+          {say(lines.emptyMax)} · {say(lines.fullMin)}
+        </span>
       </div>
       <div className={`flex items-center justify-between gap-3 md:col-span-2 ${c ? 'min-h-11' : ''}`}>
         <span className="text-meta text-fg-muted">
