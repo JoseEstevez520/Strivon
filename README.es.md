@@ -23,7 +23,7 @@
 </p>
 
 <p align="center">
-  <img src="assets/readme/photo-to-tasks.png" alt="Fotos de cámaras de techo con las zonas de estantería marcadas, a la izquierda, y a la derecha la primera página de la app con la tienda en 3D y la lista de la ronda" width="100%">
+  <img src="assets/readme/photo-to-tasks.png" alt="Fotos de cámaras de techo con las zonas de estantería marcadas, a la izquierda, y a la derecha la tienda en 3D con los problemas marcados en cada góndola y las tres primeras paradas de la ronda" width="100%">
 </p>
 
 <p align="center"><sub>Entran fotos de las cámaras de techo, sale una lista de trabajo. Las marcas son las respuestas del modelo para la última foto de cada cámara.</sub></p>
