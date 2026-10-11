@@ -27,7 +27,7 @@ Stock points on the forward split, current key / reader key (two numbers = two s
 | Lab alone | `python lab/predict_fast.py predict ...` | about 0.1 s | +188 | +42 | needs `lab/models/lane_i_ens.pkl`, not in git |
 | Lab with `--full-weight 0.5` | same, plus the flag | about 0.1 s | +183 | +72 | on the five folds it costs about 3 points per 289 areas |
 | CLIP crate model and R3, the lower of the two | row `combo_min_crate_R3` | 1.7 to 2.2 s | +214 | +86 | not adopted by the team |
-| Label-free U7 | `--label-free` | see `agents/README.md` | -28 | -184 | only if labels could not be used |
+| Label-free U7 | `--label-free` | see `agents/README.md` | -28 | -184 | for a new store that has no labels yet |
 
 ## What the grade does
 
