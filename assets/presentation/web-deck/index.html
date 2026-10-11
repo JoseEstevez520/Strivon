@@ -116,7 +116,7 @@
     </div>
   </section>
 
-  <!-- 5. generative ui -->
+  <!-- 4. generative ui -->
   <section class="slide">
     <h2 class="title in" style="--i:0">Generative UI</h2>
     <div class="in" style="--i:1;position:absolute;left:0;top:0;width:1920px;height:1080px;pointer-events:none"><video muted playsinline preload="auto" src="vid/chat-bananas.mp4" style="position:absolute;left:-308px;top:-36px;width:1920px;height:1080px;transform:scale(.95);transform-origin:0 0;clip-path:inset(280px 440px 40px 440px)"></video></div>
@@ -127,7 +127,7 @@
     </div>
   </section>
 
-  <!-- 6. the route -->
+  <!-- 5. the route -->
   <section class="slide">
     <h2 class="title in" style="--i:0">The best route</h2>
     <img class="in" style="--i:1;position:absolute;left:150px;top:210px;height:790px" src="img/round-route.png" alt="A round through four gondolas, in order">
@@ -136,13 +136,13 @@
     </div>
   </section>
 
-  <!-- 7. the phone -->
+  <!-- 6. the phone -->
   <section class="slide">
     <h2 class="title in" style="--i:0">What the worker sees on the phone</h2>
     <div class="in" style="--i:1;position:absolute;left:0;top:0;width:1920px;height:1080px;pointer-events:none"><video muted playsinline preload="auto" src="vid/phone-round.mp4" style="position:absolute;left:156px;top:205px;width:1920px;height:1080px;transform:scale(.78);transform-origin:0 0"></video></div>
   </section>
 
-  <!-- 8. the model -->
+  <!-- 7. the model -->
   <section class="slide" data-wipe>
     <h2 class="title in" style="--i:0">One small model, two questions</h2>
     <img class="in" style="--i:1;position:absolute;left:90px;top:200px;width:1200px;height:auto" src="img/what-the-model-sees.png" alt="Three shelf areas as the model sees them: empty, wrong product, fine">
@@ -153,7 +153,7 @@
     </div>
   </section>
 
-  <!-- 9. tested honestly -->
+  <!-- 8. tested honestly -->
   <section class="slide">
     <div class="num in count" data-to="92" data-suffix="%" style="--i:0;left:160px;top:230px;font-size:300px">0%</div>
     <div class="lab in" style="--i:1;left:168px;top:560px;font-size:44px;color:var(--fg);width:1500px">of the maximum points, on photos it never saw.</div>
@@ -161,7 +161,7 @@
     <div class="lab in muted" style="--i:3;left:168px;top:760px;font-size:26px;color:var(--mut);width:1400px">We labelled all 1,962 areas of the 181 photos ourselves and reviewed every disagreement. Product identification was right on every area.</div>
   </section>
 
-  <!-- 10. cost -->
+  <!-- 9. cost -->
   <section class="slide">
     <h1 class="big in" style="--i:0;top:150px;font-size:112px">One CPU core.<br><span style="color:var(--mut)">No GPU. No API.</span></h1>
     <div class="num in" style="--i:2;left:160px;top:560px;font-size:100px">≈ 2 s</div><div class="lab in" style="--i:2;left:164px;top:675px;width:460px">of CPU per photo</div>
@@ -170,13 +170,12 @@
     <div class="lab in muted" style="--i:5;left:164px;top:860px;font-size:28px;color:var(--mut);width:1500px">It runs on a small box inside the store, and the images never leave it.</div>
   </section>
 
-  <!-- 11. the ad, with sound -->
+  <!-- 10. the film -->
   <section class="slide">
-    <img id="adPoster" src="img/ad-poster.jpg" alt="" style="position:absolute;left:0;top:0;width:1920px;height:1080px;object-fit:contain;z-index:1;transition:opacity .4s">
-    <video id="ad" class="manual" playsinline preload="auto" src="vid/ad.mp4" style="position:absolute;left:0;top:0;width:1920px;height:1080px;object-fit:contain;background:#f8f7f4"></video>
+    <video class="manual" playsinline preload="auto" src="vid/story.mp4" style="position:absolute;left:0;top:0;width:1920px;height:1080px;object-fit:contain;background:#f8f7f4"></video>
   </section>
 
-  <!-- 12. try it -->
+  <!-- 11. try it -->
   <section class="slide" data-wipe>
     <img class="bg" src="img/bg-band.png" alt="">
     <div class="center">
@@ -186,11 +185,6 @@
       <div class="in" style="--i:3;font-size:40px;color:var(--red);margin-top:30px">strivon-landing.vercel.app</div>
       <div class="in" style="--i:4;font-size:28px;color:var(--fg2);margin-top:30px">Jose · Miguel · André · Leonor</div>
     </div>
-  </section>
-
-  <!-- 12. the film -->
-  <section class="slide">
-    <video class="manual" playsinline preload="auto" src="vid/story.mp4" style="position:absolute;left:0;top:0;width:1920px;height:1080px;object-fit:contain;background:#f8f7f4"></video>
   </section>
 
   <canvas id="wipe" width="1920" height="1080"></canvas>
@@ -265,9 +259,9 @@ function media(i) {
   })
 }
 
-const ad = document.getElementById('ad'), started = new Set()
+const started = new Set()
 function playManual(v) { // the first key press is the gesture the browser needs to allow sound
-  started.add(v); if (v === ad) document.getElementById('adPoster').style.opacity = 0
+  started.add(v)
   v.muted = false; v.currentTime = 0
   v.play().catch(() => { v.muted = true; v.play().catch(() => {}) })
 }
