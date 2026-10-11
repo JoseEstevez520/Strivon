@@ -38,10 +38,12 @@ const D = 2.0
 const GAP_X = 0.8
 const GAP_Z = 2.5
 const MARGIN = 1.1
-const COLS = 4
-const ROWS = 4
-const FLOOR_W = COLS * W + (COLS - 1) * GAP_X + MARGIN * 2
-const FLOOR_D = ROWS * D + (ROWS - 1) * GAP_Z + MARGIN * 2 + 1.8
+/** The floor grows with the number of gondolas: a square-ish grid, at most four across. */
+const layoutOf = (count: number) => {
+  const cols = Math.max(1, Math.min(4, Math.ceil(Math.sqrt(count))))
+  const rows = Math.max(1, Math.ceil(count / cols))
+  return { cols, floorW: cols * W + (cols - 1) * GAP_X + MARGIN * 2, floorD: rows * D + (rows - 1) * GAP_Z + MARGIN * 2 + 1.8 }
+}
 
 type Look = 'critical' | 'empty' | 'wrong' | 'half' | 'fine'
 const lookOf = (x: Task): Look =>
@@ -464,7 +466,8 @@ function Gondola({ position, tasks, rank, name, hovered, onHover, onOpen }: Gond
 }
 
 /** The floor with low walls on three sides and an opening in the front wall. */
-function Room() {
+function Room({ count }: { count: number }) {
+  const { floorW: FLOOR_W, floorD: FLOOR_D } = layoutOf(count)
   const wallH = 0.8
   const t = 0.45
   const doorW = 3.6
@@ -508,6 +511,12 @@ function Room() {
   )
 }
 
+/** How much closer the camera can sit for a small store: 1 for the full fourteen, more for fewer gondolas. */
+const fitOf = (count: number) => {
+  const full = layoutOf(14), now = layoutOf(count)
+  return Math.min(full.floorW / now.floorW, full.floorD / now.floorD)
+}
+
 const VIEWS = {
   front: [5, 21, 21],
   corner: [17, 19, 17],
@@ -515,20 +524,21 @@ const VIEWS = {
 export type View = keyof typeof VIEWS
 
 /** Fits the floor in the frame whatever the width, and starts from the chosen side. */
-function Rig({ view }: { view: View }) {
+function Rig({ view, count }: { view: View; count: number }) {
   const size = useThree((s) => s.size)
-  const zoom = Math.min(size.width / 25, size.height / 19.4)
+  const zoom = Math.min(size.width / 25, size.height / 19.4) * fitOf(count)
   return <OrthographicCamera makeDefault position={[...VIEWS[view]]} zoom={zoom} near={0.1} far={200} />
 }
 
 /** Moves the camera in on the selected gondola, and back out when nothing is selected. It only drives the camera for a moment after the selection changes, so dragging and zooming stay free. */
-function Focus({ target }: { target: [number, number] | null }) {
+function Focus({ target, count }: { target: [number, number] | null; count: number }) {
   const controls = useThree((s) => s.controls) as unknown as { target: THREE.Vector3; update: () => void } | null
   const camera = useThree((s) => s.camera) as THREE.OrthographicCamera
   const size = useThree((s) => s.size)
   const invalidate = useThree((s) => s.invalidate)
   const until = useRef(0)
-  const base = Math.min(size.width / 25, size.height / 19.4)
+  const fit = Math.min(size.width / 25, size.height / 19.4)
+  const base = fit * fitOf(count)
   useEffect(() => {
     until.current = performance.now() + 1100
     invalidate()
@@ -540,7 +550,7 @@ function Focus({ target }: { target: [number, number] | null }) {
     const before = controls.target.clone()
     controls.target.lerp(goal, k)
     camera.position.add(controls.target.clone().sub(before))
-    camera.zoom += ((target ? base * (size.width < 640 ? 3.4 : 2.7) : base) - camera.zoom) * k
+    camera.zoom += ((target ? fit * (size.width < 640 ? 3.4 : 2.7) : base) - camera.zoom) * k
     camera.updateProjectionMatrix()
     controls.update()
     invalidate()
@@ -559,6 +569,7 @@ export function Scene({ view, selected = null, onOpen, onHoverChange }: { view: 
     return m
   }, [tasks])
   const [hover, setHover] = useState<string | null>(null)
+  const { cols: COLS, floorW: FLOOR_W, floorD: FLOOR_D } = layoutOf(list.length)
   const spot = (n: number): [number, number] => [
     -FLOOR_W / 2 + MARGIN + W / 2 + (n % COLS) * (W + GAP_X),
     -FLOOR_D / 2 + MARGIN + D / 2 + 0.2 + Math.floor(n / COLS) * (D + GAP_Z),
@@ -575,11 +586,11 @@ export function Scene({ view, selected = null, onOpen, onHoverChange }: { view: 
 
   return (
     <>
-      <Rig view={view} />
-      <Focus target={focusAt} />
+      <Rig view={view} count={list.length} />
+      <Focus target={focusAt} count={list.length} />
       <ambientLight intensity={2.2} />
       <directionalLight position={[8, 16, 10]} intensity={1.5} />
-      <Room />
+      <Room count={list.length} />
       {list.map((c, n) => {
         const [x, z] = spot(n)
         return (

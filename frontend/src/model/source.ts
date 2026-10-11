@@ -14,7 +14,7 @@ export interface Source {
  * Real photos and shelf areas when the development server can read the local data folder
  * (`STRIVON_DATA_DIR`, kept out of the repo). Invented shelves otherwise.
  */
-export async function loadSource(): Promise<Source> {
+export async function loadSource(limit?: number): Promise<Source> {
   try {
     const res = await fetch('/local-data/index.json')
     if (res.ok) {
@@ -28,7 +28,7 @@ export async function loadSource(): Promise<Source> {
         // no predictions yet
       }
       return {
-        state: buildRealState(data.planogram, data.images, predictions),
+        state: firstCameras(buildRealState(data.planogram, data.images, predictions), limit),
         photoUrl: (camera, image) => `/local-data/images/${camera}/${image}`,
         simulated: !predictions,
       }
@@ -36,5 +36,17 @@ export async function loadSource(): Promise<Source> {
   } catch {
     // no local data
   }
-  return { state: buildMockState(), photoUrl: null, simulated: true }
+  return { state: firstCameras(buildMockState(), limit), photoUrl: null, simulated: true }
+}
+
+/** Keeps only the first few cameras, so a demo can show a small store. Without a limit, the state is returned as it is. */
+function firstCameras(state: StoreState, limit?: number): StoreState {
+  if (!limit) return state
+  const keep = new Set(Object.keys(state.images).sort().slice(0, limit))
+  const only = <T,>(o: Record<string, T>) => Object.fromEntries(Object.entries(o).filter(([camera]) => keep.has(camera)))
+  return {
+    images: only(state.images),
+    observations: only(state.observations),
+    areas: Object.fromEntries(Object.entries(state.areas).filter(([, a]) => keep.has(a.camera))),
+  }
 }
