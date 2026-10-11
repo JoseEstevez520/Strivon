@@ -36,7 +36,7 @@ function Row({ family: f }: { family: string }) {
   const lines = c ? linesFor(f, c) : null
 
   return (
-    <li className="grid gap-3 rounded-xl bg-raised p-4 md:grid-cols-[minmax(0,14rem)_minmax(0,1fr)_minmax(0,18rem)] md:items-center md:gap-5">
+    <li className="grid gap-3 rounded-xl bg-raised p-4 md:grid-cols-[minmax(0,14rem)_minmax(0,1fr)_minmax(0,18rem)] md:items-center md:gap-x-5 md:gap-y-1">
       <div className="flex min-w-0 items-center gap-3">
         <ProductIcon family={f} label={name} className="size-8 shrink-0" />
         <span className="truncate text-label">{name}</span>
@@ -63,7 +63,7 @@ function Row({ family: f }: { family: string }) {
         onPick={(v) => setProduct(f, { threshold: value, level: v as Level })}
         className="[&>button]:h-11"
       />
-      <div className="flex min-h-11 items-center justify-between gap-3 md:col-span-3">
+      <div className={`flex items-center justify-between gap-3 md:col-span-3 ${c ? 'min-h-11' : ''}`}>
         <span className="text-meta text-fg-muted">
           {lines ? t.calLines(say(Math.max(0, lines.emptyMax)), say(lines.fullMin)) : t.calFollowsModel}
         </span>

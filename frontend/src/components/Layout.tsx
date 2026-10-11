@@ -1,10 +1,11 @@
-import { Apple, ChartNoAxesColumn, Globe, ListChecks, SlidersHorizontal, type LucideIcon } from 'lucide-react'
+import { Apple, ChartNoAxesColumn, Globe, ClipboardCheck, ListChecks, SlidersHorizontal, type LucideIcon } from 'lucide-react'
 import { ES, GB, PT } from 'country-flag-icons/react/3x2'
 import { useEffect, useRef, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router'
 import { Logo } from './Logo'
 import { PickerButton } from './PickerButton'
 import { LANGS, useI18n } from '@/lib/i18n'
+import { showValidation, validationOn } from '@/model/source'
 
 const flag = 'flag block h-3.5 w-[21px] shrink-0 rounded-[3px]'
 const LANG_OPTIONS = {
@@ -17,7 +18,7 @@ interface Page {
   to: string
   end?: boolean
   icon: LucideIcon
-  label: 'navTasks' | 'navProducts' | 'navInsights' | 'navCalibration'
+  label: 'navTasks' | 'navProducts' | 'navInsights' | 'navCalibration' | 'navValidate'
 }
 
 const PAGES: Page[] = [
@@ -25,6 +26,7 @@ const PAGES: Page[] = [
   { to: '/products', icon: Apple, label: 'navProducts' },
   { to: '/insights', icon: ChartNoAxesColumn, label: 'navInsights' },
   { to: '/calibration', icon: SlidersHorizontal, label: 'navCalibration' },
+  { to: '/validate', icon: ClipboardCheck, label: 'navValidate' },
 ]
 
 /**
@@ -79,6 +81,15 @@ export function Layout() {
         </div>
       </header>
 
+      {validationOn() && (
+        <div className="flex shrink-0 flex-wrap items-center justify-center gap-x-4 gap-y-1 border-b border-border bg-raised px-5 py-1.5 text-meta text-fg-secondary">
+          <span>{t.viewBanner}</span>
+          <button type="button" onClick={() => showValidation(false)} className="cursor-pointer text-fg underline underline-offset-2">
+            {t.viewBack}
+          </button>
+        </div>
+      )}
+
       <div
         ref={scroller}
         onScroll={(e) => setScrolled(e.currentTarget.scrollTop >= 1)}
@@ -90,7 +101,7 @@ export function Layout() {
       </div>
 
       <nav
-        className="grid shrink-0 grid-cols-4 border-t border-border bg-bg pb-[env(safe-area-inset-bottom)] md:hidden"
+        className="grid shrink-0 grid-cols-5 border-t border-border bg-bg pb-[env(safe-area-inset-bottom)] md:hidden"
         aria-label="Pages"
       >
         {PAGES.map(({ to, end, icon: Icon, label }) => (

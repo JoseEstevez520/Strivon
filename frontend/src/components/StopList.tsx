@@ -2,7 +2,6 @@ import { Check, ChevronRight, Footprints, Undo2 } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router'
 import { BringList } from '@/components/BringList'
-import { PhoneCode } from '@/components/PhoneCode'
 import { Segmented } from '@/components/ui/segmented'
 import { ProductIcon } from '@/components/ProductIcon'
 import { useI18n } from '@/lib/i18n'
@@ -99,7 +98,6 @@ export function StopList({ stops, byCamera, tasks }: { stops: Suggestion[]; byCa
       )}
         </>
       )}
-      <PhoneCode />
     </aside>
   )
 }

@@ -126,6 +126,10 @@ interface Strings {
   navGondolas: string
   navProducts: string
   navCalibration: string
+  navValidate: string
+  viewBanner: string
+  viewBack: string
+  viewOpen: string
   calTitle: string
   calIntro: string
   calReset: string
@@ -355,6 +359,10 @@ const en: Strings = {
   navGondolas: 'Gondolas',
   navProducts: 'Products',
   navCalibration: 'Calibration',
+  navValidate: 'Validation',
+  viewBanner: 'Showing the validation run',
+  viewBack: 'Back to the train/test photos',
+  viewOpen: 'Open in the app',
   calTitle: 'Calibration',
   calIntro: 'Move the slider to an amount, then pick what that amount counts as. Orange at 25% and Full means a quarter of the crate already counts as full.',
   calReset: 'Reset to defaults',
@@ -601,6 +609,10 @@ const pt: Strings = {
   navGondolas: 'Gôndolas',
   navProducts: 'Produtos',
   navCalibration: 'Calibração',
+  navValidate: 'Validação',
+  viewBanner: 'A mostrar a execução de validação',
+  viewBack: 'Voltar às fotos de treino/teste',
+  viewOpen: 'Abrir na aplicação',
   calTitle: 'Calibração',
   calIntro: 'Move o seletor até uma quantidade e escolhe o que ela conta como. Laranja a 25% com Cheio quer dizer que um quarto da caixa já conta como cheio.',
   calReset: 'Repor valores por defeito',
@@ -847,6 +859,10 @@ const es: Strings = {
   navGondolas: 'Góndolas',
   navProducts: 'Productos',
   navCalibration: 'Calibración',
+  navValidate: 'Validación',
+  viewBanner: 'Mostrando la ejecución de validación',
+  viewBack: 'Volver a las fotos de entrenamiento/prueba',
+  viewOpen: 'Abrir en la app',
   calTitle: 'Calibración',
   calIntro: 'Mueve el control hasta una cantidad y elige qué cuenta como. Naranja al 25% con Lleno significa que un cuarto de la caja ya cuenta como lleno.',
   calReset: 'Restablecer valores',
