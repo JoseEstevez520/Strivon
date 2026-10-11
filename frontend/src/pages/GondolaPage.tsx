@@ -49,7 +49,7 @@ export function GondolaPage() {
     return [...m.values()].sort((a, b) => rank[a.group] - rank[b.group] || b.tasks.length - a.tasks.length)
   }, [own])
 
-  if (!state.images[camera]) return <Navigate to="/map" replace />
+  if (!state.images[camera]) return <Navigate to="/" replace />
   const photo = snapshot(state, camera, at)
   const fine = own.filter((x) => x.group === 'allGood').length
   const problems = lines.filter((l) => l.group === 'restock' || l.group === 'moveBack')
@@ -57,9 +57,9 @@ export function GondolaPage() {
 
   return (
     <>
-      <Link to="/map" className="mb-3 inline-flex items-center gap-1 rounded-sm text-meta text-fg-muted transition-colors hover:text-fg-secondary">
+      <Link to="/" className="mb-3 inline-flex items-center gap-1 rounded-sm text-meta text-fg-muted transition-colors hover:text-fg-secondary">
         <ChevronLeft className="size-3.5" />
-        {t.navMap}
+        {t.navTasks}
       </Link>
       <div className="mb-5 flex flex-wrap items-end justify-between gap-x-6 gap-y-1">
         <div>
