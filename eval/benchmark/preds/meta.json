@@ -123,7 +123,7 @@
   "owner": "Jose (lab)",
   "labels": "the key",
   "other_photos": "training crops only",
-  "seconds": "0.14 CPU per photo (1 thread, warm); 0.31 per photo over a batch of 28 including a 4.8 startup (torch import 3.8); i7 laptop, no GPU"
+  "seconds": "0.11 CPU per photo (1 thread, warm); 0.12 per photo over a batch of 28 including a 0.3 startup (`python lab/predict_fast.py`); i7 laptop, no GPU"
  },
  "agents_finetuned_b_same_day": {
   "approach": "Agents' pipeline, fine-tuned DINOv2-base stock (2 seeds), uses same-day photos",
