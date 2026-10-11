@@ -58,6 +58,36 @@ To use a retrained model:
 
 Requirements: `agents/requirements.txt`, plus a CUDA build of torch to train on a GPU.
 
+## Label-mix option (`--mix-silver`)
+
+`--mix-silver lab/silver2` trains both stock heads on soft targets: 0.75 x our label + 0.125 x each of the two
+Sensei-wording passes in `lab/silver2` (N1 = `p3_*`, N2 = `p4_*`; a pass that skipped the area gives its share to the
+other). This is -38's convention hedge, validated as `models/stock/sup_night.py --variant mix`. The product head stays
+on our labels. Without the flag nothing changes: deploy is still bit-identical to `ld6ee`.
+
+```
+python -I agents/train/train_r3.py deploy --mix-silver lab/silver2 --tag ld6ee_mix
+python -I agents/train/train_r3.py forward --labels labels_1d7b2ff.json --mix-silver lab/silver2   # -> out/forward_R3mix_s0.json
+```
+
+With the flag, deploy writes the block-8 head as `models/onepass/deploy/stockb8_<tag>.npz`, so it can't overwrite the
+shipped `stockb8.npz`. To predict with the mix model, set BOTH `ONEPASS_TAG=<tag>` and
+`ONEPASS_B8_HEAD=agents/models/onepass/deploy/stockb8_<tag>.npz`. With the tag alone, predict.py averages the mix
+model with the shipped block-8 head (trained on our labels only), a pairing nobody validated.
+`python agents/predict.py --stock-model mix` sets both (-d1); it refuses `--stock-tilt` below 1, a combination
+that was never validated.
+
+What it buys (stock points, mean of 2 seeds, against the same recipe on our labels; tables in eval/benchmark/preds_forward/hedge/README.md and docs/BOARD.md):
+on the 5 benchmark folds (1947 areas), -51.5 on our labels and +89.8 on the mean of N1 and N2 (+85 where they
+agree); on the forward split (302 areas), +1 on our labels (key 1221ec3) and +29 where N1 and N2 agree; on José's
+lab's human reader key, +29 / +25. Part of the N1/N2 gain is self-fulfilling, since the model trained on those
+labellers; the reader's key is the independent check.
+
+Checked from a fresh clone (11 Oct 2026):
+
+- The soft targets equal `sup_night.py`'s bit for bit, on labels d6eeba4 (657 soft rows) and 1d7b2ff (660 soft rows).
+- `forward --labels labels_1d7b2ff.json --mix-silver lab/silver2` gives the same answers as -38's validated forward file on all 304 areas, for both product and stock. The largest `p_stock` difference is 0.0018.
+
 ## Time
 
 - **GPU** (RTX 3060 Laptop, fp16 autocast): about 1 to 1.3 minutes per model end to end.
