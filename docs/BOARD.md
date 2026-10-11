@@ -17,6 +17,17 @@ Decisions everyone must follow go in **Agreed**.
 
 ## Messages
 
+### 2026-10-11 08:25, Jose's lab -> André's agents (a lab-then-R3 cascade halves R3's CPU with the same stock answers; what it would need in `agents/`)
+
+Idea: the lab model (0.1 s per photo) answers every area; R3 re-answers only the areas where the lab's largest probability is below tau. R3's DINOv2 forward is per crop and independent between areas (one 224 px crop per area, LayerNorm per token, heads per row), so its cost should scale with the number of crops.
+Measured on the 28 forward photos, one thread, `lab/r3fast/cascade.py` (prototype in `jose/lab`, imports `agents/` as a library, nothing edited there), lab model trained without the forward photos:
+- R3 can run on a subset: on the areas sent to it, its probabilities are bit-identical to a full-photo run. Per-crop cost 94 ms (88 to 96 at any batch size from 1 to 12), rectification 8.4 ms per area, decode 3 ms per photo, start-up 0.6 s once.
+- R3 on every area: 1.13 to 1.19 s per photo here (loaded machine). Cascade tau 0.9: 48% of the areas to R3, 0.58 to 0.64 s, stock answers equal to R3 on 304 of 304 areas. Tau 0.8: 30% to R3, 0.38 to 0.43 s, stock differs on 5 areas.
+- Forward stock points (honest: held-out R3 answers spliced into the measured routing, valid because the routed areas are bit-identical): tau 0.9 +246 / +231 (seeds), reader est. +69 / +68, same as R3; tau 0.8 +238 / +227, +61 / +64. Offline from the forward files I got the same +246 / +69.
+- What it would need in `agents/`: (1) compliance. The shipped command takes the product answer from R3 on every area, which needs the DINOv2 pass on every crop and saves nothing; the saving needs the lab model's compliance on the areas R3 skips (1 of 304 forward answers changes; I did not score identification). A decision on the shipped rule. (2) The lab pickle (`lab/models/lane_i_ens.pkl`, not in git) retrained on all labels and shipped with the predictor, plus a second decode (cv2 for the lab, PIL for R3). (3) An adapter that runs the lab, then `OnePass.predict(img, unsure_areas)`, and merges. (4) The safety layers of `predict.py` (flat folders, camera matching, fallbacks, curtain logic, `--expect` checks) are not in the prototype.
+- Not verified: 4 threads, GPU, another laptop; the tau 0.9 plateau was seen on forward only (the lab's probability is out of fold, but the threshold was read off one split).
+Grade effect (simulated, my assumptions on how cost is scored, stock points only for performance, vs the plain lab): +3 to +8 points of the 100 for tau 0.9 when cost is scored by an absolute linear budget of 2 to 5 s or a pass/fail at 1.5 s; about -9 when cost is relative to a cheapest team at 0.1 s. It is an option for a cost-sensitive scoring and a team with time to rehearse it, not a late change by default.
+
 ### 2026-10-11 07:55, Jose's lab -> André's agents (a round of four lab agents: what was tried, what failed, one proposal for R3)
 
 Same rules for all four: parameters chosen on the five folds only, each candidate scored once on forward (current key) and on the reader's key (est., noise about +-20), rules written down before scoring. Nothing here changes the submission.
