@@ -40,9 +40,9 @@ const en: LandingStrings = {
   hero: 'Ceiling cameras watch the fruit and vegetable shelves. Strivon compares what they see with the planogram and tells the staff what to restock and what to put back.',
   whatTitle: 'What is Strivon?',
   whatFirst:
-    'In a store, nobody can look at every shelf all day. A shelf runs empty, a product ends up in another one’s place, and the staff find out when a customer asks.',
+    'Fresh produce is the section where the state of a shelf matters most. An empty gondola is a lost sale, an overstocked one ends in waste, and a product in the wrong place gets the wrong price. Today the staff check this by walking the store.',
   whatSecond:
-    'Strivon looks for them. From a ceiling-camera photo and the store planogram it checks each shelf area: is it holding the product it should, and how full is it? What comes out is a list of work, not a report.',
+    'A ceiling camera already sees every gondola, but loose, piled fruit with no barcode is hard for a computer to read, and shoppers and staff hide it with their hands. Strivon takes the photo and the store planogram and checks each shelf area: is it holding the product it should, and how full is it? What comes out is a list of work for the staff. It was built for the Sensei challenge at JunctionX Lisbon, with a day of photos from 14 cameras in an autonomous store in Leiria.',
   howTitle: 'How it works',
   steps: [
     { title: 'A camera looks', text: 'Each gondola has a ceiling camera that takes a photo about once an hour.' },
@@ -82,9 +82,9 @@ const pt: LandingStrings = {
   hero: 'As câmaras de teto vigiam as prateleiras de fruta e legumes. O Strivon compara o que elas veem com o planograma e diz à equipa o que repor e o que devolver ao sítio.',
   whatTitle: 'O que é o Strivon?',
   whatFirst:
-    'Numa loja, ninguém consegue olhar para todas as prateleiras o dia inteiro. Uma esvazia-se, um produto acaba no lugar de outro e a equipa só descobre quando um cliente pergunta.',
+    'A fruta e os legumes são a secção onde o estado de uma prateleira mais importa. Uma gôndola vazia é uma venda perdida, uma com excesso acaba em desperdício e um produto fora do lugar é cobrado ao preço errado. Hoje, a equipa verifica isto percorrendo a loja.',
   whatSecond:
-    'O Strivon vai à procura. A partir da fotografia de uma câmara de teto e do planograma da loja, verifica cada zona da prateleira: tem o produto que devia ter e quão cheia está? O resultado é uma lista de trabalho, não um relatório.',
+    'Uma câmara de teto já vê cada gôndola, mas a fruta solta e empilhada, sem código de barras, é difícil de ler para um computador, e os clientes e a equipa tapam-na com as mãos. O Strivon recebe a fotografia e o planograma da loja e verifica cada zona da prateleira: tem o produto que deve ter e quão cheia está? O resultado é uma lista de trabalho para a equipa. Foi feito para o desafio da Sensei no JunctionX Lisboa, com um dia de fotografias de 14 câmaras de uma loja autónoma em Leiria.',
   howTitle: 'Como funciona',
   steps: [
     { title: 'Uma câmara olha', text: 'Cada gôndola tem uma câmara no teto que tira uma fotografia mais ou menos de hora a hora.' },
@@ -124,9 +124,9 @@ const es: LandingStrings = {
   hero: 'Las cámaras de techo vigilan las estanterías de fruta y verdura. Strivon compara lo que ven con el planograma y le dice al personal qué reponer y qué devolver a su sitio.',
   whatTitle: '¿Qué es Strivon?',
   whatFirst:
-    'En una tienda, nadie puede mirar todas las estanterías todo el día. Una se queda vacía, un producto acaba en el sitio de otro y el personal se entera cuando un cliente pregunta.',
+    'La fruta y la verdura son la sección donde más importa el estado de una estantería. Una góndola vacía es una venta perdida, una con exceso acaba en merma y un producto fuera de su sitio se cobra al precio equivocado. Hoy lo comprueba el personal recorriendo la tienda.',
   whatSecond:
-    'Strivon se encarga de mirar. A partir de la foto de una cámara de techo y del planograma de la tienda, comprueba cada zona de estantería: ¿tiene el producto que debe y cuánto está de llena? Lo que sale es una lista de trabajo, no un informe.',
+    'Una cámara de techo ya ve cada góndola, pero la fruta suelta y apilada, sin código de barras, es difícil de leer para un ordenador, y los clientes y el personal la tapan con las manos. Strivon toma la foto y el planograma de la tienda y revisa cada zona de estantería: ¿tiene el producto que debe y cuánto está de llena? Lo que sale es una lista de trabajo para el personal. Se hizo para el reto de Sensei en JunctionX Lisboa, con un día de fotos de 14 cámaras de una tienda autónoma de Leiria.',
   howTitle: 'Cómo funciona',
   steps: [
     { title: 'Una cámara mira', text: 'Cada góndola tiene una cámara en el techo que hace una foto más o menos cada hora.' },

@@ -30,11 +30,11 @@
 
 ## ¿Qué es Strivon?
 
-En una tienda nadie puede mirar todas las estanterías todo el día. Una se queda vacía, un producto acaba en el sitio de otro y el personal se entera cuando un cliente pregunta. Las cámaras de techo ya lo ven todo. Lo que falta es alguien que mire las fotos.
+La fruta y la verdura son la sección donde más importa el estado de una estantería. Una góndola vacía es una venta perdida, una con exceso acaba en merma y un producto fuera de su sitio se cobra al precio equivocado. Hoy lo comprueba el personal recorriendo la tienda.
 
-Strivon mira por ellas. A partir de una foto de cámara y del planograma de la tienda, comprueba cada zona de estantería: ¿tiene el producto que debe y cuánto está de llena? Lo que sale es una lista de trabajo para el personal, no un informe.
+Una cámara de techo ya ve cada góndola, pero la fruta suelta y apilada, sin código de barras, es difícil de leer para un ordenador, y los clientes y el personal la tapan con las manos. Strivon toma la foto y el planograma de la tienda y revisa cada zona de estantería: ¿tiene el producto que debe y cuánto está de llena? Lo que sale es una lista de trabajo para el personal.
 
-Se creó en JunctionX Lisboa 2026 para el reto de Sensei, con fotos de 14 cámaras.
+Se creó en JunctionX Lisboa 2026 para el reto de Sensei, con un día de fotos de 14 cámaras de una tienda autónoma de Leiria.
 
 ## Cómo funciona
 
