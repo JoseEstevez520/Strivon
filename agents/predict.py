@@ -34,6 +34,8 @@ the timestamp. NOT ALLOWED FOR THE SUBMISSION.
 (0 < K <= 1) before the best-expected-points level is chosen, so "full" needs more confidence; empty vs half is
 unchanged. Off (no flag, or K = 1) gives exactly the default answers. The last line then names it:
 "OK (stock tilt k=0.7): ...".
+--p-stock-out PATH (checks only, off by default): also writes the answers plus each area's averaged p_stock (before
+the tilt) to PATH, e.g. to check the tilt or feed `sensei combine`. --out is unchanged; never send PATH.
 """
 import argparse
 import hashlib
@@ -137,14 +139,20 @@ def clean_stock(v):
         return None
 
 
+def average_stock(answers):
+    """Mean of the models' stock probabilities {0: p, 0.5: p, 1: p} (None = that model had no answer); None if
+    no model answered."""
+    ps = [p for p in answers if p is not None]
+    return {lv: sum(p.get(lv, 0.0) for p in ps) / len(ps) for lv in (0, 0.5, 1)} if ps else None
+
+
 def combine_stock(answers, tilt=None):
     """Average the stock probabilities of several models (None = that model had no answer) and pick the
     level with the best expected points; FALLBACK_STOCK if no model answered. tilt (--stock-tilt, None = off)
     multiplies p(full) by k first (not renormalised: that would not change the choice)."""
-    ps = [p for p in answers if p is not None]
-    if not ps:
+    q = average_stock(answers)
+    if q is None:
         return FALLBACK_STOCK
-    q = {lv: sum(p.get(lv, 0.0) for p in ps) / len(ps) for lv in (0, 0.5, 1)}
     if tilt is not None:
         q[1] *= tilt
     return submission.best_stock(q)
@@ -284,6 +292,10 @@ def main():
     ap.add_argument("--stock-tilt", type=float, metavar="K",
                     help="opt-in, off by default: multiply p(full) by K (0 < K <= 1) before choosing the stock level, "
                          "so 'full' needs more confidence (supervised model only)")
+    ap.add_argument("--p-stock-out", metavar="PATH",
+                    help="checks only, off by default: also write PATH = the same answers plus p_stock [p_empty, p_half, "
+                         "p_full] per area (the averaged probabilities, before any --stock-tilt; null where no model "
+                         "answered). --out is unchanged. Never send PATH")
     ap.add_argument("--empty-rule", choices=sorted(EMPTY_RULES), default=EMPTY_RULE,
                     help="planogram_compliant for areas predicted empty (default: %(default)s)")
     ap.add_argument("--expect-images", type=int, help="warn unless exactly this many photos are found (26 on the day)")
@@ -298,6 +310,8 @@ def main():
         if args.label_free:
             ap.error("--stock-tilt is for the supervised model only, not for --label-free")
     tilt = None if args.stock_tilt in (None, 1.0) else args.stock_tilt
+    if args.p_stock_out and Path(args.p_stock_out).resolve() == Path(args.out).resolve():
+        ap.error("--p-stock-out must be another file than --out")
     empty_override = EMPTY_RULES[args.empty_rule]
     context = args.same_day_context == CONTEXT_ON
     os.environ["SENSEI_SAME_DAY_CONTEXT"] = "1" if context else "0"  # before the models are imported
@@ -367,6 +381,7 @@ def main():
     t_startup = time.time() - t0
 
     sub = {}
+    p_rows = {} if args.p_stock_out else None  # (cam, fname, area_id) -> averaged p_stock, for --p-stock-out
     curtains, curtain_log, unreadable = [], [], []
     for i, rec in enumerate(images, 1):
         areas = planogram[rec.cam]
@@ -423,6 +438,9 @@ def main():
                 submission.put(sub, rec.cam, rec.fname, aid, True, 0)
                 continue
             stock_value = combine_stock([ans[aid] for ans in answers], tilt)
+            if p_rows is not None:
+                q = average_stock([ans[aid] for ans in answers])
+                p_rows[(str(rec.cam), rec.fname, aid)] = None if q is None else [q[0], q[0.5], q[1]]
             compliant = empty_override if empty_override is not None and stock_value == 0 else c[aid]
             submission.put(sub, rec.cam, rec.fname, aid, compliant, stock_value)
         if i % 20 == 0 or i == len(images):
@@ -431,6 +449,13 @@ def main():
     filled = submission.fill_missing(sub, images, FALLBACK_COMPLIANT, FALLBACK_STOCK, args.planogram)
     errors, warnings = submission.validate(sub, images, args.planogram)
     submission.write(sub, args.out)
+    if p_rows is not None:
+        rows = {cam: {f: {aid: {**e, "p_stock": p_rows.get((cam, f, aid))} for aid, e in areas.items()}
+                      for f, areas in imgs.items()} for cam, imgs in sub.items()}
+        Path(args.p_stock_out).parent.mkdir(parents=True, exist_ok=True)
+        Path(args.p_stock_out).write_text(json.dumps(rows, indent=1), encoding="utf-8")
+        print(f"p_stock next to each answer -> {args.p_stock_out} ({sum(v is not None for v in p_rows.values())} "
+              "areas; for checks only, never send this file)")
 
     for t in (*stocks, comp):
         t.report()

@@ -31,7 +31,8 @@ On the day, check by eye that every photo was assigned to the right camera: read
 
 `--stock-tilt K` (opt-in, off by default) is a "lower when unsure" hedge: p(full) is multiplied by K (0 < K <= 1)
 before the best-expected-points level, so "full" needs more confidence. Without it (or with K = 1) the answers are
-exactly the default ones. With it, the last line starts with `OK (stock tilt k=<K>)`.
+exactly the default ones. With it, the last line starts with `OK (stock tilt k=<K>)`. For checks, `--p-stock-out
+<file>` also writes the answers plus each area's p_stock (before the tilt) to another file; never send that one.
 
 How the camera is found, in order:
 
