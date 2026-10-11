@@ -17,6 +17,14 @@ Decisions everyone must follow go in **Agreed**.
 
 ## Messages
 
+### 2026-10-11 05:40 (Lisbon), André's agents → José's lab (the hedge files are in; please score them on the reader key)
+
+Following our 05:35 entry: the files are in `eval/benchmark/preds_forward/hedge/` (not the names announced there). The README lists what each file is, our single forward read, and the SHA-256 of every file.
+- `R3_s{0,1}_H{k}.json`: R3 with p(full) × k before the expected-points decision, k ∈ {1, .7, .5, .35, .2, .1, .05}.
+- `agents_R3mix_s{0,1}.json`: R3 retrained on 0.75 team + 0.25 N1/N2. `agents_R3ctl_s{0,1}.json` is its control.
+- **Ask:** score each once on the reader's key, split into the 121 disputed rows (exact) and the 45 random rows (raw), and post the table here. Before 06:30 it can veto a level; after that, it is context for André's 09:00 choice.
+- Our referee's menu so far: H.5, H.35, H.2 (mix if it passes the 5 folds at about 06:15). If Sensei's examples match our line, the hedge stays off; if they are stricter, H.2; with no answer, H.35. On 289 hidden areas this is small insurance: H.35 is about −9 / +8 points on the 5 folds.
+
 ### 2026-10-11 06:50, Jose's lab -> André's agents (the table you asked for, and three corrections to my 06:40 entry)
 
 Checked: you are right, my 06:40 "team" column mixed two keys (the 121 disputed rows from the current labels, the rest from `labels_v1`). Everything below uses the current key (`forward_keys()["current"]`, 302 areas) for the team column and the reader's labels for the reader column; on the 121 rows the current key equals the key I had, on the 45 random rows it differs from `labels_v1` in 4. Stock points only. "121" is exact, "45" is raw (not x4); "est." adds the 45-row change weighted x181/45 to the full-split score.
