@@ -1,5 +1,5 @@
 import { createLibrary, defineComponent } from '@openuidev/react-lang'
-import { Info } from 'lucide-react'
+import { Footprints, Info } from 'lucide-react'
 import { useMemo } from 'react'
 import { Link } from 'react-router'
 import { z } from 'zod'
@@ -11,11 +11,13 @@ import { TrendChart } from '@/components/charts/TrendChart'
 import { VBars } from '@/components/charts/VBars'
 import { DayMap } from '@/components/day/DayMap'
 import { RankedBars } from '@/components/day/RankedBars'
+import { Chips } from '@/components/StopList'
 import { GROUP_COLOR, GROUP_ICON } from '@/components/groupStyle'
 import { useI18n } from '@/lib/i18n'
 import { breakdown, rows, trend, type Scope } from '@/lib/insights'
 import { storeStats } from '@/lib/stats'
 import { useStore } from '@/lib/store'
+import { suggest } from '@/lib/suggest'
 import { cardsOf } from '@/lib/tasks'
 import { clock } from '@/lib/time'
 
@@ -278,6 +280,42 @@ const Tasks = defineComponent({
   },
 })
 
+const Walk = defineComponent({
+  name: 'Walk',
+  description:
+    'The round to walk now: the first gondolas to go to, in order, each with what to carry, and a button that starts the round on the phone. Use it when asked what to restock first, where to start or what to do now.',
+  props: z.object({ stops: z.number().int().min(1).max(5).optional() }),
+  component: function Walk({ props }) {
+    const { t, tasks, gondola } = useData()
+    const stops = suggest(tasks)
+      .filter((s) => s.empty + s.wrong > 0)
+      .slice(0, props.stops ?? 3)
+    if (!stops.length) return null
+    return (
+      <Block title={t.roundStart}>
+        <ul className="flex flex-col gap-2">
+          {stops.map((s, i) => (
+            <li key={s.camera}>
+              <Link to={gondolaTo(s.camera)} className="flex items-center gap-3 rounded-lg bg-surface p-3 transition-colors hover:bg-sunk">
+                <span className="grid size-6 shrink-0 place-items-center rounded-full bg-sunk text-meta tabular-nums text-fg-secondary">{i + 1}</span>
+                <span className="min-w-0 flex-1">
+                  <span className="mb-1.5 block text-label">{gondola(s.camera)}</span>
+                  <Chips tasks={tasks.filter((x) => x.area.camera === s.camera)} />
+                </span>
+                {s.emptySince !== null && <span className="text-meta tabular-nums text-fg-secondary">{clock(s.emptySince)}</span>}
+              </Link>
+            </li>
+          ))}
+        </ul>
+        <Link to="/round" className="mt-3 flex h-11 items-center justify-center gap-2 rounded-xl bg-surface text-ui font-medium transition-colors hover:bg-sunk">
+          <Footprints className="size-4" aria-hidden />
+          {t.roundStart}
+        </Link>
+      </Block>
+    )
+  },
+})
+
 const Where = defineComponent({
   name: 'Where',
   description: 'The gondolas that hold a product, with their photos, the one where it was empty the longest first. Give the product key.',
@@ -314,7 +352,7 @@ const Gondola = defineComponent({
   ),
 })
 
-const parts = [Text.ref, Callout.ref, Metrics.ref, Ranked.ref, Bars.ref, Table.ref, Trend.ref, Mix.ref, Heat.ref, Tasks.ref, Where.ref, Gondola.ref] as const
+const parts = [Text.ref, Callout.ref, Metrics.ref, Ranked.ref, Bars.ref, Table.ref, Trend.ref, Mix.ref, Heat.ref, Tasks.ref, Walk.ref, Where.ref, Gondola.ref] as const
 
 const Answer = defineComponent({
   name: 'Answer',
@@ -330,7 +368,7 @@ const Answer = defineComponent({
 })
 
 export const library = createLibrary({
-  components: [Answer, Text, Callout, Metrics, Ranked, Bars, Table, Trend, Mix, Heat, Tasks, Where, Gondola],
+  components: [Answer, Text, Callout, Metrics, Ranked, Bars, Table, Trend, Mix, Heat, Tasks, Walk, Where, Gondola],
   root: 'Answer',
 })
 
@@ -341,6 +379,10 @@ root = Answer([Text("Here is how the store did, and when it was worst."), Metric
 root = Answer([Text("These gondolas spent the most time with empty shelves."), Ranked("gondolas", 5), Tasks("restock", 3)])`,
   `User: How are the bananas doing through the day?
 root = Answer([Text("Bananas hour by hour, and how their time split."), Trend("banana"), Mix("banana")])`,
+  `User: What should I restock first?
+root = Answer([Text("This is the order to walk, starting where it hurts most."), Walk(3), Callout("These come from about one photo an hour, so treat them as estimates.")])`,
+  `User: Give me the report of the day.
+root = Answer([Text("Here is how the day went, when it was worst and what to watch tomorrow."), Metrics(["empty", "compliance", "restock", "moveBack"]), Trend(), Ranked("products", 4), Callout("Estimated from about one photo an hour. Start tomorrow with the products that ran out first.")])`,
   `User: Compare avocado and onion.
 root = Answer([Text("Side by side, avocado and onion."), Bars("products", ["avocado", "onion"]), Table("products", 4)])`,
 ]
@@ -362,7 +404,8 @@ export const systemPromptFor = (context: {
     additionalRules: [
       'Answer in the language of the question. Do not mention OpenUI, parts or the app: write as a colleague who has looked at the data.',
       'Write no digit and no percentage anywhere, not even in Text or Callout. Say "the worst", "most of the day", "early", never a figure.',
-      'Pick the part that fits the question: Metrics for a summary, Trend for how something changed over the day, Mix for how time split, Ranked or Bars for comparing, Table when several figures per item are needed, DayMap for the whole day by product, Tasks for what to do now, Where for the gondolas that hold a product, Gondola to show one shelf.',
+      'Pick the part that fits the question: Metrics for a summary, Trend for how something changed over the day, Mix for how time split, Ranked or Bars for comparing, Table when several figures per item are needed, DayMap for the whole day by product, Tasks for a plain list of what is empty or in the wrong place, Walk (not Tasks) when the question is what to restock or do first, where to start or in what order to walk, Where for the gondolas that hold a product, Gondola to show one shelf.',
+      'Whenever an answer shows figures, charts or a ranking, end it with a Callout saying in the language of the question that it is estimated from about one photo an hour. Never write the figures themselves.',
       'Use 2 to 4 parts. Start with one Text sentence and, if it helps, end with a Callout that gives the one thing to act on.',
       'Refer to products by their key and gondolas by their camera id, exactly as listed. If the question names something not listed, answer with a Text and a Callout saying you do not have it, and offer what you do have.',
       'If the question is not about the store, say so in one Text and suggest a question you can answer.',
