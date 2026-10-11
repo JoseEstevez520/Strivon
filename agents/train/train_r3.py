@@ -6,7 +6,7 @@ From the repo root, with SENSEI_DATASET set to the dataset folder (as for agents
     python -I agents/train/train_r3.py deploy                    # every labelled photo of eval/labels.json
     python -I agents/train/train_r3.py forward --labels <file>   # earlier photos -> each camera's last 2 photos
     options: --labels PATH (default eval/labels.json), --seed 0, --epochs 6 (1 = smoke test), --device cuda|cpu,
-             --threads 4 (CPU), --tag ld6ee, --out agents/train/out
+             --threads 4 (CPU), --tag ld6ee, --out agents/train/out, --mix-silver DIR (see the end of this note)
 
 deploy  writes the files agents/ loads, with the same names and layout, under --out:
           models/stock_4e/deploy/onepass_s224_<tag>.pt            fine-tuned DINOv2-S + stock head (fp32)
@@ -31,6 +31,15 @@ stock head is -b7's models/forward_b7/b8_stock_head.py, deployed by -d1's models
 - block-8 stock head: logistic regression (C=0.03) on the same features, classes empty / half / full;
 - stock answer: the two stock heads' probabilities averaged 1:1, then the level with the most expected points.
 Night-curtain photos (6383 and 6386 at 06:12) are never trained on; agents/ answers them empty + compliant.
+
+--mix-silver DIR (the "mix" option of -38's convention hedge, validated as models/stock/sup_night.py --variant mix):
+both stock heads train on soft targets 0.75 x the team level + 0.125 x N1 + 0.125 x N2, where N1 / N2 are the two
+Sensei-wording passes in DIR (lab/silver2: p3_<camera>.json, p4_<camera>.json). A pass that skipped the area gives its
+share to the other; both skipped -> the team level only (every labelled non-curtain area of eval/labels.json has both).
+The one-pass head uses cross-entropy on the soft targets (label smoothing 0.05); the block-8 head sees each crop once per
+level with its share as sample weight (max_iter 4000, as validated). The product head is unchanged. deploy then writes
+models/onepass/deploy/stockb8_<tag>.npz, and forward writes forward_R3mix_s<seed>.json. Without the flag nothing
+changes.
 """
 import argparse
 import json
@@ -81,6 +90,46 @@ def crate_crops(cache):
     np.savez(f, X=X, area_id=aid, ts=ts)
     print(f"crops: {len(X)} areas of {len(photos)} photos in {time.time() - t0:.0f} s -> {f}", flush=True)
     return X, aid, ts
+
+
+def read_silver(folder, aid, ts):
+    """--mix-silver: per crop, the N1 and N2 levels (0 / 1 / 2) of lab/silver2, -1 where the pass skipped the area.
+    Some files key areas as "3", others as "6594_3"."""
+    out = []
+    for p in ("p3", "p4"):
+        lev, cache = np.full(len(aid), -1), {}
+        for i, (x, t) in enumerate(zip(aid, ts)):
+            c = x.split("_")[0]
+            if c not in cache:
+                cache[c] = json.loads((pathlib.Path(folder) / f"{p}_{c}.json").read_text(encoding="utf-8")).get(c, {})
+            e = cache[c].get(f"{int(t)}.jpg", {})
+            r = e.get(x.split("_", 1)[1]) or e.get(x)
+            if r and not r.get("skip") and r.get("stock_level") in NAMES:
+                lev[i] = NAMES.index(r["stock_level"])
+        out.append(lev)
+    return out
+
+
+def soft_targets(y, n1, n2):
+    """--mix-silver: 0.75 team + 0.125 N1 + 0.125 N2 per labelled crop (rows sum to 1; zero rows where y < 0)."""
+    W = np.zeros((len(y), 3), np.float32)
+    for i in np.where(y >= 0)[0]:
+        got = [v for v in (n1[i], n2[i]) if v >= 0]
+        W[i, y[i]] += 0.75 if got else 1.0
+        for v in got:
+            W[i, v] += 0.25 / len(got)
+    return W
+
+
+def mix_targets(a, y, aid, ts):
+    """The soft targets, or None without --mix-silver (then training is exactly as before)."""
+    if not a.mix_silver:
+        return None
+    n1, n2 = read_silver(a.mix_silver, aid, ts)
+    m = y >= 0
+    print(f"mix-silver: soft targets on {int(m.sum())} crops; N1 / N2 present on {int((n1[m] >= 0).sum())} / "
+          f"{int((n2[m] >= 0).sum())}", flush=True)
+    return soft_targets(y, n1, n2)
 
 
 def read_labels(path, aid, ts):
@@ -142,7 +191,7 @@ def batches(X, idx, bs, train, gen, shift=8):
         yield b, ((x.clamp(0, 1) - MEAN) / STD)
 
 
-def finetune(X, y, rows, seed, epochs, dev):
+def finetune(X, y, rows, seed, epochs, dev, W=None):
     torch.manual_seed(1000 * seed)
     gen = np.random.default_rng(1000 * seed)
     net = Net().to(dev)
@@ -159,7 +208,10 @@ def finetune(X, y, rows, seed, epochs, dev):
     for ep in range(epochs):
         for b, x in batches(X, rows, 32, True, gen):
             with torch.autocast(dev, dtype=torch.float16, enabled=amp):
-                loss = torch.nn.functional.cross_entropy(net(x.to(dev)), yt[b].to(dev), label_smoothing=0.05)
+                if W is None:
+                    loss = torch.nn.functional.cross_entropy(net(x.to(dev)), yt[b].to(dev), label_smoothing=0.05)
+                else:   # --mix-silver: soft targets
+                    loss = torch.nn.functional.cross_entropy(net(x.to(dev)), W[b].to(dev), label_smoothing=0.05)
             opt.zero_grad(set_to_none=True)
             scaler.scale(loss).backward()
             scaler.step(opt)
@@ -173,6 +225,14 @@ def finetune(X, y, rows, seed, epochs, dev):
 def logistic(F, target, C):
     mu, sd = F.mean(0), F.std(0) + 1e-6
     return mu, sd, LogisticRegression(C=C, max_iter=3000).fit((F - mu) / sd, target)
+
+
+def logistic_soft(F, W, C):
+    """--mix-silver: the same logistic regression on soft targets, each crop once per level, weighted by its share."""
+    mu, sd = F.mean(0), F.std(0) + 1e-6
+    rows, cls, w = np.tile(np.arange(len(F)), 3), np.repeat(np.arange(3), len(F)), W.T.reshape(-1)
+    k = w > 0
+    return mu, sd, LogisticRegression(C=C, max_iter=4000).fit(((F - mu) / sd)[rows[k]], cls[k], sample_weight=w[k])
 
 
 def proba(head, F):
@@ -190,7 +250,8 @@ def deploy(a, X, aid, ts, dev):
     y, comp, tgt, planned = read_labels(a.labels, aid, ts)
     tr = np.where(y >= 0)[0]
     print(f"deploy: {len(tr)} labelled areas from {a.labels}", flush=True)
-    net, gen = finetune(X, y, tr, a.seed, a.epochs, dev)
+    W = mix_targets(a, y, aid, ts)
+    net, gen = finetune(X, y, tr, a.seed, a.epochs, dev, None if W is None else torch.from_numpy(W))
     F = []
     with torch.no_grad():   # block-8 features in fp32, as on the CPU at prediction time
         for b, x in batches(X, tr, 64, False, gen):
@@ -199,7 +260,10 @@ def deploy(a, X, aid, ts, dev):
     sd_ = {k: v.detach().float().cpu() for k, v in net.state_dict().items()}
     mu, sd, lr = logistic(F, tgt[tr].astype(str), 0.1)
     F64 = F.astype(np.float64)
-    mu8, sd8, lr8 = logistic(F64, y[tr], 0.03)
+    if W is None:
+        mu8, sd8, lr8 = logistic(F64, y[tr], 0.03)
+    else:
+        mu8, sd8, lr8 = logistic_soft(F64, W[tr], 0.03)
     dep = pathlib.Path(a.out) / "models" / "stock_4e" / "deploy"
     dep.mkdir(parents=True, exist_ok=True)
     stem = dep / f"onepass_s{SIZE}_{a.tag}"
@@ -221,11 +285,15 @@ def deploy(a, X, aid, ts, dev):
                      "PAY = [[1,-2,-2],[-3,1,-2],[-3,-3,1]] (rows: predicted empty/half/full)",
         curtain="night-curtain photos (6383/6386 at 06:12) are answered empty + compliant by predict.py",
         planned_family={x: cgroup(A[x]["product_id"]) for x in sorted(A)})
+    if W is not None:
+        meta["stock_targets"] = (f"soft: 0.75 team ({pathlib.Path(a.labels).name}) + 0.125 N1 + 0.125 N2 "
+                                 f"(--mix-silver {pathlib.Path(a.mix_silver).name}: p3 / p4); product head on the team labels")
     pathlib.Path(f"{stem}.json").write_text(json.dumps(meta, indent=1), encoding="utf-8")
-    b8 = pathlib.Path(a.out) / "models" / "onepass" / "deploy" / "stockb8.npz"
+    b8 = pathlib.Path(a.out) / "models" / "onepass" / "deploy" / ("stockb8.npz" if W is None else f"stockb8_{a.tag}.npz")
     b8.parent.mkdir(parents=True, exist_ok=True)
     np.savez(b8, mu=mu8.astype(np.float32), sd=sd8.astype(np.float32), coef=lr8.coef_.astype(np.float32),
-             intercept=lr8.intercept_.astype(np.float32), classes=lr8.classes_, labels=pathlib.Path(a.labels).name)
+             intercept=lr8.intercept_.astype(np.float32), classes=lr8.classes_,
+             labels=pathlib.Path(a.labels).name + ("" if W is None else " + mix-silver"))
     print(f"wrote {stem}.pt, _fp16.pt, .json, _product.npz ({len(lr.classes_)} product classes), "
           f"{dep / 'dinov2_small_config.json'} and {b8}")
 
@@ -239,7 +307,8 @@ def forward(a, X, aid, ts, dev):
     te = np.where(test & ~cur)[0]
     print(f"forward: {len(tr)} training areas from {a.labels}, {len(te)} test areas "
           f"({int(test.sum())} on {len({(x.split('_')[0], t) for x, t in zip(aid[test], ts[test])})} photos)", flush=True)
-    net, _ = finetune(X, y, tr, a.seed, a.epochs, dev)
+    W = mix_targets(a, y, aid, ts)
+    net, _ = finetune(X, y, tr, a.seed, a.epochs, dev, None if W is None else torch.from_numpy(W))
     rows = np.where(~cur)[0]
     F, P = np.zeros((len(aid), 2 * net.bb.config.hidden_size), np.float32), np.zeros((len(aid), 3))
     with torch.no_grad(), torch.autocast(dev, dtype=torch.float16, enabled=dev == "cuda"):
@@ -253,7 +322,7 @@ def forward(a, X, aid, ts, dev):
     head = logistic(F[trc], tgt[trc].astype(str), 0.1)
     ok = p_ok(proba(head, F[te]), head[2].classes_, planned[te])
     F64 = F.astype(np.float64)
-    P8 = proba(logistic(F64[tr], y[tr], 0.03), F64[te])
+    P8 = proba(logistic(F64[tr], y[tr], 0.03) if W is None else logistic_soft(F64[tr], W[tr], 0.03), F64[te])
     PS = (np.round(P[te], 4) + P8) / 2   # R3 = the one-pass p_stock (as written, 4 decimals) and the block-8 head, 1:1
     out = {}
     for i in np.where(test)[0]:
@@ -264,7 +333,7 @@ def forward(a, X, aid, ts, dev):
         out[aid[i].split("_")[0]][f"{int(ts[i])}.jpg"][aid[i]] = dict(
             planogram_compliant=bool(ok[j] >= 0.5), stock_level=NAMES[lv], stock_value=LEVELS[lv],
             p_stock=[round(float(v), 4) for v in PS[j]])
-    path = pathlib.Path(a.out) / f"forward_R3_s{a.seed}.json"
+    path = pathlib.Path(a.out) / f"forward_R3{'' if W is None else 'mix'}_s{a.seed}.json"
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(out, indent=1), encoding="utf-8")
     print(f"wrote {path}")
@@ -280,6 +349,8 @@ def main():
     ap.add_argument("--threads", type=int, default=4)
     ap.add_argument("--tag", default="ld6ee")
     ap.add_argument("--out", default=str(HERE / "out"))
+    ap.add_argument("--mix-silver", default=None, metavar="DIR",
+                    help="train both stock heads on 0.75 team + 0.125 N1 + 0.125 N2 (lab/silver2); off by default")
     a = ap.parse_args()
     torch.set_num_threads(a.threads)
     t0 = time.time()
