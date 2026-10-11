@@ -15,10 +15,11 @@ import {
   ScanSearch,
   type LucideIcon,
 } from 'lucide-react'
-import { MemoryRouter } from 'react-router'
+import { MemoryRouter, Navigate, Route, Routes, useNavigate } from 'react-router'
 import { DayBar } from '@/components/DayBar'
 import { StopList } from '@/components/StopList'
 import { Plan } from '@/components/StorePlan'
+import { GondolaPage } from '@/pages/GondolaPage'
 import { suggest } from '@/lib/suggest'
 import { cameras, type Task } from '@/lib/tasks'
 import { useStore } from '@/lib/store'
@@ -248,14 +249,10 @@ function Hero() {
   )
 }
 
-/**
- * The app's first page, shortened, in a window so it reads as a demo: the plan of the store on the
- * left and the round on the right, with the day bar above. It works as in the app (move through the
- * day and the plan and the list follow), but only eight gondolas are shown, and a memory router
- * keeps every link inside the page, so nothing on it leads away.
- */
-function Demo() {
+/** The app's first page, shortened: the plan of eight gondolas and the round, with the day bar above. */
+function DemoHome() {
   const { state, tasks } = useStore()
+  const navigate = useNavigate()
   const stops = useMemo(() => suggest(tasks).filter((s) => s.empty + s.wrong > 0), [tasks])
   const byCamera = useMemo(() => {
     const m: Record<string, Task[]> = {}
@@ -268,6 +265,24 @@ function Demo() {
   }
   const list = cameras(state).slice(0, 8)
   return (
+    <>
+      <DayBar className="mb-6" />
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
+        <Plan list={list} cols={4} byCamera={byCamera} rankOf={rankOf} choose={(c) => navigate(`/gondolas/${c}`)} />
+        <StopList stops={stops.filter((x) => list.includes(x.camera))} byCamera={byCamera} tasks={tasks} />
+      </div>
+    </>
+  )
+}
+
+/**
+ * The app's first page in a window so it reads as a demo. It works as in the app: move through the
+ * day and the plan and the list follow, and pressing a gondola or a stop opens its photo with what
+ * is wrong marked, with a way back. A memory router keeps every link inside the window, so nothing
+ * on it leads away from the page, and only eight gondolas are shown.
+ */
+function Demo() {
+  return (
     <div className="rounded-2xl bg-surface p-2">
       <div className="flex h-9 items-center gap-1.5 px-3">
         {[0, 1, 2].map((i) => (
@@ -277,11 +292,11 @@ function Demo() {
       </div>
       <div className="rounded-xl bg-bg p-4 sm:p-6">
         <MemoryRouter>
-          <DayBar className="mb-6" />
-          <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
-            <Plan list={list} cols={4} byCamera={byCamera} rankOf={rankOf} choose={() => {}} />
-            <StopList stops={stops.filter((x) => list.includes(x.camera))} byCamera={byCamera} tasks={tasks} />
-          </div>
+          <Routes>
+            <Route path="/" element={<DemoHome />} />
+            <Route path="/gondolas/:camera" element={<GondolaPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
         </MemoryRouter>
       </div>
     </div>
@@ -339,7 +354,7 @@ export function Landing() {
             </ul>
           </Section>
 
-          <Section title="See it" lead="The app, shortened. The plan shows where the problems are and the list gives the order of the round. Move through the day and both follow.">
+          <Section title="See it" lead="The app, shortened. The plan shows where the problems are and the list gives the order of the round. Move through the day, or press a gondola to see its shelf.">
             <Demo />
           </Section>
 
