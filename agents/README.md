@@ -35,6 +35,14 @@ empty when 4 p_empty > 3 p_half. Without it (or with K = 1) the answers are exac
 last line starts with `OK (stock tilt k=<K>)`. For checks, `--p-stock-out <file>` also writes the answers plus each
 area's p_stock (before the tilt) to another file; never send that one.
 
+`--stock-model mix` (opt-in, off by default = `ld6ee`) runs the R3 recipe retrained with -38's label mix
+(`agents/train`, `--mix-silver`): both stock heads learn 0.75 x our label + 0.125 x each of the two Sensei-wording
+passes in `lab/silver2`; the product head stays on our labels. Its weights
+(`models/stock_4e/deploy/onepass_s224_ld6ee_mix.*`) and its own block-8 head
+(`models/onepass/deploy/stockb8_ld6ee_mix.npz`) are used together (env: `ONEPASS_TAG=ld6ee_mix` and
+`ONEPASS_B8_HEAD=<that .npz>`; with the tag alone, onepass.py also picks the tag's own head). It can't be combined
+with `--stock-tilt` (never validated together), and the last line then starts with `OK (stock model mix)`.
+
 How the camera is found, in order:
 
 1. a folder named like a camera (`6215/`);

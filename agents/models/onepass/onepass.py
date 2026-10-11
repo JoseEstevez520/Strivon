@@ -9,8 +9,10 @@ answers for the current photo are shared through one registry (keyed by camera, 
 
 Env: ONEPASS_SIZE (default 224), ONEPASS_TAG (default ld6ee = weights retrained on the final team labels @d6eeba4,
 round-2 recipe R3), ONEPASS_DEVICE (cpu or cuda, default cpu), ONEPASS_THREADS (default 4), ONEPASS_B8_HEAD: the free
-block-8 stock head that OnePass averages 1:1 with its fine-tuned p_stock in the same pass. Unset = use
-models/onepass/deploy/stockb8.npz if that file exists, "off" = never, or a path to another .npz.
+block-8 stock head that OnePass averages 1:1 with its fine-tuned p_stock in the same pass. Unset = the tag's own head
+models/onepass/deploy/stockb8_<ONEPASS_TAG>.npz if that file exists (e.g. ld6ee_mix), else models/onepass/deploy/
+stockb8.npz if that exists (ld6ee's), "off" = never, or a path to another .npz. predict.py --stock-model mix sets
+ONEPASS_TAG and ONEPASS_B8_HEAD together.
 """
 import hashlib
 import os
@@ -27,8 +29,10 @@ _S = sys.modules.setdefault("_onepass_shared", types.SimpleNamespace(model=None,
 
 def _b8_head():
     head = os.environ.get("ONEPASS_B8_HEAD")
-    if head is None:
-        default = Path(__file__).resolve().parent / "deploy" / "stockb8.npz"
+    if head is None:  # the tag's own head first (stockb8_ld6ee_mix.npz for ld6ee_mix), then ld6ee's stockb8.npz
+        deploy = Path(__file__).resolve().parent / "deploy"
+        own = deploy / f"stockb8_{os.environ.get('ONEPASS_TAG', 'ld6ee')}.npz"
+        default = own if own.exists() else deploy / "stockb8.npz"
         head = str(default) if default.exists() else "off"
     return None if head == "off" else head
 
