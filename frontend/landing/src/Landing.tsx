@@ -119,6 +119,8 @@ const slotFill = (v: number) => (v < 0.25 ? tone(84) : v < 0.5 ? tone(52) : v < 
  */
 /** How far the slots run on below the first screen, fading out, in px. */
 const SPILL = 208
+/** How much further they run down at the left and right edges, so they trail down the corners. */
+const SPILL_EDGE = 260
 
 /** Measures how many whole slots fit in the element, and keeps it up to date. */
 function useGrid(ref: React.RefObject<HTMLDivElement | null>) {
@@ -149,14 +151,16 @@ function Slots() {
     for (let c = 0; c < size.cols; c++) {
       // The first screen is the top part of the grid; the rest runs on below it.
       const total = size.height
-      const screen = Math.max(1, total - SPILL)
+      const screen = Math.max(1, total - SPILL - SPILL_EDGE)
       const y = ((r + 0.5) / size.rows) * total
       const dx = (c + 0.5) / size.cols - 0.5
       const dy = y / screen - 0.5
       // Nothing close to the text, then more and more of the slots as they get further from it, so
       // the scatter fades in instead of stopping at an edge. Below the first screen it fades out.
       const near = Math.max(0, Math.min(1, (Math.hypot(dx * 1.1, dy * 2) - 0.45) / 0.3))
-      const below = y <= screen ? 1 : Math.max(0, 1 - (y - screen) / SPILL)
+      const edge = Math.min(1, Math.abs(dx) * 2)
+      const run = SPILL + SPILL_EDGE * Math.pow(edge, 1.6)
+      const below = y <= screen ? 1 : Math.max(0, 1 - (y - screen) / run)
       const fade = near * below
       const shown = hash(c, r) > 0.4 && fade > 0
       cells.push(
@@ -173,7 +177,7 @@ function Slots() {
     <div
       ref={ref}
       aria-hidden
-      className="pointer-events-none absolute inset-x-0 top-0 -bottom-52 grid gap-2"
+      className="pointer-events-none absolute inset-x-0 top-0 -bottom-[468px] grid gap-2"
       style={{ gridTemplateColumns: `repeat(${size.cols || 1}, minmax(0, 1fr))`, gridTemplateRows: `repeat(${size.rows || 1}, minmax(0, 1fr))` }}
     >
       {cells}
