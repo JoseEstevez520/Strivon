@@ -7,7 +7,7 @@ Each photo is judged on its own pixels only. One DINOv2-S pass per planogram are
 - the stock level: the fine-tuned head, averaged 1:1 with a free logistic stock head on the same block-8 features
   (`models/onepass/deploy/stockb8.npz`), then the best-expected-points level.
 
-The weights were trained on every photo of `eval/labels.json` at commit 1221ec3 (curtain photos left out). They are
+The weights were trained on every photo of `eval/labels.json` at commit 1d7b2ff (curtain photos left out). They are
 224 px and stored in fp16; on all 181 photos that gives the same answers as fp32.
 
 From the repo root:
@@ -26,6 +26,6 @@ On validation day add `--expect-images 26 --expect-areas 289`.
 - Optional: `SENSEI_DATASET=<dataset folder>` lets photos in a flat folder be matched to their camera by appearance,
   and logs (never overrides) a night-curtain look-up for cameras 6383/6386.
 - Speed: about 0.8 s per photo on a laptop CPU (4 threads), 1.0 GB RAM, ~12 s start-up.
-  Env vars: `ONEPASS_DEVICE=cuda`, `ONEPASS_THREADS=4`, `ONEPASS_SIZE=224`, `ONEPASS_TAG=l1221`, `ONEPASS_B8_HEAD=off`.
+  Env vars: `ONEPASS_DEVICE=cuda`, `ONEPASS_THREADS=4`, `ONEPASS_SIZE=224`, `ONEPASS_TAG=l1d7b`, `ONEPASS_B8_HEAD=off`.
 - Needs Python 3.12, torch, transformers, numpy, opencv-python and pillow.
 - Not included: the challenge data (planogram, photos, labels). Pass them in with the flags above.
