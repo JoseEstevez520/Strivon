@@ -94,7 +94,7 @@ export function shelfOrder(tasks: Task[]): Task[] {
 }
 
 /** A gondola as one box: a header with its name and what is wrong in chips, then one tile per shelf area. The same block at every width. */
-function GondolaBlock({
+export function GondolaBlock({
   camera,
   tasks,
   rank,
@@ -282,7 +282,7 @@ export function MapStorePage() {
 }
 
 /** Walls, the department name, rows of gondolas with a flat aisle band after each, and an opening for the door. Flat tones only. */
-function Plan({
+export function Plan({
   list,
   cols,
   byCamera,
