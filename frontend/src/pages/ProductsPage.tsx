@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Check, Search, Undo2 } from 'lucide-react'
+import { Check, Search } from 'lucide-react'
 import { Link, useSearchParams } from 'react-router'
 import { DayBar } from '@/components/DayBar'
 import { ProductIcon } from '@/components/ProductIcon'
@@ -9,7 +9,7 @@ import { useStore } from '@/lib/store'
 import { ACTION, cameras, type Task } from '@/lib/tasks'
 import { clock } from '@/lib/time'
 
-const mix = (c: string, pct: number) => `color-mix(in oklab, ${c} ${pct}%, var(--raised))`
+const mix = (c: string, pct: number, base = 'var(--raised)') => `color-mix(in oklab, ${c} ${pct}%, ${base})`
 
 const VALUE = { empty: 0, half: 0.5, full: 1 } as const
 
@@ -29,32 +29,36 @@ interface Row {
 }
 
 
-/** One area of a product as a small square, with the same shape per state as the shelves: "!" empty, an arrow for a wrong product, half filled, plain when fine. */
-function Cell({ task }: { task: Task }) {
-  const { t } = useI18n()
-  const { gondola } = useStore()
-  const look = statusOf(task)
-  const word = look === 'empty' ? t.level.empty : look === 'wrong' ? t.wrongProduct : look === 'half' ? t.level.half : t.level.full
-  const bg = look === 'empty' ? mix('var(--danger)', 22) : look === 'wrong' ? mix('var(--warning)', 30) : 'var(--raised)'
+const SEGMENTS = [
+  { look: 'empty', color: 'var(--danger)' },
+  { look: 'wrong', color: 'var(--warning)' },
+  { look: 'half', color: mix('var(--fg)', 28, 'var(--surface)') },
+  { look: 'fine', color: mix('var(--success)', 70, 'var(--surface)') },
+] as const
+
+/** The areas of a product as a ring split by state, with the number of areas in the middle. */
+function Ring({ counts, total }: { counts: Record<string, number>; total: number }) {
+  const r = 26
+  const c = 2 * Math.PI * r
+  let at = 0
   return (
-    <Link
-      to={`/gondolas/${task.area.camera}?area=${task.area.area_id}`}
-      title={`${gondola(task.area.camera)} · ${word}`}
-      aria-label={`${gondola(task.area.camera)} · ${word}`}
-      className="relative grid size-5 place-items-center overflow-hidden rounded-[5px] transition-opacity hover:opacity-70"
-      style={{ background: bg, color: look === 'empty' ? 'var(--danger)' : 'var(--warning)' }}
-    >
-      {look === 'half' && <span className="absolute inset-x-0 bottom-0 h-1/2" style={{ background: mix('var(--fg)', 13) }} />}
-      {look === 'empty' && <span className="text-[11px] leading-none font-bold">!</span>}
-      {look === 'wrong' && <Undo2 className="size-3" strokeWidth={3} aria-hidden />}
-    </Link>
+    <svg viewBox="0 0 64 64" className="size-16 shrink-0 -rotate-90" aria-hidden>
+      <circle cx="32" cy="32" r={r} fill="none" stroke="var(--sunk)" strokeWidth="10" />
+      {SEGMENTS.map(({ look, color }) => {
+        const n = counts[look] ?? 0
+        if (n === 0) return null
+        const len = (n / total) * c
+        const el = <circle key={look} cx="32" cy="32" r={r} fill="none" stroke={color} strokeWidth="10" strokeDasharray={`${Math.max(len - 1.5, 0.5)} ${c}`} strokeDashoffset={-at} />
+        at += len
+        return el
+      })}
+    </svg>
   )
 }
 
 /**
- * One product as a card with four fixed places, so every card has the same shape: who it is, one
- * square per area in the state it is in, what to do and where, and since when. A line appears only
- * when it has news.
+ * One product as a card with three places: who it is, a ring of its areas by state with a legend
+ * that names each count, and where to go. Only the states it has appear in the legend.
  */
 function ProductCard({ row, focused }: { row: Row; focused: boolean }) {
   const { t, family } = useI18n()
@@ -65,63 +69,70 @@ function ProductCard({ row, focused }: { row: Row; focused: boolean }) {
     if (focused) ref.current?.scrollIntoView({ block: 'center' })
   }, [focused])
   const name = family(row.product)
-  const cells = useMemo(
-    () => [...row.tasks].sort((a, b) => Number(a.area.camera) - Number(b.area.camera) || a.area.index - b.area.index),
-    [row.tasks],
-  )
-  const where = (st: 'empty' | 'wrong') => [...new Set(cells.filter((x) => statusOf(x) === st).map((x) => x.area.camera))].map((c) => gondola(c).match(/\d+$/)?.[0] ?? c)
+  const total = row.tasks.length
+  const counts: Record<string, number> = {}
+  for (const x of row.tasks) counts[statusOf(x)] = (counts[statusOf(x)] ?? 0) + 1
+  const word = (l: string) => (l === 'empty' ? t.level.empty : l === 'wrong' ? t.wrongProduct : l === 'half' ? t.level.half : t.level.full)
+  const where = (st: 'empty' | 'wrong') => [...new Set(row.tasks.filter((x) => statusOf(x) === st).map((x) => x.area.camera))]
   const bring = where('empty')
   const back = where('wrong')
-  const since = Math.min(...cells.filter((x) => statusOf(x) === 'empty' && x.since !== null).map((x) => x.since as number))
-  const chip = (c: string, bg: string) => (
-    <span key={c} className="grid h-6 min-w-6 place-items-center rounded-md px-1.5 text-meta font-medium tabular-nums text-fg-secondary" style={{ background: bg }}>
-      {c}
-    </span>
-  )
+  const since = Math.min(...row.tasks.filter((x) => statusOf(x) === 'empty' && x.since !== null).map((x) => x.since as number))
+  const links = (list: string[]) =>
+    list.map((c, i) => (
+      <span key={c}>
+        {i > 0 && ', '}
+        <Link to={`/gondolas/${c}`} className="text-fg underline-offset-2 hover:underline">
+          {gondola(c).match(/\d+$/)?.[0] ?? c}
+        </Link>
+      </span>
+    ))
 
   return (
     <li
       ref={ref}
       data-focus={focused}
-      title={t.onShelf(Math.round(row.fill * 100))}
-      className="flex flex-col gap-3 rounded-2xl bg-surface p-4 transition-colors hover:bg-raised data-[focus=true]:bg-raised"
+      className="flex flex-col gap-4 rounded-2xl bg-surface p-4 transition-colors hover:bg-raised data-[focus=true]:bg-raised"
     >
       <div className="flex items-center gap-3">
-        <ProductIcon family={cells[0]?.area.family ?? row.product} label={name} className="size-8 shrink-0 text-fg-secondary" />
-        <span className="min-w-0 flex-1">
-          <span className="block truncate text-label">{name}</span>
-          <span className="block text-meta tabular-nums text-fg-secondary">{t.areasCount(cells.length)}</span>
+        <ProductIcon family={row.tasks[0]?.area.family ?? row.product} label={name} className="size-8 shrink-0 text-fg-secondary" />
+        <span className="min-w-0 flex-1 truncate text-label">{name}</span>
+      </div>
+      <div className="flex items-center gap-4">
+        <span className="relative grid shrink-0 place-items-center" role="img" aria-label={SEGMENTS.filter((x) => counts[x.look]).map((x) => `${counts[x.look]} ${word(x.look)}`).join(', ')}>
+          <Ring counts={counts} total={total} />
+          <span className="absolute text-label tabular-nums">{total}</span>
         </span>
+        <ul className="flex min-w-0 flex-1 flex-col gap-1">
+          {SEGMENTS.filter((x) => counts[x.look]).map((x) => (
+            <li key={x.look} className="flex items-center gap-2 text-meta text-fg-secondary">
+              <span className="size-2.5 shrink-0 rounded-[3px]" style={{ background: x.color }} aria-hidden />
+              <span className="w-4 tabular-nums text-fg">{counts[x.look]}</span>
+              <span className="truncate">{word(x.look)}</span>
+            </li>
+          ))}
+        </ul>
       </div>
-      <div className="flex min-h-5 flex-wrap gap-1">
-        {cells.map((x) => (
-          <Cell key={x.area.area_id} task={x} />
-        ))}
-      </div>
-      <div className="mt-auto flex flex-col gap-1.5 pt-1">
+      <div className="mt-auto flex flex-col gap-1 text-meta text-fg-secondary">
         {bring.length + back.length === 0 ? (
-          <span className="flex h-6 items-center gap-1.5 text-meta text-fg-secondary">
+          <span className="flex items-center gap-1.5">
             <Check className="size-4" style={{ color: 'var(--success)' }} strokeWidth={3} aria-hidden />
-            {t.shortOf(0, cells.length)}
+            {t.shortOf(0, total)}
           </span>
         ) : (
           <>
             {bring.length > 0 && (
-              <span className="flex flex-wrap items-center gap-1 text-meta text-fg-secondary">
-                <span className="mr-1">{t.bringTo}</span>
-                {bring.map((c) => chip(c, mix('var(--danger)', 16)))}
+              <span>
+                {t.bringTo} {links(bring)}
+                {Number.isFinite(since) && <span className="text-fg-muted tabular-nums"> · {t.emptySince(clock(since))}</span>}
               </span>
             )}
             {back.length > 0 && (
-              <span className="flex flex-wrap items-center gap-1 text-meta text-fg-secondary">
-                <Undo2 className="size-3.5" style={{ color: 'var(--warning)' }} strokeWidth={3} aria-hidden />
-                <span className="mr-1">{t.putBackIn}</span>
-                {back.map((c) => chip(c, mix('var(--warning)', 26)))}
+              <span>
+                {t.putBackIn} {links(back)}
               </span>
             )}
           </>
         )}
-        {Number.isFinite(since) && <span className="text-meta tabular-nums text-fg-muted">{t.emptySince(clock(since))}</span>}
       </div>
     </li>
   )
