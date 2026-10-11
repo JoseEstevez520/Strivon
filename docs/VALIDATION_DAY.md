@@ -9,9 +9,11 @@ weights (`ld6ee`, PR #84) on a copy of the 28 forward-split photos laid out as `
 included). The answers are the same with and without `SENSEI_DATASET`, a wrong `--expect-images` stops
 with `INCOMPLETE` (exit 3) and a broken JPEG with `FALLBACKS` (exit 2). Traps:
 
-1. `transformers` must be < 5 (see `agents/requirements.txt`). With 5.x the weights do not load and
-   every area silently becomes "full, compliant". The run then ends with "!! ... FALLBACKS": never
-   send a file when that line appears.
+1. The submission no longer imports `transformers`: its DINOv2 backbone is
+   `agents/models/stock_4e/dinov2_lite.py` (Jose's lab; same answers byte for byte on all 181 photos), so the
+   old 5.x trap (weights not loading, every area silently "full, compliant") cannot reach it. Only
+   `--label-free` still uses `transformers` (`agents/requirements.txt` keeps it < 5). Whatever the cause, never
+   send a file when the run ends with "!! ... FALLBACKS".
 2. The predictor looks for the dataset under `agents/OfficialDataset/...`. If the data is elsewhere,
    point `SENSEI_DATASET` at a folder holding `Frutas e Legumes (train & test)/` and `planogram.json`.
 3. **Always set `SENSEI_DATASET`, even if the data is in the default place.** If the validation photos

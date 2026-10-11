@@ -44,10 +44,12 @@ How the camera is found, in order:
 A photo of another size is resized to 1280x720 with a WARN. A view shifted more than 10 px against our photos of that
 camera gives a warn-only WARN. Neither check ever changes an answer.
 
-- Works offline: the backbone is built from `deploy/dinov2_small_config.json` and every weight comes from the .pt.
-- Speed: about 1 s per photo on a laptop CPU (4 threads), 0.08 s on an RTX 3060 Laptop GPU, 1.0 GB RAM, ~12 s
-  start-up. Env vars: `ONEPASS_DEVICE=cuda`, `ONEPASS_THREADS=4`, `ONEPASS_SIZE=224`, `ONEPASS_TAG`,
-  `ONEPASS_B8_HEAD=off`.
+- Works offline and without `transformers`: the DINOv2-S backbone is `models/stock_4e/dinov2_lite.py` (from Jose's
+  lab: the same modules and operations as `transformers`' `Dinov2Model`, same answers byte for byte on all 181
+  photos), built from `deploy/dinov2_small_config.json`. Every weight comes from the .pt.
+- Speed: about 1 s per photo on a laptop CPU (4 threads), 0.08 s on an RTX 3060 Laptop GPU, 0.7 GB RAM, ~3 s
+  start-up (it was ~12 s and 1.0 GB while transformers was imported). Env vars: `ONEPASS_DEVICE=cuda`,
+  `ONEPASS_THREADS=4`, `ONEPASS_SIZE=224`, `ONEPASS_TAG`, `ONEPASS_B8_HEAD=off`.
 
 ## Label-free mode (pitch / new-store path, zero labels; not the submission)
 
@@ -76,5 +78,6 @@ python -I agents/labelfree_setup.py baselines --images <unlabelled photos of a n
 - Score with zero labels (all points, rules' table, team key): +1906 / 3858 on all 1929 labelled areas, +240 / 604 on
   each camera's last 2 photos. The supervised model scores +483 / 604 on those last photos.
 
-Needs Python 3.12+, torch, transformers (see requirements.txt), numpy, opencv-python and pillow. Not included: the
-challenge data (planogram, photos, labels). Pass them in with the flags above.
+Needs Python 3.12+, torch, numpy, opencv-python and pillow (see requirements.txt). `transformers` is only needed by
+`--label-free` (SigLIP2) and `labelfree_setup.py`. Not included: the challenge data (planogram, photos, labels). Pass
+them in with the flags above.
