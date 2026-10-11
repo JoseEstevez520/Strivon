@@ -111,6 +111,7 @@ Los pasos del día de la entrega están en [`docs/VALIDATION_DAY.md`](docs/VALID
 ## Documentación
 
 - [`docs/APP.md`](docs/APP.md): qué muestra la app y los datos que lee.
+- [`docs/CHAT.md`](docs/CHAT.md): cómo el chat construye sus respuestas, las piezas que usa y sus límites (en inglés).
 - [`frontend/DESIGN.md`](frontend/DESIGN.md): cómo se ve la interfaz y el motivo de cada decisión.
 - [`docs/PLAN.md`](docs/PLAN.md): cómo se puntúa el reto y el plan para puntuar bien.
 - [`docs/SENSEI_INFO.md`](docs/SENSEI_INFO.md): lo que nos dijo Sensei, incluido qué significan vacío, medio y lleno.

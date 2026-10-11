@@ -53,7 +53,7 @@ export function localData(): Plugin {
 /**
  * Development only: relays the chat to any OpenAI-compatible endpoint, so the key stays on the
  * server. Set LLM_API_KEY, LLM_BASE_URL and LLM_MODEL in `frontend/.env` (git-ignored). Without a
- * key it answers 503 and the chat falls back to its offline answers.
+ * key the status route says the chat is off, and the screen does not offer it.
  */
 function chatRelay(): Plugin {
   return {
