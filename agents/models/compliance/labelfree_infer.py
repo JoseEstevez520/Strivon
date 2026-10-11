@@ -28,6 +28,7 @@ from PIL import Image
 HERE = pathlib.Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
 sys.path.insert(0, str(ROOT))
+sys.path.insert(0, str(HERE))
 from common import rectify  # noqa: E402
 
 DEPLOY = HERE / "deploy"
@@ -50,12 +51,31 @@ class LabelFree:
         self.prod = {p: e for p, e in zip(t["prod_pids"].tolist(), t["prod"])}
         self.base = json.loads((deploy / "labelfree_baselines.json").read_text(encoding="utf-8"))
         self.grid = int(self.meta["grid"])
+        self.tiling = self.meta.get("tiling", "tiles224")   # "onepass336_map" = U7: one pass, MAP-pooled regions
 
     @torch.no_grad()
     def embed(self, crops):
         x = (torch.from_numpy(np.stack(crops)).permute(0, 3, 1, 2).float() / 255.0 - 0.5) / 0.5
         out = [self.vm(pixel_values=x[s:s + 128].to(self.dev)).pooler_output.float() for s in range(0, len(x), 128)]
         return torch.nn.functional.normalize(torch.cat(out), dim=-1).cpu().numpy()
+
+    @torch.no_grad()
+    def onepass_tiles(self, c448):
+        """U7: ONE pass per crate at 336 px (central 80% of the 448 crop, interpolated positions); each 7x7-patch region
+        of the 21x21 grid is pooled by the model's own MAP head -> GRID x GRID tile embeddings."""
+        lo, hi = int(round(448 * 0.1)), int(round(448 * 0.9))
+        x = np.stack([cv2.resize(c[lo:hi, lo:hi], (336, 336), interpolation=cv2.INTER_AREA) for c in c448])
+        x = (torch.from_numpy(x).permute(0, 3, 1, 2).float() / 255.0 - 0.5) / 0.5
+        n, step = 336 // 16, (336 // 16) // self.grid
+        regions = [[r * n + c for r in range(i * step, (i + 1) * step) for c in range(j * step, (j + 1) * step)]
+                   for i in range(self.grid) for j in range(self.grid)]
+        vm = getattr(self.vm, "vision_model", self.vm)
+        out = []
+        for s in range(0, len(x), 32):
+            h = vm(pixel_values=x[s:s + 32].to(self.dev), interpolate_pos_encoding=True).last_hidden_state
+            out.append(torch.nn.functional.normalize(torch.stack([vm.head(h[:, idx]) for idx in regions], 1).float(),
+                                                     dim=-1).cpu().numpy())
+        return np.concatenate(out)
 
     def tiles(self, c448):
         lo, hi = int(round(448 * 0.1)), int(round(448 * 0.9))
@@ -67,10 +87,13 @@ class LabelFree:
     def predict(self, img, areas):
         poly = [np.asarray(Image.fromarray(np.asarray(rectify(img, a, size=None))).resize((224, 224), Image.BILINEAR))
                 for a in areas]
-        tl = []
-        for a in areas:
-            tl += self.tiles(np.asarray(rectify(img, a, size=(448, 448), expand_depth="auto", expand_front="auto")))
-        ep, et = self.embed(poly), self.embed(tl).reshape(len(areas), self.grid * self.grid, -1)
+        c448 = [np.asarray(rectify(img, a, size=(448, 448), expand_depth="auto", expand_front="auto")) for a in areas]
+        ep = self.embed(poly)
+        if self.tiling == "onepass336_map":
+            et = self.onepass_tiles(np.stack(c448))
+        else:
+            tl = [t for c in c448 for t in self.tiles(c)]
+            et = self.embed(tl).reshape(len(areas), self.grid * self.grid, -1)
         out = {}
         cams = self.meta["camera_products"]
         for a, e, t in zip(areas, ep, et):
@@ -101,7 +124,7 @@ class LabelFree:
 if __name__ == "__main__":
     import time
     from common import list_images, load_image, load_planogram
-    m = LabelFree(threads=4)
+    m = LabelFree(threads=4, deploy=pathlib.Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else DEPLOY)
     pg = load_planogram()
     ref = json.loads((ROOT / "preds" / f"4e_unsup_{m.meta['candidate']}_all.json").read_text(encoding="utf-8"))
     newest = {}

@@ -1,6 +1,7 @@
 {
- "candidate": "U6",
+ "candidate": "U7",
  "grid": 3,
+ "tiling": "onepass336_map",
  "t_empty": 0.85,
  "t_half": 0.3,
  "siglip": "google/siglip2-base-patch16-224 (vision, fp16)",

@@ -11,7 +11,8 @@ photos it was built from); default = -4e's shipped models/compliance/deploy/labe
 179 unlabelled non-curtain photos; sources listed in models/labelfree/deploy/shipped_baselines.sources.json).
 Vision weights: models/compliance/deploy/siglip2b_vision_fp16.pt, written by `labelfree_setup.py weights` (not in git),
 or env LABELFREE_WEIGHTS = another copy of that file (read-only use, nothing is written).
-Env: LABELFREE_DEVICE (cpu or cuda, default cpu), LABELFREE_THREADS (default 4).
+Env: LABELFREE_DEVICE (cpu or cuda, default cpu), LABELFREE_THREADS (default 4), LABELFREE_DEPLOY (another deploy
+folder; its labelfree_meta.json says which candidate it is, e.g. U7 = one SigLIP pass at 336 px, MAP-pooled regions).
 """
 import hashlib
 import json
@@ -22,7 +23,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 HERE = Path(__file__).resolve().parent
-DEPLOY = ROOT / "models" / "compliance" / "deploy"
+DEPLOY = Path(os.environ.get("LABELFREE_DEPLOY") or ROOT / "models" / "compliance" / "deploy")  # meta picks U6/U7
 sys.path.insert(0, str(ROOT / "models" / "compliance"))
 
 _S = sys.modules.setdefault("_labelfree_shared", types.SimpleNamespace(model=None, key=None, answers=None))
@@ -52,7 +53,7 @@ def _model():
         torch.load = load
         try:
             _S.model = LabelFree(device=os.environ.get("LABELFREE_DEVICE", "cpu"),
-                                 threads=int(os.environ.get("LABELFREE_THREADS", "4")))
+                                 threads=int(os.environ.get("LABELFREE_THREADS", "4")), deploy=DEPLOY)
         finally:
             torch.load = real
         b, _ = baselines_files()
