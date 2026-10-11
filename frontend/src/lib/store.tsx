@@ -37,18 +37,21 @@ interface Store {
 
 const Context = createContext<Store | null>(null)
 
-/** Loads the store, then shares its state at the chosen moment with every page. */
-export function StoreProvider({ children }: { children: ReactNode }) {
+/**
+ * Loads the store, then shares its state at the chosen moment with every page. `limit` keeps only
+ * the first few gondolas, for a demo that shows a small store.
+ */
+export function StoreProvider({ children, limit }: { children: ReactNode; limit?: number }) {
   const { t } = useI18n()
   const [source, setSource] = useState<Source | null>(null)
 
   useEffect(() => {
     let live = true
-    loadSource().then((s) => live && setSource(s))
+    loadSource(limit).then((s) => live && setSource(s))
     return () => {
       live = false
     }
-  }, [])
+  }, [limit])
 
   if (!source) {
     return <p className="grid min-h-screen place-items-center text-ui text-fg-secondary">{t.loading}</p>

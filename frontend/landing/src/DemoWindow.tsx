@@ -16,7 +16,7 @@ import { TasksPage } from '@/pages/TasksPage'
  */
 export default function DemoWindow({ label }: { label: string }) {
   return (
-    <StoreProvider>
+    <StoreProvider limit={4}>
       <div className="demo-window rounded-2xl bg-surface p-2">
         <div className="flex h-9 items-center gap-1.5 px-3">
           {[0, 1, 2].map((i) => (

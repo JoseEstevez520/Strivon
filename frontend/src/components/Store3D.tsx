@@ -38,10 +38,12 @@ const D = 2.0
 const GAP_X = 0.8
 const GAP_Z = 2.5
 const MARGIN = 1.1
-const COLS = 4
-const ROWS = 4
-const FLOOR_W = COLS * W + (COLS - 1) * GAP_X + MARGIN * 2
-const FLOOR_D = ROWS * D + (ROWS - 1) * GAP_Z + MARGIN * 2 + 1.8
+/** The floor grows with the number of gondolas: a square-ish grid, at most four across. */
+const layoutOf = (count: number) => {
+  const cols = Math.max(1, Math.min(4, Math.ceil(Math.sqrt(count))))
+  const rows = Math.max(1, Math.ceil(count / cols))
+  return { cols, floorW: cols * W + (cols - 1) * GAP_X + MARGIN * 2, floorD: rows * D + (rows - 1) * GAP_Z + MARGIN * 2 + 1.8 }
+}
 
 type Look = 'critical' | 'empty' | 'wrong' | 'half' | 'fine'
 const lookOf = (x: Task): Look =>
@@ -464,7 +466,8 @@ function Gondola({ position, tasks, rank, name, hovered, onHover, onOpen }: Gond
 }
 
 /** The floor with low walls on three sides and an opening in the front wall. */
-function Room() {
+function Room({ count }: { count: number }) {
+  const { floorW: FLOOR_W, floorD: FLOOR_D } = layoutOf(count)
   const wallH = 0.8
   const t = 0.45
   const doorW = 3.6
@@ -559,6 +562,7 @@ export function Scene({ view, selected = null, onOpen, onHoverChange }: { view: 
     return m
   }, [tasks])
   const [hover, setHover] = useState<string | null>(null)
+  const { cols: COLS, floorW: FLOOR_W, floorD: FLOOR_D } = layoutOf(list.length)
   const spot = (n: number): [number, number] => [
     -FLOOR_W / 2 + MARGIN + W / 2 + (n % COLS) * (W + GAP_X),
     -FLOOR_D / 2 + MARGIN + D / 2 + 0.2 + Math.floor(n / COLS) * (D + GAP_Z),
@@ -579,7 +583,7 @@ export function Scene({ view, selected = null, onOpen, onHoverChange }: { view: 
       <Focus target={focusAt} />
       <ambientLight intensity={2.2} />
       <directionalLight position={[8, 16, 10]} intensity={1.5} />
-      <Room />
+      <Room count={list.length} />
       {list.map((c, n) => {
         const [x, z] = spot(n)
         return (
