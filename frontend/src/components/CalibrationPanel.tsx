@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ProductIcon } from '@/components/ProductIcon'
 import { Segmented } from '@/components/ui/segmented'
-import { linesFor, maxOf, modeOf, startOf, type Level } from '@/lib/calibration'
+import { linesFor, maxOf, reach, modeOf, startOf, type Level } from '@/lib/calibration'
 import { useCalibration } from '@/lib/calibrationStore'
 import { useI18n } from '@/lib/i18n'
 
@@ -28,12 +28,26 @@ function Row({ family: f }: { family: string }) {
   const { cal, setProduct, clearProduct } = useCalibration()
   const [draft, setDraft] = useState(() => startOf(f))
   const c = cal[f]
+  // Back to the model (or Reset): the slider goes back to where it starts.
+  useEffect(() => {
+    if (!c) setDraft(startOf(f))
+  }, [c, f])
   const name = family(f)
   const units = modeOf(f) === 'units'
   const max = maxOf(f)
   const value = c ? Math.min(max, c.threshold) : draft
   const say = (n: number) => (units ? t.calUnits(n) : `${Math.round(n)}%`)
   const lines = c ? linesFor(f, c) : null
+  const explain = (l: NonNullable<typeof lines>) => {
+    const r = reach(f, l)
+    return [
+      r.empty ? t.calEmptyUpTo(say(l.emptyMax)) : t.calEmptyNever,
+      r.full ? t.calFullFrom(say(l.fullMin)) : t.calFullNever,
+      r.half ? t.calHalfBetween : '',
+    ]
+      .filter(Boolean)
+      .join(' · ')
+  }
 
   return (
     <li className="grid gap-3 rounded-xl bg-raised p-4 md:grid-cols-[minmax(0,14rem)_minmax(0,1fr)_minmax(0,18rem)] md:items-center md:gap-x-5 md:gap-y-1">
@@ -65,7 +79,7 @@ function Row({ family: f }: { family: string }) {
       />
       <div className={`flex items-center justify-between gap-3 md:col-span-3 ${c ? 'min-h-11' : ''}`}>
         <span className="text-meta text-fg-muted">
-          {lines ? t.calLines(say(Math.max(0, lines.emptyMax)), say(lines.fullMin)) : t.calFollowsModel}
+          {lines ? explain(lines) : t.calFollowsModel}
         </span>
         {c && (
           <button

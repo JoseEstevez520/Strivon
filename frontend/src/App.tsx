@@ -28,6 +28,7 @@ export default function App() {
             {/* the plan and the list of gondolas now live on the first page */}
             <Route path="map" element={<Navigate to="/" replace />} />
             <Route path="gondolas" element={<Navigate to="/" replace />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
         </Routes>
       </StoreProvider>
