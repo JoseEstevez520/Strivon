@@ -12,9 +12,9 @@ Arrow keys, space or a click move between slides. `F` goes full screen, and `#4`
 
 ## The story
 
-1. The brand ad, 18 s, with voice and music. It starts on the first press of space, which is the gesture the browser needs to allow sound.
+1. The brand ad, 18 s, with voice and music. It starts on the first press of space, which is the gesture the browser needs to allow sound. Nothing is drawn over it.
 2. "Today, checking stock means walking the store. We changed that."
-3. From a camera photo to a list of work.
+3. From a camera photo to a list of work, built from parts: the photos, the 3D store with four gondolas and the list of stops, each with what to carry.
 4. The same, moving: the photos come in and lead to the 3D store.
 5. Generative UI: the chat clip and a line about the manager and the doubt on the shop floor.
 6. The best route, from how many products are missing in each gondola and for how long.

@@ -31,6 +31,15 @@
   .mk { opacity: 0; transition: opacity 1s ease 1.6s; }
   .go .mk { opacity: 1; }
   .center svg { width: 100%; height: 100%; display: block; }
+  .colhead { position: absolute; font-size: 22px; color: var(--mut); }
+  .stops { position: absolute; width: 440px; display: flex; flex-direction: column; gap: 14px; }
+  .stop { display: grid; grid-template-columns: 38px 1fr auto; grid-template-areas: "b n t" "b c c"; column-gap: 12px; row-gap: 8px; align-items: center; background: var(--surface, #efeee9); border-radius: 18px; padding: 14px 18px; }
+  .stop .badge { grid-area: b; align-self: start; width: 34px; height: 34px; border-radius: 17px; background: #e6e4dd; display: grid; place-items: center; font-size: 17px; color: var(--fg2); font-variant-numeric: tabular-nums; }
+  .stop .sname { grid-area: n; font-size: 24px; font-weight: 500; }
+  .stop .since { grid-area: t; font-size: 20px; color: var(--fg2); font-variant-numeric: tabular-nums; }
+  .stop .chips { grid-area: c; display: flex; gap: 8px; flex-wrap: wrap; }
+  .chip { display: inline-flex; align-items: center; gap: 4px; border-radius: 10px; padding: 5px 12px; font-size: 20px; }
+  .chip b { font-weight: 600; font-variant-numeric: tabular-nums; }
   /* transition canvas and chrome */
   #wipe { position: absolute; inset: 0; pointer-events: none; z-index: 5; }
   #dots { position: fixed; left: 0; right: 0; bottom: 14px; display: flex; gap: 8px; justify-content: center; z-index: 9; pointer-events: none; }
@@ -38,63 +47,11 @@
   #dots i.on { width: 22px; background: var(--red); }
   #hint { position: fixed; right: 18px; bottom: 10px; font-size: 12px; color: var(--mut); z-index: 9; opacity: .7; }
   @media (prefers-reduced-motion: reduce) { .in { transition-duration: .01s !important; transform: none; } }
-  #adHint { z-index: 4; position: absolute; left: 50%; bottom: 60px; transform: translateX(-50%); z-index: 4; background: rgba(248,247,244,.92); color: var(--fg); font-size: 26px; padding: 14px 28px; border-radius: 40px; transition: opacity .4s; }
-  #adHint.gone { opacity: 0; }
   .col h3 { font-size: 40px; line-height: 1.25; font-weight: 500; letter-spacing: -0.01em; }
   .col p { font-size: 32px; line-height: 1.4; color: var(--fg2); margin-top: 24px; }
   .col small { display: block; font-size: 22px; color: var(--mut); margin-top: 36px; }
   .num { position: absolute; font-weight: 600; letter-spacing: -0.045em; line-height: 1; }
   .lab { position: absolute; font-size: 28px; line-height: 1.35; color: var(--fg2); }
-  /* transition canvas and chrome */
-  #wipe { position: absolute; inset: 0; pointer-events: none; z-index: 5; }
-  #dots { position: fixed; left: 0; right: 0; bottom: 14px; display: flex; gap: 8px; justify-content: center; z-index: 9; pointer-events: none; }
-  #dots i { width: 6px; height: 6px; border-radius: 3px; background: var(--line); transition: all .3s; }
-  #dots i.on { width: 22px; background: var(--red); }
-  #hint { position: fixed; right: 18px; bottom: 10px; font-size: 12px; color: var(--mut); z-index: 9; opacity: .7; }
-  @media (prefers-reduced-motion: reduce) { .in { transition-duration: .01s !important; transform: none; } }
-  #adHint { z-index: 4; position: absolute; left: 50%; bottom: 60px; transform: translateX(-50%); z-index: 4; background: rgba(248,247,244,.92); color: var(--fg); font-size: 26px; padding: 14px 28px; border-radius: 40px; transition: opacity .4s; }
-  #adHint.gone { opacity: 0; }
-  .col h3 { font-size: 40px; line-height: 1.25; font-weight: 500; letter-spacing: -0.01em; }
-  .col p { font-size: 32px; line-height: 1.4; color: var(--fg2); margin-top: 24px; }
-  .col small { display: block; font-size: 22px; color: var(--mut); margin-top: 36px; }
-  .num { position: absolute; font-weight: 600; letter-spacing: -0.045em; line-height: 1; }
-  .lab { position: absolute; font-size: 28px; line-height: 1.35; color: var(--fg2); }
-  .field { position: absolute; inset: 0; -webkit-mask-image: radial-gradient(ellipse 50% 44% at 50% 52%, transparent 0 66%, #000 100%); mask-image: radial-gradient(ellipse 50% 44% at 50% 52%, transparent 0 66%, #000 100%); }
-  .field i { position: absolute; width: 90px; height: 90px; border-radius: 20px; opacity: .15; animation: breathe 5s ease-in-out infinite; }
-  @keyframes breathe { 0%, 100% { opacity: .12; transform: scale(.82); } 50% { opacity: .85; transform: scale(1); } }
-  .s-end .thanks { transition: opacity .6s ease; }
-  .s-end.beat2 .thanks { opacity: 0 !important; transition-delay: 0s !important; }
-  .s-end .late { opacity: 0; transition: opacity .9s ease; }
-  .s-end.beat2 .late { opacity: 1; }
-  .s-end.beat2 .late2 { transition-delay: .9s; }
-  .s-end.beat2 .late3 { transition-delay: 1.5s; }
-  .lockup { position: absolute; left: 0; right: 0; top: 330px; display: flex; justify-content: center; align-items: center; gap: 56px; }
-  .lockup .word { font-size: 220px; font-weight: 600; letter-spacing: -0.055em; line-height: 1; padding-bottom: 14px; }
-  .mc { transform-box: fill-box; transform-origin: center; transform: scale(0); transition: transform .55s cubic-bezier(.3,1.5,.5,1); }
-  .s-end.beat2 .mc { transform: scale(1); transition-delay: calc(var(--k) * 70ms + 200ms); }
-  .qr { position: absolute; right: 110px; bottom: 96px; width: 170px; height: 170px; padding: 14px; background: var(--bg); border: 1px solid var(--line); border-radius: 24px; }
-  .qr svg { width: 100%; height: 100%; display: block; }
-  /* transition canvas and chrome */
-  #wipe { position: absolute; inset: 0; pointer-events: none; z-index: 5; }
-  #dots { position: fixed; left: 0; right: 0; bottom: 14px; display: flex; gap: 8px; justify-content: center; z-index: 9; pointer-events: none; }
-  #dots i { width: 6px; height: 6px; border-radius: 3px; background: var(--line); transition: all .3s; }
-  #dots i.on { width: 22px; background: var(--red); }
-  #hint { position: fixed; right: 18px; bottom: 10px; font-size: 12px; color: var(--mut); z-index: 9; opacity: .7; }
-  @media (prefers-reduced-motion: reduce) { .in { transition-duration: .01s !important; transform: none; } }
-  #adHint { z-index: 4; position: absolute; left: 50%; bottom: 60px; transform: translateX(-50%); z-index: 4; background: rgba(248,247,244,.92); color: var(--fg); font-size: 26px; padding: 14px 28px; border-radius: 40px; transition: opacity .4s; }
-  #adHint.gone { opacity: 0; }
-  .col h3 { font-size: 40px; line-height: 1.25; font-weight: 500; letter-spacing: -0.01em; }
-  .col p { font-size: 32px; line-height: 1.4; color: var(--fg2); margin-top: 24px; }
-  .col small { display: block; font-size: 22px; color: var(--mut); margin-top: 36px; }
-  .num { position: absolute; font-weight: 600; letter-spacing: -0.045em; line-height: 1; }
-  .lab { position: absolute; font-size: 28px; line-height: 1.35; color: var(--fg2); }
-  .s-end .thanks { transition: opacity .6s ease; }
-  .s-end.beat2 .thanks { opacity: 0 !important; transition-delay: 0s !important; }
-  .s-end .late { opacity: 0; transition: opacity .9s ease; }
-  .s-end.beat2 .late { opacity: 1; }
-  .s-end.beat2 .late2 { transition-delay: .9s; }
-  .s-end video { opacity: .55; transition: opacity .8s ease; }
-  .s-end.beat2 video { opacity: 0; }
 </style>
 </head>
 <body>
@@ -104,7 +61,6 @@
   <section class="slide">
     <img id="adPoster" src="img/ad-poster.jpg" alt="" style="position:absolute;left:0;top:0;width:1920px;height:1080px;object-fit:contain;z-index:1;transition:opacity .4s">
     <video id="ad" playsinline preload="auto" src="vid/ad.mp4" style="position:absolute;left:0;top:0;width:1920px;height:1080px;object-fit:contain;background:#f8f7f4"></video>
-    <div id="adHint">Press space to play, with sound</div>
   </section>
 
   <!-- 2. the line -->
@@ -113,10 +69,24 @@
     <h1 class="big in" style="--i:2;top:590px;font-size:108px;color:var(--red)">We changed that.</h1>
   </section>
 
-  <!-- 3. photo to list of work -->
+  <!-- 3. photo to list of work, built from parts -->
   <section class="slide">
     <h2 class="title in" style="--i:0">From a camera photo to a list of work</h2>
-    <img class="shot in" style="--i:1;top:235px;width:1500px;box-shadow:none" src="img/hero.png" alt="Ceiling camera photos become a 3D store and a list of stops">
+    <div class="colhead in" style="--i:1;left:110px;top:230px">Photos from the ceiling cameras</div>
+    <div class="colhead in" style="--i:3;left:640px;top:230px">The store, with the problems marked</div>
+    <div class="colhead in" style="--i:5;left:1380px;top:230px">What the staff see</div>
+    <div class="in" style="--i:1;position:absolute;left:110px;top:310px;width:380px"><img style="width:380px;border-radius:12px;box-shadow:0 18px 40px rgba(29,29,29,.18);transform:rotate(-4deg);display:block" src="img/cam6215.jpg" alt=""></div>
+    <div class="in" style="--i:2;position:absolute;left:170px;top:420px;width:380px"><img style="width:380px;border-radius:12px;box-shadow:0 18px 40px rgba(29,29,29,.18);transform:rotate(2deg);display:block" src="img/cam6371.jpg" alt=""></div>
+    <div class="in" style="--i:2;position:absolute;left:125px;top:530px;width:380px"><img style="width:380px;border-radius:12px;box-shadow:0 18px 40px rgba(29,29,29,.18);transform:rotate(-1.5deg);display:block" src="img/cam6443.jpg" alt=""></div>
+    <div class="in" style="--i:3;position:absolute;left:556px;top:490px;font-size:80px;color:var(--mut);line-height:1">→</div>
+    <img class="in" style="--i:4;position:absolute;left:452px;top:245px;width:1920px;height:1080px;transform:scale(.508);transform-origin:0 0;clip-path:inset(120px 370px 120px 370px);pointer-events:none" src="img/store-4.png" alt="The store with four gondolas and the problems marked">
+    <div class="in" style="--i:5;position:absolute;left:1268px;top:490px;font-size:80px;color:var(--mut);line-height:1">→</div>
+    <div class="stops" style="left:1380px;top:300px">
+      <div class="stop in" style="--i:6"><span class="badge">1</span><span class="sname">Gondola 1</span><span class="chips"><span class="chip" style="background:#f3d7d0;color:#c4452f">Banana <b>×3</b></span><span class="chip" style="background:#f0e4cf;color:#b7791f"><span style="font-size:22px;margin-right:4px">↩</span>Orange <b>×2</b></span></span><span class="since">17:24</span></div>
+      <div class="stop in" style="--i:7"><span class="badge">2</span><span class="sname">Gondola 2</span><span class="chips"><span class="chip" style="background:#f3d7d0;color:#c4452f">Melon <b>×3</b></span></span><span class="since">17:12</span></div>
+      <div class="stop in" style="--i:8"><span class="badge">3</span><span class="sname">Gondola 3</span><span class="chips"><span class="chip" style="background:#f3d7d0;color:#c4452f">Red apple <b>×1</b></span></span><span class="since">19:21</span></div>
+      <div class="stop in" style="--i:9"><span class="badge">4</span><span class="sname">Gondola 4</span><span class="chips"><span class="chip" style="background:#f3d7d0;color:#c4452f">Kiwi <b>×1</b></span><span class="chip" style="background:#f3d7d0;color:#c4452f">Orange <b>×1</b></span></span><span class="since">19:30</span></div>
+    </div>
   </section>
 
   <!-- 4. photos to tasks, moving -->
@@ -254,6 +224,7 @@ function show(i) { slides.forEach((s, k) => { s.classList.toggle('active', k ===
 function media(i) {
   slides.forEach(s => s.querySelectorAll('video').forEach(v => v.pause()))
   slides[i].querySelectorAll('video').forEach(v => {
+    if (v.dataset.still) { const seek = () => { v.currentTime = +v.dataset.still }; v.readyState >= 1 ? seek() : v.addEventListener('loadedmetadata', seek, { once: true }); return } // a frame, not a clip
     if (v.id === 'ad') { v.currentTime = 0; return } // the ad starts on the presenter's key, so it can play with sound
     v.currentTime = 0; v.play().catch(() => {})
     if (v.dataset.pause) (function chk() { if (v.currentTime >= +v.dataset.pause) v.pause(); else if (!v.paused || v.currentTime === 0) requestAnimationFrame(chk) })() // hold before the camera zoom
@@ -266,11 +237,10 @@ function media(i) {
   })
 }
 
-const ad = document.getElementById('ad'), adHint = document.getElementById('adHint')
+const ad = document.getElementById('ad')
 let adStarted = false
-ad.addEventListener('ended', () => { adHint.textContent = 'Press space to continue'; adHint.classList.remove('gone') })
 function playAd() { // the first key press is the gesture the browser needs to allow sound
-  adStarted = true; adHint.classList.add('gone'); document.getElementById('adPoster').style.opacity = 0; ad.muted = false; ad.currentTime = 0
+  adStarted = true; document.getElementById('adPoster').style.opacity = 0; ad.muted = false; ad.currentTime = 0
   ad.play().catch(() => { ad.muted = true; ad.play().catch(() => {}) })
 }
 
