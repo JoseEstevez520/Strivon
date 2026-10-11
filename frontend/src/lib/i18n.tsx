@@ -48,6 +48,20 @@ interface Strings {
   planHeadline: (n: number) => string
   goFirst: string
   toBring: string
+  roundStart: string
+  roundStop: (n: number, total: number) => string
+  roundLoad: string
+  roundLoadNote: string
+  leaveHere: string
+  pickUp: string
+  takeTo: (gondola: string) => string
+  takeBack: string
+  fromGondola: (gondola: string) => string
+  previous: string
+  next: string
+  roundDone: string
+  roundDoneNote: string
+  openOnPhone: string
   bringFromBack: string
   putBackHeading: string
   thenGo: string
@@ -147,6 +161,20 @@ const en: Strings = {
   planHeadline: (n) => (n === 0 ? 'Every gondola is fine' : n === 1 ? '1 gondola needs attention' : `${n} gondolas need attention`),
   goFirst: 'Go first',
   toBring: 'To bring',
+  roundStart: 'Start the round',
+  roundStop: (n, total) => `Stop ${n} of ${total}`,
+  roundLoad: 'Load up',
+  roundLoadNote: 'Take this from the back room before you go',
+  leaveHere: 'Leave here',
+  pickUp: 'Pick up here',
+  takeTo: (g) => `Take to ${g}`,
+  takeBack: 'Take back to the back room',
+  fromGondola: (g) => `from ${g}`,
+  previous: 'Previous',
+  next: 'Next',
+  roundDone: 'That is the round',
+  roundDoneNote: 'New photos arrive every hour and update the list.',
+  openOnPhone: 'Open on your phone',
   bringFromBack: 'Bring from the back',
   putBackHeading: 'Put back in its place',
   thenGo: 'Then',
@@ -262,6 +290,20 @@ const pt: Strings = {
   planHeadline: (n) => (n === 0 ? 'Todas as gôndolas estão bem' : n === 1 ? '1 gôndola precisa de atenção' : `${n} gôndolas precisam de atenção`),
   goFirst: 'Vai primeiro',
   toBring: 'Para trazer',
+  roundStart: 'Começar a ronda',
+  roundStop: (n, total) => `Paragem ${n} de ${total}`,
+  roundLoad: 'Carregar',
+  roundLoadNote: 'Leve isto do armazém antes de sair',
+  leaveHere: 'Deixar aqui',
+  pickUp: 'Recolher aqui',
+  takeTo: (g) => `Levar para ${g}`,
+  takeBack: 'Devolver ao armazém',
+  fromGondola: (g) => `de ${g}`,
+  previous: 'Anterior',
+  next: 'Seguinte',
+  roundDone: 'A ronda está feita',
+  roundDoneNote: 'Chegam fotos novas todas as horas e a lista atualiza.',
+  openOnPhone: 'Abrir no telemóvel',
   bringFromBack: 'Trazer do armazém',
   putBackHeading: 'Devolver ao seu lugar',
   thenGo: 'Depois',
@@ -377,6 +419,20 @@ const es: Strings = {
   planHeadline: (n) => (n === 0 ? 'Todas las góndolas están bien' : n === 1 ? '1 góndola necesita atención' : `${n} góndolas necesitan atención`),
   goFirst: 'Ve primero',
   toBring: 'Para traer',
+  roundStart: 'Empezar la ronda',
+  roundStop: (n, total) => `Parada ${n} de ${total}`,
+  roundLoad: 'Cargar',
+  roundLoadNote: 'Coge esto del almacén antes de salir',
+  leaveHere: 'Dejar aquí',
+  pickUp: 'Recoger aquí',
+  takeTo: (g) => `Llevar a ${g}`,
+  takeBack: 'Devolver al almacén',
+  fromGondola: (g) => `de ${g}`,
+  previous: 'Anterior',
+  next: 'Siguiente',
+  roundDone: 'La ronda está hecha',
+  roundDoneNote: 'Cada hora llegan fotos nuevas y la lista se actualiza.',
+  openOnPhone: 'Abrir en el móvil',
   bringFromBack: 'Traer del almacén',
   putBackHeading: 'Devolver a su sitio',
   thenGo: 'Después',

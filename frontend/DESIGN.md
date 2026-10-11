@@ -609,3 +609,11 @@ The button has a third view, Real: the latest photo of every gondola in a grid, 
 
 Only the views that can work are offered. A phone gets 2D and Real, since 3D needs room; a build with no photo source gets no Real. The marks on a small photo are scaled up (about twice) so they stay readable, and they sit in the corner of each area so the product under them stays in view. Two columns on a phone, three on a laptop, four on a wide screen; the photos load as they near the screen.
 
+## The round, for the phone
+
+A worker carries it. It is `/#/round`, outside the header and the tab bar, one step per screen: first what to load from the back room, then one gondola per step, then the end. Type is large (the names are 16 px, the gondola 28), the buttons are at the bottom where the thumb is and 56 px tall, and the screen stays on while it is open. Each thing to carry shows a crop of the real photo of the spot it is for, so someone who does not know the gondola finds the place.
+
+"Previous" and "Next" only move the view. Nothing is marked as done: the next hourly photo clears what was fixed, and the position is remembered in the browser only so a reload does not lose the place.
+
+The order is by need and then by gondola number, as an approximation of the walk, because the floor positions are not known. It is a reasonable order and the page does not claim it is the shortest path. A product standing in the wrong place is matched with the gondola that has its place in the planogram, so the round says "take to Gondola 5" where it is found and lists it as a drop in Gondola 5; with no place in the planogram it says to take it back to the back room. The first screen of Tasks has a "Start the round" button and, on a wide screen, a code to open it on a phone.
+
