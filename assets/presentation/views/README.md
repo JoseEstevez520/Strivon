@@ -1,7 +1,7 @@
 # Views
 
 Full screens of the app as it runs today, at 1920 by 1080 pixels unless the name says `full`. They
-come from the real interface, drawn by a headless browser, and are meant for slides.
+come from the real interface, drawn by a headless Brave 154, and are meant for slides.
 
 The shelf states in them are simulated: the app still draws invented empty, half full and
 wrong-product areas over the real camera photos. The photos belong to the Sensei challenge and are
