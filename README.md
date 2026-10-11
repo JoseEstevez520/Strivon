@@ -102,8 +102,7 @@ parts (charts, tables, tasks, a map of the day, photo cards) and the app draws i
 the answer and follow it to the shelf it talks about. It needs a model key on the server
 (`LLM_API_KEY` in `frontend/.env`); without one the chat is hidden.
 
-[Watch the clip](assets/video/chat-to-gondola.mp4). The shelf states in the clip and in the one
-above are simulated. Full-size clips are in [`assets/video`](assets/video).
+[Watch the clip](assets/video/chat-to-gondola.mp4). The shelf states in this clip are simulated; the 3D loop above shows the model's answers. Full-size clips are in [`assets/video`](assets/video).
 
 ## Run it locally
 
