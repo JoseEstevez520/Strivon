@@ -9,6 +9,11 @@ python -m pip install -r agents/requirements.txt
 python -I agents/predict.py --images <validation photo folder> --planogram <planogram.json> --out predictions.json
 ```
 
+**Keep each photo in a folder named after its camera (`6215/1751…jpg`, as in the training set), or put the camera id
+in the file name.** If the photos are all in one flat folder with timestamp-only names, the predictor cannot tell the
+cameras apart on its own. Then also set `SENSEI_DATASET` to the challenge dataset folder (details below). Without it
+the run stops with an ERROR and writes no file.
+
 - Nothing is downloaded after the install: every weight is in this repo.
 - Always pass `--images`, `--planogram` and `--out`; their defaults point at our own folders. `--planogram` can be
   left out only if `SENSEI_DATASET` points at the dataset folder (the one holding `Frutas e Legumes (train & test)/`
