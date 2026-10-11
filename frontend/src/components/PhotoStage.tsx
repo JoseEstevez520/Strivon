@@ -11,13 +11,17 @@ interface Props {
   src?: string | null
   /** Mark what is missing or misplaced with its product's icon on a red or amber disc, and colour empty areas stronger. */
   marks?: boolean
+  /** Scales the mark badges, for a photo shown small. */
+  badge?: number
+  /** Load the image only when it nears the screen, for a grid of photos. */
+  lazy?: boolean
 }
 
 /** The camera photo with every shelf area drawn over it. */
-export function PhotoStage({ tasks, selected, onSelect, src, marks = false }: Props) {
+export function PhotoStage({ tasks, selected, onSelect, src, marks = false, badge = 1, lazy = false }: Props) {
   return (
     <div className="relative aspect-video overflow-hidden rounded-xl bg-[#d6d8d0]">
-      {src && <img src={src} alt="" decoding="async" className="absolute inset-0 size-full object-cover" />}
+      {src && <img src={src} alt="" decoding="async" loading={lazy ? 'lazy' : undefined} className="absolute inset-0 size-full object-cover" />}
       <svg
         viewBox={`0 0 ${IMAGE_SIZE.width} ${IMAGE_SIZE.height}`}
         className="absolute inset-0 size-full"
@@ -53,7 +57,7 @@ export function PhotoStage({ tasks, selected, onSelect, src, marks = false }: Pr
               const ys = task.area.quad.map((p) => p[1])
               // A small badge in the top-left corner of the area, so the product itself stays in view.
               const side = Math.min(Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys))
-              const size = Math.max(16, Math.min(26, side * 0.3))
+              const size = Math.max(16, Math.min(26, side * 0.3)) * badge
               const cx = Math.min(...xs) + size * 0.85
               const cy = Math.min(...ys) + size * 0.85
               const body = ICON_BODY[FAMILY_ICON[task.area.family]]

@@ -598,3 +598,8 @@ What we settled on for the 3D, so it is not argued again:
 - Empty and wrong crates carry a pin with the product icon above them. The pin is the only thing that asks for attention; fine gondolas get a check, as in 2D.
 - Pressing a gondola moves the camera in and lists each product with its count and state; pressing it again opens its page. Escape or pressing the floor goes back. There is no reset button, since those cover it.
 - Pointing at a gondola must not cover the scene, so its details sit in a fixed corner card.
+
+The button has a third view, Real: the latest photo of every gondola in a grid, with the marks drawn on each photo, problems first in the order of the round and the fine ones after with the check. Pressing a photo opens the gondola. It shows the shelf as it is, which the plan and the 3D store only stand for, so it is the view for checking a doubt rather than for starting the round.
+
+Only the views that can work are offered. A phone gets 2D and Real, since 3D needs room; a build with no photo source gets no Real. The marks on a small photo are scaled up (about twice) so they stay readable, and they sit in the corner of each area so the product under them stays in view. Two columns on a phone, three on a laptop, four on a wide screen; the photos load as they near the screen.
+
