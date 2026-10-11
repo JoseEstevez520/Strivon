@@ -1,7 +1,8 @@
-import { Box, Map as MapIcon } from 'lucide-react'
+import { Box, Camera, Map as MapIcon, type LucideIcon } from 'lucide-react'
 import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { DayBar } from '@/components/DayBar'
+import { PhotoGrid } from '@/components/PhotoGrid'
 import { StopList } from '@/components/StopList'
 import { Plan, useLayout } from '@/components/StorePlan'
 import { useI18n } from '@/lib/i18n'
@@ -14,9 +15,10 @@ import { clock } from '@/lib/time'
 const Store3D = lazy(() => import('@/components/Store3D').then((m) => ({ default: m.Store3D })))
 
 const KEY = 'strivon.tasks.view'
-type Mode = '2d' | '3d'
+type Mode = '2d' | '3d' | 'real'
+const MODES: Mode[] = ['2d', '3d', 'real']
 
-/** The 3D view needs room and a pointer, so it is offered from 1280 px; below that the flat plan is the only one. */
+/** The 3D view needs room and a pointer, so it is offered from 1280 px; the plan and the photos work at any width. */
 function useWide() {
   const calc = () => typeof window !== 'undefined' && window.innerWidth >= 1280
   const [wide, setWide] = useState(calc)
@@ -31,20 +33,21 @@ function useWide() {
 /**
  * What to do now, across the whole store, on one screen: the plan on the left says where, the list
  * on the right says what to carry to each stop in the order of the round. The plan is flat by
- * default; a button swaps it for the 3D store. On a phone the list comes first.
+ * default; a button swaps it for the 3D store or for the real photos. On a phone the list comes first.
  */
 export function TasksPage() {
   const { t } = useI18n()
-  const { state, tasks, at } = useStore()
+  const { state, tasks, at, photoUrl } = useStore()
   const navigate = useNavigate()
   const { cols } = useLayout()
   const wide = useWide()
   const [mode, setMode] = useState<Mode>(() => {
     // A link can open straight on a view: /#/?view=3d
     const asked = new URLSearchParams(window.location.hash.split('?')[1] ?? '').get('view')
-    if (asked === '3d' || asked === '2d') return asked
+    if (MODES.includes(asked as Mode)) return asked as Mode
     try {
-      return localStorage.getItem(KEY) === '3d' ? '3d' : '2d'
+      const saved = localStorage.getItem(KEY)
+      return MODES.includes(saved as Mode) ? (saved as Mode) : '2d'
     } catch {
       return '2d'
     }
@@ -68,7 +71,15 @@ export function TasksPage() {
     const i = stops.findIndex((s) => s.camera === c)
     return i >= 0 && i < 3 ? i + 1 : 0
   }
-  const three = wide && mode === '3d'
+  // Only the views that can work here are offered: no 3D on a narrow screen, no photos without a photo source.
+  const views: [Mode, LucideIcon, string][] = [
+    ['2d', MapIcon, '2D'],
+    ...(wide ? ([['3d', Box, '3D']] as [Mode, LucideIcon, string][]) : []),
+    ...(photoUrl ? ([['real', Camera, 'Real']] as [Mode, LucideIcon, string][]) : []),
+  ]
+  const shownMode: Mode = views.some(([m]) => m === mode) ? mode : '2d'
+  const three = shownMode === '3d'
+  const order = useMemo(() => [...stops.map((s) => s.camera), ...cameras(state).filter((c) => !stops.some((s) => s.camera === c))], [stops, state])
 
   return (
     <>
@@ -82,18 +93,14 @@ export function TasksPage() {
       <DayBar className="mb-6" />
       <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
         <div className="order-2 xl:order-1">
-          {wide && (
-            <div className="mb-3 flex justify-end gap-1">
-              {(
-                [
-                  ['2d', MapIcon, '2D'],
-                  ['3d', Box, '3D'],
-                ] as const
-              ).map(([m, Icon, label]) => (
+          {views.length > 1 && (
+            <div className="mb-3 flex justify-end gap-1" role="group" aria-label={t.viewAs}>
+              {views.map(([m, Icon, label]) => (
                 <button
                   key={m}
                   type="button"
-                  data-on={mode === m}
+                  data-on={shownMode === m}
+                  aria-pressed={shownMode === m}
                   onClick={() => pick(m)}
                   className="flex h-9 cursor-pointer items-center gap-1.5 rounded-lg px-3 text-ui text-fg-secondary transition-colors hover:bg-surface data-[on=true]:bg-surface data-[on=true]:text-fg"
                 >
@@ -107,6 +114,8 @@ export function TasksPage() {
             <Suspense fallback={<div className="h-[min(84dvh,54rem)] rounded-2xl bg-sunk" />}>
               <Store3D />
             </Suspense>
+          ) : shownMode === 'real' ? (
+            <PhotoGrid order={order} byCamera={byCamera} rankOf={rankOf} />
           ) : (
             <Plan list={cameras(state)} cols={cols} byCamera={byCamera} rankOf={rankOf} choose={(c) => navigate(`/gondolas/${c}`)} />
           )}
