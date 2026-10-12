@@ -18,11 +18,12 @@ Arrow keys, space or a click move between slides. `F` goes full screen, and `#4`
 4. Generative UI: the chat clip and a line about the manager and the doubt on the shop floor.
 5. The best route, from how many products are missing in each gondola and for how long.
 6. What the worker sees on the phone, as a clip of the round.
-7. One small model, two questions.
-8. 92% of the maximum points on photos it never saw.
-9. One CPU core: about 2 s a photo, 0.005 cents an image, about 60 cents a day for a store.
-10. The illustrated film, 11 s, with voice and captions: one photo, every crate checked, the strawberries empty, the worker with the phone. It starts on the next press of space, which is the gesture the browser needs to allow sound.
-11. Try it: the logo, the address, a QR in the brand's style and the team, over the slot field.
+7. How it works: photo and planogram in, the two questions, the 181 photos and 1,929 areas, DINOv2-small, and the store calibration.
+8. Set where empty ends and full starts: the calibration page with its two handles.
+9. 525 of 578 points with a full calibration, 423 with a light one and 333 without one.
+10. One CPU core: about 2 s a photo, 0.005 cents an image, about 60 cents a day for a store.
+11. The illustrated film, 11 s, with voice and captions: one photo, every crate checked, the strawberries empty, the worker with the phone. It starts by itself when the slide opens.
+12. Try it: the logo, the address, a QR in the brand's style and the team, over the slot field.
 
 ## What it shows how to do
 

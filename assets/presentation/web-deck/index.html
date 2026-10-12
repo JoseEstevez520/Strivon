@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<script>if(!/\/$|\.html$/.test(location.pathname))document.write('<base href="'+location.pathname+'/">')</script>
+
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Strivon</title>
 <link rel="icon" href="img/logo.svg">
@@ -142,23 +144,31 @@
     <div class="in" style="--i:1;position:absolute;left:0;top:0;width:1920px;height:1080px;pointer-events:none"><video muted playsinline preload="auto" src="vid/phone-round.mp4" style="position:absolute;left:156px;top:205px;width:1920px;height:1080px;transform:scale(.78);transform-origin:0 0"></video></div>
   </section>
 
-  <!-- 7. the model -->
+  <!-- 7. how it works -->
   <section class="slide" data-wipe>
-    <h2 class="title in" style="--i:0">One small model, two questions</h2>
-    <img class="in" style="--i:1;position:absolute;left:90px;top:200px;width:1200px;height:auto" src="img/what-the-model-sees.png" alt="Three shelf areas as the model sees them: empty, wrong product, fine">
-    <div class="col in" style="--i:3;position:absolute;left:1360px;top:330px;width:450px">
-      <h3>Is it the right product?</h3>
-      <h3 style="margin-top:20px">Is it empty, half or full?</h3>
-      <small>DINOv2-small, one pass per photo. It uses only the photo under analysis, as Sensei asked.</small>
+    <h2 class="title in" style="--i:0">How it works</h2>
+    <img class="in" style="--i:1;position:absolute;left:90px;top:230px;width:980px;height:auto" src="img/what-the-model-sees.png" alt="Three shelf areas as the model sees them: empty, wrong product, fine">
+    <div class="col in" style="--i:3;position:absolute;left:1150px;top:230px;width:700px">
+      <h3>Photo + planogram in. Right product? Empty, half or full? Staff tasks out.</h3>
+      <div style="display:flex;flex-direction:column;gap:22px;margin-top:40px;font-size:28px;line-height:1.35;color:var(--fg2)"><div>181 photos, 1,929 areas labelled by hand.</div><div>Train 85%, test 15%: the latest photos of the day.</div><div>DINOv2-small, a pre-trained vision model: about 2 s per photo, no GPU.</div><div>Each store can adapt it: the manager tunes the empty, half and full percentages.</div></div>
     </div>
   </section>
 
   <!-- 8. tested honestly -->
+  <section class="slide" data-wipe>
+    <h2 class="title in" style="--i:0">Set where empty ends and full starts</h2>
+    <img class="in" style="--i:1;position:absolute;left:90px;top:230px;width:1180px;height:auto;border-radius:18px;box-shadow:0 24px 60px rgba(29,29,29,.14)" src="img/calibration.webp" alt="The calibration page: for each product, two handles on one track set where empty ends and where full starts">
+    <div class="col in" style="--i:3;position:absolute;left:1340px;top:340px;width:470px">
+      <h3>One row per product.</h3>
+      <h3 style="margin-top:20px">Two handles. Half is in between.</h3>
+      <small>Each store can decide how much stock already counts as full.</small>
+    </div>
+  </section>
   <section class="slide">
-    <div class="num in count" data-to="92" data-suffix="%" style="--i:0;left:160px;top:230px;font-size:300px">0%</div>
-    <div class="lab in" style="--i:1;left:168px;top:560px;font-size:44px;color:var(--fg);width:1500px">of the maximum points, on photos it never saw.</div>
-    <div class="lab in" style="--i:2;left:168px;top:630px;font-size:36px;width:1500px">“Always full, always right product” gets about 40%.</div>
-    <div class="lab in muted" style="--i:3;left:168px;top:760px;font-size:26px;color:var(--mut);width:1400px">We labelled all 1,962 areas of the 181 photos ourselves and reviewed every disagreement. Product identification was right on every area.</div>
+    <div class="num in count" data-to="525" data-suffix="/578" style="--i:0;left:160px;top:230px;font-size:300px">0%</div>
+    <div class="lab in" style="--i:1;left:168px;top:560px;font-size:44px;color:var(--fg);width:1500px">with a full calibration.</div>
+    <div class="num in" style="--i:3;left:164px;top:700px;font-size:76px;color:var(--mut)">423/578</div><div class="lab in" style="--i:3;left:520px;top:725px;font-size:34px;width:1300px">with light calibration.</div>
+    <div class="num in" style="--i:4;left:164px;top:830px;font-size:76px;color:var(--mut)">333/578</div><div class="lab in" style="--i:4;left:520px;top:855px;font-size:34px;width:1300px">without a calibration based on store/employer preference.</div>
   </section>
 
   <!-- 9. cost -->
@@ -247,7 +257,7 @@ function media(i) {
   slides.forEach(s => s.querySelectorAll('video').forEach(v => v.pause()))
   slides[i].querySelectorAll('video').forEach(v => {
     if (v.dataset.still) { const seek = () => { v.currentTime = +v.dataset.still }; v.readyState >= 1 ? seek() : v.addEventListener('loadedmetadata', seek, { once: true }); return } // a frame, not a clip
-    if (v.classList.contains('manual')) { v.currentTime = 0; return } // these start on the presenter's key, so they can play with sound
+    if (v.classList.contains('manual')) { playManual(v); return } // arriving by key or click is the gesture the browser needs to allow sound
     v.currentTime = 0; v.play().catch(() => {})
     if (v.dataset.pause) (function chk() { if (v.currentTime >= +v.dataset.pause) v.pause(); else if (!v.paused || v.currentTime === 0) requestAnimationFrame(chk) })() // hold before the camera zoom
   })
