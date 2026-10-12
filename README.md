@@ -64,26 +64,15 @@ tuned for those points as well as for the tasks. The scoring is in [`docs/PLAN.m
 
 ## What you can do today
 
-- **See the round for the whole store.** A plan shows which gondolas need something, and a list
-  gives the order of the stops and what to carry to each one.
-- **Open a gondola** to see its camera photo with what is wrong marked, and **play the day** with
-  the day bar to watch the plan and the list change.
-- **Look at the store** as a plan, a 3D model or the latest photo of each camera. A products page
-  has a card for each product, and an insights page shows how much of the time shelves were empty.
-- **Ask the store a question** and get the answer as a screen, with charts, tasks and photo cards.
-  It needs a model key on the server.
-- **Calibrate each product.** Two handles on one track set where empty ends and where full starts,
-  so each store decides how much stock already counts as full. The model's levels stay until a
-  person sets a marker.
-- **Check a validation set.** A page runs the model on a folder of photos and shows the score and
-  the percentages, and another compares several sets. See [`docs/VALIDATION_DAY.md`](docs/VALIDATION_DAY.md).
-- **Predict a folder of photos** from the command line: one JSON with `planogram_compliant` and
-  `stock_level` for every area.
-- **Score the predictions** against our labels with the challenge's points.
+- **See the round** for the whole store: which gondolas need something, in what order, and what to carry.
+- **Open a gondola** to see its photo with what is wrong marked, and **play the day** to watch it change.
+- **Look at the store** as a plan, a 3D model or photos, by product, or in the insights page.
+- **Ask the store a question** and get a screen back. It needs a model key on the server.
+- **Calibrate each product**: two handles set where empty ends and where full starts.
+- **Check a validation set**, see [`docs/VALIDATION_DAY.md`](docs/VALIDATION_DAY.md).
+- **Predict and score a folder of photos** from the command line.
 
-> **Status.** The app shows the model's answers when it finds `outputs/predictions.json`, which
-> `agents/predict.py` writes, and simulated shelf states when it does not. The landing demo and the
-> header picture use the model's answers.
+> **Status.** Without `outputs/predictions.json`, which `agents/predict.py` writes, the app shows simulated shelves.
 
 ## See it
 

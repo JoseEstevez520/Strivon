@@ -53,16 +53,15 @@ A aplicação agrupa as tarefas por gôndola para se poder planear uma ronda: o 
 
 ## O que pode fazer hoje
 
-- **Ver a ronda de toda a loja**: um plano mostra que gôndolas precisam de algo e uma lista dá a ordem das paragens e o que levar a cada uma.
-- **Abrir uma gôndola** para ver a fotografia da sua câmara com o que está mal assinalado, e **reproduzir o dia** com a barra para ver o plano e a lista mudarem.
-- **Olhar para a loja** como um plano, um modelo 3D ou a última fotografia de cada câmara, com uma vista de produtos em cartões e uma página de análise com a parte do tempo em que as prateleiras estiveram vazias.
-- **Fazer uma pergunta à loja** e receber a resposta como um ecrã, com gráficos, tarefas e cartões com fotografia. Precisa de uma chave de um modelo no servidor.
-- **Calibrar cada produto**: duas pegas numa mesma barra definem onde acaba o vazio e onde começa o cheio, para que cada loja decida quanto stock já conta como cheio. Os níveis do modelo mantêm-se até alguém pôr um marcador.
-- **Verificar um conjunto de validação**: uma página corre o modelo sobre uma pasta de fotografias e mostra a pontuação e as percentagens, e outra compara vários conjuntos. Ver [`docs/VALIDATION_DAY.md`](docs/VALIDATION_DAY.md).
-- **Prever uma pasta de fotografias** a partir da linha de comandos: um JSON com `planogram_compliant` e `stock_level` para cada zona.
-- **Pontuar as previsões** com as nossas próprias etiquetas e os pontos do desafio.
+- **Ver a ronda** de toda a loja: que gôndolas precisam de algo, por que ordem e o que levar.
+- **Abrir uma gôndola** para ver a sua fotografia com o que está mal assinalado, e **reproduzir o dia** para a ver mudar.
+- **Olhar para a loja** como plano, modelo 3D ou fotografias, por produto ou na página de análise.
+- **Fazer uma pergunta à loja** e receber um ecrã. Precisa de uma chave de um modelo no servidor.
+- **Calibrar cada produto**: duas pegas definem onde acaba o vazio e onde começa o cheio.
+- **Verificar um conjunto de validação**, ver [`docs/VALIDATION_DAY.md`](docs/VALIDATION_DAY.md).
+- **Prever e pontuar uma pasta de fotografias** a partir da linha de comandos.
 
-> **Estado.** A aplicação mostra as respostas do modelo quando encontra `outputs/predictions.json`, que o `agents/predict.py` escreve, e estados de prateleira simulados quando não. A demo da landing e a imagem principal usam as respostas do modelo.
+> **Estado.** Sem `outputs/predictions.json`, que o `agents/predict.py` escreve, a aplicação mostra prateleiras simuladas.
 
 ## Ver
 

@@ -53,16 +53,15 @@ La app agrupa las tareas por góndola para poder planificar una ronda: el plano 
 
 ## Qué puedes hacer hoy
 
-- **Ver la ronda de toda la tienda**: un plano muestra qué góndolas necesitan algo y una lista da el orden de las paradas y qué llevar a cada una.
-- **Abrir una góndola** para ver la foto de su cámara con lo que está mal marcado, y **reproducir el día** con la barra para ver cómo cambian el plano y la lista.
-- **Mirar la tienda** como un plano, un modelo 3D o la última foto de cada cámara, con una vista de productos en tarjetas y una página de análisis con la parte del tiempo que las estanterías estuvieron vacías.
-- **Preguntarle algo a la tienda** y recibir la respuesta como una pantalla, con gráficas, tareas y tarjetas con foto. Necesita una clave de un modelo en el servidor.
-- **Calibrar cada producto**: dos asas en una misma barra fijan dónde acaba lo vacío y dónde empieza lo lleno, de modo que cada tienda decide cuánto stock cuenta ya como lleno. Los niveles del modelo se mantienen hasta que alguien pone un marcador.
-- **Comprobar un conjunto de validación**: una página ejecuta el modelo sobre una carpeta de fotos y muestra la puntuación y los porcentajes, y otra compara varios conjuntos. Ver [`docs/VALIDATION_DAY.md`](docs/VALIDATION_DAY.md).
-- **Predecir una carpeta de fotos** desde la línea de comandos: un JSON con `planogram_compliant` y `stock_level` para cada zona.
-- **Puntuar las predicciones** con nuestras propias etiquetas y los puntos del reto.
+- **Ver la ronda** de toda la tienda: qué góndolas necesitan algo, en qué orden y qué llevar.
+- **Abrir una góndola** para ver su foto con lo que está mal marcado, y **reproducir el día** para verla cambiar.
+- **Mirar la tienda** como plano, modelo 3D o fotos, por producto o en la página de análisis.
+- **Preguntarle algo a la tienda** y recibir una pantalla. Necesita una clave de un modelo en el servidor.
+- **Calibrar cada producto**: dos asas fijan dónde acaba lo vacío y dónde empieza lo lleno.
+- **Comprobar un conjunto de validación**, ver [`docs/VALIDATION_DAY.md`](docs/VALIDATION_DAY.md).
+- **Predecir y puntuar una carpeta de fotos** desde la línea de comandos.
 
-> **Estado.** La app muestra las respuestas del modelo cuando encuentra `outputs/predictions.json`, que escribe `agents/predict.py`, y estados de estantería simulados cuando no. La demo de la landing y la imagen principal usan las respuestas del modelo.
+> **Estado.** Sin `outputs/predictions.json`, que escribe `agents/predict.py`, la app muestra estanterías simuladas.
 
 ## Verlo
 
