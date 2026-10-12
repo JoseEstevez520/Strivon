@@ -75,7 +75,7 @@ Reproduce el día para ver cómo cambian los dos, y abre una góndola para ver s
 
 ### UI generativa
 
-El chat responde con una pantalla. El modelo escribe el diseño de la respuesta con las piezas de la propia app (gráficas, tablas, tareas, un mapa del día, tarjetas con foto) y la app lo dibuja, así que la respuesta se puede abrir y seguir hasta la estantería de la que habla.
+El chat responde con una pantalla, construida con [OpenUI](https://www.openui.com). El modelo escribe el diseño de la respuesta, en el lenguaje de OpenUI, con las piezas de la propia app (gráficas, tablas, tareas, un mapa del día, tarjetas con foto) y la app lo dibuja, así que la respuesta se puede abrir y seguir hasta la estantería de la que habla.
 
 Necesita una clave de un modelo en el servidor (`LLM_API_KEY` en `frontend/.env`); sin ella el chat se oculta.
 

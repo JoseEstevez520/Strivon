@@ -75,7 +75,7 @@ Reproduza o dia para ver os dois mudarem e abra uma gôndola para ver a sua prat
 
 ### UI generativa
 
-O chat responde com um ecrã. O modelo escreve o desenho da resposta com as peças da própria aplicação (gráficos, tabelas, tarefas, um mapa do dia, cartões com fotografia) e a aplicação desenha-o, por isso a resposta pode ser aberta e seguida até à prateleira de que fala.
+O chat responde com um ecrã, construído com o [OpenUI](https://www.openui.com). O modelo escreve o desenho da resposta, na linguagem do OpenUI, com as peças da própria aplicação (gráficos, tabelas, tarefas, um mapa do dia, cartões com fotografia) e a aplicação desenha-o, por isso a resposta pode ser aberta e seguida até à prateleira de que fala.
 
 Precisa de uma chave de um modelo no servidor (`LLM_API_KEY` em `frontend/.env`); sem ela o chat fica escondido.
 
