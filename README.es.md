@@ -114,14 +114,7 @@ Los pasos del día de la entrega están en [`docs/VALIDATION_DAY.md`](docs/VALID
 
 ## Documentación
 
-- [`docs/APP.md`](docs/APP.md): qué muestra la app y los datos que lee.
-- [`docs/CHAT.md`](docs/CHAT.md): cómo el chat construye sus respuestas, las piezas que usa y sus límites (en inglés).
-- [`frontend/DESIGN.md`](frontend/DESIGN.md): cómo se ve la interfaz y el motivo de cada decisión.
-- [`docs/PLAN.md`](docs/PLAN.md): cómo se puntúa el reto y el plan para puntuar bien.
-- [`docs/SENSEI_INFO.md`](docs/SENSEI_INFO.md): lo que nos dijo Sensei, incluido qué significan vacío, medio y lleno.
-- [`docs/VALIDATION_DAY.md`](docs/VALIDATION_DAY.md): cómo generar la entrega.
-- [`LEADERBOARD.md`](LEADERBOARD.md): cómo se puntúa cada enfoque, y los resultados.
-- [`CONTRIBUTING.md`](CONTRIBUTING.md): ramas, commits e idioma.
+Para leer más, mira la carpeta [`docs`](docs): la app, el chat, la puntuación y el día de validación. El diseño de la interfaz está en [`frontend/DESIGN.md`](frontend/DESIGN.md), los resultados en [`LEADERBOARD.md`](LEADERBOARD.md) y las normas para contribuir en [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 ## Código previo
 

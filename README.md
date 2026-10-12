@@ -138,14 +138,10 @@ The steps for the day of the submission are in [`docs/VALIDATION_DAY.md`](docs/V
 
 ## Documentation
 
-- [`docs/APP.md`](docs/APP.md): what the app shows and the data it reads.
-- [`docs/CHAT.md`](docs/CHAT.md): how the chat builds its answers, the parts it uses and its limits.
-- [`frontend/DESIGN.md`](frontend/DESIGN.md): how the interface looks and the reason for each choice.
-- [`docs/PLAN.md`](docs/PLAN.md): how the challenge is scored and the plan to score well.
-- [`docs/SENSEI_INFO.md`](docs/SENSEI_INFO.md): what Sensei told us, including what empty, half and full mean.
-- [`docs/VALIDATION_DAY.md`](docs/VALIDATION_DAY.md): how to produce the submission.
-- [`LEADERBOARD.md`](LEADERBOARD.md): how every approach is scored, and the results.
-- [`CONTRIBUTING.md`](CONTRIBUTING.md): branches, commits and language.
+Read more in the [`docs`](docs) folder, which covers the app, the chat, the scoring and the
+validation day. The design of the interface is in [`frontend/DESIGN.md`](frontend/DESIGN.md), the
+results are in [`LEADERBOARD.md`](LEADERBOARD.md) and the rules for contributing are in
+[`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 ## Prior code
 
