@@ -36,7 +36,7 @@ La fruta y la verdura son la sección donde más importa el estado de una estant
 
 Una cámara de techo ya ve cada góndola, pero la fruta suelta y apilada, sin código de barras, es difícil de leer para un ordenador, y los clientes y el personal la tapan con las manos. Strivon toma la foto y el planograma de la tienda y revisa cada zona de estantería: ¿tiene el producto que debe y cuánto está de llena? Lo que sale es una lista de trabajo para el personal.
 
-Se creó en JunctionX Lisboa 2026 para el reto de Sensei, con un día de fotos de 14 cámaras de una tienda autónoma de Leiria.
+Se creó en JunctionX Lisboa 2026 para el reto de Sensei, con un día de fotos de 14 cámaras de una tienda autónoma de Leiria. En el conjunto de prueba que nos dio Sensei, una ejecución de un compañero sacó 525 de 578 puntos.
 
 ## Cómo funciona
 

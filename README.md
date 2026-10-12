@@ -43,7 +43,8 @@ store's planogram and checks each shelf area: does it hold the product it should
 it? What comes out is a list of work for the staff.
 
 It was built for the Sensei challenge at JunctionX Lisbon 2026, with a day of photos from 14
-cameras in an autonomous store in Leiria.
+cameras in an autonomous store in Leiria. On the test set Sensei gave us, a teammate's run scored
+525 of 578 points.
 
 ## How it works
 
