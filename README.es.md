@@ -28,8 +28,6 @@
 
 <p align="center"><sub>Entran fotos de las cámaras de techo, sale una lista de trabajo. Las marcas son las respuestas del modelo para la última foto de cada cámara.</sub></p>
 
-<p align="center"><a href="assets/video/strivon-opening-1080p.mp4"><strong>Ver la apertura de 10 segundos</strong></a> · MP4, 1080p, con sonido y subtítulos</p>
-
 ## ¿Qué es Strivon?
 
 La fruta y la verdura son la sección donde más importa el estado de una estantería. Una góndola vacía es una venta perdida, una con exceso acaba en merma y un producto fuera de su sitio se cobra al precio equivocado. Hoy lo comprueba el personal recorriendo la tienda.

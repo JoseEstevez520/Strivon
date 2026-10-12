@@ -29,8 +29,6 @@
 
 <p align="center"><sub>Photos from the ceiling cameras in, a list of work out. The marks are the model's answers for the last photo of each camera.</sub></p>
 
-<p align="center"><a href="assets/video/strivon-opening-1080p.mp4"><strong>Watch the 10-second opening</strong></a> · MP4, 1080p, with sound and captions</p>
-
 ## What is Strivon?
 
 Fresh produce is where the state of a shelf matters most. An empty gondola is a lost sale, an
