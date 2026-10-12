@@ -34,7 +34,7 @@ La fruta y la verdura son la sección donde más importa el estado de una estant
 
 Una cámara de techo ya ve cada góndola, pero la fruta suelta y apilada, sin código de barras, es difícil de leer para un ordenador, y los clientes y el personal la tapan con las manos. Strivon toma la foto y el planograma de la tienda y revisa cada zona de estantería: ¿tiene el producto que debe y cuánto está de llena? Lo que sale es una lista de trabajo para el personal.
 
-Se creó en JunctionX Lisboa 2026 para el reto de Sensei, con un día de fotos de 14 cámaras de una tienda autónoma de Leiria.
+Se creó en JunctionX Lisboa 2026 para el reto de Sensei, con un día de fotos de 14 cámaras de una tienda autónoma de Leiria. En el conjunto de prueba que nos dio Sensei, una ejecución de un compañero sacó 525 de 578 puntos.
 
 ## Cómo funciona
 
@@ -57,6 +57,8 @@ La app agrupa las tareas por góndola para poder planificar una ronda: el plano 
 - **Abrir una góndola** para ver la foto de su cámara con lo que está mal marcado, y **reproducir el día** con la barra para ver cómo cambian el plano y la lista.
 - **Mirar la tienda** como un plano, un modelo 3D o la última foto de cada cámara, con una vista de productos en tarjetas y una página de análisis con la parte del tiempo que las estanterías estuvieron vacías.
 - **Preguntarle algo a la tienda** y recibir la respuesta como una pantalla, con gráficas, tareas y tarjetas con foto. Necesita una clave de un modelo en el servidor.
+- **Calibrar cada producto**: dos asas en una misma barra fijan dónde acaba lo vacío y dónde empieza lo lleno, de modo que cada tienda decide cuánto stock cuenta ya como lleno. Los niveles del modelo se mantienen hasta que alguien pone un marcador.
+- **Comprobar un conjunto de validación**: una página ejecuta el modelo sobre una carpeta de fotos y muestra la puntuación y los porcentajes, y otra compara varios conjuntos. Ver [`docs/VALIDATION_DAY.md`](docs/VALIDATION_DAY.md).
 - **Predecir una carpeta de fotos** desde la línea de comandos: un JSON con `planogram_compliant` y `stock_level` para cada zona.
 - **Puntuar las predicciones** con nuestras propias etiquetas y los puntos del reto.
 
@@ -110,14 +112,7 @@ Los pasos del día de la entrega están en [`docs/VALIDATION_DAY.md`](docs/VALID
 
 ## Documentación
 
-- [`docs/APP.md`](docs/APP.md): qué muestra la app y los datos que lee.
-- [`docs/CHAT.md`](docs/CHAT.md): cómo el chat construye sus respuestas, las piezas que usa y sus límites (en inglés).
-- [`frontend/DESIGN.md`](frontend/DESIGN.md): cómo se ve la interfaz y el motivo de cada decisión.
-- [`docs/PLAN.md`](docs/PLAN.md): cómo se puntúa el reto y el plan para puntuar bien.
-- [`docs/SENSEI_INFO.md`](docs/SENSEI_INFO.md): lo que nos dijo Sensei, incluido qué significan vacío, medio y lleno.
-- [`docs/VALIDATION_DAY.md`](docs/VALIDATION_DAY.md): cómo generar la entrega.
-- [`LEADERBOARD.md`](LEADERBOARD.md): cómo se puntúa cada enfoque, y los resultados.
-- [`CONTRIBUTING.md`](CONTRIBUTING.md): ramas, commits e idioma.
+Para leer más, mira la carpeta [`docs`](docs): la app, el chat, la puntuación y el día de validación. El diseño de la interfaz está en [`frontend/DESIGN.md`](frontend/DESIGN.md), los resultados en [`LEADERBOARD.md`](LEADERBOARD.md) y las normas para contribuir en [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 ## Código previo
 

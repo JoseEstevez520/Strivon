@@ -34,7 +34,7 @@ A fruta e os legumes são a secção onde o estado de uma prateleira mais import
 
 Uma câmara de teto já vê cada gôndola, mas a fruta solta e empilhada, sem código de barras, é difícil de ler para um computador, e os clientes e a equipa tapam-na com as mãos. O Strivon recebe a fotografia e o planograma da loja e verifica cada zona da prateleira: tem o produto que deve ter e quão cheia está? O resultado é uma lista de trabalho para a equipa.
 
-Foi criado no JunctionX Lisboa 2026 para o desafio da Sensei, com um dia de fotografias de 14 câmaras de uma loja autónoma em Leiria.
+Foi criado no JunctionX Lisboa 2026 para o desafio da Sensei, com um dia de fotografias de 14 câmaras de uma loja autónoma em Leiria. No conjunto de teste que a Sensei nos deu, uma execução de um colega fez 525 de 578 pontos.
 
 ## Como funciona
 
@@ -57,6 +57,8 @@ A aplicação agrupa as tarefas por gôndola para se poder planear uma ronda: o 
 - **Abrir uma gôndola** para ver a fotografia da sua câmara com o que está mal assinalado, e **reproduzir o dia** com a barra para ver o plano e a lista mudarem.
 - **Olhar para a loja** como um plano, um modelo 3D ou a última fotografia de cada câmara, com uma vista de produtos em cartões e uma página de análise com a parte do tempo em que as prateleiras estiveram vazias.
 - **Fazer uma pergunta à loja** e receber a resposta como um ecrã, com gráficos, tarefas e cartões com fotografia. Precisa de uma chave de um modelo no servidor.
+- **Calibrar cada produto**: duas pegas numa mesma barra definem onde acaba o vazio e onde começa o cheio, para que cada loja decida quanto stock já conta como cheio. Os níveis do modelo mantêm-se até alguém pôr um marcador.
+- **Verificar um conjunto de validação**: uma página corre o modelo sobre uma pasta de fotografias e mostra a pontuação e as percentagens, e outra compara vários conjuntos. Ver [`docs/VALIDATION_DAY.md`](docs/VALIDATION_DAY.md).
 - **Prever uma pasta de fotografias** a partir da linha de comandos: um JSON com `planogram_compliant` e `stock_level` para cada zona.
 - **Pontuar as previsões** com as nossas próprias etiquetas e os pontos do desafio.
 
@@ -110,14 +112,7 @@ Os passos do dia da entrega estão em [`docs/VALIDATION_DAY.md`](docs/VALIDATION
 
 ## Documentação
 
-- [`docs/APP.md`](docs/APP.md): o que a aplicação mostra e os dados que lê.
-- [`docs/CHAT.md`](docs/CHAT.md): como o chat constrói as respostas, as peças que usa e os seus limites (em inglês).
-- [`frontend/DESIGN.md`](frontend/DESIGN.md): como se vê a interface e o motivo de cada decisão.
-- [`docs/PLAN.md`](docs/PLAN.md): como o desafio é pontuado e o plano para pontuar bem.
-- [`docs/SENSEI_INFO.md`](docs/SENSEI_INFO.md): o que a Sensei nos disse, incluindo o que significam vazio, a meio e cheio.
-- [`docs/VALIDATION_DAY.md`](docs/VALIDATION_DAY.md): como gerar a entrega.
-- [`LEADERBOARD.md`](LEADERBOARD.md): como cada abordagem é pontuada e os resultados.
-- [`CONTRIBUTING.md`](CONTRIBUTING.md): ramos, commits e idioma.
+Para ler mais, vê a pasta [`docs`](docs): a aplicação, o chat, a pontuação e o dia de validação. O desenho da interface está em [`frontend/DESIGN.md`](frontend/DESIGN.md), os resultados em [`LEADERBOARD.md`](LEADERBOARD.md) e as regras para contribuir em [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 ## Código anterior
 

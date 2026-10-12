@@ -41,7 +41,8 @@ store's planogram and checks each shelf area: does it hold the product it should
 it? What comes out is a list of work for the staff.
 
 It was built for the Sensei challenge at JunctionX Lisbon 2026, with a day of photos from 14
-cameras in an autonomous store in Leiria.
+cameras in an autonomous store in Leiria. On the test set Sensei gave us, a teammate's run scored
+525 of 578 points.
 
 ## How it works
 
@@ -71,6 +72,11 @@ tuned for those points as well as for the tasks. The scoring is in [`docs/PLAN.m
   has a card for each product, and an insights page shows how much of the time shelves were empty.
 - **Ask the store a question** and get the answer as a screen, with charts, tasks and photo cards.
   It needs a model key on the server.
+- **Calibrate each product.** Two handles on one track set where empty ends and where full starts,
+  so each store decides how much stock already counts as full. The model's levels stay until a
+  person sets a marker.
+- **Check a validation set.** A page runs the model on a folder of photos and shows the score and
+  the percentages, and another compares several sets. See [`docs/VALIDATION_DAY.md`](docs/VALIDATION_DAY.md).
 - **Predict a folder of photos** from the command line: one JSON with `planogram_compliant` and
   `stock_level` for every area.
 - **Score the predictions** against our labels with the challenge's points.
@@ -130,14 +136,10 @@ The steps for the day of the submission are in [`docs/VALIDATION_DAY.md`](docs/V
 
 ## Documentation
 
-- [`docs/APP.md`](docs/APP.md): what the app shows and the data it reads.
-- [`docs/CHAT.md`](docs/CHAT.md): how the chat builds its answers, the parts it uses and its limits.
-- [`frontend/DESIGN.md`](frontend/DESIGN.md): how the interface looks and the reason for each choice.
-- [`docs/PLAN.md`](docs/PLAN.md): how the challenge is scored and the plan to score well.
-- [`docs/SENSEI_INFO.md`](docs/SENSEI_INFO.md): what Sensei told us, including what empty, half and full mean.
-- [`docs/VALIDATION_DAY.md`](docs/VALIDATION_DAY.md): how to produce the submission.
-- [`LEADERBOARD.md`](LEADERBOARD.md): how every approach is scored, and the results.
-- [`CONTRIBUTING.md`](CONTRIBUTING.md): branches, commits and language.
+Read more in the [`docs`](docs) folder, which covers the app, the chat, the scoring and the
+validation day. The design of the interface is in [`frontend/DESIGN.md`](frontend/DESIGN.md), the
+results are in [`LEADERBOARD.md`](LEADERBOARD.md) and the rules for contributing are in
+[`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 ## Prior code
 
