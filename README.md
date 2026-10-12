@@ -73,6 +73,11 @@ tuned for those points as well as for the tasks. The scoring is in [`docs/PLAN.m
   has a card for each product, and an insights page shows how much of the time shelves were empty.
 - **Ask the store a question** and get the answer as a screen, with charts, tasks and photo cards.
   It needs a model key on the server.
+- **Calibrate each product.** Two handles on one track set where empty ends and where full starts,
+  so each store decides how much stock already counts as full. The model's levels stay until a
+  person sets a marker.
+- **Check a validation set.** A page runs the model on a folder of photos and shows the score and
+  the percentages, and another compares several sets. See [`docs/VALIDATION_DAY.md`](docs/VALIDATION_DAY.md).
 - **Predict a folder of photos** from the command line: one JSON with `planogram_compliant` and
   `stock_level` for every area.
 - **Score the predictions** against our labels with the challenge's points.

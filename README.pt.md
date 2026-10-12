@@ -59,6 +59,8 @@ A aplicação agrupa as tarefas por gôndola para se poder planear uma ronda: o 
 - **Abrir uma gôndola** para ver a fotografia da sua câmara com o que está mal assinalado, e **reproduzir o dia** com a barra para ver o plano e a lista mudarem.
 - **Olhar para a loja** como um plano, um modelo 3D ou a última fotografia de cada câmara, com uma vista de produtos em cartões e uma página de análise com a parte do tempo em que as prateleiras estiveram vazias.
 - **Fazer uma pergunta à loja** e receber a resposta como um ecrã, com gráficos, tarefas e cartões com fotografia. Precisa de uma chave de um modelo no servidor.
+- **Calibrar cada produto**: duas pegas numa mesma barra definem onde acaba o vazio e onde começa o cheio, para que cada loja decida quanto stock já conta como cheio. Os níveis do modelo mantêm-se até alguém pôr um marcador.
+- **Verificar um conjunto de validação**: uma página corre o modelo sobre uma pasta de fotografias e mostra a pontuação e as percentagens, e outra compara vários conjuntos. Ver [`docs/VALIDATION_DAY.md`](docs/VALIDATION_DAY.md).
 - **Prever uma pasta de fotografias** a partir da linha de comandos: um JSON com `planogram_compliant` e `stock_level` para cada zona.
 - **Pontuar as previsões** com as nossas próprias etiquetas e os pontos do desafio.
 
