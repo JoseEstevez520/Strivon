@@ -60,11 +60,11 @@ const en: LandingStrings = {
   whatFirst:
     'Fresh produce is the section where the state of a shelf matters most. An empty gondola is a lost sale, an overstocked one ends in waste, and a product in the wrong place gets the wrong price. Today the staff check this by walking the store.',
   whatSecond:
-    'A ceiling camera already sees every gondola, but loose, piled fruit with no barcode is hard for a computer to read, and shoppers and staff hide it with their hands. Strivon takes the photo and the store planogram and checks each shelf area: is it holding the product it should, and how full is it? What comes out is a list of work for the staff. It was built for the Sensei challenge at JunctionX Lisbon, with a day of photos from 14 cameras in an autonomous store in Leiria.',
+    'A ceiling camera already sees every gondola, but loose, piled fruit with no barcode is hard for a computer to read, and shoppers and staff hide it with their hands. Strivon takes the photo and the store planogram and checks each shelf area: is it holding the product it should, and how full is it? What comes out is a list of work for the staff. It was built for the Sensei challenge at JunctionX Lisbon, with a day of photos from 14 cameras in an autonomous store in Leiria. We placed third in the challenge, and our model scored 525 of 578 points on the test set Sensei gave us.',
   howTitle: 'How it works',
   steps: [
     { title: 'A camera looks', text: 'Each gondola has a ceiling camera that takes a photo about once an hour.' },
-    { title: 'Each shelf area is checked', text: 'Against the planogram: is it holding the right product, and how full is it?' },
+    { title: 'Each shelf area is checked', text: 'A small vision model, DINOv2-small, answers two questions against the planogram: is it the right product, and is it empty, half or full? Each store can calibrate what empty, half and full mean for each product.' },
     { title: 'Staff get the work', text: 'What is empty, what is in the wrong place, and what can wait.' },
   ],
   todayTitle: 'What it does today',
@@ -119,11 +119,11 @@ const pt: LandingStrings = {
   whatFirst:
     'A fruta e os legumes são a secção onde o estado de uma prateleira mais importa. Uma gôndola vazia é uma venda perdida, uma com excesso acaba em desperdício e um produto fora do lugar é cobrado ao preço errado. Hoje, a equipa verifica isto percorrendo a loja.',
   whatSecond:
-    'Uma câmara de teto já vê cada gôndola, mas a fruta solta e empilhada, sem código de barras, é difícil de ler para um computador, e os clientes e a equipa tapam-na com as mãos. O Strivon recebe a fotografia e o planograma da loja e verifica cada zona da prateleira: tem o produto que deve ter e quão cheia está? O resultado é uma lista de trabalho para a equipa. Foi feito para o desafio da Sensei no JunctionX Lisboa, com um dia de fotografias de 14 câmaras de uma loja autónoma em Leiria.',
+    'Uma câmara de teto já vê cada gôndola, mas a fruta solta e empilhada, sem código de barras, é difícil de ler para um computador, e os clientes e a equipa tapam-na com as mãos. O Strivon recebe a fotografia e o planograma da loja e verifica cada zona da prateleira: tem o produto que deve ter e quão cheia está? O resultado é uma lista de trabalho para a equipa. Foi feito para o desafio da Sensei no JunctionX Lisboa, com um dia de fotografias de 14 câmaras de uma loja autónoma em Leiria. Ficámos em terceiro lugar no desafio, e o nosso modelo fez 525 de 578 pontos no conjunto de teste que a Sensei nos deu.',
   howTitle: 'Como funciona',
   steps: [
     { title: 'Uma câmara olha', text: 'Cada gôndola tem uma câmara no teto que tira uma fotografia mais ou menos de hora a hora.' },
-    { title: 'Cada zona da prateleira é verificada', text: 'Contra o planograma: tem o produto certo e quão cheia está?' },
+    { title: 'Cada zona da prateleira é verificada', text: 'Um pequeno modelo de visão, o DINOv2-small, responde a duas perguntas contra o planograma: é o produto certo, e está vazio, a meio ou cheio? Cada loja pode calibrar o que significam vazio, a meio e cheio para cada produto.' },
     { title: 'A equipa recebe o trabalho', text: 'O que está vazio, o que está no sítio errado e o que pode esperar.' },
   ],
   todayTitle: 'O que faz hoje',
@@ -178,11 +178,11 @@ const es: LandingStrings = {
   whatFirst:
     'La fruta y la verdura son la sección donde más importa el estado de una estantería. Una góndola vacía es una venta perdida, una con exceso acaba en merma y un producto fuera de su sitio se cobra al precio equivocado. Hoy lo comprueba el personal recorriendo la tienda.',
   whatSecond:
-    'Una cámara de techo ya ve cada góndola, pero la fruta suelta y apilada, sin código de barras, es difícil de leer para un ordenador, y los clientes y el personal la tapan con las manos. Strivon toma la foto y el planograma de la tienda y revisa cada zona de estantería: ¿tiene el producto que debe y cuánto está de llena? Lo que sale es una lista de trabajo para el personal. Se hizo para el reto de Sensei en JunctionX Lisboa, con un día de fotos de 14 cámaras de una tienda autónoma de Leiria.',
+    'Una cámara de techo ya ve cada góndola, pero la fruta suelta y apilada, sin código de barras, es difícil de leer para un ordenador, y los clientes y el personal la tapan con las manos. Strivon toma la foto y el planograma de la tienda y revisa cada zona de estantería: ¿tiene el producto que debe y cuánto está de llena? Lo que sale es una lista de trabajo para el personal. Se hizo para el reto de Sensei en JunctionX Lisboa, con un día de fotos de 14 cámaras de una tienda autónoma de Leiria. Quedamos terceros en el reto, y nuestro modelo sacó 525 de 578 puntos en el conjunto de prueba que nos dio Sensei.',
   howTitle: 'Cómo funciona',
   steps: [
     { title: 'Una cámara mira', text: 'Cada góndola tiene una cámara en el techo que hace una foto más o menos cada hora.' },
-    { title: 'Se comprueba cada zona de la estantería', text: 'Contra el planograma: ¿tiene el producto correcto y cuánto está de llena?' },
+    { title: 'Se comprueba cada zona de la estantería', text: 'Un modelo de visión pequeño, DINOv2-small, responde a dos preguntas contra el planograma: ¿es el producto correcto y está vacío, medio o lleno? Cada tienda puede calibrar qué significan vacío, medio y lleno para cada producto.' },
     { title: 'El personal recibe el trabajo', text: 'Lo que está vacío, lo que está en el sitio equivocado y lo que puede esperar.' },
   ],
   todayTitle: 'Qué hace hoy',
