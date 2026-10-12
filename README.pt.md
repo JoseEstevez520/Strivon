@@ -34,7 +34,7 @@ A fruta e os legumes são a secção onde o estado de uma prateleira mais import
 
 Uma câmara de teto já vê cada gôndola, mas a fruta solta e empilhada, sem código de barras, é difícil de ler para um computador, e os clientes e a equipa tapam-na com as mãos. O Strivon recebe a fotografia e o planograma da loja e verifica cada zona da prateleira: tem o produto que deve ter e quão cheia está? O resultado é uma lista de trabalho para a equipa.
 
-Foi criado no JunctionX Lisboa 2026 para o desafio da Sensei, com um dia de fotografias de 14 câmaras de uma loja autónoma em Leiria. No conjunto de teste que a Sensei nos deu, uma execução de um colega fez 525 de 578 pontos.
+Foi criado no JunctionX Lisboa 2026 para o desafio da Sensei, com um dia de fotografias de 14 câmaras de uma loja autónoma em Leiria. Ficámos em terceiro lugar no desafio da Sensei. No conjunto de teste que a Sensei nos deu, uma execução de um colega fez 525 de 578 pontos.
 
 ## Como funciona
 
