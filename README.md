@@ -87,9 +87,10 @@ with what is wrong marked, or play the day to watch both change.
 ### Generative UI
 
 The chat answers with a screen, built with [OpenUI](https://www.openui.com). The model writes the
-layout of the answer, in OpenUI's language, out of the app's own parts (charts, tables, tasks, a map of the day, photo cards) and the app draws it, so you can open
-the answer and follow it to the shelf it talks about. It needs a model key on the server
-(`LLM_API_KEY` in `frontend/.env`); without one the chat is hidden.
+layout of the answer, in OpenUI's language, out of the app's own parts (charts, tables, tasks, a map
+of the day, photo cards) and the app draws it, so you can open the answer and follow it to the shelf
+it talks about. It needs a model key on the server (`LLM_API_KEY` in `frontend/.env`); without one
+the chat is hidden.
 
 <p align="center">
   <img src="assets/video/chat-to-gondola.gif" alt="Someone asks where the bananas are. The chat answers with a chart of how the shelves emptied through the day and a card. Opening the card shows the gondola's photo with its shelf areas marked." width="80%">
