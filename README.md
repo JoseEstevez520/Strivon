@@ -93,10 +93,10 @@ it talks about. It needs a model key on the server (`LLM_API_KEY` in `frontend/.
 the chat is hidden.
 
 <p align="center">
-  <img src="assets/video/chat-to-gondola.gif" alt="Someone asks where the bananas are. The chat answers with a chart of how the shelves emptied through the day and a card. Opening the card shows the gondola's photo with its shelf areas marked." width="80%">
+  <img src="assets/video/chat-walk.gif" alt="Someone asks what to restock first. The chat answers with the stops to walk, in order, and what to carry to each. Tapping Start the round opens the round on a phone, stop by stop." width="80%">
 </p>
 
-The shelf states in the clip are sample data. The [full clip](assets/video/chat-to-gondola.mp4) and more are in [`assets/video`](assets/video).
+The shelf states in the clip are sample data. The [full clip](assets/video/chat-walk.mp4) and more are in [`assets/video`](assets/video).
 
 ## Run it locally
 

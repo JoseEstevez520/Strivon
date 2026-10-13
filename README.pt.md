@@ -80,10 +80,10 @@ O chat responde com um ecrã, construído com o [OpenUI](https://www.openui.com)
 Precisa de uma chave de um modelo no servidor (`LLM_API_KEY` em `frontend/.env`); sem ela o chat fica escondido.
 
 <p align="center">
-  <img src="assets/video/chat-to-gondola.gif" alt="Alguém pergunta onde estão as bananas. O chat responde com um gráfico de como as prateleiras se esvaziaram ao longo do dia e um cartão. Ao abrir o cartão vê-se a fotografia da gôndola com as zonas assinaladas." width="80%">
+  <img src="assets/video/chat-walk.gif" alt="Alguém pergunta o que repor primeiro. O chat responde com as paragens por ordem e o que levar a cada uma. Ao tocar em Start the round abre-se a ronda no telemóvel, paragem a paragem." width="80%">
 </p>
 
-Os estados das prateleiras no clipe são dados de exemplo. O [clipe completo](assets/video/chat-to-gondola.mp4) e mais estão em [`assets/video`](assets/video).
+Os estados das prateleiras no clipe são dados de exemplo. O [clipe completo](assets/video/chat-walk.mp4) e mais estão em [`assets/video`](assets/video).
 
 ## Executar localmente
 
