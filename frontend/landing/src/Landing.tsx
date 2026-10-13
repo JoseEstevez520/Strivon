@@ -93,8 +93,8 @@ function ChatClip() {
           <video
                 onClick={narrow ? enlarge : undefined}
             className={`w-full rounded-2xl bg-bg ${narrow ? 'cursor-pointer' : ''}`}
-            src="./video/chat-to-gondola.mp4"
-            poster="./video/chat-poster.jpg"
+            src="./video/chat-walk.mp4"
+            poster="./video/chat-walk-poster.jpg"
             autoPlay={!narrow}
             loop
             muted
@@ -120,7 +120,7 @@ function ChatClip() {
         className="m-auto w-[min(92vw,1400px)] rounded-2xl bg-bg p-2 text-fg backdrop:bg-black/60"
       >
         <div className="relative">
-          {open && <video className="w-full rounded-xl bg-bg" src="./video/chat-to-gondola.mp4" controls autoPlay loop muted playsInline aria-label={text.clipLabel} />}
+          {open && <video className="w-full rounded-xl bg-bg" src="./video/chat-walk.mp4" controls autoPlay loop muted playsInline aria-label={text.clipLabel} />}
           <button
             type="button"
             onClick={() => dialog.current?.close()}
