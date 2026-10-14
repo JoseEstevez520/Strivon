@@ -317,6 +317,9 @@ function Hero() {
         <div className="mt-2 flex w-full max-w-md flex-col gap-4 md:hidden">
           <MobileActions />
         </div>
+        <a href="./deck/" className="hidden h-12 items-center justify-center rounded-xl bg-surface px-5 text-label text-fg transition-colors hover:bg-raised md:inline-flex">
+          {text.seeDeck}
+        </a>
       </div>
     </div>
   )
